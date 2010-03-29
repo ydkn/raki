@@ -1,0 +1,40 @@
+body {
+    font: .8em Verdana, Arial, Helvetica, sans-serif;
+    margin: 1.5em;
+    padding: 0;
+}
+
+#container {
+}
+
+#left {
+    float: left;
+    width: 12em;
+    padding: 15px 0;
+}
+
+#left #logo img {
+    width: 11em;
+    max-width: 11em;
+}
+
+#main {
+    margin-left: 13em;
+}
+
+#page_name {
+    font-weight: bold;
+    font-size: 140%;
+    margin-bottom: 1em;
+}
+
+#application_info {
+    margin-top: 1.5em;
+}
+
+.clear {
+    clear: both;
+    height: 0;
+    font-size: 1px;
+    line-height: 0px;
+}

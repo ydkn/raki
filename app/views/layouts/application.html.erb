@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Unbenanntes Dokument</title>
+    <%=stylesheet_link_tag 'application' %>
+    <link rel="shortcut icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
+    <link rel="icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
+  </head>
+  <body>
+    <div id="container">
+      <div id="left">
+        <div id="logo">
+          <img src="<%=url_for '/images/raki_logo.png' %>" alt="Raki" />
+        </div>
+        <div id="left_menu">
+          <%=insert_page 'LeftMenu' %>
+        </div>
+        <div id="left_menu_footer">
+          <%=insert_page 'LeftMenuFooter' %>
+        </div>
+        <div id="application_info">Raki v0.1</div>
+      </div>
+      <div id="main">
+        <div id="page_name"><%=@page %></div>
+        <div>
+          <%=yield %>
+        </div>
+      </div>
+      <br class="clear" />
+    </div>
+  </body>
+</html>
