@@ -23,8 +23,19 @@
       </div>
       <div id="main">
         <div id="page_name"><%=@page %></div>
-        <div>
-          <%=yield %>
+        <div id="content_container">
+          <div id="controls">
+            <div id="controls_left">
+              <a href="#" class="active"><%=t 'page.tab.view' %></a>
+              <a href="#"><%=t 'page.tab.info' %></a>
+            </div>
+            <div id="controls_right">
+              <a href="<%=url_for :controller => 'page', :page => @page, :action => 'edit' %>"><%=t 'page.tab.edit' %></a>
+            </div>
+          </div>
+          <div id="page">
+            <%=yield %>
+          </div>
         </div>
       </div>
       <br class="clear" />
