@@ -1,2 +1,28 @@
-<h1>Page#info</h1>
-<p>Find me in app/views/page/info.html.erb</p>
+<form action="<%=url_for :controller => 'page', :page => @page, :action => 'rename' %>" method="post">
+  <div>
+    <input type="text" id="page-name" name="name" value="<%=@page%>" />
+    <input type="submit" value="<%=t 'page.info.rename' %>" />
+  </div>
+</form>
+<h2><%=t 'page.info.versions' %></h2>
+<table id="revisions" cellspacing="0" cellpadding="0">
+  <thead>
+    <tr>
+      <th><%=t 'page.info.version.id' %></th>
+      <th><%=t 'page.info.version.date' %></th>
+      <th><%=t 'page.info.version.user' %></th>
+      <th><%=t 'page.info.version.message' %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% cnt = 0 %>
+    <% @revisions.reverse_each do |revision|%>
+      <tr class="<%=((cnt+=1)%2==0)?'even':'odd'%>">
+        <td><a href="<%=url_for :controller => 'page', :action => 'view', :page => @page, :revision => revision.revision %>"><%=revision.id%></a></td>
+        <td><%=revision.date%></td>
+        <td><%=revision.user%></td>
+        <td><%=revision.message%></td>
+      </tr>
+    <%  end %>
+  </tbody>
+</table>

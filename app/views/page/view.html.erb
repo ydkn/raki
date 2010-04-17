@@ -1,1 +1,5 @@
-<%=insert_page @page %>
+<% if page_exists? @page %>
+  <%=insert_page @page, @revision %>
+<% else %>
+  <div>Page does not exist</div>
+<% end %>

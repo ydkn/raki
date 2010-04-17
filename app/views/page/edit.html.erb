@@ -1,2 +1,14 @@
-<h1>Page#eit</h1>
-<p>Find me in app/views/page/eit.html.erb</p>
+<form action="<%=url_for :controller => 'page', :page => @page, :action => 'update' %>" method="post" accept-charset="UTF-8">
+  <div>
+    <input type="submit" value="<%=t 'page.edit.save' %>" />
+    <input type="button" value="<%=t 'page.edit.preview' %>" />
+    <input type="button" value="<%=t 'page.edit.abort' %>" />
+  </div>
+  <div>
+    <label for="page-message"><%=t 'page.edit.message' %></label>
+    <input type="text" id="page-message" name="message" />
+  </div>
+  <div>
+    <textarea name="content" cols="100" rows="25"><%=page_contents @page %></textarea>
+  </div>
+</form>
