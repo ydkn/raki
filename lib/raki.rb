@@ -17,11 +17,17 @@
 module Raki
   class << self
     def config
-      YAML.load(File.read("#{Rails.root}/config/raki.yml")) if @config.nil?
+      @config = YAML.load(File.read("#{Rails.root}/config/raki.yml")) if @config.nil?
+      @config
     end
 
     def frontpage
+      return config[:frontpage] unless config[:frontpage].nil?
       'Main'
+    end
+
+    def app_name
+      'Raki'
     end
   end
 end
