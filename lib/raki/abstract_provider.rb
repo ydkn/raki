@@ -28,16 +28,21 @@ module Raki
     def save_page(name, contents, user, message)
     end
 
+    def page_rename(old_name, new_name)
+    end
+
     private
 
     class Revision
       attr_reader :id
+      attr_reader :revision
       attr_reader :user
       attr_reader :date
       attr_reader :message
 
-      def initialize(id, user, date, message)
+      def initialize(id, revision, user, date, message)
         @id = id
+        @revision = revision
         @user = user
         @date = date
         @message = message
