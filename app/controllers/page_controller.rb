@@ -15,33 +15,50 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class PageController < ApplicationController
-  before_filter :page_revision
+  before_filter :common_init
 
   def view
     respond_to do |format|
       format.html
-      format.txt { render :inline => Raki::Providers.page.page_contents(@page), :content_type => 'text/plain' }
+      format.txt { render :inline => @page_provider.page_contents(@page, @revision), :content_type => 'text/plain' }
     end
   end
 
   def info
+    redirect_if_page_not_exists
+    @revisions = @page_provider.page_revisions(@page)
   end
 
   def edit
   end
 
   def update
-    Raki::Providers.page.save_page(@page, params[:content], User.current, params[:message])
+    @page_provider.save_page(@page, params[:content], User.current, params[:message])
+    redirect_to :controller => 'page', :action => 'view', :page => @page
+  end
+
+  def rename
+    redirect_if_page_not_exists
+    @page_provider.page_rename(@page, params[:name])
+    redirect_to :controller => 'page', :action => 'view', :page => params[:name]
   end
 
   def delete
+    redirect_if_page_not_exists
   end
 
   private
 
-  def page_revision
+  def common_init
     @page = params[:page]
     @revision = params[:revision]
+    @page_provider = Raki::Providers.page
+  end
+
+  def redirect_if_page_not_exists
+    unless @page_provider.page_exists?(@page)
+      redirect_to :controller => 'page', :action => 'view', :page => @page
+    end
   end
 
 end
