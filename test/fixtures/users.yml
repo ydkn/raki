@@ -15,9 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 one:
-  username: MyString
-  last_login: 2010-03-28 18:47:25
+  username: user1
+  email: user1@user1.dom
 
 two:
-  username: MyString
-  last_login: 2010-03-28 18:47:25
+  username: user2
+  email: user2@user2.dom
