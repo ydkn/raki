@@ -49,8 +49,13 @@ class GitProvider < Raki::AbstractProvider
   end
 
   def save_page(name, contents, user, message)
+    message = '-' if message.empty?
     File.open("#{@path}/pages/#{name}", 'w') do |f|
       f.write(contents)
+    end
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} add pages/#{name}"
+    shellcmd(cmd) do |line|
+      #nothing
     end
     cmd = "#{GIT_BIN} --git-dir #{@git_path} commit -m \"#{message}\" --author=\"#{user.username} <#{user.email}>\" pages/#{name}"
     shellcmd(cmd) do |line|
@@ -58,16 +63,21 @@ class GitProvider < Raki::AbstractProvider
     end
   end
 
+  def page_rename(old_name, new_name)
+  end
+
   private
 
   def revisions(object)
+    commit_n = 0
     revs = []
     changeset = {}
-    cmd = "#{GIT_BIN} --git-dir #{@git_path} log --raw --date=iso --all -- #{object}"
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} log --reverse --raw --date=iso --all -- #{object}"
     shellcmd(cmd) do |line|
       if line =~ /^commit ([0-9a-f]{40})$/
         if(changeset.length == 4)
           revs << Revision.new(
+            commit_n += 1,
             changeset[:commit],
             changeset[:author],
             changeset[:date],
@@ -90,6 +100,7 @@ class GitProvider < Raki::AbstractProvider
     end
     if(changeset.length == 4)
       revs << Revision.new(
+        commit_n += 1,
         changeset[:commit],
         changeset[:author],
         changeset[:date],
