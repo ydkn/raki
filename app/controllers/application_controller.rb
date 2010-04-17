@@ -15,8 +15,27 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class ApplicationController < ActionController::Base
-  protect_from_forgery
+  #protect_from_forgery
 
   # Scrub sensitive parameters from your log
   filter_parameter_logging :password
+  
+  before_filter :try_to_authenticate_user
+
+  private
+
+  def try_to_authenticate_user
+    User.current = nil
+    begin
+      unless session[:user].nil?
+        user = User.find(session[:user])
+        if user && user.is_a?(User)
+          User.current = user
+        end
+      end
+    rescue
+      User.current = nil
+    end
+  end
+
 end
