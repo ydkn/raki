@@ -1,0 +1,9 @@
+<div id="controls_left">
+  <a href="<%=url_for :controller => 'page', :page => @page, :action => 'view' %>" class="<%=action_name=='view'?'active':''%>"><%=t 'page.tab.view' %></a>
+  <% if page_exists? @page %>
+    <a href="<%=url_for :controller => 'page', :page => @page, :action => 'info' %>" class="<%=action_name=='info'?'active':''%>"><%=t 'page.tab.info' %></a>
+  <% end %>
+</div>
+<div id="controls_right">
+  <a href="<%=url_for :controller => 'page', :page => @page, :action => 'edit' %>" class="<%=action_name=='edit'?'active':''%>"><%=t 'page.tab.edit' %></a>
+</div>

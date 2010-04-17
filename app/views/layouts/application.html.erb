@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Unbenanntes Dokument</title>
+    <title><%="#{Raki.app_name} :: #{(@title.nil?)?@page:@title}" %></title>
     <%=stylesheet_link_tag 'application' %>
     <link rel="shortcut icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
     <link rel="icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
@@ -11,7 +11,9 @@
     <div id="container">
       <div id="left">
         <div id="logo">
-          <img src="<%=url_for '/images/raki_logo.png' %>" alt="Raki" />
+          <a href="<%=url_for :controller => 'page', :page => Raki.frontpage, :action => 'view' %>">
+            <img src="<%=url_for '/images/raki_logo.png' %>" alt="Raki" />
+          </a>
         </div>
         <div id="left_menu">
           <%=insert_page 'LeftMenu' %>
@@ -25,13 +27,7 @@
         <div id="page_name"><%=@page %></div>
         <div id="content_container">
           <div id="controls">
-            <div id="controls_left">
-              <a href="#" class="active"><%=t 'page.tab.view' %></a>
-              <a href="#"><%=t 'page.tab.info' %></a>
-            </div>
-            <div id="controls_right">
-              <a href="<%=url_for :controller => 'page', :page => @page, :action => 'edit' %>"><%=t 'page.tab.edit' %></a>
-            </div>
+            <%=render :partial => "#{controller_name}/tabs" %>
           </div>
           <div id="page">
             <%=yield %>
