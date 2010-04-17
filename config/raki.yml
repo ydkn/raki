@@ -21,3 +21,6 @@ frontpage: Main
 page:
   provider: git
   path: tmp/git-repo
+
+wiki:
+  parser: default
