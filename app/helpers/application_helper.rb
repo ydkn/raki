@@ -21,7 +21,7 @@ module ApplicationHelper
 
   def insert_page(name, revision=nil)
     if page_exists?(name, revision)
-      Raki::Providers.page.page_contents(name, revision)
+      Raki::Parsers.wiki.parse(Raki::Providers.page.page_contents(name, revision))
     end
   end
 
