@@ -17,11 +17,11 @@
 class User < ActiveRecord::Base
   set_primary_key :username
   
-  def current
+  def self.current
     @current
   end
 
-  def current=(user)
+  def self.current=(user)
     @current = user
   end
 end
