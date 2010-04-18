@@ -1,11 +1,11 @@
 <div id="controls_left">
-  <a href="<%=url_for :controller => 'page', :page => @page, :action => 'view' %>" class="<%=action_name=='view'?'active':''%>"><%=t 'page.tab.view' %></a>
+  <%=link_to t('page.tab.view'), {:controller => 'page', :action => 'view', :page => @page}, :class => (action_name=='view'?'active':'') %>
   <% if page_exists? @page %>
-    <a href="<%=url_for :controller => 'page', :page => @page, :action => 'info' %>" class="<%=action_name=='info'?'active':''%>"><%=t 'page.tab.info' %></a>
+    <%=link_to t('page.tab.info'), {:controller => 'page', :action => 'info', :page => @page}, :class => (action_name=='info'?'active':'') %>
   <% end %>
 </div>
 <div id="controls_right">
   <% if authenticated? %>
-    <a href="<%=url_for :controller => 'page', :page => @page, :action => 'edit' %>" class="<%=action_name=='edit'?'active':''%>"><%=t 'page.tab.edit' %></a>
+    <%=link_to t('page.tab.edit'), {:controller => 'page', :action => 'edit', :page => @page}, :class => (action_name=='edit'?'active':'') %>
   <% end %>
 </div>

@@ -4,7 +4,7 @@
   <div class="information">
     Page does not exist.
     <% unless User.current.nil? %>
-      You can <a href="<%=url_for :controller => 'page', :action => 'edit', :page => @page %>">create</a> it!
+      You can <%=link_to 'create', {:controller => 'page', :action => 'edit', :page => @page} %> it!
     <% end %>
   </div>
 <% end %>

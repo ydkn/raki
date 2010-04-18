@@ -1,3 +1,3 @@
 <div id="controls_left">
-  <a href="<%=url_for :controller => 'authentication', :action => 'login' %>" class="active"><%=t 'auth.tab.login' %></a>
+  <%=link_to t('auth.tab.login'), {:controller => 'authentication', :action => 'login'}, :class => 'active' %>
 </div>

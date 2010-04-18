@@ -11,9 +11,7 @@
     <div id="container">
       <div id="left">
         <div id="logo">
-          <a href="<%=url_for :controller => 'page', :page => Raki.frontpage, :action => 'view' %>">
-            <img src="<%=url_for '/images/raki_logo.png' %>" alt="Raki" />
-          </a>
+          <%=link_to image_tag('raki_logo.png', :alt => 'Raki'), :controller => 'page', :page => Raki.frontpage, :action => 'view' %>
         </div>
         <div id="left_menu">
           <%=insert_page 'LeftMenu' %>
