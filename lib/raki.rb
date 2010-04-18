@@ -29,5 +29,9 @@ module Raki
     def app_name
       'Raki'
     end
+
+    def version
+      '0.1pre'
+    end
   end
 end
