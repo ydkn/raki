@@ -20,7 +20,9 @@ frontpage: Main
 
 page:
   provider: git
-  path: tmp/git-repo
+  path: /path/to/git/repo
 
 wiki:
-  parser: default
+  parser: raki
+
+authenticator: db

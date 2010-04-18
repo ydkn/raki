@@ -28,11 +28,17 @@ body {
     margin-left: 17em;
 }
 
-#page_name {
+#auth {
+    float: right;
+    margin-top: -.5em;
+}
+
+#page_title {
     font-weight: bold;
     font-size: 1.6em;
     margin-bottom: 1em;
     margin-left: 1em;
+    height: 1.8em;
 }
 
 #application_info {
@@ -139,4 +145,24 @@ body {
 
 #login input[type=submit] {
     margin-left: 13.5em;
+}
+
+.information, .warning, .error {
+    display: block;
+    margin: 1em .5em;
+    padding: 1em 1em 1em 3em;
+    background-position: .8em .9em;
+    background-repeat: no-repeat;
+}
+
+.information {
+    background-image: url(../images/information.png);
+    background-color: #e0e0ff;
+    border: 1px solid #b0b0f0;
+}
+
+.error {
+    background-image: url(../images/error.png);
+    background-color: #ffe0e0;
+    border: 1px solid #f0b0b0;
 }

@@ -15,21 +15,4 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 module ApplicationHelper
-  def page_contents(name, revision=nil)
-    Raki::Providers.page.page_contents(name, revision)
-  end
-
-  def insert_page(name, revision=nil)
-    if page_exists?(name, revision)
-      Raki::Parsers.wiki.parse(Raki::Providers.page.page_contents(name, revision))
-    end
-  end
-
-  def page_exists?(name, revision=nil)
-    Raki::Providers.page.page_exists?(name, revision)
-  end
-
-  def page_revisions(name)
-    Raki::Providers.page.page_revisions(name)
-  end
 end

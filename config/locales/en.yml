@@ -1,5 +1,37 @@
-# Sample localization file for English. Add more files in this directory for other locales.
-# See http://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
-
 en:
-  hello: "Hello world"
+
+  auth:
+
+    tab:
+      login: Login
+
+    username: Username
+    password: Password
+    login: Login
+    invalid_credentials: Invalid credentials
+
+  authinfo:
+    login: Login
+    logout: Logout
+
+  page:
+
+    tab:
+      view: View
+      info: Info
+      edit: Edit
+
+    edit:
+      save: Save
+      preview: Preview
+      abort: Abort
+      message: Comment
+
+    info:
+      versions: Versions
+      version:
+        id: Version
+        date: Date
+        user: Author
+        message: Comment
+      rename: Rename Page

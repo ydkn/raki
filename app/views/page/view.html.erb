@@ -1,5 +1,10 @@
 <% if page_exists? @page %>
   <%=insert_page @page, @revision %>
 <% else %>
-  <div>Page does not exist</div>
+  <div class="information">
+    Page does not exist.
+    <% unless User.current.nil? %>
+      You can <a href="<%=url_for :controller => 'page', :action => 'edit', :page => @page %>">create</a> it!
+    <% end %>
+  </div>
 <% end %>

@@ -5,5 +5,7 @@
   <% end %>
 </div>
 <div id="controls_right">
-  <a href="<%=url_for :controller => 'page', :page => @page, :action => 'edit' %>" class="<%=action_name=='edit'?'active':''%>"><%=t 'page.tab.edit' %></a>
+  <% if authenticated? %>
+    <a href="<%=url_for :controller => 'page', :page => @page, :action => 'edit' %>" class="<%=action_name=='edit'?'active':''%>"><%=t 'page.tab.edit' %></a>
+  <% end %>
 </div>

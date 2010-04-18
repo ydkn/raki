@@ -53,11 +53,11 @@ class GitProvider < Raki::AbstractProvider
     File.open("#{@path}/pages/#{name}", 'w') do |f|
       f.write(contents)
     end
-    cmd = "#{GIT_BIN} --git-dir #{@git_path} add pages/#{name}"
+    cmd = "cd #{@path} && #{GIT_BIN} add pages/#{name}"
     shellcmd(cmd) do |line|
       #nothing
     end
-    cmd = "#{GIT_BIN} --git-dir #{@git_path} commit -m \"#{message}\" --author=\"#{user.username} <#{user.email}>\" pages/#{name}"
+    cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{message}\" --author=\"#{user.username} <#{user.email}>\" pages/#{name}"
     shellcmd(cmd) do |line|
       #nothing
     end

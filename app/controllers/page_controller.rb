@@ -53,6 +53,7 @@ class PageController < ApplicationController
     @page = params[:page]
     @revision = params[:revision]
     @page_provider = Raki::Providers.page
+    @title = @page
   end
 
   def redirect_if_page_not_exists

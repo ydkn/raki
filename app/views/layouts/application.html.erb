@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title><%="#{Raki.app_name} :: #{(@title.nil?)?@page:@title}" %></title>
+    <title><%="#{Raki.app_name} :: #{@title}" %></title>
     <%=stylesheet_link_tag 'application' %>
     <link rel="shortcut icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
     <link rel="icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
@@ -24,7 +24,10 @@
         <div id="application_info">Raki v0.1</div>
       </div>
       <div id="main">
-        <div id="page_name"><%=@page %></div>
+        <div id="auth">
+          <%=render :partial => 'layouts/auth' %>
+        </div>
+        <div id="page_title"><%=@title %></div>
         <div id="content_container">
           <div id="controls">
             <%=render :partial => "#{controller_name}/tabs" %>

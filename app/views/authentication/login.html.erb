@@ -1,0 +1,14 @@
+<div id="login">
+  <form action="<%=url_for :controller => 'authentication', :action => 'login' %>" method="post" accept-charset="UTF-8">
+    <% unless flash[:notice].nil? %>
+      <div class="error"><%=flash[:notice] %></div>
+    <% end %>
+    <label for="login-username"><%=t 'auth.username' %></label>
+    <input type="text" id="login-username" name="username" />
+    <br />
+    <label for="login-password"><%=t 'auth.password' %></label>
+    <input type="password" id="login-password" name="password" />
+    <br />
+    <input type="submit" value="<%=t 'auth.login' %>" />
+  </form>
+</div>

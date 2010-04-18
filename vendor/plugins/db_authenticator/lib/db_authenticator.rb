@@ -14,25 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module PageHelper
-
-  def page_contents(name, revision=nil)
-    Raki::Providers.page.page_contents(name, revision)
-  end
-
-  def insert_page(name, revision=nil)
-    if page_exists?(name, revision)
-      parsed = Raki::Parsers.wiki.parse(page_contents(name, revision))
-      (parsed.nil?)?"<div class=\"error\">PARSING ERROR</div>":parsed
+class DBAuthenticator < Raki::AbstractAuthenticator
+  def login(username, password)
+    begin
+      user = User.find(username)
+      return false if user.nil?
+      (user.password == password)
+    rescue
+      false
     end
   end
-
-  def page_exists?(name, revision=nil)
-    Raki::Providers.page.page_exists?(name, revision)
-  end
-
-  def page_revisions(name)
-    Raki::Providers.page.page_revisions(name)
-  end
-
 end

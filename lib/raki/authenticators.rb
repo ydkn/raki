@@ -14,25 +14,26 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module PageHelper
+module Raki
+  class Authenticators
+    class << self
+      def register(id, clazz)
+        @authenticators = {} if @authenticators.nil?
+        @authenticators[id] = clazz
+      end
 
-  def page_contents(name, revision=nil)
-    Raki::Providers.page.page_contents(name, revision)
-  end
+      def all
+        @authenticators
+      end
 
-  def insert_page(name, revision=nil)
-    if page_exists?(name, revision)
-      parsed = Raki::Parsers.wiki.parse(page_contents(name, revision))
-      (parsed.nil?)?"<div class=\"error\">PARSING ERROR</div>":parsed
+      def current
+        if @current.nil?
+          config = YAML.load(File.read("#{Rails.root}/config/raki.yml"))
+          id = config['authenticator']
+          @current = @authenticators[id.to_sym].new
+        end
+        @current
+      end
     end
   end
-
-  def page_exists?(name, revision=nil)
-    Raki::Providers.page.page_exists?(name, revision)
-  end
-
-  def page_revisions(name)
-    Raki::Providers.page.page_revisions(name)
-  end
-
 end
