@@ -3,7 +3,7 @@
 <% else %>
   <div class="information">
     Page does not exist.
-    <% unless User.current.nil? %>
+    <% if authenticated? %>
       You can <%=link_to 'create', {:controller => 'page', :action => 'edit', :page => @page} %> it!
     <% end %>
   </div>

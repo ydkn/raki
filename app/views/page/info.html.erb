@@ -1,4 +1,4 @@
-<% unless User.current.nil? %>
+<% if authenticated? %>
   <form action="<%=url_for :controller => 'page', :page => @page, :action => 'rename' %>" method="post">
     <div>
       <input type="text" id="page-name" name="name" value="<%=@page%>" />
