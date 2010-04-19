@@ -8,6 +8,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'wiki/:page/delete', :controller => 'page', :action => 'delete'
   map.connect 'wiki/:page/:revision', :controller => 'page', :action => 'view'
   map.connect 'wiki/:page', :controller => 'page', :action => 'view'
+  map.connect 'wiki' , :controller => 'page', :action => 'redirect_to_frontpage'
   
   # Authentication
   map.signin 'login', :controller => 'authentication', :action => 'login'
