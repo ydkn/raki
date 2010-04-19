@@ -35,3 +35,5 @@ en:
         user: Author
         message: Comment
       rename: Rename Page
+      delete: Remove entire Page
+      page_already_exists: Page already exists
