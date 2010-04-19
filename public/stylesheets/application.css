@@ -31,6 +31,22 @@ body {
 #auth {
     float: right;
     margin-top: -.5em;
+    margin-right: 1em;
+}
+
+#auth a {
+    color: #0000ff;
+}
+
+#auth a:visited {
+    text-decoration: none;
+    color: #0000ff;
+}
+
+#auth_username {
+    padding-left: 20px;
+    padding-right: 1em;
+    background: url(../images/user.png) no-repeat;
 }
 
 #page_title {
@@ -147,7 +163,7 @@ body {
     margin-left: 13.5em;
 }
 
-.information, .warning, .error {
+.information, .warning, .error, .confirmation {
     display: block;
     margin: 1em .5em;
     padding: 1em 1em 1em 3em;
@@ -165,4 +181,16 @@ body {
     background-image: url(../images/error.png);
     background-color: #ffe0e0;
     border: 1px solid #f0b0b0;
+}
+
+.warning {
+    background-image: url(../images/warning.png);
+    background-color: #ffff80;
+    border: 1px solid #f0f070;
+}
+
+.confirmation {
+    background-image: url(../images/confirmation.png);
+    background-color: #b6ff3c;
+    border: 1px solid #a7f02d;
 }
