@@ -48,7 +48,7 @@ class GitProvider < Raki::AbstractProvider
     revisions("pages/#{name}")
   end
 
-  def save_page(name, contents, user, message)
+  def save_page(name, contents, message, user)
     message = '-' if message.empty?
     File.open("#{@path}/pages/#{name}", 'w') do |f|
       f.write(contents)
@@ -63,7 +63,27 @@ class GitProvider < Raki::AbstractProvider
     end
   end
 
-  def page_rename(old_name, new_name)
+  def page_rename(old_name, new_name, user)
+    File.open("#{@path}/pages/#{new_name}", 'w') do |f|
+      f.write(page_contents(old_name))
+    end
+    File.delete("#{@path}/pages/#{old_name}")
+    cmd = "cd #{@path} && #{GIT_BIN} add pages/#{new_name}"
+    shellcmd(cmd) do |line|
+      #nothing
+    end
+    cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{old_name} ==> #{new_name}\" --author=\"#{user.username} <#{user.email}>\" pages/#{old_name} pages/#{new_name}"
+    shellcmd(cmd) do |line|
+      #nothing
+    end
+  end
+
+  def page_delete(name, user)
+    File.delete("#{@path}/pages/#{name}")
+    cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{name} ==> /dev/null\" --author=\"#{user.username} <#{user.email}>\" pages/#{name}"
+    shellcmd(cmd) do |line|
+      #nothing
+    end
   end
 
   private
