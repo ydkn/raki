@@ -185,12 +185,12 @@ body {
 
 .warning {
     background-image: url(../images/warning.png);
-    background-color: #ffff80;
-    border: 1px solid #f0f070;
+    background-color: #ffff96;
+    border: 1px solid #f0f087;
 }
 
 .confirmation {
     background-image: url(../images/confirmation.png);
-    background-color: #b6ff3c;
-    border: 1px solid #a7f02d;
+    background-color: #c8ff96;
+    border: 1px solid #b9f087;
 }
