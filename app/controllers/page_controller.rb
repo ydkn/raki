@@ -17,6 +17,10 @@
 class PageController < ApplicationController
   before_filter :common_init
 
+  def redirect_to_frontpage
+    redirect_to :controller => 'page', :action => 'view', :page => Raki.frontpage
+  end
+
   def view
     respond_to do |format|
       format.html
@@ -26,25 +30,32 @@ class PageController < ApplicationController
 
   def info
     redirect_if_page_not_exists
-    @revisions = @page_provider.page_revisions(@page)
+    @revisions = @page_provider.page_revisions @page
   end
 
   def edit
   end
 
   def update
-    @page_provider.save_page(@page, params[:content], User.current, params[:message])
+    @page_provider.save_page @page, params[:content], params[:message], User.current
     redirect_to :controller => 'page', :action => 'view', :page => @page
   end
 
   def rename
     redirect_if_page_not_exists
-    @page_provider.page_rename(@page, params[:name])
-    redirect_to :controller => 'page', :action => 'view', :page => params[:name]
+    unless @page_provider.page_exists? params[:name]
+      @page_provider.page_rename @page, params[:name], User.current
+      redirect_to :controller => 'page', :action => 'view', :page => params[:name]
+    else
+      flash[:notice] = t 'page.info.page_already_exists'
+      redirect_to :controller => 'page', :action => 'info', :page => @page
+    end
   end
 
   def delete
     redirect_if_page_not_exists
+    @page_provider.page_delete @page, User.current
+    redirect_to :controller => 'page', :action => 'info', :page => Raki.frontpage
   end
 
   private

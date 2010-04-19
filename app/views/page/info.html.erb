@@ -1,10 +1,14 @@
 <% if authenticated? %>
   <form action="<%=url_for :controller => 'page', :page => @page, :action => 'rename' %>" method="post">
     <div>
+      <% unless flash[:notice].nil? %>
+        <div class="error"><%=flash[:notice] %></div>
+      <% end %>
       <input type="text" id="page-name" name="name" value="<%=@page%>" />
       <input type="submit" value="<%=t 'page.info.rename' %>" />
     </div>
   </form>
+  <input type="button" value="<%=t 'page.info.delete' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :page => @page, :action => 'delete' %>';" />
 <% end %>
 <h2><%=t 'page.info.versions' %></h2>
 <table id="revisions" cellspacing="0" cellpadding="0">

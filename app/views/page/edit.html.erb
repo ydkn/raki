@@ -2,7 +2,7 @@
   <div>
     <input type="submit" value="<%=t 'page.edit.save' %>" />
     <input type="button" value="<%=t 'page.edit.preview' %>" />
-    <input type="button" value="<%=t 'page.edit.abort' %>" />
+    <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :action => 'view', :page => @page %>';" />
   </div>
   <div>
     <label for="page-message"><%=t 'page.edit.message' %></label>
