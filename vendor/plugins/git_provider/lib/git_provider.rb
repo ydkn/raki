@@ -101,7 +101,7 @@ class GitProvider < Raki::AbstractProvider
             changeset[:commit],
             changeset[:author],
             changeset[:date],
-            changeset[:message]
+            changeset[:message].strip
           )
           changeset = {}
         end
@@ -124,7 +124,7 @@ class GitProvider < Raki::AbstractProvider
         changeset[:commit],
         changeset[:author],
         changeset[:date],
-        changeset[:message]
+        changeset[:message].strip
       )
     end
     revs
