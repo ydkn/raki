@@ -1,0 +1,7 @@
+grammar RakiSyntax
+
+  rule syntax
+    .*
+  end
+
+end
