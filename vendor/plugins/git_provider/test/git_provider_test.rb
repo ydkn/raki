@@ -84,6 +84,38 @@ class GitProviderTest < Test::Unit::TestCase
     assert !page_exists?(page_name)
   end
 
+  # Update page and check revisions
+  def test_page_revisions
+    page_name = 'TestPageRev'
+    user1 = user 'user1', 'u1@dom.org'
+    user2 = user 'user2', 'u2@dom.org'
+    user3 = user 'user3', 'u3@dom.org'
+    page_save page_name, "test content", 'create', user1
+    revisions = page_revisions page_name
+    assert_equal 1, revisions.length
+    assert_equal user1.username, revisions[0].user
+    assert_equal 1, revisions[0].id
+    assert_equal 'create', revisions[0].message
+    page_save page_name, "updated content", 'update', user2
+    revisions = page_revisions page_name
+    assert_equal 2, revisions.length
+    assert_equal user2.username, revisions[1].user
+    assert_equal user1.username, revisions[0].user
+    assert_equal 1, revisions[0].id
+    assert_equal 2, revisions[1].id
+    assert_equal 'update', revisions[1].message
+    assert_equal 'create', revisions[0].message
+    page_save page_name, "new updated content", 'update2', user3
+    revisions = page_revisions page_name
+    assert_equal 3, revisions.length
+    assert_equal user3.username, revisions[2].user
+    assert_equal user1.username, revisions[0].user
+    assert_equal 3, revisions[2].id
+    assert_equal 1, revisions[0].id
+    assert_equal 'update2', revisions[2].message
+    assert_equal 'update', revisions[1].message
+  end
+
   private
 
   # Creates a user
