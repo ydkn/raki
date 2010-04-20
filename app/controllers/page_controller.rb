@@ -22,6 +22,8 @@ class PageController < ApplicationController
   end
 
   def view
+    current_revision = @page_provider.page_revisions(@page).last
+    @page_info = {:date => current_revision.date.strftime(t 'datetime_format'), :user => current_revision.user }
     respond_to do |format|
       format.html
       format.txt { render :inline => @page_provider.page_contents(@page, @revision), :content_type => 'text/plain' }
@@ -37,7 +39,7 @@ class PageController < ApplicationController
   end
 
   def update
-    @page_provider.save_page @page, params[:content], params[:message], User.current
+    @page_provider.page_save @page, params[:content], params[:message], User.current
     redirect_to :controller => 'page', :action => 'view', :page => @page
   end
 

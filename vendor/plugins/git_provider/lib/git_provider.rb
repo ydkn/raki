@@ -48,7 +48,7 @@ class GitProvider < Raki::AbstractProvider
     revisions("pages/#{name}")
   end
 
-  def save_page(name, contents, message, user)
+  def page_save(name, contents, message, user)
     message = '-' if message.empty?
     File.open("#{@path}/pages/#{name}", 'w') do |f|
       f.write(contents)

@@ -25,7 +25,7 @@ module Raki
     def page_revisions(name)
     end
 
-    def save_page(name, contents, message, user)
+    def page_save(name, contents, message, user)
     end
 
     def page_rename(old_name, new_name, user)

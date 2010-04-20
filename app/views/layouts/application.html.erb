@@ -33,6 +33,9 @@
           <div id="page">
             <%=yield %>
           </div>
+          <% unless @page_info.nil? %>
+            <div id="page_footer"><%=t 'page.footer', :date => @page_info[:date], :user => @page_info[:user] %></div>
+          <% end %>
         </div>
       </div>
       <br class="clear" />
