@@ -23,7 +23,7 @@ class PageController < ApplicationController
 
   def view
     current_revision = @page_provider.page_revisions(@page).last
-    @page_info = {:date => current_revision.date.strftime(t 'datetime_format'), :user => current_revision.user }
+    @page_info = {:date => current_revision.date.strftime(t 'datetime_format'), :user => current_revision.user } unless current_revision.nil?
     respond_to do |format|
       format.html
       format.txt { render :inline => @page_provider.page_contents(@page, @revision), :content_type => 'text/plain' }
