@@ -23,6 +23,12 @@ class RakiParserTest < Test::Unit::TestCase
     @parser = RakiParser.new
   end
 
+  # Test linebreaks
+  def test_linebreaks
+    assert_equal "<br/>\n", parse("\n")
+    assert_equal "test<br/>\ntext<br/>\nhallo", parse("test\ntext\nhallo")
+  end
+
   # Test links for wikipages
   def test_link_to_page
     assert_equal '<a href="WikiPageName">WikiPageName</a>', parse("[WikiPageName]")

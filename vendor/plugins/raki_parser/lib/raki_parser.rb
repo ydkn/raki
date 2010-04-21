@@ -19,6 +19,8 @@ require 'syntax_nodes.rb'
 
 class RakiParser < Raki::AbstractParser
 
+  @@logger = Rails.logger
+
   def initialize(params = {})
     Treetop.load "#{File.dirname(__FILE__)}/raki_syntax"
     @parser = RakiSyntaxParser.new
