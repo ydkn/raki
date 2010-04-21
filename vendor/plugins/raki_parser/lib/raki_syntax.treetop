@@ -52,7 +52,7 @@ grammar RakiSyntax
   end
 
   rule strikethrough
-    '-' text:(non_whitespace (!'*' block)*) '-' <StrikethroughNode>
+    '-' text:(non_whitespace (!'-' block)*) '-' <StrikethroughNode>
   end
 
   # Links
