@@ -25,9 +25,64 @@ class GitProvider < Raki::AbstractProvider
   end
 
   def page_exists?(name, revision=nil)
+    exists?('pages', name, revision)
+  end
+
+  def page_contents(name, revision=nil)
+    contents("pages/#{name}", revision)
+  end
+
+  def page_revisions(name)
+    revisions("pages/#{name}")
+  end
+
+  def page_save(name, contents, message, user)
+    save("pages/#{name}", contents, message, user)
+  end
+
+  def page_rename(old_name, new_name, user)
+    rename("pages/#{old_name}", "pages/#{new_name}", "#{old_name} ==> #{new_name}", user)
+  end
+
+  def page_delete(name, user)
+    delete("pages/#{name}", "#{name} ==> /dev/null", user)
+  end
+
+  def userpage_exists?(user, revision=nil)
+    exists?('users', user, revision)
+  end
+
+  def userpage_contents(user, revision=nil)
+    contents("users/#{user}", revision)
+  end
+
+  def userpage_revisions(user)
+    revisions("users/#{user}")
+  end
+
+  def userpage_save(username, contents, message, user)
+    save("users/#{username}", contents, message, user)
+  end
+
+  def userpage_delete(user)
+    delete("users/#{user}", "#{user} ==> /dev/null", user)
+  end
+
+  private
+
+  def check_repository
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} status"
+    output = ""
+    shell_cmd(cmd) do |line|
+      output += line
+    end
+    raise ProviderError.new 'Invalid git repository' if output.empty?
+  end
+
+  def exists?(dir, name, revision=nil)
     check_repository
     revision = 'HEAD' if revision.nil?
-    cmd = "#{GIT_BIN} --git-dir #{@git_path} ls-tree -l #{shell_quote(revision)}:pages"
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} ls-tree -l #{shell_quote(revision)}:#{dir}"
     shell_cmd(cmd) do |line|
       if line.chomp.to_s =~ /^\d+\s+\w+\s+[0-9a-f]{40}\s+[0-9-]+\s+(.+)$/
         return true if $1 == name
@@ -36,10 +91,10 @@ class GitProvider < Raki::AbstractProvider
     false
   end
 
-  def page_contents(name, revision=nil)
+  def contents(obj, revision=nil)
     check_repository
     revision = 'HEAD' if revision.nil?
-    cmd = "#{GIT_BIN} --git-dir #{@git_path} show #{shell_quote(revision)}:pages/#{name}"
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} show #{shell_quote(revision)}:#{obj}"
     contents = ""
     shell_cmd(cmd) do |line|
       contents += line
@@ -47,63 +102,56 @@ class GitProvider < Raki::AbstractProvider
     contents
   end
 
-  def page_revisions(name)
-    check_repository
-    revisions("pages/#{name}")
-  end
-
-  def page_save(name, contents, message, user)
+  def save(obj, contents, message, user)
     check_repository
     message = '-' if message.empty?
-    File.open("#{@path}/pages/#{shell_quote(name)}", 'w') do |f|
+    File.open("#{@path}/#{shell_quote(obj)}", 'w') do |f|
       f.write(contents)
     end
-    cmd = "cd #{@path} && #{GIT_BIN} add pages/#{shell_quote(name)}"
+    cmd = "cd #{@path} && #{GIT_BIN} add #{shell_quote(obj)}"
     shell_cmd(cmd) do |line|
       #nothing
     end
-    cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{shell_quote(message)}\" --author=\"#{shell_quote(user.username)} <#{shell_quote(user.email)}>\" pages/#{shell_quote(name)}"
+    cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{shell_quote(message)}\" --author=\"#{shell_quote(user.username)} <#{shell_quote(user.email)}>\" \"#{shell_quote(obj)}\""
     shell_cmd(cmd) do |line|
       #nothing
     end
   end
 
-  def page_rename(old_name, new_name, user)
+  def rename(old_obj, new_obj, message, user)
     check_repository
-    File.open("#{@path}/pages/#{shell_quote(new_name)}", 'w') do |f|
-      f.write(page_contents(old_name))
+    File.open("#{@path}/#{shell_quote(new_obj)}", 'w') do |f|
+      f.write(page_contents(old_obj))
     end
-    File.delete("#{@path}/pages/#{shell_quote(old_name)}")
-    cmd = "cd #{@path} && #{GIT_BIN} add pages/#{shell_quote(new_name)}"
+    File.delete("#{@path}/#{shell_quote(old_obj)}")
+    cmd = "cd #{@path} && #{GIT_BIN} add #{shell_quote(new_obj)}"
     shell_cmd(cmd) do |line|
       #nothing
     end
-    cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{shell_quote(old_name)} ==> #{shell_quote(new_name)}\" --author=\"#{shell_quote(user.username)} <#{shell_quote(user.email)}>\" pages/#{shell_quote(old_name)} pages/#{shell_quote(new_name)}"
+    cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{shell_quote(message)}\" --author=\"#{shell_quote(user.username)} <#{shell_quote(user.email)}>\" \"#{shell_quote(old_obj)}\" \"#{shell_quote(new_obj)}\""
     shell_cmd(cmd) do |line|
       #nothing
     end
   end
 
-  def page_delete(name, user)
+  def delete(obj, message, user)
     check_repository
-    File.delete("#{@path}/pages/#{shell_quote(name)}")
-    cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{shell_quote(name)} ==> /dev/null\" --author=\"#{shell_quote(user.username)} <#{shell_quote(user.email)}>\" pages/#{shell_quote(name)}"
+    File.delete("#{@path}/#{shell_quote(obj)}")
+    cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{shell_quote(message)}\" --author=\"#{shell_quote(user.username)} <#{shell_quote(user.email)}>\" \"#{shell_quote(obj)}\""
     shell_cmd(cmd) do |line|
       #nothing
     end
   end
 
-  private
-
-  def revisions(object)
+  def revisions(obj)
     revs = []
     changeset = {}
-    cmd = "#{GIT_BIN} --git-dir #{@git_path} log --reverse --raw --date=iso --all -- #{shell_quote(object)}"
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} log --reverse --raw --date=iso --all -- \"#{shell_quote(obj)}\""
     shell_cmd(cmd) do |line|
       if line =~ /^commit ([0-9a-f]{40})$/
         if(changeset.length == 4)
           revs << Revision.new(
-            changeset[:commit][0..7],
+            changeset[:commit][0..7].upcase,
             changeset[:commit],
             changeset[:author],
             changeset[:date],
@@ -126,7 +174,7 @@ class GitProvider < Raki::AbstractProvider
     end
     if(changeset.length == 4)
       revs << Revision.new(
-        changeset[:commit][0..7],
+        changeset[:commit][0..7].upcase,
         changeset[:commit],
         changeset[:author],
         changeset[:date],
@@ -146,16 +194,7 @@ class GitProvider < Raki::AbstractProvider
   end
 
   def shell_quote(str)
-    str.gsub(/"/, '\\"')
-  end
-
-  def check_repository
-    cmd = "#{GIT_BIN} --git-dir #{@git_path} status"
-    output = ""
-    shell_cmd(cmd) do |line|
-      output += line
-    end
-    raise ProviderError.new 'Invalid git repository' if output.empty?
+    str.gsub(/"/, '\\"').gsub(/ /, '\\ ')
   end
   
 end

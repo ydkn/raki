@@ -34,7 +34,12 @@
             <%=yield %>
           </div>
           <% unless @page_info.nil? %>
-            <div id="page_footer"><%=t 'page.footer', :date => @page_info[:date], :user => @page_info[:user] %></div>
+            <div id="page_footer">
+              <%=t 'page.footer',
+                :date => @page_info[:date],
+                :user => link_to(@page_info[:user], :controller => 'user_page', :action => 'view', :user => @page_info[:user]),
+                :version => @page_info[:version] %>
+            </div>
           <% end %>
         </div>
       </div>

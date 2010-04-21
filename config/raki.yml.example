@@ -18,11 +18,18 @@
 
 frontpage: Main
 
-page:
-  provider: git
-  path: /path/to/git/repo
+providers:
+    page:
+      provider: git
+      path: /path/to/git/repo
+    user_page:
+      provider: git
+      path: /path/to/git/repo
 
-wiki:
-  parser: raki
+parsers:
+  page:
+    parser: raki
+  user_page:
+    parser: raki
 
 authenticator: db

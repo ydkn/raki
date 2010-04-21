@@ -22,31 +22,31 @@ class PageController < ApplicationController
   end
 
   def view
-    current_revision = @page_provider.page_revisions(@page).last
-    @page_info = {:date => current_revision.date.strftime(t 'datetime_format'), :user => current_revision.user } unless current_revision.nil?
+    current_revision = @provider.page_revisions(@page).last
+    @page_info = {:date => current_revision.date.strftime(t 'datetime_format'), :user => current_revision.user, :version => current_revision.version} unless current_revision.nil?
     respond_to do |format|
       format.html
-      format.txt { render :inline => @page_provider.page_contents(@page, @revision), :content_type => 'text/plain' }
+      format.txt { render :inline => @provider.page_contents(@page, @revision), :content_type => 'text/plain' }
     end
   end
 
   def info
-    redirect_if_page_not_exists
-    @revisions = @page_provider.page_revisions @page
+    return if redirect_if_page_not_exists
+    @revisions = @provider.page_revisions @page
   end
 
   def edit
   end
 
   def update
-    @page_provider.page_save @page, params[:content], params[:message], User.current
+    @provider.page_save @page, params[:content], params[:message], User.current
     redirect_to :controller => 'page', :action => 'view', :page => @page
   end
 
   def rename
-    redirect_if_page_not_exists
-    unless @page_provider.page_exists? params[:name]
-      @page_provider.page_rename @page, params[:name], User.current
+    return if redirect_if_page_not_exists
+    unless @provider.page_exists? params[:name]
+      @provider.page_rename @page, params[:name], User.current
       redirect_to :controller => 'page', :action => 'view', :page => params[:name]
     else
       flash[:notice] = t 'page.info.page_already_exists'
@@ -55,8 +55,8 @@ class PageController < ApplicationController
   end
 
   def delete
-    redirect_if_page_not_exists
-    @page_provider.page_delete @page, User.current
+    return if redirect_if_page_not_exists
+    @provider.page_delete @page, User.current
     redirect_to :controller => 'page', :action => 'info', :page => Raki.frontpage
   end
 
@@ -65,14 +65,16 @@ class PageController < ApplicationController
   def common_init
     @page = params[:page]
     @revision = params[:revision]
-    @page_provider = Raki::Providers.page
+    @provider = Raki.provider(:page)
     @title = @page
   end
 
   def redirect_if_page_not_exists
-    unless @page_provider.page_exists?(@page)
+    unless @provider.page_exists?(@page)
       redirect_to :controller => 'page', :action => 'view', :page => @page
+      true
     end
+    false
   end
 
 end

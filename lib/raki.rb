@@ -16,9 +16,14 @@
 
 module Raki
   class << self
-    def config
+
+    def config(*keys)
       @config = YAML.load(File.read("#{Rails.root}/config/raki.yml")) if @config.nil?
-      @config
+      @requested_config = @config
+      keys.each do |key,value|
+        @requested_config = @requested_config[key]
+      end
+      @requested_config
     end
 
     def frontpage
@@ -33,5 +38,61 @@ module Raki
     def version
       '0.1pre'
     end
+
+    def register_provider(id, clazz)
+      @providers = {} if @providers.nil?
+      @providers[id] = clazz
+    end
+
+    def providers
+      @providers
+    end
+
+    def provider(type)
+      if @current_provider.nil?
+        c = config('providers', type.to_s)
+        id = c['provider']
+        c.delete('provider')
+        @current_provider = @providers[id.to_sym].new(c)
+      end
+      @current_provider
+    end
+
+    def register_parser(id, clazz)
+      @parsers = {} if @parsers.nil?
+      @parsers[id] = clazz
+    end
+
+    def parsers
+      @parsers
+    end
+
+    def parser(type)
+      if @current_parser.nil?
+        c = config('parsers', type.to_s)
+        id = c['parser']
+        c.delete('parser')
+        @current_parser = @parsers[id.to_sym].new(c)
+      end
+      @current_parser
+    end
+
+    def register_authenticator(id, clazz)
+      @authenticators = {} if @authenticators.nil?
+      @authenticators[id] = clazz
+    end
+
+    def authenticators
+      @authenticators
+    end
+
+    def authenticator
+      if @current_authenticator.nil?
+        id = config('authenticator')
+        @current_authenticator = @authenticators[id.to_sym].new
+      end
+      @current_authenticator
+    end
+
   end
 end

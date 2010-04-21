@@ -20,7 +20,11 @@ en:
 
   page:
 
-    footer: This page was last changed at {{date}} by {{user}}.
+    footer: "{{user}} changed this page on {{date}}. This is version {{version}}"
+    not_exists:
+      msg: Page does not exsist.
+      edit_msg: You can {{edit_link}} it!
+      edit_link: create
 
     tab:
       view: View
@@ -43,3 +47,8 @@ en:
       rename: Rename Page
       delete: Remove entire Page
       page_already_exists: Page already exists
+
+  user_page:
+
+    not_exists:
+      msg: Userpage does not exsists.

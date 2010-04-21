@@ -14,27 +14,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module Raki
-  class Providers
-    class << self
-      def register(id, clazz)
-        @providers = {} if @providers.nil?
-        @providers[id] = clazz
-      end
+module UserPageHelper
 
-      def all
-        @providers
-      end
+  def userpage_contents(name, revision=nil)
+    Raki.provider(:user_page).userpage_contents(name, revision)
+  end
 
-      def page
-        if @current.nil?
-          config = YAML.load(File.read("#{Rails.root}/config/raki.yml"))
-          id = config['page']['provider']
-          config['page'].delete('provider')
-          @current = @providers[id.to_sym].new(config['page'])
-        end
-        @current
-      end
+  def insert_userpage(name, revision=nil)
+    if page_exists?(name, revision)
+      parsed = Raki.parser(:user_page).parse(userpage_contents(name, revision))
+      (parsed.nil?)?"<div class=\"error\">PARSING ERROR</div>":parsed
     end
   end
+
+  def userpage_exists?(name, revision=nil)
+    Raki.provider(:user_page).userpage_exists?(name, revision)
+  end
+
+  def userpage_revisions(name)
+    Raki.provider(:user_page).userpage_revisions(name)
+  end
+
 end

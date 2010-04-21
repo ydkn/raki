@@ -2,9 +2,9 @@
   <%=insert_page @page, @revision %>
 <% else %>
   <div class="information">
-    Page does not exist.
+    <%=t 'page.not_exists.msg' %>
     <% if authenticated? %>
-      You can <%=link_to 'create', {:controller => 'page', :action => 'edit', :page => @page} %> it!
+      <%=t 'page.not_exists.edit_msg', :edit_link => link_to(t('page.not_exists.edit_link'), {:controller => 'page', :action => 'edit', :page => @page}) %>
     <% end %>
   </div>
 <% end %>

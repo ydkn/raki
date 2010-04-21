@@ -21,24 +21,51 @@ module Raki
     end
 
     def page_exists?(name, revision=nil)
+      raise ProviderError.new 'not implemented'
     end
 
     def page_contents(name, revision=nil)
+      raise ProviderError.new 'not implemented'
     end
 
     def page_revisions(name)
+      raise ProviderError.new 'not implemented'
     end
 
     def page_save(name, contents, message, user)
+      raise ProviderError.new 'not implemented'
     end
 
     def page_rename(old_name, new_name, user)
+      raise ProviderError.new 'not implemented'
     end
 
     def page_delete(name, user)
+      raise ProviderError.new 'not implemented'
     end
 
     def changes(amount)
+      raise ProviderError.new 'not implemented'
+    end
+
+    def userpage_exists?(user, revision=nil)
+      raise ProviderError.new 'not implemented'
+    end
+
+    def userpage_contents(user, revision=nil)
+      raise ProviderError.new 'not implemented'
+    end
+
+    def userpage_revisions(user)
+      raise ProviderError.new 'not implemented'
+    end
+
+    def userpage_save(user, contents, message)
+      raise ProviderError.new 'not implemented'
+    end
+
+    def userpage_delete(user)
+      raise ProviderError.new 'not implemented'
     end
 
     private
