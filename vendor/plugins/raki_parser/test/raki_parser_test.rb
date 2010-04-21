@@ -31,8 +31,9 @@ class RakiParserTest < Test::Unit::TestCase
 
   # Test links for wikipages
   def test_link_to_page
-    assert_equal '<a href="WikiPageName">WikiPageName</a>', parse("[WikiPageName]")
-    assert_equal '<a href="WikiPageName">title for link</a>', parse("[WikiPageName|title for link]")
+    assert_equal '<a href="/wiki/WikiPageName">WikiPageName</a>', parse("[WikiPageName]")
+    assert_equal '<a href="/wiki/WikiPageName">WikiPageName</a>', parse("[ WikiPageName  ]")
+    assert_equal '<a href="/wiki/WikiPageName">title for link</a>', parse("[WikiPageName|title for link]")
   end
 
   # Test links for urls
@@ -43,14 +44,26 @@ class RakiParserTest < Test::Unit::TestCase
 
   # Test for bold text
   def test_bold_text
-    assert_equal '<b>some text</b>', parse("__some text__")
-    assert_equal '<b>some text <a href="WikiPageName">WikiPageName</a> some other text</b>', parse("__some text [WikiPageName] some other text__")
+    assert_equal '<b>some text</b>', parse("*some text*")
+    assert_equal '<b>some text <a href="/wiki/WikiPageName">WikiPageName</a> some other</b> text', parse("*some text [WikiPageName] some other* text")
+  end
+
+  # Test for bold text
+  def test_strikedthrough_text
+    assert_equal '<del>some text</del>', parse("-some text-")
+    assert_equal '<del>some text <a href="/wiki/WikiPageName">WikiPageName</a> some other</del> text', parse("-some text [WikiPageName] some other- text")
   end
 
   # Test for italic text
   def test_italic_text
-    assert_equal '<i>some text</i>', parse("''some text''")
-    assert_equal '<i>some text <a href="WikiPageName">WikiPageName</a> some other text</i>', parse("''some text [WikiPageName] some other text''")
+    assert_equal '<i>some text</i>', parse("'some text'")
+    assert_equal '<i>some text <a href="/wiki/WikiPageName">WikiPageName</a> some other text</i>', parse("'some text [WikiPageName] some other text'")
+  end
+
+   # Test for bold text
+  def test_underlined_text
+    assert_equal '<u>some text</u>', parse("_some text_")
+    assert_equal '<u>some text <a href="/wiki/WikiPageName">WikiPageName</a> some other</u> text', parse("_some text [WikiPageName] some other_ text")
   end
 
   # Test for headings
@@ -59,7 +72,7 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal '<h2>Heading second order</h2>', parse("!!Heading second order")
     assert_equal '<h3>Heading third order</h3>', parse("!!!Heading third order")
     assert_equal '<h6>Heading sixth order</h6>', parse("!!!!!!Heading sixth order")
-    assert_equal '<h6>!!Heading sixth order with extra exlamation marks</h6>', parse("!!!!!!!!Heading sixth order with extra exlamation marks")
+    assert_equal '<h6>!!Heading sixth order with extra exlamation marks</h6>', parse("!!!!!! !!Heading sixth order with extra exlamation marks")
   end
 
   # Test for message boxes
