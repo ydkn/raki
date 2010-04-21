@@ -43,7 +43,46 @@ end
 
 class LinkNode < Treetop::Runtime::SyntaxNode
   def to_html
-    return '<a href="' + href.to_html + '">' + (desc.to_html.empty? ? href : desc).to_html + '</a>'
+    return '<a href="' + href.to_html.strip + '">' +
+      (desc.to_html.empty? ? href : desc).to_html.strip + '</a>'
   end
 end
 
+class WikiLinkNode < Treetop::Runtime::SyntaxNode
+  def to_html
+    return '<a href="/wiki/' + href.to_html.strip + '">' +
+      (desc.to_html.empty? ? href : desc).to_html.strip + '</a>'
+  end
+end
+
+class BoldNode < Treetop::Runtime::SyntaxNode
+  def to_html
+    return '<b>' + text.to_html + '</b>'
+  end
+end
+
+class ItalicNode < Treetop::Runtime::SyntaxNode
+  def to_html
+    return '<i>' + text.to_html + '</i>'
+  end
+end
+
+class UnderlineNode < Treetop::Runtime::SyntaxNode
+  def to_html
+    return '<u>' + text.to_html + '</u>'
+  end
+end
+
+class StrikethroughNode < Treetop::Runtime::SyntaxNode
+  def to_html
+    return '<del>' + text.to_html + '</del>'
+  end
+end
+
+class HeadingNode < Treetop::Runtime::SyntaxNode
+  def to_html
+    level = text_value.sub(/[^!].*/, '').length
+    level = 6 if level > 6
+    return "<h#{level}>" + text.to_html.strip + "</h#{level}>"
+  end
+end

@@ -17,28 +17,71 @@
 grammar RakiSyntax
 
   rule syntax
-    block
+    block*
   end
 
   rule block
-    (command / text)*
+    command / text
   end
 
   rule command
-    linebreak / link
+    linebreak / heading / link / formating
   end
+
+  
+  rule heading
+    '!'+ text:(!linebreak text)+ <HeadingNode>
+  end
+
+  # Formating
+
+  rule formating
+    bold / italic / underlined / strikethrough
+  end
+
+  rule underlined
+    "_" text:(non_whitespace (!"_" block)*) "_" <UnderlineNode>
+  end
+
+  rule italic
+     "'" text:(non_whitespace (!"'" block)*) "'" <ItalicNode>
+  end
+
+  rule bold
+    '*' text:(non_whitespace (!'*' block)*) '*' <BoldNode>
+  end
+
+  rule strikethrough
+    '-' text:(non_whitespace (!'-' block)*) '-' <StrikethroughNode>
+  end
+
+  # Links
 
   rule link
-    (link_title / link_no_title)
+    wikilink_title / wikilink_no_title / link_title / link_no_title
   end
 
-   rule link_no_title
-     '[' href:(!']' text)+ desc:('') ']' <LinkNode>
-   end
+  rule wikilink_title
+    '[' href:pagename '|' desc:(!']' text)+ ']' <WikiLinkNode>
+  end
+
+  rule wikilink_no_title
+    '[' href:pagename desc:('') ']' <WikiLinkNode>
+  end
 
   rule link_title
     '[' href:(!'|' !']' text)+ '|' desc:(!']' text)+ ']' <LinkNode>
   end
+
+  rule link_no_title
+    '[' href:(!']' text)+ desc:('') ']' <LinkNode>
+  end
+
+  rule pagename
+    [ \wäüöÄÜÖ_+-]+
+  end
+
+  # Single characters
 
   rule text
     !linebreak [\d\D]
@@ -46,6 +89,14 @@ grammar RakiSyntax
 
   rule linebreak
     '' [\n] <LinebreakNode>
+  end
+
+  rule whitespace
+    !linebreak [\s]
+  end
+
+  rule non_whitespace
+    !linebreak [\S]
   end
 
 end
