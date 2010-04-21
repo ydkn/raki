@@ -21,12 +21,14 @@ class GitProvider < Raki::AbstractProvider
     @path = params['path']
     @git_path = @path
     @git_path = "#{@path}/.git" unless Dir[@path].nil?
+    check_repository
   end
 
   def page_exists?(name, revision=nil)
+    check_repository
     revision = 'HEAD' if revision.nil?
-    cmd = "#{GIT_BIN} --git-dir #{@git_path} ls-tree -l #{revision}:pages"
-    shellcmd(cmd) do |line|
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} ls-tree -l #{shell_quote(revision)}:pages"
+    shell_cmd(cmd) do |line|
       if line.chomp.to_s =~ /^\d+\s+\w+\s+[0-9a-f]{40}\s+[0-9-]+\s+(.+)$/
         return true if $1 == name
       end
@@ -35,53 +37,58 @@ class GitProvider < Raki::AbstractProvider
   end
 
   def page_contents(name, revision=nil)
+    check_repository
     revision = 'HEAD' if revision.nil?
-    cmd = "#{GIT_BIN} --git-dir #{@git_path} show #{revision}:pages/#{name}"
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} show #{shell_quote(revision)}:pages/#{name}"
     contents = ""
-    shellcmd(cmd) do |line|
+    shell_cmd(cmd) do |line|
       contents += line
     end
     contents
   end
 
   def page_revisions(name)
+    check_repository
     revisions("pages/#{name}")
   end
 
   def page_save(name, contents, message, user)
+    check_repository
     message = '-' if message.empty?
-    File.open("#{@path}/pages/#{name}", 'w') do |f|
+    File.open("#{@path}/pages/#{shell_quote(name)}", 'w') do |f|
       f.write(contents)
     end
-    cmd = "cd #{@path} && #{GIT_BIN} add pages/#{name}"
-    shellcmd(cmd) do |line|
+    cmd = "cd #{@path} && #{GIT_BIN} add pages/#{shell_quote(name)}"
+    shell_cmd(cmd) do |line|
       #nothing
     end
-    cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{message}\" --author=\"#{user.username} <#{user.email}>\" pages/#{name}"
-    shellcmd(cmd) do |line|
+    cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{shell_quote(message)}\" --author=\"#{shell_quote(user.username)} <#{shell_quote(user.email)}>\" pages/#{shell_quote(name)}"
+    shell_cmd(cmd) do |line|
       #nothing
     end
   end
 
   def page_rename(old_name, new_name, user)
-    File.open("#{@path}/pages/#{new_name}", 'w') do |f|
+    check_repository
+    File.open("#{@path}/pages/#{shell_quote(new_name)}", 'w') do |f|
       f.write(page_contents(old_name))
     end
-    File.delete("#{@path}/pages/#{old_name}")
-    cmd = "cd #{@path} && #{GIT_BIN} add pages/#{new_name}"
-    shellcmd(cmd) do |line|
+    File.delete("#{@path}/pages/#{shell_quote(old_name)}")
+    cmd = "cd #{@path} && #{GIT_BIN} add pages/#{shell_quote(new_name)}"
+    shell_cmd(cmd) do |line|
       #nothing
     end
-    cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{old_name} ==> #{new_name}\" --author=\"#{user.username} <#{user.email}>\" pages/#{old_name} pages/#{new_name}"
-    shellcmd(cmd) do |line|
+    cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{shell_quote(old_name)} ==> #{shell_quote(new_name)}\" --author=\"#{shell_quote(user.username)} <#{shell_quote(user.email)}>\" pages/#{shell_quote(old_name)} pages/#{shell_quote(new_name)}"
+    shell_cmd(cmd) do |line|
       #nothing
     end
   end
 
   def page_delete(name, user)
-    File.delete("#{@path}/pages/#{name}")
-    cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{name} ==> /dev/null\" --author=\"#{user.username} <#{user.email}>\" pages/#{name}"
-    shellcmd(cmd) do |line|
+    check_repository
+    File.delete("#{@path}/pages/#{shell_quote(name)}")
+    cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{shell_quote(name)} ==> /dev/null\" --author=\"#{shell_quote(user.username)} <#{shell_quote(user.email)}>\" pages/#{shell_quote(name)}"
+    shell_cmd(cmd) do |line|
       #nothing
     end
   end
@@ -89,15 +96,14 @@ class GitProvider < Raki::AbstractProvider
   private
 
   def revisions(object)
-    commit_n = 0
     revs = []
     changeset = {}
-    cmd = "#{GIT_BIN} --git-dir #{@git_path} log --reverse --raw --date=iso --all -- #{object}"
-    shellcmd(cmd) do |line|
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} log --reverse --raw --date=iso --all -- #{shell_quote(object)}"
+    shell_cmd(cmd) do |line|
       if line =~ /^commit ([0-9a-f]{40})$/
         if(changeset.length == 4)
           revs << Revision.new(
-            commit_n += 1,
+            changeset[:commit][0..7],
             changeset[:commit],
             changeset[:author],
             changeset[:date],
@@ -120,7 +126,7 @@ class GitProvider < Raki::AbstractProvider
     end
     if(changeset.length == 4)
       revs << Revision.new(
-        commit_n += 1,
+        changeset[:commit][0..7],
         changeset[:commit],
         changeset[:author],
         changeset[:date],
@@ -130,7 +136,7 @@ class GitProvider < Raki::AbstractProvider
     revs
   end
 
-  def shellcmd(cmd, &block)
+  def shell_cmd(cmd, &block)
     IO.popen(cmd, "r+") do |io|
       io.close_write
       io.each_line do |line|
@@ -138,4 +144,18 @@ class GitProvider < Raki::AbstractProvider
       end
     end
   end
+
+  def shell_quote(str)
+    str.gsub(/"/, '\\"')
+  end
+
+  def check_repository
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} status"
+    output = ""
+    shell_cmd(cmd) do |line|
+      output += line
+    end
+    raise ProviderError.new 'Invalid git repository' if output.empty?
+  end
+  
 end
