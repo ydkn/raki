@@ -16,6 +16,10 @@
 
 module Raki
   class AbstractProvider
+
+    class ProviderError < StandardError
+    end
+
     def page_exists?(name, revision=nil)
     end
 
@@ -40,14 +44,14 @@ module Raki
     private
 
     class Revision
-      attr_reader :id
+      attr_reader :version
       attr_reader :revision
       attr_reader :user
       attr_reader :date
       attr_reader :message
 
-      def initialize(id, revision, user, date, message)
-        @id = id
+      def initialize(version, revision, user, date, message)
+        @version = version
         @revision = revision
         @user = user
         @date = date

@@ -23,12 +23,28 @@ class GitProviderTest < Test::Unit::TestCase
     FileUtils.remove_dir("#{Rails.root}/tmp/test-git-repo", true) if File.exists?("#{Rails.root}/tmp/test-git-repo")
     `git init #{Rails.root}/tmp/test-git-repo`
     Dir.mkdir("#{Rails.root}/tmp/test-git-repo/pages")
+    File.new("#{Rails.root}/tmp/test-git-repo/pages/.keep", 'w').close
+    `cd #{Rails.root}/tmp/test-git-repo && git add . && git commit -m \"created folders\" --author=\"sys <sys@sys.sys>\"`
     @provider = GitProvider.new({'path' => "#{Rails.root}/tmp/test-git-repo"})
   end
 
   # Remove GIT repository after testing
   def teardown
     FileUtils.remove_dir("#{Rails.root}/tmp/test-git-repo", true)
+  end
+
+  def test_invalid_repository
+    teardown
+    assert_raise(Raki::AbstractProvider::ProviderError) do
+      page_exists?('SomePage')
+    end
+  end
+
+  def test_page_exists
+    page_name = 'PageExsist'
+    assert !page_exists?(page_name)
+    page_save page_name, "some content", 'changed', default_user
+    assert page_exists?(page_name)
   end
 
   # Create a new page
@@ -94,15 +110,13 @@ class GitProviderTest < Test::Unit::TestCase
     revisions = page_revisions page_name
     assert_equal 1, revisions.length
     assert_equal user1.username, revisions[0].user
-    assert_equal 1, revisions[0].id
     assert_equal 'create', revisions[0].message
     page_save page_name, "updated content", 'update', user2
     revisions = page_revisions page_name
     assert_equal 2, revisions.length
     assert_equal user2.username, revisions[1].user
     assert_equal user1.username, revisions[0].user
-    assert_equal 1, revisions[0].id
-    assert_equal 2, revisions[1].id
+    assert_not_equal revisions[0].version, revisions[1].version
     assert_equal 'update', revisions[1].message
     assert_equal 'create', revisions[0].message
     page_save page_name, "new updated content", 'update2', user3
@@ -110,8 +124,9 @@ class GitProviderTest < Test::Unit::TestCase
     assert_equal 3, revisions.length
     assert_equal user3.username, revisions[2].user
     assert_equal user1.username, revisions[0].user
-    assert_equal 3, revisions[2].id
-    assert_equal 1, revisions[0].id
+    assert_not_equal revisions[0].version, revisions[2].version
+    assert_not_equal revisions[1].version, revisions[2].version
+    assert_not_equal revisions[0].version, revisions[1].version
     assert_equal 'update2', revisions[2].message
     assert_equal 'update', revisions[1].message
   end
