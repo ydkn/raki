@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class DBAuthenticator < Raki::AbstractAuthenticator
+
   def login(username, password)
     begin
       user = User.find(username)
@@ -24,4 +25,5 @@ class DBAuthenticator < Raki::AbstractAuthenticator
       false
     end
   end
+
 end
