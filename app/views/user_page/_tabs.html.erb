@@ -1,6 +1,6 @@
 <div id="controls_left">
   <%=link_to t('page.tab.view'), {:controller => 'user_page', :action => 'view', :user => @user}, :class => (action_name=='view'?'active':'') %>
-  <% if page_exists? @page %>
+  <% if userpage_exists? @user %>
     <%=link_to t('page.tab.info'), {:controller => 'user_page', :action => 'info', :user => @user}, :class => (action_name=='info'?'active':'') %>
   <% end %>
 </div>
