@@ -81,8 +81,63 @@ end
 
 class HeadingNode < Treetop::Runtime::SyntaxNode
   def to_html
-    level = text_value.sub(/[^!].*/, '').length
-    level = 6 if level > 6
-    return "<h#{level}>" + text.to_html.strip + "</h#{level}>"
+    l = level.text_value.length
+    l = 6 if l > 6
+    return "<h#{l}>" + text.to_html.strip + "</h#{l}>"
+  end
+end
+
+class InfoboxNode < Treetop::Runtime::SyntaxNode
+  def to_html
+    '<div class="' + type.to_html + '">' + text.to_html.strip + '</div>'
+  end
+end
+
+class ListNode < Treetop::Runtime::SyntaxNode
+
+  @lists
+
+  def to_html
+    @lists = []
+    out = ''
+    elements.each do |row|
+      row.elements.each do |item|
+        if item.respond_to? 'level'
+          out += adapt item.level.text_value.length + 1, item.type.text_value
+          out += '<li>' + item.text.to_html.strip + "</li>\n"
+        end
+      end
+    end
+    out += adapt 0, ''
+  end
+
+  private
+
+  def adapt level, type
+    diff = level - @lists.size
+    if type == '#'
+      type = 'ol'
+    else type == '*'
+      type = 'ul'
+    end
+
+    out = ''
+    if diff > 0
+      (1..diff).each do
+        out += "<#{type}>\n"
+        @lists = @lists << type
+      end
+    elsif diff < 0
+      (diff..-1).each do
+         out += "</#{@lists.slice!(-1)}>\n"
+      end
+    end
+
+    if type != @lists[-1] && level != 0
+      out += "</#{@lists.slice!(-1)}>\n"
+      out += "<#{type}>"
+      @lists = @lists << type
+    end
+    out
   end
 end

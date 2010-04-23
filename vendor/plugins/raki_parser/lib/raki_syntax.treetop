@@ -24,13 +24,32 @@ grammar RakiSyntax
     command / text
   end
 
-  rule command
-    linebreak / heading / link / formating
+  rule line
+    !linebreak (block+)
   end
 
+  rule command
+    infobox / formating / list / linebreak / heading / link
+  end
+
+  # Sections
   
   rule heading
-    '!'+ text:(!linebreak text)+ <HeadingNode>
+    level:'!'+ text:(!linebreak text)+ linebreak* <HeadingNode>
+  end
+
+  rule infobox
+    '%%' type:([\w]+) text:(!'%%' block)* '%%' <InfoboxNode>
+  end
+
+  # Lists
+
+  rule list
+    (linebreak listitem)+ <ListNode>
+  end
+
+  rule listitem
+    level:space* type:('*' / '#') !'*' text:(!linebreak block)+
   end
 
   # Formating
@@ -40,19 +59,19 @@ grammar RakiSyntax
   end
 
   rule underlined
-    "_" text:(non_whitespace (!"_" block)*) "_" <UnderlineNode>
+    "__" text:(!"__" block)* "__" <UnderlineNode>
   end
 
   rule italic
-     "'" text:(non_whitespace (!"'" block)*) "'" <ItalicNode>
+     "''" text:(!"''" block)* "''" <ItalicNode>
   end
 
   rule bold
-    '*' text:(non_whitespace (!'*' block)*) '*' <BoldNode>
+    '**' text:(!'**' block)* '**' <BoldNode>
   end
 
   rule strikethrough
-    '-' text:(non_whitespace (!'-' block)*) '-' <StrikethroughNode>
+    '--' text:(!'--' block)* '--' <StrikethroughNode>
   end
 
   # Links
@@ -77,8 +96,10 @@ grammar RakiSyntax
     '[' href:(!']' text)+ desc:('') ']' <LinkNode>
   end
 
+  # Strings
+
   rule pagename
-    [ \wäüöÄÜÖ_+-]+
+    [ \wäüöÄÜÖß_+-]+
   end
 
   # Single characters
@@ -91,8 +112,12 @@ grammar RakiSyntax
     '' [\n] <LinebreakNode>
   end
 
+  rule space
+    !linebreak whitespace
+  end
+
   rule whitespace
-    !linebreak [\s]
+    [\s]
   end
 
   rule non_whitespace
