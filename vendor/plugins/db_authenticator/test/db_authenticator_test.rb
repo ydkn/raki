@@ -30,6 +30,7 @@ class DBAuthenticatorTest < Test::Unit::TestCase
     user.password = 'passwd'
     user.save
     assert @authenticator.login('user1', 'passwd')
+    user.destroy
   end
 
 end
