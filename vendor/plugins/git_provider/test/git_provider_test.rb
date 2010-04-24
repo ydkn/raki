@@ -24,7 +24,9 @@ class GitProviderTest < Test::Unit::TestCase
     `git init #{Rails.root}/tmp/test-git-repo`
     Dir.mkdir("#{Rails.root}/tmp/test-git-repo/pages")
     File.new("#{Rails.root}/tmp/test-git-repo/pages/.keep", 'w').close
-    `cd #{Rails.root}/tmp/test-git-repo && git add . && git commit -m \"created folders\" --author=\"sys <sys@sys.sys>\"`
+    Dir.mkdir("#{Rails.root}/tmp/test-git-repo/users")
+    File.new("#{Rails.root}/tmp/test-git-repo/users/.keep", 'w').close
+    `cd #{Rails.root}/tmp/test-git-repo && git add . && git commit -m \"created folders\" --author=\"unittest <test@unit.rake>\"`
     @provider = GitProvider.new({'path' => "#{Rails.root}/tmp/test-git-repo"})
   end
 
@@ -33,13 +35,24 @@ class GitProviderTest < Test::Unit::TestCase
     FileUtils.remove_dir("#{Rails.root}/tmp/test-git-repo", true)
   end
 
+  # Try to access an invalid repository
   def test_invalid_repository
     teardown
     assert_raise(Raki::AbstractProvider::ProviderError) do
       page_exists?('SomePage')
     end
+    assert_raise(Raki::AbstractProvider::ProviderError) do
+      page_contents('SomePage')
+    end
+    assert_raise(Raki::AbstractProvider::ProviderError) do
+      page_revisions('SomePage')
+    end
+    assert_raise(Raki::AbstractProvider::ProviderError) do
+      page_save('SomePage', 'some content', 'test', default_user)
+    end
   end
 
+  # Create a new page and test if it exists
   def test_page_exists
     page_name = 'PageExsist'
     assert !page_exists?(page_name)
@@ -49,14 +62,16 @@ class GitProviderTest < Test::Unit::TestCase
 
   # Create a new page
   def test_create_page
-    page_name = 'TestPage'
-    content = "test content 123"
-    page_save page_name, content, 'changed', default_user
-    assert page_exists?(page_name)
-    assert_equal content, page_contents(page_name)
-    revisions = page_revisions page_name
-    assert_equal 1, revisions.length
-    assert_equal default_user.username, revisions[0].user
+    page_names = ['TestPage','Page with spaces']
+    page_names.each do |page_name|
+      content = "test content 123"
+      page_save page_name, content, 'changed', default_user
+      assert page_exists?(page_name)
+      assert_equal content, page_contents(page_name)
+      revisions = page_revisions page_name
+      assert_equal 1, revisions.length
+      assert_equal default_user.username, revisions[0].user
+    end
   end
 
   # Update page contents
@@ -131,6 +146,39 @@ class GitProviderTest < Test::Unit::TestCase
     assert_equal 'update', revisions[1].message
   end
 
+  # Create a new userpage and test if it exists
+  def test_userpage_exists
+    user = 'SomeUser'
+    assert !userpage_exists?(user)
+    userpage_save user, "some content", 'changed', default_user
+    assert userpage_exists?(user)
+  end
+
+  # Update userpage contents
+  def test_edit_userpage
+    user = 'SomeUser'
+    old_content = "content"
+    userpage_save user, old_content, 'create', default_user
+    assert_equal old_content, userpage_contents(user)
+    new_content = "new content"
+    update_user = user 'updater', 'updater@dom.org'
+    userpage_save user, new_content, 'update', update_user
+    assert_equal new_content, userpage_contents(user)
+    revisions = userpage_revisions user
+    assert_equal 2, revisions.length
+    assert_equal default_user.username, revisions[0].user
+    assert_equal update_user.username, revisions[1].user
+  end
+
+  # Delete a existing userpage
+  def test_delete_userpage
+    user = 'SomeUserToDelete'
+    userpage_save user, "some content", 'create', default_user
+    delete_user = user 'deleter', 'deleter@dom.org'
+    userpage_delete user, delete_user
+    assert !userpage_exists?(user)
+  end
+
   private
 
   # Creates a user
@@ -169,6 +217,26 @@ class GitProviderTest < Test::Unit::TestCase
 
   def page_delete(name, user)
     @provider.page_delete name, user
+  end
+
+  def userpage_exists?(name)
+    @provider.userpage_exists? name
+  end
+
+  def userpage_contents(user)
+    @provider.userpage_contents user
+  end
+
+  def userpage_revisions(user)
+    @provider.userpage_revisions user
+  end
+
+  def userpage_save(user, content, message, user_changing)
+    @provider.userpage_save user, content, message, user_changing
+  end
+
+  def userpage_delete(user, user_changing)
+    @provider.userpage_delete user, user_changing
   end
 
 end

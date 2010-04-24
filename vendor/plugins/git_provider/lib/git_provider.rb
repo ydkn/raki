@@ -64,14 +64,14 @@ class GitProvider < Raki::AbstractProvider
     save("users/#{username}", contents, message, user)
   end
 
-  def userpage_delete(user)
-    delete("users/#{user}", "#{user} ==> /dev/null", user)
+  def userpage_delete(username, user)
+    delete("users/#{username}", "#{user} ==> /dev/null", user)
   end
 
   private
 
   def check_repository
-    cmd = "#{GIT_BIN} --git-dir #{@git_path} status"
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} status 2> /dev/null"
     output = ""
     shell_cmd(cmd) do |line|
       output += line
@@ -81,6 +81,7 @@ class GitProvider < Raki::AbstractProvider
 
   def exists?(dir, name, revision=nil)
     check_repository
+    name = format_obj(name)
     revision = 'HEAD' if revision.nil?
     cmd = "#{GIT_BIN} --git-dir #{@git_path} ls-tree -l #{shell_quote(revision)}:#{dir}"
     shell_cmd(cmd) do |line|
@@ -94,7 +95,7 @@ class GitProvider < Raki::AbstractProvider
   def contents(obj, revision=nil)
     check_repository
     revision = 'HEAD' if revision.nil?
-    cmd = "#{GIT_BIN} --git-dir #{@git_path} show #{shell_quote(revision)}:#{obj}"
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} show #{shell_quote(revision)}:#{format_obj(obj)}"
     contents = ""
     shell_cmd(cmd) do |line|
       contents += line
@@ -104,8 +105,9 @@ class GitProvider < Raki::AbstractProvider
 
   def save(obj, contents, message, user)
     check_repository
+    obj = format_obj(obj)
     message = '-' if message.empty?
-    File.open("#{@path}/#{shell_quote(obj)}", 'w') do |f|
+    File.open("#{@path}/#{obj}", 'w') do |f|
       f.write(contents)
     end
     cmd = "cd #{@path} && #{GIT_BIN} add #{shell_quote(obj)}"
@@ -120,8 +122,10 @@ class GitProvider < Raki::AbstractProvider
 
   def rename(old_obj, new_obj, message, user)
     check_repository
+    old_obj = format_obj(old_obj)
+    new_obj = format_obj(new_obj)
     File.open("#{@path}/#{shell_quote(new_obj)}", 'w') do |f|
-      f.write(page_contents(old_obj))
+      f.write(contents(old_obj))
     end
     File.delete("#{@path}/#{shell_quote(old_obj)}")
     cmd = "cd #{@path} && #{GIT_BIN} add #{shell_quote(new_obj)}"
@@ -136,6 +140,7 @@ class GitProvider < Raki::AbstractProvider
 
   def delete(obj, message, user)
     check_repository
+    obj = format_obj(obj)
     File.delete("#{@path}/#{shell_quote(obj)}")
     cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{shell_quote(message)}\" --author=\"#{shell_quote(user.username)} <#{shell_quote(user.email)}>\" \"#{shell_quote(obj)}\""
     shell_cmd(cmd) do |line|
@@ -144,9 +149,10 @@ class GitProvider < Raki::AbstractProvider
   end
 
   def revisions(obj)
+    check_repository
     revs = []
     changeset = {}
-    cmd = "#{GIT_BIN} --git-dir #{@git_path} log --reverse --raw --date=iso --all -- \"#{shell_quote(obj)}\""
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} log --reverse --raw --date=iso --all -- \"#{shell_quote(format_obj(obj))}\""
     shell_cmd(cmd) do |line|
       if line =~ /^commit ([0-9a-f]{40})$/
         if(changeset.length == 4)
@@ -184,6 +190,10 @@ class GitProvider < Raki::AbstractProvider
     revs
   end
 
+  def format_obj(obj)
+    obj.gsub /\ /, '_'
+  end
+
   def shell_cmd(cmd, &block)
     IO.popen(cmd, "r+") do |io|
       io.close_write
@@ -194,7 +204,7 @@ class GitProvider < Raki::AbstractProvider
   end
 
   def shell_quote(str)
-    str.gsub(/"/, '\\"').gsub(/ /, '\\ ')
+    str.gsub(/"/, '\\"')
   end
   
 end
