@@ -15,4 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 module ApplicationHelper
+
+  def format(parser, text)
+    Raki.parser(parser).parse(text)
+  end
+
 end

@@ -123,6 +123,12 @@ body {
     font: 1.1em/1.5em Monaco, "Courier New", Courier, monospace;
 }
 
+#preview {
+    border: 1px solid #cccccc;
+    margin: 0 0.5em;
+    padding: 1em 1em;
+}
+
 #revisions {
     table-layout: auto;
     border-bottom: 1px solid #cccccc;

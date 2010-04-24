@@ -36,6 +36,7 @@ class PageController < ApplicationController
   end
 
   def edit
+    @preview = params[:content] unless params[:content].nil?
   end
 
   def update

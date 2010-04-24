@@ -1,7 +1,7 @@
-<form action="<%=url_for :controller => 'user_page', :user => @user, :action => 'update' %>" method="post" accept-charset="UTF-8">
+<form id="edit-form" action="<%=url_for :controller => 'user_page', :user => @user, :action => 'update' %>" method="post" accept-charset="UTF-8">
   <div>
     <input type="submit" value="<%=t 'page.edit.save' %>" />
-    <input type="button" value="<%=t 'page.edit.preview' %>" />
+    <input type="button" value="<%=t 'page.edit.preview' %>" onclick="javascript:document.getElementById('edit-form').action='<%=url_for :controller => 'user_page', :action => 'edit', :page => @page %>'; document.getElementById('edit-form').submit();" />
     <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=url_for :controller => 'user_page', :action => 'view', :user => @user %>';" />
   </div>
   <div>
@@ -12,3 +12,4 @@
     <textarea name="content" cols="100" rows="25"><%=userpage_contents @user %></textarea>
   </div>
 </form>
+<%=render :partial => 'common/preview' unless @preview.nil? %>
