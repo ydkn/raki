@@ -35,6 +35,7 @@ end
 
 Treetop::Runtime::SyntaxNode.send(:include, HTMLSyntax)
 
+
 class LinebreakNode < Treetop::Runtime::SyntaxNode
   def to_html
     "<br/>\n"
@@ -69,7 +70,7 @@ end
 
 class UnderlineNode < Treetop::Runtime::SyntaxNode
   def to_html
-    return '<u>' + text.to_html + '</u>'
+    return '<span class="underline">' + text.to_html + '</span>'
   end
 end
 
@@ -124,20 +125,28 @@ class ListNode < Treetop::Runtime::SyntaxNode
     out = ''
     if diff > 0
       (1..diff).each do
+        out += '<li>' unless @lists.empty?
         out += "<#{type}>\n"
         @lists = @lists << type
       end
     elsif diff < 0
       (diff..-1).each do
-         out += "</#{@lists.slice!(-1)}>\n"
+        out += "</#{@lists.slice!(-1)}>\n"
+        out += "</li>\n" unless @lists.empty?
       end
     end
 
     if type != @lists[-1] && level != 0
-      out += "</#{@lists.slice!(-1)}>\n"
-      out += "<#{type}>"
+      out += "</#{@lists.slice!(-1)}>\n</li>\n"
+      out += "<li><#{type}>"
       @lists = @lists << type
     end
     out
+  end
+end
+
+class PluginNode < Treetop::Runtime::SyntaxNode
+  def to_html
+    Raki::Plugin.execute(name.text_value, body.text_value)
   end
 end

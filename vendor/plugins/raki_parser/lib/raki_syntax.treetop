@@ -29,11 +29,16 @@ grammar RakiSyntax
   end
 
   rule command
-    infobox / formating / list / linebreak / heading / link
+    infobox / plugin / formating / list / linebreak / heading / link
   end
 
   # Sections
-  
+
+  rule plugin
+    '[{' name:(!'}]' !whitespace text)* whitespace+
+    body:(!'}]' text)* '}]' <PluginNode>
+  end
+
   rule heading
     level:'!'+ text:(!linebreak text)+ linebreak* <HeadingNode>
   end
@@ -77,7 +82,7 @@ grammar RakiSyntax
   # Links
 
   rule link
-    wikilink_title / wikilink_no_title / link_title / link_no_title
+    wikilink_title / wikilink_no_title / link_title / link_no_title / auto_link
   end
 
   rule wikilink_title
@@ -96,7 +101,23 @@ grammar RakiSyntax
     '[' href:(!']' text)+ desc:('') ']' <LinkNode>
   end
 
+  rule auto_link
+    protocol href:non_whitespace+ <LinkNode>
+  end
+
   # Strings
+
+  rule protocol
+    (data_protocol '://') / (app_protocol ':')
+  end
+
+  rule data_protocol
+    'https' / 'http' / 'ftp'
+  end
+
+  rule app_protocol
+    'mailto' / 'sip' / 'skype'
+  end
 
   rule pagename
     [ \wäüöÄÜÖß_+-]+

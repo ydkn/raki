@@ -60,10 +60,10 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal '<i>some text <a href="/wiki/WikiPageName">WikiPageName</a> some other text</i>', parse("''some text [WikiPageName] some other text''")
   end
 
-   # Test for bold text
+  # Test for bold text
   def test_underlined_text
-    assert_equal '<u>some text</u>', parse("__some text__")
-    assert_equal '<u>some text <a href="/wiki/WikiPageName">WikiPageName</a> some other</u> text', parse("__some text [WikiPageName] some other__ text")
+    assert_equal '<span class="underline">some text</span>', parse("__some text__")
+    assert_equal '<span class="underline">some text <a href="/wiki/WikiPageName">WikiPageName</a> some other</span> text', parse("__some text [WikiPageName] some other__ text")
   end
 
   # Test for headings
@@ -97,7 +97,17 @@ class RakiParserTest < Test::Unit::TestCase
   end
 
   def test_mixed_lists
-    assert_equal "<ol>\n<li>hello</li>\n<li>world</li>\n<ul>\n<li>sub</li>\n<li>bla</li>\n</ul>\n<ol><li>test</li>\n<ul>\n<li>foo</li>\n</ul>\n</ol>\n<li>bar</li>\n</ol>\n", parse("\n#hello\n#world\n *sub\n * bla\n #test\n  * foo \n#bar")
+    assert_equal "<ol>\n<li>hello</li>\n<li>world</li>\n<li><ul>\n<li>sub</li>\n<li>bla</li>\n</ul>\n</li>\n<li><ol><li>test</li>\n<li><ul>\n<li>foo</li>\n</ul>\n</li>\n</ol>\n</li>\n<li>bar</li>\n</ol>\n",
+      parse("\n#hello\n#world\n *sub\n * bla\n #test\n  * foo \n#bar")
+  end
+
+  def test_plugin
+    Raki::Plugin.register :example do
+      execute do |params, body, context|
+        body.reverse
+      end
+    end
+    assert_equal "fdsa", parse("[{example asdf}]")
   end
 
   private
