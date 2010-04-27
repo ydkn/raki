@@ -64,7 +64,7 @@ module Raki
         @plugins.values.sort
       end
 
-      # Executes the plugin specified by <tt>id</tt> with the give content and in the given context
+      # Executes the plugin specified by <tt>id</tt> with the give <tt>content</tt> and in the given <tt>context</tt>
       def execute(id, content, context={})
         id = id.to_s.downcase.to_sym
         if @plugins.key?(id)

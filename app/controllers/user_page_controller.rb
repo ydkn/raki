@@ -40,7 +40,12 @@ class UserPageController < ApplicationController
   end
 
   def edit
-    @preview = params[:content] unless params[:content].nil?
+    if params[:content].nil?
+      @content = @provider.userpage_contents(@user, @revision)
+    else
+      @content = params[:content]
+      @preview = @content
+    end
   end
 
   def update
