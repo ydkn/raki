@@ -108,6 +108,8 @@ class RakiParserTest < Test::Unit::TestCase
       end
     end
     assert_equal "fdsa", parse("[{example asdf}]")
+    assert_equal "tset \nfdsa", parse("[{example asdf\n test}]")
+    assert_equal "", parse("[{example}]")
   end
 
   private

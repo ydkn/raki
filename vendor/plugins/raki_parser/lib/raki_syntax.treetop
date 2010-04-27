@@ -35,8 +35,11 @@ grammar RakiSyntax
   # Sections
 
   rule plugin
-    '[{' name:(!'}]' !whitespace text)* whitespace+
-    body:(!'}]' text)* '}]' <PluginNode>
+    '[{' name:(!'}]' !whitespace text)+ whitespace
+    body:(!'}]' (text / linebreak))* '}]' <PluginNode>
+    /
+    '[{' name:(!'}]' !whitespace text)* body:'' '}]' <PluginNode>
+
   end
 
   rule heading
