@@ -16,7 +16,13 @@
 
 module Raki
   class AbstractParser
-    def parse(text)
+
+    class ParserError < StandardError
     end
+
+    def parse(text, context={})
+      raise ProviderError.new 'not implemented'
+    end
+
   end
 end

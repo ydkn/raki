@@ -66,21 +66,11 @@ module Raki
       end
 
       # Executes the plugin specified by <tt>id</tt> with the give <tt>content</tt> and in the given <tt>context</tt>
-      def execute(id, content, context={})
+      def execute(id, params, body, context={})
         id = id.to_s.downcase.to_sym
         if @plugins.key?(id)
           plugin = @plugins[id]
           raise PluginError.new "Plugin '#{id}' is not executable" unless plugin.executable?
-          lines = content.lines.to_a
-          params = {}
-          if lines.length > 1
-            params = {}
-            cmdline = lines[0]
-            lines.delete_at(0)
-            params = cmdline2params(cmdline)
-            params[:cmdline] = cmdline
-          end
-          body = lines.join("\n")
           plugin.exec(params, body, context)
         else
           raise PluginError.new "unknown plugin (#{id})"
@@ -93,25 +83,6 @@ module Raki
           stylesheets += plugin.stylesheets
         end
         stylesheets
-      end
-
-      private
-
-      def cmdline2params(cmdline)
-        params = {}
-        cmdline = cmdline.strip
-        key = nil
-        value = nil
-        cmdline.split(/=/).each do |part|
-          if key.nil?
-            key = part.strip
-          else
-            value = part.strip
-            params[key.to_sym] = value
-            key = nil
-          end
-        end
-        params
       end
 
     end
