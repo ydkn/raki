@@ -16,6 +16,8 @@
 
 class User < ActiveRecord::Base
   set_primary_key :username
+
+  validates_uniqueness_of :username
   
   def self.current
     @current
