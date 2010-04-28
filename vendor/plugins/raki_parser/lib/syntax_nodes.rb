@@ -148,7 +148,7 @@ end
 class PluginNode < Treetop::Runtime::SyntaxNode
   def to_html
     begin
-      Raki::Plugin.execute(name.text_value, body.text_value)
+      Raki::Plugin.execute(name.text_value, body.text_value).to_s
     rescue => e
       "<div class=\"error\">#{e.to_s}</div>"
     end

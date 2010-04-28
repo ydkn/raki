@@ -102,14 +102,14 @@ class RakiParserTest < Test::Unit::TestCase
   end
 
   def test_plugin
-    Raki::Plugin.register :example do
+    Raki::Plugin.register :testexample do
       execute do |params, body, context|
         body.reverse
       end
     end
-    assert_equal "fdsa", parse("[{example asdf}]")
-    assert_equal "tset \nfdsa", parse("[{example asdf\n test}]")
-    assert_equal "", parse("[{example}]")
+    assert_equal "fdsa", parse("[{testexample asdf}]")
+    assert_equal "tset \nfdsa", parse("[{testexample asdf\n test}]")
+    assert_equal "", parse("[{testexample}]")
   end
 
   private

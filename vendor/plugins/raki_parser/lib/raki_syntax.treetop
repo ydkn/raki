@@ -105,7 +105,7 @@ grammar RakiSyntax
   end
 
   rule auto_link
-    protocol href:non_whitespace+ <LinkNode>
+    href:(protocol non_whitespace+) desc:'' <LinkNode>
   end
 
   # Strings
