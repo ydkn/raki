@@ -26,7 +26,7 @@ class RakiParser < Raki::AbstractParser
     @parser = RakiSyntaxParser.new
   end
 
-  def parse(text)
+  def parse(text, context={})
     output = @parser.parse text
     return nil if output.nil?
     output.to_html
