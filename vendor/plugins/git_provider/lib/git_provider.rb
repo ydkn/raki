@@ -205,7 +205,8 @@ class GitProvider < Raki::AbstractProvider
     cmd = "#{GIT_BIN} --git-dir #{@git_path} ls-tree -l #{shell_quote(revision)}:#{dir}"
     shell_cmd(cmd) do |line|
       if line.chomp.to_s =~ /^\d+\s+\w+\s+[0-9a-f]{40}\s+[0-9-]+\s+(.+)$/
-        objs << $1
+        page_name = $1
+        objs << page_name unless page_name =~ /^\./
       end
     end
     objs
