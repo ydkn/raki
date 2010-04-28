@@ -35,6 +35,7 @@ module Raki
     end
 
     class << self
+      
       private :new
 
       def def_field(*names)
@@ -70,22 +71,62 @@ module Raki
         if @plugins.key?(id)
           plugin = @plugins[id]
           raise PluginError.new "Plugin '#{id}' is not executable" unless plugin.executable?
+          lines = content.lines.to_a
           params = {}
-          body = content
+          if lines.length > 1
+            params = {}
+            cmdline = lines[0]
+            lines.delete_at(0)
+            params = cmdline2params(cmdline)
+            params[:cmdline] = cmdline
+          end
+          body = lines.join("\n")
           plugin.exec(params, body, context)
         else
           raise PluginError.new "unknown plugin (#{id})"
         end
       end
 
+      def stylesheets
+        stylesheets = []
+        @plugins.each do |id, plugin|
+          stylesheets += plugin.stylesheets
+        end
+        stylesheets
+      end
+
+      private
+
+      def cmdline2params(cmdline)
+        params = {}
+        cmdline = cmdline.strip
+        key = nil
+        value = nil
+        cmdline.split(/=/).each do |part|
+          if key.nil?
+            key = part.strip
+          else
+            value = part.strip
+            params[key.to_sym] = value
+            key = nil
+          end
+        end
+        params
+      end
+
     end
 
     def_field :name, :description, :url, :author, :version
 
-    attr_reader :id
+    attr_reader :id, :stylesheets
     
     def initialize(id)
       @id = id
+      @stylesheets = []
+    end
+
+    def add_stylesheet(url, options={})
+      @stylesheets << {:url => url, :options => options}
     end
 
     def execute(&block)
