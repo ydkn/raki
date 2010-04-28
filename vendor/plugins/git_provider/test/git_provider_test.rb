@@ -115,6 +115,17 @@ class GitProviderTest < Test::Unit::TestCase
     assert !page_exists?(page_name)
   end
 
+  # Check for index of all pages
+  def test_page_index
+    page_names = ['TestPage','TestPage2',"TestPage3","TestPage"]
+    page_names.each do |page_name|
+      page_save page_name, "Content for page: #{page_name}", 'create', default_user
+    end
+    page_all.each do |page|
+      assert page_names.include?(page) if page != '.keep'
+    end
+  end
+
   # Update page and check revisions
   def test_page_revisions
     page_name = 'TestPageRev'
@@ -179,6 +190,17 @@ class GitProviderTest < Test::Unit::TestCase
     assert !userpage_exists?(user)
   end
 
+  # Check for index of all userpages
+  def test_userpage_index
+    user_names = ['User1','User2',"User3","User4"]
+    user_names.each do |user_name|
+      userpage_save user_name, "Content for user: #{user_name}", 'create', default_user
+    end
+    userpage_all.each do |user|
+      assert user_names.include?(user) if user != '.keep'
+    end
+  end
+
   private
 
   # Creates a user
@@ -219,6 +241,10 @@ class GitProviderTest < Test::Unit::TestCase
     @provider.page_delete name, user
   end
 
+  def page_all
+    @provider.page_all
+  end
+
   def userpage_exists?(name)
     @provider.userpage_exists? name
   end
@@ -237,6 +263,10 @@ class GitProviderTest < Test::Unit::TestCase
 
   def userpage_delete(user, user_changing)
     @provider.userpage_delete user, user_changing
+  end
+
+  def userpage_all
+    @provider.page_all
   end
 
 end

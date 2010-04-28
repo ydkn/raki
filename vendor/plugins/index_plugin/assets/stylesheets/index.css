@@ -1,0 +1,26 @@
+div.index {
+    margin: 1em;
+}
+
+div.index div.index_header {
+    background-color: #fafafa;
+    padding: 0.25em;
+    border: 1px solid #eaeaea;
+    text-align: center;
+    font-size: 130%;
+    margin-bottom: 0.25em;
+}
+
+div.index div.index_body {
+    margin: 0 0.25em;
+}
+
+div.index div.index_body div.index_letter {
+    font-size: 130%;
+    border-bottom: 1px solid #dadada;
+}
+
+div.index div.index_body div.index_pages {
+    margin-top: 0.2em;
+    margin-bottom: 0.75em;
+}

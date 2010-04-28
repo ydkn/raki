@@ -44,6 +44,10 @@ module Raki
       raise ProviderError.new 'not implemented'
     end
 
+    def page_all
+      raise ProviderError.new 'not implemented'
+    end
+
     def changes(amount)
       raise ProviderError.new 'not implemented'
     end
@@ -65,6 +69,10 @@ module Raki
     end
 
     def userpage_delete(user)
+      raise ProviderError.new 'not implemented'
+    end
+
+    def userpage_all
       raise ProviderError.new 'not implemented'
     end
 

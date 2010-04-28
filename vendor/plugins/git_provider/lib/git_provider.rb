@@ -48,6 +48,10 @@ class GitProvider < Raki::AbstractProvider
     delete("pages/#{name}", "#{name} ==> /dev/null", user)
   end
 
+  def page_all
+    all('pages')
+  end
+
   def userpage_exists?(user, revision=nil)
     exists?('users', user, revision)
   end
@@ -66,6 +70,10 @@ class GitProvider < Raki::AbstractProvider
 
   def userpage_delete(username, user)
     delete("users/#{username}", "#{user} ==> /dev/null", user)
+  end
+
+  def userpage_all
+    all('users')
   end
 
   private
@@ -188,6 +196,19 @@ class GitProvider < Raki::AbstractProvider
       )
     end
     revs
+  end
+
+  def all(dir, revision=nil)
+    check_repository
+    objs = []
+    revision = 'HEAD' if revision.nil?
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} ls-tree -l #{shell_quote(revision)}:#{dir}"
+    shell_cmd(cmd) do |line|
+      if line.chomp.to_s =~ /^\d+\s+\w+\s+[0-9a-f]{40}\s+[0-9-]+\s+(.+)$/
+        objs << $1
+      end
+    end
+    objs
   end
 
   def format_obj(obj)

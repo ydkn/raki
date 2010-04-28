@@ -20,4 +20,12 @@ module ApplicationHelper
     Raki.parser(parser).parse(text)
   end
 
+  def plugin_stylesheets
+    stylesheets = []
+    Raki::Plugin.stylesheets.each do |stylesheet|
+      stylesheets << stylesheet_link_tag(stylesheet[:url], stylesheet[:options])
+    end
+    stylesheets.join("")
+  end
+
 end
