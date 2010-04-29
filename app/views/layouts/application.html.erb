@@ -12,7 +12,7 @@
     <div id="container">
       <div id="left">
         <div id="logo">
-          <%=link_to image_tag('raki_logo.png', :alt => 'Raki'), :controller => 'page', :page => Raki.frontpage, :action => 'view' %>
+          <%=link_to image_tag('raki_logo.png', :alt => 'Raki'), :controller => 'page', :page => h(Raki.frontpage), :action => 'view' %>
         </div>
         <div id="left_menu">
           <%=insert_page 'LeftMenu' %>
@@ -26,7 +26,7 @@
         <div id="auth">
           <%=render :partial => 'layouts/auth' %>
         </div>
-        <div id="page_title"><%=@title %></div>
+        <div id="page_title"><%=h(@title) %></div>
         <div id="content_container">
           <div id="controls">
             <%=render :partial => "#{controller_name}/tabs" %>
@@ -38,8 +38,8 @@
             <div id="page_footer">
               <%=t 'page.footer',
                 :date => @page_info[:date],
-                :user => link_to(@page_info[:user], :controller => 'user_page', :action => 'view', :user => @page_info[:user]),
-                :version => @page_info[:version] %>
+                :user => link_to(@page_info[:user], :controller => 'user_page', :action => 'view', :user => h(@page_info[:user])),
+                :version => h(@page_info[:version]) %>
             </div>
           <% end %>
         </div>
