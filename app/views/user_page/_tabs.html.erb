@@ -1,11 +1,11 @@
 <div id="controls_left">
-  <%=link_to t('page.tab.view'), {:controller => 'user_page', :action => 'view', :user => @user}, :class => (action_name=='view'?'active':'inactive') %>
+  <%=link_to t('page.tab.view'), {:controller => 'user_page', :action => 'view', :user => h(@user)}, :class => (action_name=='view'?'active':'inactive') %>
   <% if userpage_exists? @user %>
-    <%=link_to t('page.tab.info'), {:controller => 'user_page', :action => 'info', :user => @user}, :class => (action_name=='info'?'active':'inactive') %>
+    <%=link_to t('page.tab.info'), {:controller => 'user_page', :action => 'info', :user => h(@user)}, :class => (action_name=='info'?'active':'inactive') %>
   <% end %>
 </div>
 <div id="controls_right">
   <% if authenticated? %>
-    <%=link_to t('page.tab.edit'), {:controller => 'user_page', :action => 'edit', :user => @user}, :class => (action_name=='edit'?'active':'inactive') %>
+    <%=link_to t('page.tab.edit'), {:controller => 'user_page', :action => 'edit', :user => h(@user)}, :class => (action_name=='edit'?'active':'inactive') %>
   <% end %>
 </div>

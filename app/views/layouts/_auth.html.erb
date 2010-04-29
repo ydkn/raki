@@ -1,5 +1,5 @@
 <% if authenticated? %>
-  <span id="auth_username"><%=User.current.username %></span>
+  <span id="auth_username"><%=h User.current.username %></span>
   <%=link_to((t 'authinfo.logout'), {:controller => 'authentication', :action => 'logout'}) %>
 <% else %>
   <%=link_to((t 'authinfo.login'), {:controller => 'authentication', :action => 'login'}) %>
