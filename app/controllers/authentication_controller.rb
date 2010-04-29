@@ -20,16 +20,20 @@ class AuthenticationController < ApplicationController
     redirect_to :controller => 'page', :action => 'view', :page => Raki.frontpage unless User.current.nil?
     @title = t 'auth.login'
     @form_fields = Raki.authenticator.form_fields
-    unless params[:loginsubmit].nil?
-      res = Raki.authenticator.login(params, session)
-      if res.is_a?(String)
-        redirect_to res
-      elsif res.is_a?(User)
-        session[:user] = res
-      else
-        session[:user] = nil
-        flash[:notice] = t 'auth.invalid_credentials'
+    begin
+      unless params[:loginsubmit].nil?
+        res = Raki.authenticator.login(params, session)
+        if res.is_a?(String)
+          redirect_to res
+        elsif res.is_a?(User)
+          session[:user] = res
+        else
+          session[:user] = nil
+          flash[:notice] = t 'auth.invalid_credentials'
+        end
       end
+    rescue => e
+      flash[:notice] = e.to_s
     end
   end
 

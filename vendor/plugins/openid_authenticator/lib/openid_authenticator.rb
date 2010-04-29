@@ -28,7 +28,7 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
       request.add_extension_arg('sreg', 'required', 'nickname,email')
       return request.redirect_url(controller.url_for(''), controller.url_for(:controller => 'authentication', :action => 'callback'))
     rescue
-      raise AuthenticatorError.new("Unable to authenticate against: #{openid}")
+      raise AuthenticatorError.new("Unable to authenticate: #{openid}")
     end
   end
 
