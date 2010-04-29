@@ -15,7 +15,7 @@
         <td class="version"><%=link_to revision.version, :controller => 'user_page', :action => 'view', :user => @user, :revision => revision.revision %></td>
         <td><%=revision.date.strftime t('datetime_format') %></td>
         <td><%=link_to revision.user, :controller => 'user_page', :action => 'view', :user => revision.user %></td>
-        <td><%=revision.message%></td>
+        <td><%=h revision.message%></td>
       </tr>
     <%  end %>
   </tbody>
