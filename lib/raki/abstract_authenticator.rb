@@ -16,7 +16,12 @@
 
 module Raki
   class AbstractAuthenticator
-    def login(username, password)
+
+    class AuthenticatorError < StandardError
     end
+
+    def login(username, password, session=nil)
+    end
+
   end
 end

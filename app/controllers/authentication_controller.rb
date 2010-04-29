@@ -20,16 +20,15 @@ class AuthenticationController < ApplicationController
     redirect_to :controller => 'page', :action => 'view', :page => Raki.frontpage unless User.current.nil?
     @title = t 'auth.login'
     unless params[:username].nil?
-      if Raki.authenticator.login(params[:username], params[:password])
-        User.current = User.find(params[:username])
-        session[:user] = User.current.username
-        redirect_to :controller => 'page', :action => 'view', :page => Raki.frontpage
+      res = Raki.authenticator.login(params[:username], params[:password], session)
+      if res.is_a?(String)
+        redirect_to res
+      elsif res.is_a?(User)
+        session[:user] = res
       else
         session[:user] = nil
         flash[:notice] = t 'auth.invalid_credentials'
       end
-    else
-      flash[:notice] = nil
     end
   end
 
@@ -38,6 +37,20 @@ class AuthenticationController < ApplicationController
     reset_session
     flash[:notice] = t 'auth.logged_out'
     redirect_to :controller => 'page', :action => 'view', :page => Raki.frontpage
+  end
+
+  def callback
+    params.delete(:controller)
+    params.delete(:action)
+    res = Raki.authenticator.callback(params, session)
+    if res.is_a?(User)
+      session[:user] = res
+      User.current= res
+      redirect_to :controller => 'page', :action => 'view', :page => Raki.frontpage
+    else
+      flash[:notice] = t 'auth.invalid_callback'
+      redirect_to :controller => 'authentication', :action => 'login'
+    end
   end
 
 end

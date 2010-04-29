@@ -21,6 +21,7 @@ ActionController::Routing::Routes.draw do |map|
   # Authentication
   map.signin 'login', :controller => 'authentication', :action => 'login'
   map.signout 'logout', :controller => 'authentication', :action => 'logout'
+  map.connect 'login_callback', :controller => 'authentication', :action => 'callback'
 
   # Root
   map.root :controller => 'page', :action => 'view', :page => Raki.frontpage

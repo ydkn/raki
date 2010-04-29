@@ -14,37 +14,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class ApplicationController < ActionController::Base
-  #protect_from_forgery
+require 'test_helper'
 
-  # Scrub sensitive parameters from your log
-  filter_parameter_logging :password
+class OpenIDAuthenticatorTest < Test::Unit::TestCase
 
-  helper PageHelper
-  helper UserPageHelper
-  helper AuthenticationHelper
-
-  before_filter :init_raki
-  before_filter :try_to_authenticate_user
-
-  private
-
-  def init_raki
-    Raki.init self
+  def setup
+    @authenticator = OpenIDAuthenticator.new
   end
 
-  def try_to_authenticate_user
-    User.current = nil
-    begin
-      unless session[:user].nil?
-        user = session[:user]
-        if user.is_a?(User)
-          User.current = user
-        end
-      end
-    rescue
-      User.current = nil
-    end
+  # Try to authenticate user
+  def test_auth
+    # Maybe someday...
   end
 
 end
