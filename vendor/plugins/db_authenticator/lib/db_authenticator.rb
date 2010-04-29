@@ -16,7 +16,9 @@
 
 class DBAuthenticator < Raki::AbstractAuthenticator
 
-  def login(username, password)
+  def login(params)
+    username = params[:username]
+    password = params[:password]
     begin
       user = User.find(username)
       return false if user.nil?

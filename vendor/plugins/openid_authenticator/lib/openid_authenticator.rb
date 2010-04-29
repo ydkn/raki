@@ -20,14 +20,15 @@ require 'openid/store/filesystem'
 
 class OpenIDAuthenticator < Raki::AbstractAuthenticator
 
-  def login(username, password, session)
+  def login(params, session)
+    openid = params[:openid]
     controller = Raki.controller
     begin
-      request = openid_consumer(session).begin(username)
+      request = openid_consumer(session).begin(openid)
       request.add_extension_arg('sreg', 'required', 'nickname,email')
       return request.redirect_url(controller.url_for(''), controller.url_for(:controller => 'authentication', :action => 'callback'))
     rescue
-      raise AuthenticatorError.new("Unable to authenticate against: #{username}")
+      raise AuthenticatorError.new("Unable to authenticate against: #{openid}")
     end
   end
 
