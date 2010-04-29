@@ -1,7 +1,7 @@
 <div id="login">
   <form action="<%=url_for :controller => 'authentication', :action => 'login' %>" method="post" accept-charset="UTF-8">
     <% unless flash[:notice].nil? %>
-      <div class="error"><%=flash[:notice] %></div>
+      <div class="error"><%=h flash[:notice] %></div>
     <% end %>
     <% @form_fields.each do |field| %>
       <label for="login-<%=field[:name]%>"><%=t field[:title] %></label>
