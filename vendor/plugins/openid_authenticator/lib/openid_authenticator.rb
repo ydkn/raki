@@ -43,6 +43,16 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
     nil
   end
 
+  def form_fields
+    [
+      {
+        :name => 'openid',
+        :type => 'text',
+        :title => 'auth.openid'
+      }
+    ]
+  end
+
   private
 
   def openid_consumer(session)

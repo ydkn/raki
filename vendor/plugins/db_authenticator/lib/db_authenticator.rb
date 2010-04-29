@@ -26,4 +26,19 @@ class DBAuthenticator < Raki::AbstractAuthenticator
     end
   end
 
+  def form_fields
+    [
+      {
+        :name => 'openid',
+        :type => 'text',
+        :title => 'auth.username'
+      },
+      {
+        :name => 'password',
+        :type => 'password',
+        :title => 'auth.password'
+      }
+    ]
+  end
+
 end

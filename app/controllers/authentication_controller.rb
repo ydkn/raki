@@ -19,6 +19,7 @@ class AuthenticationController < ApplicationController
   def login
     redirect_to :controller => 'page', :action => 'view', :page => Raki.frontpage unless User.current.nil?
     @title = t 'auth.login'
+    @form_fields = Raki.authenticator.form_fields
     unless params[:username].nil?
       res = Raki.authenticator.login(params[:username], params[:password], session)
       if res.is_a?(String)
