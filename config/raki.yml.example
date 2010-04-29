@@ -16,20 +16,17 @@
 
 # Raki settings
 
+app_name: Raki
+
 frontpage: Main
 
 providers:
-    page:
-      provider: git
-      path: /path/to/git/repo
-    user_page:
+    default:
       provider: git
       path: /path/to/git/repo
 
 parsers:
-  page:
-    parser: raki
-  user_page:
+  default:
     parser: raki
 
 authenticator: db

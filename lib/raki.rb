@@ -17,6 +17,9 @@
 module Raki
   class << self
 
+    class RakiError < StandardError
+    end
+
     attr_reader :controller
     
     def init(controller)
@@ -27,6 +30,7 @@ module Raki
       @config = YAML.load(File.read("#{Rails.root}/config/raki.yml")) if @config.nil?
       @requested_config = @config
       keys.each do |key,value|
+        return nil if @requested_config[key].nil?
         @requested_config = @requested_config[key]
       end
       @requested_config
@@ -38,6 +42,7 @@ module Raki
     end
 
     def app_name
+      return config[:app_name] unless config[:app_name].nil?
       'Raki'
     end
 
@@ -55,13 +60,19 @@ module Raki
     end
 
     def provider(type)
-      if @current_provider.nil?
-        c = config('providers', type.to_s)
-        id = c['provider']
-        c.delete('provider')
-        @current_provider = @providers[id.to_sym].new(c)
+      @initialized_providers = {} if @initialized_providers.nil?
+      if @initialized_providers.key?(type)
+        return @initialized_providers[type]
+      elsif !config('providers', type.to_s).nil?
+        id = config('providers', type.to_s)['provider']
+        @initialized_providers[type] = @providers[id.to_sym].new(provider_params(type))
+      elsif !config('providers', 'default').nil?
+        id = config('providers', 'default')['provider']
+        @initialized_providers[type] = @providers[id.to_sym].new(provider_params(:default))
+      else
+        raise RakiError.new("No Provider")
       end
-      @current_provider
+      @initialized_providers[type]
     end
 
     def register_parser(id, clazz)
@@ -74,13 +85,19 @@ module Raki
     end
 
     def parser(type)
-      if @current_parser.nil?
-        c = config('parsers', type.to_s)
-        id = c['parser']
-        c.delete('parser')
-        @current_parser = @parsers[id.to_sym].new(c)
+      @initialized_parsers = {} if @initialized_parsers.nil?
+      if @initialized_parsers.key?(type)
+        return @initialized_parsers[type]
+      elsif !config('parsers', type.to_s).nil?
+        id = config('parsers', type.to_s)['parser']
+        @initialized_parsers[type] = @parsers[id.to_sym].new(parser_params(type))
+      elsif !config('parsers', 'default').nil?
+        id = config('parsers', 'default')['parser']
+        @initialized_parsers[type] = @parsers[id.to_sym].new(parser_params(:default))
+      else
+        raise RakiError.new("No Parser")
       end
-      @current_parser
+      @initialized_parsers[type]
     end
 
     def register_authenticator(id, clazz)
@@ -93,11 +110,26 @@ module Raki
     end
 
     def authenticator
-      if @current_authenticator.nil?
+      if @authenticator.nil?
         id = config('authenticator')
-        @current_authenticator = @authenticators[id.to_sym].new
+        raise RakiError.new("No Authenticator") if id.nil?
+        @authenticator = @authenticators[id.to_sym].new
       end
-      @current_authenticator
+      @authenticator
+    end
+
+    private
+
+    def provider_params(type)
+      c = config('providers', type.to_s)
+      c.delete('provider')
+      c
+    end
+
+    def parser_params(type)
+      c = config('parsers', type.to_s)
+      c.delete('parser')
+      c
     end
 
   end
