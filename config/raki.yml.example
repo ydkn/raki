@@ -21,9 +21,9 @@ app_name: Raki
 frontpage: Main
 
 providers:
-    default:
-      provider: git
-      path: /path/to/git/repo
+  default:
+    provider: git
+    path: /path/to/git/repo
 
 parsers:
   default:
