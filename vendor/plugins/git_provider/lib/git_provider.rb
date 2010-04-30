@@ -52,6 +52,10 @@ class GitProvider < Raki::AbstractProvider
     all('pages')
   end
 
+  def page_changes(amount=0)
+    changes(:page, 'pages', amount)
+  end
+
   def userpage_exists?(user, revision=nil)
     exists?('users', user, revision)
   end
@@ -74,6 +78,10 @@ class GitProvider < Raki::AbstractProvider
 
   def userpage_all
     all('users')
+  end
+
+  def userpage_changes(amount=0)
+    changes(:userpage, 'users', amount)
   end
 
   private
@@ -165,8 +173,8 @@ class GitProvider < Raki::AbstractProvider
       if line =~ /^commit ([0-9a-f]{40})$/
         if(changeset.length == 4)
           revs << Revision.new(
-            changeset[:commit][0..7].upcase,
             changeset[:commit],
+            changeset[:commit][0..7].upcase,
             changeset[:author],
             changeset[:date],
             changeset[:message].strip
@@ -188,8 +196,8 @@ class GitProvider < Raki::AbstractProvider
     end
     if(changeset.length == 4)
       revs << Revision.new(
-        changeset[:commit][0..7].upcase,
         changeset[:commit],
+        changeset[:commit][0..7].upcase,
         changeset[:author],
         changeset[:date],
         changeset[:message].strip
@@ -210,6 +218,16 @@ class GitProvider < Raki::AbstractProvider
       end
     end
     objs
+  end
+
+  def changes(type, dir, amount=0)
+    changes = []
+    all(dir).each do |obj|
+      revisions("#{dir}/#{obj}").each do |revision|
+        changes << Change.new(type, obj, revision)
+      end
+    end
+    changes.sort { |a,b| a.revision.date <=> b.revision.date }
   end
 
   def format_obj(obj)

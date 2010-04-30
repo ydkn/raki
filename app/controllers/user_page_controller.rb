@@ -19,17 +19,24 @@ class UserPageController < ApplicationController
 
   def redirect_to_userpage
     if User.current.nil?
-      redirect_to :controller => 'page', :action => 'view', :page => Raki.frontpage
+      redirect_to :controller => 'page', :action => 'view', :id => Raki.frontpage
     else
-      redirect_to :controller => 'user_page', :action => 'view', :user => User.current.username
+      redirect_to :controller => 'user_page', :action => 'view', :id => User.current.username
     end
   end
 
   def view
     current_revision = @provider.userpage_revisions(@user).last
-    @page_info = {:date => current_revision.date.strftime(t 'datetime_format'), :user => current_revision.user, :version => current_revision.version} unless current_revision.nil?
+    @page_info = {
+      :date => current_revision.date.strftime(t 'datetime_format'),
+      :user => current_revision.user,
+      :version => current_revision.version,
+      :type => 'user_page',
+      :id => @user
+    } unless current_revision.nil?
     respond_to do |format|
       format.html
+      format.atom { @revisions = @provider.userpage_revisions @user }
       format.txt { render :inline => @provider.userpage_contents(@user, @revision), :content_type => 'text/plain' }
     end
   end
@@ -37,6 +44,9 @@ class UserPageController < ApplicationController
   def info
     return if redirect_if_userpage_not_exists
     @revisions = @provider.userpage_revisions @user
+    respond_to do |format|
+      format.html
+    end
   end
 
   def edit
@@ -50,21 +60,21 @@ class UserPageController < ApplicationController
 
   def update
     @provider.userpage_save @user, params[:content], params[:message], User.current
-    redirect_to :controller => 'user_page', :action => 'view', :user => @user
+    redirect_to :controller => 'user_page', :action => 'view', :id => @user
   end
   
   private
 
   def common_init
-    @user = params[:user]
+    @user = params[:id]
     @revision = params[:revision]
-    @provider = Raki.provider(:user_page)
+    @provider = Raki.provider(:userpage)
     @title = @user
   end
 
   def redirect_if_userpage_not_exists
     unless @provider.userpage_exists?(@user)
-      redirect_to :controller => 'user_page', :action => 'view', :user => @user
+      redirect_to :controller => 'user_page', :action => 'view', :id => @user
       true
     end
     false

@@ -178,6 +178,15 @@ body {
     margin-left: 13.5em;
 }
 
+a.feed {
+    padding: 0 0.5em;
+    text-decoration: none;
+}
+
+a.feed img {
+    vertical-align: bottom;
+}
+
 .information, .warning, .error, .confirmation {
     display: block;
     margin: 1em .5em;

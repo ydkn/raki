@@ -17,7 +17,7 @@
 class AuthenticationController < ApplicationController
 
   def login
-    redirect_to :controller => 'page', :action => 'view', :page => Raki.frontpage unless User.current.nil?
+    redirect_to :controller => 'page', :action => 'view', :id => Raki.frontpage unless User.current.nil?
     @title = t 'auth.login'
     @form_fields = Raki.authenticator.form_fields
     begin
@@ -41,7 +41,7 @@ class AuthenticationController < ApplicationController
     User.current = nil
     reset_session
     flash[:notice] = t 'auth.logged_out'
-    redirect_to :controller => 'page', :action => 'view', :page => Raki.frontpage
+    redirect_to :controller => 'page', :action => 'view', :id => Raki.frontpage
   end
 
   def callback
@@ -51,7 +51,7 @@ class AuthenticationController < ApplicationController
     if res.is_a?(User)
       session[:user] = res
       User.current= res
-      redirect_to :controller => 'page', :action => 'view', :page => Raki.frontpage
+      redirect_to :controller => 'page', :action => 'view', :id => Raki.frontpage
     else
       flash[:notice] = t 'auth.invalid_callback'
       redirect_to :controller => 'authentication', :action => 'login'

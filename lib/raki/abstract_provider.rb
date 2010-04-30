@@ -48,7 +48,7 @@ module Raki
       raise ProviderError.new 'not implemented'
     end
 
-    def changes(amount)
+    def page_changes(amount=0)
       raise ProviderError.new 'not implemented'
     end
 
@@ -76,22 +76,39 @@ module Raki
       raise ProviderError.new 'not implemented'
     end
 
+    def userpage_changes(amount=0)
+      raise ProviderError.new 'not implemented'
+    end
+
     private
 
     class Revision
+      attr_reader :id
       attr_reader :version
-      attr_reader :revision
       attr_reader :user
       attr_reader :date
       attr_reader :message
 
-      def initialize(version, revision, user, date, message)
+      def initialize(id, version, user, date, message)
+        @id = id
         @version = version
-        @revision = revision
         @user = user
         @date = date
         @message = message
       end
     end
+
+    class Change
+      attr_reader :type
+      attr_reader :name
+      attr_reader :revision
+
+      def initialize(type, name, revision)
+        @type = type
+        @name = name
+        @revision = revision
+      end
+    end
+
   end
 end

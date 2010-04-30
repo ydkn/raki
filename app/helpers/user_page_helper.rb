@@ -17,22 +17,22 @@
 module UserPageHelper
 
   def userpage_contents(user, revision=nil)
-    Raki.provider(:user_page).userpage_contents(user, revision)
+    Raki.provider(:userpage).userpage_contents(user, revision)
   end
 
   def insert_userpage(user, revision=nil)
     if userpage_exists?(user, revision)
-      parsed = Raki.parser(:user_page).parse(userpage_contents(user, revision))
+      parsed = Raki.parser(:userpage).parse(userpage_contents(user, revision))
       (parsed.nil?)?"<div class=\"error\">PARSING ERROR</div>":parsed
     end
   end
 
   def userpage_exists?(user, revision=nil)
-    Raki.provider(:user_page).userpage_exists?(user, revision)
+    Raki.provider(:userpage).userpage_exists?(user, revision)
   end
 
   def userpage_revisions(user)
-    Raki.provider(:user_page).userpage_revisions(user)
+    Raki.provider(:userpage).userpage_revisions(user)
   end
 
 end

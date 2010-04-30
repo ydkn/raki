@@ -65,10 +65,10 @@ module Raki
         return @initialized_providers[type]
       elsif !config('providers', type.to_s).nil?
         id = config('providers', type.to_s)['provider']
-        @initialized_providers[type] = @providers[id.to_sym].new(provider_params(type))
+        @initialized_providers[type] = @providers[id.to_sym].new(config('providers', type.to_s))
       elsif !config('providers', 'default').nil?
         id = config('providers', 'default')['provider']
-        @initialized_providers[type] = @providers[id.to_sym].new(provider_params(:default))
+        @initialized_providers[type] = @providers[id.to_sym].new(config('providers', 'default'))
       else
         raise RakiError.new("No Provider")
       end
@@ -90,10 +90,10 @@ module Raki
         return @initialized_parsers[type]
       elsif !config('parsers', type.to_s).nil?
         id = config('parsers', type.to_s)['parser']
-        @initialized_parsers[type] = @parsers[id.to_sym].new(parser_params(type))
+        @initialized_parsers[type] = @parsers[id.to_sym].new(config('parsers', type.to_s))
       elsif !config('parsers', 'default').nil?
         id = config('parsers', 'default')['parser']
-        @initialized_parsers[type] = @parsers[id.to_sym].new(parser_params(:default))
+        @initialized_parsers[type] = @parsers[id.to_sym].new(config('parsers', 'default'))
       else
         raise RakiError.new("No Parser")
       end
@@ -116,20 +116,6 @@ module Raki
         @authenticator = @authenticators[id.to_sym].new
       end
       @authenticator
-    end
-
-    private
-
-    def provider_params(type)
-      c = config('providers', type.to_s)
-      c.delete('provider')
-      c
-    end
-
-    def parser_params(type)
-      c = config('parsers', type.to_s)
-      c.delete('parser')
-      c
     end
 
   end

@@ -12,7 +12,7 @@
     <div id="container">
       <div id="left">
         <div id="logo">
-          <%=link_to image_tag('raki_logo.png', :alt => 'Raki'), :controller => 'page', :page => h(Raki.frontpage), :action => 'view' %>
+          <%=link_to image_tag('raki_logo.png', :alt => 'Raki'), :controller => 'page', :id => h(Raki.frontpage), :action => 'view' %>
         </div>
         <div id="left_menu">
           <%=insert_page 'LeftMenu' %>
@@ -38,8 +38,9 @@
             <div id="page_footer">
               <%=t 'page.footer',
                 :date => @page_info[:date],
-                :user => link_to(@page_info[:user], :controller => 'user_page', :action => 'view', :user => h(@page_info[:user])),
+                :user => link_to(@page_info[:user], :controller => 'user_page', :action => 'view', :id => h(@page_info[:user])),
                 :version => h(@page_info[:version]) %>
+              <%=link_to image_tag('feed.png', :alt => 'Feed'), { :controller => @page_info[:type], :action => 'view', :format => 'atom', :id => @page_info[:id] }, {:title => 'Feed', :class => 'feed'} %>
             </div>
           <% end %>
         </div>
