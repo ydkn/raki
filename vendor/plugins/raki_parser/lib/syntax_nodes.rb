@@ -147,10 +147,34 @@ end
 
 class PluginNode < Treetop::Runtime::SyntaxNode
   def to_html
+    @@coder = HTMLEntities.new unless defined? @@coder
     begin
-      Raki::Plugin.execute(name.text_value, {}, body.text_value, {}).to_s
+      if defined? body and !body.nil?
+        text = body.text_value
+      else
+        text = ''
+      end
+      params = Hash[]
+      if defined? param
+        param.elements.each do |element|
+          params = params.merge element.parameter.keyval
+        end
+      end
+      Raki::Plugin.execute(name.text_value, params, text, {}).to_s
     rescue => e
-      "<div class=\"error\">#{e.to_s}</div>"
+      "<div class=\"error\">#{@@coder.encode e.to_s}</div>"
     end
+  end
+end
+
+class ParameterNode < Treetop::Runtime::SyntaxNode
+  def keyval
+    val = value.text_value
+    if val[0] == '"' && val[-1] == '"';
+      val = val[1..-2].gsub(/\"/, '"')
+    elsif val[0] == "'" && val[-1] == "'";
+      val = val[1..-2].gsub(/\'/, "'")
+    end
+    Hash[key.text_value.to_sym, val]
   end
 end

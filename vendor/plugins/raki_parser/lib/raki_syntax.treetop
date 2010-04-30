@@ -36,10 +36,10 @@ grammar RakiSyntax
 
   rule plugin
     '[{' name:(!'}]' !whitespace text)+ whitespace
+    param:(parameter whitespace?)*
     body:(!'}]' (text / linebreak))* '}]' <PluginNode>
     /
-    '[{' name:(!'}]' !whitespace text)* body:'' '}]' <PluginNode>
-
+    '[{' name:(!'}]' !whitespace text)* '}]' <PluginNode>
   end
 
   rule heading
@@ -109,6 +109,16 @@ grammar RakiSyntax
   end
 
   # Strings
+
+  rule parameter
+    key:(!'=' !linebreak text)* '='
+    value:(quoted_text / (!whitespace text))* <ParameterNode>
+  end
+
+  rule quoted_text
+    ('"' ((!'"' !'\"' !whitespace text) / '\"' / whitespace)* '"') /
+    ("'" ((!"'" !"\'" !whitespace text) / "\\\'" / whitespace)* "'")
+  end
 
   rule protocol
     (data_protocol '://') / (app_protocol ':')

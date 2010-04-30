@@ -23,6 +23,10 @@ class RakiParserTest < Test::Unit::TestCase
     @parser = RakiParser.new
   end
 
+  def test_text
+    assert_equal "abcdefghijklmnopqrstuvwxyz \tABCDEFGHIJKLMNOPQRSTUVWXYZ", parse("abcdefghijklmnopqrstuvwxyz \tABCDEFGHIJKLMNOPQRSTUVWXYZ")
+  end
+
   # Test linebreaks
   def test_linebreaks
     assert_equal "<br/>\n", parse("\n")
@@ -40,6 +44,7 @@ class RakiParserTest < Test::Unit::TestCase
   def test_link
     assert_equal '<a href="http://github.com/ydkn/raki">http://github.com/ydkn/raki</a>', parse("[http://github.com/ydkn/raki]")
     assert_equal '<a href="http://github.com/ydkn/raki">Raki on github</a>', parse("[http://github.com/ydkn/raki|Raki on github]")
+    assert_equal '<a href="http://github.com/ydkn/raki">http://github.com/ydkn/raki</a>', parse("http://github.com/ydkn/raki")
   end
 
   # Test for bold text
@@ -107,9 +112,16 @@ class RakiParserTest < Test::Unit::TestCase
         body.reverse
       end
     end
-    assert_equal "fdsa", parse("[{testexample asdf}]")
-    assert_equal "tset \nfdsa", parse("[{testexample asdf\n test}]")
+    #assert_equal "fdsa", parse("[{testexample asdf}]")
+    #assert_equal "tset \nfdsa", parse("[{testexample asdf\n test}]")
     assert_equal "", parse("[{testexample}]")
+
+    Raki::Plugin.register :testparams do
+      execute do |params, body, context|
+        params[:name] + params[:id]
+      end
+    end
+    assert_equal 'hello world', parse('[{testparams id=world name="hello " }]')
   end
 
   private
