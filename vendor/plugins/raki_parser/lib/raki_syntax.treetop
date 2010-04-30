@@ -139,7 +139,7 @@ grammar RakiSyntax
   # Single characters
 
   rule text
-    !linebreak [\d\D]
+    !linebreak .
   end
 
   rule linebreak
