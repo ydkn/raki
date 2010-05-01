@@ -89,7 +89,7 @@ class HeadingNode < Treetop::Runtime::SyntaxNode
   def to_html
     l = level.text_value.length
     l = 6 if l > 6
-    return "<h#{l}>" + text.to_html.strip + "</h#{l}>"
+    return "<h#{l}>" + text.to_html.strip + "</h#{l}>\n"
   end
 end
 
