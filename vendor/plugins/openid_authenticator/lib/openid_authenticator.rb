@@ -39,6 +39,7 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
   def callback(params, session)
     response = openid_consumer(session).complete(params, url_for(:controller => 'authentication', :action => 'callback'))
     if response.status == :success
+      raise AuthenticatorError.new("Nickname or email missing") if params['openid.sreg.nickname'].nil? || params['openid.sreg.email'].nil?
       user = User.new
       user.username = params['openid.sreg.nickname']
       user.email = params['openid.sreg.email']
