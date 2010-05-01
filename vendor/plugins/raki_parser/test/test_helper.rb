@@ -16,3 +16,8 @@
 
 require 'rubygems'
 require 'test/unit'
+
+ActionController::Base.new.process(
+  ActionController::TestRequest.new,
+  ActionController::TestResponse.new
+)
