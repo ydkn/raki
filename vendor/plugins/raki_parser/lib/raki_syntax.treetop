@@ -17,19 +17,15 @@
 grammar RakiSyntax
 
   rule syntax
-    ignore_start* ((line+) / block*) ignore_end*
-  end
-
-  rule block
-    command / text
+    ignore_whitespace* (line+) ignore_whitespace*
   end
 
   rule line
-    (heading / list) !(!linebreak .) / linebreak
+    heading ignore_whitespace* / list !(!linebreak .) / inline+ !(!linebreak .) / linebreak
   end
 
-  rule command
-    infobox / plugin / formating / linebreak / link
+  rule inline
+    infobox / plugin / formating / link / text
   end
 
   # Sections
@@ -43,11 +39,11 @@ grammar RakiSyntax
   end
 
   rule heading
-    level:'!'+ text:(!linebreak text)+ linebreak* <HeadingNode>
+    level:'!'+ text:(!linebreak text)+ <HeadingNode>
   end
 
   rule infobox
-    '%%' type:([\w]+) text:(!'%%' block)* '%%' <InfoboxNode>
+    '%%' type:([\w]+) text:(!'%%' inline)* '%%' <InfoboxNode>
   end
 
   # Lists
@@ -57,7 +53,7 @@ grammar RakiSyntax
   end
 
   rule listitem
-    level:space* type:('*' / '#') whitespace? !'*' text:(!linebreak block)+
+    level:space* type:(!'**' '*' / '#') whitespace? text:(!linebreak inline)+
   end
 
   # Formating
@@ -67,19 +63,19 @@ grammar RakiSyntax
   end
 
   rule underlined
-    "__" text:(!"__" block)* "__" <UnderlineNode>
+    "__" text:(!"__" inline)* "__" <UnderlineNode>
   end
 
   rule italic
-     "''" text:(!"''" block)* "''" <ItalicNode>
+     "''" text:(!"''" inline)* "''" <ItalicNode>
   end
 
   rule bold
-    '**' text:(!'**' block)* '**' <BoldNode>
+    '**' text:(!'**' inline)* '**' <BoldNode>
   end
 
   rule strikethrough
-    '--' text:(!'--' block)* '--' <StrikethroughNode>
+    '--' text:(!'--' inline)* '--' <StrikethroughNode>
   end
 
   # Links
@@ -136,10 +132,6 @@ grammar RakiSyntax
     [ \wäüöÄÜÖß_+-]+
   end
 
-  rule ignored_linebreaks
-    linebreak* <IgnoreNode>
-  end
-
   # Single characters
 
   rule text
@@ -162,11 +154,7 @@ grammar RakiSyntax
     !linebreak [\S]
   end
 
-  rule ignore_start
-    whitespace '' <IgnoreNode>
-  end
-
-  rule ignore_end
+  rule ignore_whitespace
     whitespace '' <IgnoreNode>
   end
 

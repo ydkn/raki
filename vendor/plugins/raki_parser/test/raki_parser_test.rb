@@ -72,11 +72,12 @@ class RakiParserTest < Test::Unit::TestCase
 
   # Test for headings
   def test_headings
-    assert_equal '<h1>Heading first order</h1>', parse("!Heading first order")
-    assert_equal '<h2>Heading second order</h2>', parse("!!Heading second order\n")
-    assert_equal '<h3>Heading third order</h3>', parse("!!!Heading third order")
-    assert_equal '<h6>Heading sixth order</h6>', parse("!!!!!!Heading sixth order\n")
-    assert_equal '<h6>!!Heading sixth order with extra exlamation marks</h6>', parse("!!!!!! !!Heading sixth order with extra exlamation marks\n")
+    assert_equal "<h1>Heading first order</h1>\n", parse("!Heading first order")
+    assert_equal "<h2>Heading second order</h2>\n", parse("!!Heading second order\n")
+    assert_equal "<h3>Heading third order</h3>\n", parse("!!!Heading third order")
+    assert_equal "<h6>Heading sixth order</h6>\n", parse("!!!!!!Heading sixth order\n")
+    assert_equal "<h6>!!Heading sixth order with extra exlamation marks</h6>\n", parse("!!!!!! !!Heading sixth order with extra exlamation marks\n")
+    assert_equal "<h1>Heading first order</h1>\ntest", parse("!Heading first order\ntest")
   end
 
   # Test for message boxes
@@ -107,6 +108,11 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal "<ul>\n<li>item1\n<ol>\n<li>item2</li>\n</ol>\n</li>\n<li>item3</li>\n</ul>\n", parse("*item1\n #item2\n*item3")
     assert_equal "<ol>\n<li>hello</li>\n<li>world\n<ul>\n<li>sub</li>\n<li>bla</li>\n</ul>\n<ol>\n<li>test\n<ul>\n<li>foo</li>\n</ul>\n</li>\n</ol>\n</li>\n<li>bar</li>\n</ol>\n",
         parse("#hello\n#world\n *sub\n * bla\n #test\n  * foo\n#bar")
+  end
+
+  def test_pages
+    assert_equal "<a href=\"/wiki/link\">link</a><br/>\n<ul>\n<li>item1</li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("[link]\n\n*item1\n#item2")
+    assert_equal "<h1>Testseite</h1>\n<a href=\"/wiki/link\">link</a><br/>\n<ul>\n<li><b>item1</b></li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("!Testseite\n\n[link]\n\n* **item1**\n#item2")
   end
 
   def test_plugin
