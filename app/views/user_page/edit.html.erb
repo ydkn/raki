@@ -1,8 +1,8 @@
 <form id="edit-form" action="<%=url_for :controller => 'user_page', :user => h(@user), :action => 'update' %>" method="post" accept-charset="UTF-8">
   <div>
     <input type="submit" value="<%=t 'page.edit.save' %>" />
-    <input type="button" value="<%=t 'page.edit.preview' %>" onclick="javascript:document.getElementById('edit-form').action='<%=url_for :controller => 'user_page', :action => 'edit', :page => h(@page) %>'; document.getElementById('edit-form').submit();" />
-    <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=url_for :controller => 'user_page', :action => 'view', :user => h(@user) %>';" />
+    <input type="button" value="<%=t 'page.edit.preview' %>" onclick="javascript:document.getElementById('edit-form').action='<%=url_for :controller => 'user_page', :action => 'edit', :id => h(@page) %>'; document.getElementById('edit-form').submit();" />
+    <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=url_for :controller => 'user_page', :action => 'view', :id => h(@user) %>';" />
   </div>
   <div>
     <label for="page-message"><%=t 'page.edit.message' %></label>

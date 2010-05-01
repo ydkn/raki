@@ -1,8 +1,19 @@
+<form action="<%=url_for :controller => 'page', :id => h(@page), :action => 'rename' %>" method="post">
+  <div>
+    <% unless flash[:notice].nil? %>
+      <div class="error"><%=flash[:notice] %></div>
+    <% end %>
+    <input type="text" id="page-name" name="name" value="<%=h @page%>" />
+    <input type="submit" value="<%=t 'page.info.rename' %>" />
+  </div>
+</form>
+<input type="button" value="<%=t 'page.info.delete' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :id => h(@page), :action => 'delete' %>';" />
+<br/>
 <form id="edit-form" action="<%=url_for :controller => 'page', :page => h(@page), :action => 'update' %>" method="post" accept-charset="UTF-8">
   <div>
     <input type="submit" value="<%=t 'page.edit.save' %>" />
-    <input type="button" value="<%=t 'page.edit.preview' %>" onclick="javascript:document.getElementById('edit-form').action='<%=url_for :controller => 'page', :action => 'edit', :page => h(@page) %>'; document.getElementById('edit-form').submit();" />
-    <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :action => 'view', :page => h(@page) %>';" />
+    <input type="button" value="<%=t 'page.edit.preview' %>" onclick="javascript:document.getElementById('edit-form').action='<%=url_for :controller => 'page', :action => 'edit', :id => h(@page) %>'; document.getElementById('edit-form').submit();" />
+    <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :action => 'view', :id => h(@page) %>';" />
   </div>
   <div>
     <label for="page-message"><%=t 'page.edit.message' %></label>
