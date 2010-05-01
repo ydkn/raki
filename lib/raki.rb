@@ -20,12 +20,6 @@ module Raki
     class RakiError < StandardError
     end
 
-    attr_reader :controller
-    
-    def init(controller)
-      @controller = controller
-    end
-
     def config(*keys)
       @config = YAML.load(File.read("#{Rails.root}/config/raki.yml")) if @config.nil?
       @requested_config = @config

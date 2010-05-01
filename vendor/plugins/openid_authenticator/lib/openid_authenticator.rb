@@ -19,22 +19,25 @@ require 'openid'
 require 'openid/store/filesystem'
 
 class OpenIDAuthenticator < Raki::AbstractAuthenticator
+  include Raki::Helpers
 
   def login(params, session)
     openid = params[:openid]
-    controller = Raki.controller
     begin
       request = openid_consumer(session).begin(openid)
       request.add_extension_arg('sreg', 'required', 'nickname,email')
-      return request.redirect_url(controller.url_for(''), controller.url_for(:controller => 'authentication', :action => 'callback'))
-    rescue
+      return request.redirect_url(url_for(''), url_for(:controller => 'authentication', :action => 'callback'))
+    rescue => e
+      p e.message
+      e.backtrace.each do |se|
+        p se
+      end
       raise AuthenticatorError.new("Unable to authenticate: #{openid}")
     end
   end
 
   def callback(params, session)
-    controller = Raki.controller
-    response = openid_consumer(session).complete(params, controller.url_for(:controller => 'authentication', :action => 'callback'))
+    response = openid_consumer(session).complete(params, url_for(:controller => 'authentication', :action => 'callback'))
     if response.status == :success
       user = User.new
       user.username = params['openid.sreg.nickname']

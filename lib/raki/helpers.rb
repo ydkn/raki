@@ -14,37 +14,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class ApplicationController < ActionController::Base
-  #protect_from_forgery
+module Raki
+  module Helpers
 
-  # Scrub sensitive parameters from your log
-  filter_parameter_logging :password
-
-  helper PageHelper
-  helper UserPageHelper
-  helper AuthenticationHelper
-
-  before_filter :init_raki
-  before_filter :try_to_authenticate_user
-
-  private
-
-  def init_raki
-    Raki::Helpers.init self
-  end
-
-  def try_to_authenticate_user
-    User.current = nil
-    begin
-      unless session[:user].nil?
-        user = session[:user]
-        if user.is_a?(User)
-          User.current = user
-        end
+    class << self
+      attr_reader :controller
+      def init(controller)
+        @controller = controller
       end
-    rescue
-      User.current = nil
     end
-  end
 
+    def t(*args)
+      Raki::Helpers.controller.t(*args)
+    end
+
+    def l(*args)
+      Raki::Helpers.controller.l(*args)
+    end
+
+    def h(*args)
+      Raki::Helpers.controller.h(*args)
+    end
+
+    def url_for(*args)
+      Raki::Helpers.controller.url_for(*args)
+    end
+
+  end
 end
