@@ -1,0 +1,13 @@
+table.recentchanges {
+    width: 100%;
+}
+
+table.recentchanges tr td {
+    padding: 0.3em 0.5em;
+}
+
+table.recentchanges tr th {
+    padding: 0.3em 0.5em;
+    text-align: left;
+    background-color: #f0f0f0;
+}
