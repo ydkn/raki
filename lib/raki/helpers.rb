@@ -17,6 +17,8 @@
 module Raki
   module Helpers
 
+    include ERB::Util
+
     class << self
       attr_reader :controller
       def init(controller)
@@ -30,10 +32,6 @@ module Raki
 
     def l(*args)
       Raki::Helpers.controller.l(*args)
-    end
-
-    def h(*args)
-      Raki::Helpers.controller.h(*args)
     end
 
     def url_for(*args)
