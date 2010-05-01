@@ -26,6 +26,7 @@ class RecentchangesPluginHelper
         days[day] = [] unless days.key?(day)
         days[day] << change
       end
+      days = days.sort { |a,b| b <=> a }
       days.each do |day,changes|
         out += "<tr><th>#{l(Time.parse(day), :format => :date)}</th><th></th><th></th><th></th></tr>"
         changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
