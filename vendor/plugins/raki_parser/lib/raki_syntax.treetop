@@ -17,7 +17,7 @@
 grammar RakiSyntax
 
   rule syntax
-    block*
+    ignore_start* ((line+) / block*) ignore_end*
   end
 
   rule block
@@ -25,11 +25,11 @@ grammar RakiSyntax
   end
 
   rule line
-    !linebreak (block+)
+    (heading / list) !(!linebreak .) / linebreak
   end
 
   rule command
-    infobox / plugin / formating / list / linebreak / heading / link
+    infobox / plugin / formating / linebreak / link
   end
 
   # Sections
@@ -53,11 +53,11 @@ grammar RakiSyntax
   # Lists
 
   rule list
-    (linebreak listitem)+ <ListNode>
+    first_item:listitem other_items:(linebreak item:listitem)* <ListNode>
   end
 
   rule listitem
-    level:space* type:('*' / '#') !'*' text:(!linebreak block)+
+    level:space* type:('*' / '#') whitespace? !'*' text:(!linebreak block)+
   end
 
   # Formating
@@ -136,6 +136,10 @@ grammar RakiSyntax
     [ \wäüöÄÜÖß_+-]+
   end
 
+  rule ignored_linebreaks
+    linebreak* <IgnoreNode>
+  end
+
   # Single characters
 
   rule text
@@ -143,7 +147,7 @@ grammar RakiSyntax
   end
 
   rule linebreak
-    '' [\n] <LinebreakNode>
+    '' [\n]+ <LinebreakNode>
   end
 
   rule space
@@ -156,6 +160,14 @@ grammar RakiSyntax
 
   rule non_whitespace
     !linebreak [\S]
+  end
+
+  rule ignore_start
+    whitespace '' <IgnoreNode>
+  end
+
+  rule ignore_end
+    whitespace '' <IgnoreNode>
   end
 
 end

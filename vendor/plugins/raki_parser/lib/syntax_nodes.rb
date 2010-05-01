@@ -35,6 +35,11 @@ end
 
 Treetop::Runtime::SyntaxNode.send(:include, HTMLSyntax)
 
+class IgnoreNode < Treetop::Runtime::SyntaxNode
+  def to_html
+    ''
+  end
+end
 
 class LinebreakNode < Treetop::Runtime::SyntaxNode
   def to_html
@@ -94,51 +99,70 @@ class InfoboxNode < Treetop::Runtime::SyntaxNode
   end
 end
 
+
 class ListNode < Treetop::Runtime::SyntaxNode
 
   @lists
 
   def to_html
+
+    items = [first_item]
+    other_items.elements.each do |other|
+      items += [other.item]
+    end
+
     @lists = []
     out = ''
-    elements.each do |row|
-      row.elements.each do |item|
-        if item.respond_to? 'level'
-          out += adapt item.level.text_value.length + 1, item.type.text_value
-          out += '<li>' + item.text.to_html.strip + "</li>\n"
-        end
-      end
+
+    items.each do |item|
+      out += adapt item.level.text_value.length + 1, item.type.text_value
+      out += '<li>'
+      out += item.text.to_html
     end
     out += adapt 0, ''
-  end
+   end
 
   private
 
   def adapt level, type
     diff = level - @lists.size
+    parameter = ''
+    out = ''
+
     if type == '#'
       type = 'ol'
-    else type == '*'
+    elsif type == '*'
       type = 'ul'
+    elsif type == '-'
+      type = 'ul'
+      parameter = 'class="line"'
+    else
+       type = ''
     end
 
-    out = ''
     if diff > 0
       (1..diff).each do
-        out += '<li>' unless @lists.empty?
-        out += "<#{type}>\n"
+        out += "\n" unless @lists.empty?
+        if parameter.empty?
+          out += "<#{type}>\n"
+        else
+          put +=  "<#{type} class=\"#{parameter}\">\n"
+        end
         @lists = @lists << type
       end
     elsif diff < 0
       (diff..-1).each do
-        out += "</#{@lists.slice!(-1)}>\n"
-        out += "</li>\n" unless @lists.empty?
+        out += "</li>\n</#{@lists.slice!(-1)}>\n"
       end
+      out += "</li>\n" unless @lists.empty?
+    else
+      out += "</li>\n"
     end
 
+
     if type != @lists[-1] && level != 0
-      out += "</#{@lists.slice!(-1)}>\n</li>\n"
-      out += "<li><#{type}>"
+      out += "</#{@lists.slice!(-1)}>\n"
+      out += "<#{type}>\n"
       @lists = @lists << type
     end
     out
