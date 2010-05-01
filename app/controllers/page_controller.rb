@@ -24,7 +24,7 @@ class PageController < ApplicationController
   def view
     current_revision = @provider.page_revisions(@page).last
     @page_info = {
-      :date => current_revision.date.strftime(t 'datetime_format'),
+      :date => current_revision.date,
       :user => current_revision.user,
       :version => current_revision.version,
       :type => 'page',

@@ -37,7 +37,7 @@
           <% unless @page_info.nil? %>
             <div id="page_footer">
               <%=t 'page.footer',
-                :date => @page_info[:date],
+                :date => l(@page_info[:date], :format => :full),
                 :user => link_to(@page_info[:user], :controller => 'user_page', :action => 'view', :id => h(@page_info[:user])),
                 :version => h(@page_info[:version]) %>
               <%=link_to image_tag('feed.png', :alt => 'Feed'), { :controller => @page_info[:type], :action => 'view', :format => 'atom', :id => @page_info[:id] }, {:title => 'Feed', :class => 'feed'} %>

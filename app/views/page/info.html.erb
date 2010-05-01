@@ -25,7 +25,7 @@
     <% @revisions.reverse_each do |revision|%>
       <tr class="<%=((cnt+=1)%2==0)?'even':'odd'%>">
         <td class="version"><%=link_to revision.version, :controller => 'page', :action => 'view', :id => h(@page), :revision => h(revision.id) %></td>
-        <td><%=revision.date.strftime t('datetime_format') %></td>
+        <td><%=l revision.date, :format => :full %></td>
         <td><%=link_to revision.user, :controller => 'user_page', :action => 'view', :id => h(revision.user) %></td>
         <td><%=h revision.message%></td>
       </tr>

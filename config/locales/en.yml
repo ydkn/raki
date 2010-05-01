@@ -1,8 +1,10 @@
 en:
 
-  date_format: %m/%d/%Y
-  time_format: %H:%M:%s
-  datetime_format: %m/%d/%Y %H:%M:%S
+  time:
+    formats:
+      date: %m/%d/%Y
+      time: %H:%M:%s
+      full: %m/%d/%Y %H:%M:%S
 
   auth:
 
