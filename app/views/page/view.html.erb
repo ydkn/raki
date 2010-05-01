@@ -4,7 +4,7 @@
   <div class="information">
     <%=t 'page.not_exists.msg' %>
     <% if authenticated? %>
-      <%=t 'page.not_exists.edit_msg', :edit_link => link_to(t('page.not_exists.edit_link'), {:controller => 'page', :action => 'edit', :page => h(@page)}) %>
+      <%=t 'page.not_exists.edit_msg', :edit_link => link_to(t('page.not_exists.edit_link'), {:controller => 'page', :action => 'edit', :id => h(@page)}) %>
     <% end %>
   </div>
 <% end %>
