@@ -31,10 +31,10 @@ class RecentchangesPluginHelper
         changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
         changes.each do |change|
           out += "<tr>"
-          out += "<td><a href=\"#{url_for(:controller => 'page', :action => 'view', :id => change.name)}\">#{change.name}</a></td>"
+          out += "<td><a href=\"#{url_for(:controller => 'page', :action => 'view', :id => h(change.name))}\">#{h(change.name)}</a></td>"
           out += "<td>#{l(change.revision.date, :format => :time)}</td>"
-          out += "<td><a href=\"#{url_for(:controller => 'user_page', :action => 'view', :id => change.revision.user)}\">#{change.revision.user}</a></td>"
-          out += "<td>#{change.revision.message}</td>"
+          out += "<td><a href=\"#{url_for(:controller => 'user_page', :action => 'view', :id => h(change.revision.user))}\">#{h(change.revision.user)}</a></td>"
+          out += "<td>#{h(change.revision.message)}</td>"
           out += "</tr>"
         end
       end
