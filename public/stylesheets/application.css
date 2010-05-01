@@ -4,6 +4,10 @@ body {
     padding: 0;
 }
 
+a, a:visited {
+    color: #0000ff;
+}
+
 #container {
 }
 

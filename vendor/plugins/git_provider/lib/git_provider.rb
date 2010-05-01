@@ -227,7 +227,7 @@ class GitProvider < Raki::AbstractProvider
         changes << Change.new(type, obj, revision)
       end
     end
-    changes.sort { |a,b| a.revision.date <=> b.revision.date }
+    changes
   end
 
   def format_obj(obj)

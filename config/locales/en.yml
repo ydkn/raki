@@ -3,7 +3,7 @@ en:
   time:
     formats:
       date: %m/%d/%Y
-      time: %H:%M:%s
+      time: %H:%M:%S
       full: %m/%d/%Y %H:%M:%S
 
   auth:
