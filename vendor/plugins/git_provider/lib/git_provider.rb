@@ -25,62 +25,77 @@ class GitProvider < Raki::AbstractProvider
   end
 
   def page_exists?(name, revision=nil)
+    logger.debug("Checking if page exists: #{{:name => name, :revision => revision}}")
     exists?('pages', name, revision)
   end
 
   def page_contents(name, revision=nil)
+    logger.debug("Fetching contents of page: #{{:name => name, :revision => revision}}")
     contents("pages/#{name}", revision)
   end
 
   def page_revisions(name)
+    logger.debug("Fetching revisions for page #{{:name => name}}")
     revisions("pages/#{name}")
   end
 
   def page_save(name, contents, message, user)
+    logger.debug("Saving page: #{{:name => name, :contents => contents, :message => message, :user => user}}")
     save("pages/#{name}", contents, message, user)
   end
 
   def page_rename(old_name, new_name, user)
+    logger.debug("Renaming page: #{{:from => old_name, :to => new_name, :user => user}}")
     rename("pages/#{old_name}", "pages/#{new_name}", "#{old_name} ==> #{new_name}", user)
   end
 
   def page_delete(name, user)
+    logger.debug("Deleting page: #{{:page => name, :user => user}}")
     delete("pages/#{name}", "#{name} ==> /dev/null", user)
   end
 
   def page_all
+    logger.debug("Fetching all pages")
     all('pages')
   end
 
   def page_changes(amount=0)
+    logger.debug("Fetching all page changes: #{{:limit => amount}}")
     changes(:page, 'pages', amount)
   end
 
   def userpage_exists?(user, revision=nil)
+    logger.debug("Checking if userpage exists: #{{:userpage => user, :revision => revision}}")
     exists?('users', user, revision)
   end
 
   def userpage_contents(user, revision=nil)
+    logger.debug("Fetching contents of userpage: #{{:username => user, :revision => revision}}")
     contents("users/#{user}", revision)
   end
 
   def userpage_revisions(user)
+    logger.debug("Fetching revisions for userpage #{{:username => user}}")
     revisions("users/#{user}")
   end
 
   def userpage_save(username, contents, message, user)
+    logger.debug("Saving userpage: #{{:username => username, :contents => contents, :message => message, :user => user}}")
     save("users/#{username}", contents, message, user)
   end
 
   def userpage_delete(username, user)
+    logger.debug("Deleting userpage: #{{:userpage => username, :user => user}}")
     delete("users/#{username}", "#{user} ==> /dev/null", user)
   end
 
   def userpage_all
+    logger.debug("Fetching all userpages")
     all('users')
   end
 
   def userpage_changes(amount=0)
+    logger.debug("Fetching all userpage changes: #{{:limit => amount}}")
     changes(:userpage, 'users', amount)
   end
 
@@ -245,6 +260,10 @@ class GitProvider < Raki::AbstractProvider
 
   def shell_quote(str)
     str.gsub(/"/, '\\"')
+  end
+
+  def logger
+    Rails.logger
   end
   
 end
