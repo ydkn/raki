@@ -27,7 +27,7 @@ Raki::Plugin.register :index do
   execute do |params, body, context|
     rnd = rand(900)+100
     letters = {}
-    Raki.provider(:page).page_all.sort.each do |page|
+    Raki.provider(:page).page_all.each do |page|
       letter = page[0].chr.upcase
       letters[letter] = [] unless letters.key?(letter)
       letters[letter] << page

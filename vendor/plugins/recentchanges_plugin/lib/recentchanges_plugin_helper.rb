@@ -42,8 +42,8 @@ class RecentchangesPluginHelper
       "<table cellpadding=\"0\" cellspacing=\"0\" class=\"recentchanges\">#{out}</table>"
     end
 
-    def changes(type)
-      Raki.provider(type).page_changes.sort { |a,b| b.revision.date <=> a.revision.date }
+    def changes(type, limit)
+      Raki.provider(type).page_changes(limit)
     end
 
   end

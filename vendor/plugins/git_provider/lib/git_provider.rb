@@ -35,7 +35,7 @@ class GitProvider < Raki::AbstractProvider
   end
 
   def page_revisions(name)
-    logger.debug("Fetching revisions for page #{{:name => name}}")
+    logger.debug("Fetching revisions for page: #{{:name => name}}")
     revisions("pages/#{name}")
   end
 
@@ -75,7 +75,7 @@ class GitProvider < Raki::AbstractProvider
   end
 
   def userpage_revisions(user)
-    logger.debug("Fetching revisions for userpage #{{:username => user}}")
+    logger.debug("Fetching revisions for userpage: #{{:username => user}}")
     revisions("users/#{user}")
   end
 
@@ -232,7 +232,7 @@ class GitProvider < Raki::AbstractProvider
         objs << page_name unless page_name =~ /^\./
       end
     end
-    objs
+    objs.sort { |a,b| a <=> b }
   end
 
   def changes(type, dir, amount=0)
@@ -242,7 +242,12 @@ class GitProvider < Raki::AbstractProvider
         changes << Change.new(type, obj, revision)
       end
     end
-    changes
+    changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
+    if amount > 0
+      changes[0..(amount-1)]
+    else
+      changes
+    end
   end
 
   def format_obj(obj)
