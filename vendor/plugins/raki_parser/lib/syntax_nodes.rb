@@ -14,26 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'htmlentities'
-
-module HTMLSyntax
-  def to_html
-    @@coder = HTMLEntities.new unless defined? @@coder
-    output = ''
-    unless elements.nil?
-      elements.each do |e|
-        unless e.elements.nil?
-          output += e.to_html
-        else
-          output += @@coder.encode e.text_value
-        end
-      end
-    end
-    output
-  end
-end
-
-Treetop::Runtime::SyntaxNode.send(:include, HTMLSyntax)
+include Raki::Helpers
 
 class IgnoreNode < Treetop::Runtime::SyntaxNode
   def to_html
@@ -56,8 +37,9 @@ end
 
 class WikiLinkNode < Treetop::Runtime::SyntaxNode
   def to_html
-    return '<a href="/wiki/' + href.to_html.strip + '">' +
-      (desc.to_html.empty? ? href : desc).to_html.strip + '</a>'
+    pagelink = url_for :controller => 'page', :action => 'view', :id => href.text_value
+    return '<a href="' + pagelink + '">' +
+      (desc.to_html.empty? ? href.to_html : desc.to_html.strip) + '</a>'
   end
 end
 
@@ -171,7 +153,6 @@ end
 
 class PluginNode < Treetop::Runtime::SyntaxNode
   def to_html
-    @@coder = HTMLEntities.new unless defined? @@coder
     begin
       if defined? body and !body.nil?
         text = body.text_value
@@ -186,7 +167,7 @@ class PluginNode < Treetop::Runtime::SyntaxNode
       end
       Raki::Plugin.execute(name.text_value, params, text, {}).to_s
     rescue => e
-      "<div class=\"error\">#{@@coder.encode e.to_s}</div>"
+      "<div class=\"error\">#{h e.to_s}</div>"
     end
   end
 end

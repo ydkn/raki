@@ -31,11 +31,16 @@ grammar RakiSyntax
   # Sections
 
   rule plugin
-    '[{' name:(!'}]' !whitespace text)+ whitespace
-    param:(parameter whitespace?)*
-    body:(!'}]' (text / linebreak))* '}]' <PluginNode>
-    /
-    '[{' name:(!'}]' !whitespace text)* '}]' <PluginNode>
+    empty_plugin / text_plugin
+  end
+
+  rule empty_plugin
+    '\\' name:(!'\\' !whitespace text)+  param:(parameter whitespace?)* ('\\end' / '\\') <PluginNode>
+  end
+
+  rule text_plugin
+    '\\' name:(!'\\' !whitespace text)+  param:(parameter whitespace?)*
+    body:(!'\\end' (text / linebreak))* '\\end' <PluginNode>
   end
 
   rule heading
@@ -53,8 +58,9 @@ grammar RakiSyntax
   end
 
   rule listitem
-    level:space* type:(!'**' '*' / '#') whitespace? text:(!linebreak inline)+
+    level:space* type:('-' / '*' / '#') space text:(!linebreak inline)+
   end
+
 
   # Formating
 
@@ -63,20 +69,26 @@ grammar RakiSyntax
   end
 
   rule underlined
-    "__" text:(!"__" inline)* "__" <UnderlineNode>
+    '_' text:(!('_') inline ('_' !(whitespace))?)* '_' !(non_whitespace) <UnderlineNode>
   end
 
   rule italic
-     "''" text:(!"''" inline)* "''" <ItalicNode>
+     '´' text:(!('´') inline ('´' !(whitespace))?)* '´' !(non_whitespace) <ItalicNode>
   end
 
   rule bold
-    '**' text:(!'**' inline)* '**' <BoldNode>
+    '*' text:(!('*') inline ('*' !(whitespace))?)* '*' !(non_whitespace) <BoldNode>
   end
 
   rule strikethrough
-    '--' text:(!'--' inline)* '--' <StrikethroughNode>
+    '-' text:(!'-' inline ('-' !(whitespace))?)* '-' !(non_whitespace) <StrikethroughNode>
   end
+
+
+  # Images
+
+  #TODO
+
 
   # Links
 
@@ -103,6 +115,7 @@ grammar RakiSyntax
   rule auto_link
     href:(protocol non_whitespace+) desc:'' <LinkNode>
   end
+
 
   # Strings
 
@@ -132,6 +145,7 @@ grammar RakiSyntax
     [ \wäüöÄÜÖß_+-]+
   end
 
+
   # Single characters
 
   rule text
@@ -139,7 +153,7 @@ grammar RakiSyntax
   end
 
   rule linebreak
-    '' [\n]+ <LinebreakNode>
+    '' "\n"+ <LinebreakNode>
   end
 
   rule space
@@ -151,7 +165,7 @@ grammar RakiSyntax
   end
 
   rule non_whitespace
-    !linebreak [\S]
+    !whitespace .
   end
 
   rule ignore_whitespace
