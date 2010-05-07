@@ -24,7 +24,7 @@ Raki::Plugin.register :example do
 
   execute do |params, body, context|
     Raki.parser(:page).parse(
-      "%%information **Example Plugin**\n\nContext: #{context}\nParameters: #{params}\nBody: #{body}%%"
+      "%%information *Example Plugin*\n\nContext: #{context}\nParameters: #{params}\nBody: #{body}%%"
     )
   end
 

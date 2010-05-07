@@ -128,7 +128,7 @@ class ListNode < Treetop::Runtime::SyntaxNode
         if parameter.empty?
           out += "<#{type}>\n"
         else
-          put +=  "<#{type} class=\"#{parameter}\">\n"
+          out +=  "<#{type} #{parameter}>\n"
         end
         @lists = @lists << type
       end
@@ -176,10 +176,36 @@ class ParameterNode < Treetop::Runtime::SyntaxNode
   def keyval
     val = value.text_value
     if val[0] == '"' && val[-1] == '"';
-      val = val[1..-2].gsub(/\"/, '"')
+      val = val[1..-2].gsub(/\\"/, '"')
     elsif val[0] == "'" && val[-1] == "'";
-      val = val[1..-2].gsub(/\'/, "'")
+      val = val[1..-2].gsub(/\\'/, "'")
     end
     Hash[key.text_value.to_sym, val]
+  end
+end
+
+class TableNode < Treetop::Runtime::SyntaxNode
+  def to_html
+    out = "<table>\n"
+    out += "<tr>" + first_row.to_html + "</tr>\n"
+    other_rows.elements.each do |row|
+      out += "<tr>" + row.to_html + "</tr>\n"
+    end
+    out += "</table>\n"
+  end
+end
+
+class TableRowNode < Treetop::Runtime::SyntaxNode
+  def to_html
+    out = ''
+    is_head_row = !head_row.text_value.empty?
+    cells.elements.each do |cell|
+      if is_head_row || !cell.head.text_value.empty?
+        out += "<th>" + cell.data.to_html + "</th>\n"
+      else
+        out += "<td>" + cell.data.to_html + "</td>\n"
+      end
+    end
+    out
   end
 end

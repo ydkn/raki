@@ -17,14 +17,15 @@
 grammar RakiSyntax
 
   rule syntax
-    ignore_whitespace* (line+) ignore_whitespace*
+    ignore_whitespace* line+
   end
 
   rule line
-    heading ignore_whitespace* / list !(!linebreak .) / inline+ !(!linebreak .) / linebreak
+    table  / heading ignore_whitespace* / list !(!linebreak .) / infobox
+    / in_line+ !(!linebreak .) / linebreak (space linebreak)? ignore_whitespace*
   end
 
-  rule inline
+  rule in_line
     infobox / plugin / formating / link / text
   end
 
@@ -35,11 +36,15 @@ grammar RakiSyntax
   end
 
   rule empty_plugin
-    '\\' name:(!'\\' !whitespace text)+  param:(parameter whitespace?)* ('\\end' / '\\') <PluginNode>
+    '\\' name:(!'\\' non_whitespace)+
+    param:(parameter whitespace?)*
+    body:(!'\\' text)*
+    ("\\end" / "\\") <PluginNode>
   end
 
   rule text_plugin
-    '\\' name:(!'\\' !whitespace text)+  param:(parameter whitespace?)*
+    '\\' name:(!'\\' !whitespace text)+
+    param:(parameter whitespace?)*
     body:(!'\\end' (text / linebreak))* '\\end' <PluginNode>
   end
 
@@ -48,7 +53,7 @@ grammar RakiSyntax
   end
 
   rule infobox
-    '%%' type:([\w]+) text:(!'%%' inline)* '%%' <InfoboxNode>
+    '%%' type:([\w]+) text:(!'%%' (in_line / linebreak))* '%%' <InfoboxNode>
   end
 
   # Lists
@@ -58,36 +63,51 @@ grammar RakiSyntax
   end
 
   rule listitem
-    level:space* type:('-' / '*' / '#') space text:(!linebreak inline)+
+    level:space* type:('-' / '*' / '#') space text:(!linebreak in_line)+
+  end
+
+
+  #Tables
+
+  rule table
+    first_row:table_row other_rows:(linebreak row:table_row)* <TableNode>
+  end
+
+  rule table_row
+    head_row:'!'? '|'
+    cells:(head:'!'? data:(!'|' !linebreak in_line)* '|')+ space* <TableRowNode>
   end
 
 
   # Formating
 
   rule formating
+    unprotected_formating !non_whitespace
+  end
+
+  rule unprotected_formating
     bold / italic / underlined / strikethrough
   end
 
   rule underlined
-    '_' text:(!('_') inline ('_' !(whitespace))?)* '_' !(non_whitespace) <UnderlineNode>
+    '_' !whitespace text:(unprotected_formating
+    / (!'_' in_line ('_' !(whitespace / '*' / '´' / '-'))?)+) '_' <UnderlineNode>
   end
 
   rule italic
-     '´' text:(!('´') inline ('´' !(whitespace))?)* '´' !(non_whitespace) <ItalicNode>
+    '´' !whitespace text:(unprotected_formating
+    / (!'´' in_line ('´' !(whitespace / '_' / '*' / '-'))?)+) '´' <ItalicNode>
   end
 
   rule bold
-    '*' text:(!('*') inline ('*' !(whitespace))?)* '*' !(non_whitespace) <BoldNode>
+    '*' !whitespace text:(unprotected_formating
+    / (!'*' in_line ('*' !(whitespace / '_' / '´' / '-'))?)+) '*' <BoldNode>
   end
 
   rule strikethrough
-    '-' text:(!'-' inline ('-' !(whitespace))?)* '-' !(non_whitespace) <StrikethroughNode>
+    '-' !whitespace text:(unprotected_formating
+    / (!'-' in_line ('-' !(whitespace / '_' / '*' / '´'))?)+) '-' <StrikethroughNode>
   end
-
-
-  # Images
-
-  #TODO
 
 
   # Links
@@ -120,13 +140,21 @@ grammar RakiSyntax
   # Strings
 
   rule parameter
-    key:(!'=' !linebreak text)* '='
-    value:(quoted_text / (!whitespace text))* <ParameterNode>
+    ignore_whitespace* key:(!'=' text)+ '=' value:parameter_value <ParameterNode>
+  end
+
+  rule parameter_key
+    (!"\\" !"\\end" !'=' non_whitespace)+
+  end
+
+  rule parameter_value
+    quoted_text / (!"\\" !'\\end' non_whitespace)*
   end
 
   rule quoted_text
-    ('"' ((!'"' !'\"' !whitespace text) / '\"' / whitespace)* '"') /
-    ("'" ((!"'" !"\'" !whitespace text) / "\\\'" / whitespace)* "'")
+    '"' ("\\\"" / "\\\\" / (!'"' !"\\" text))* '"'
+    /
+    "'" ("\\'" / "\\\\" / (!"'" !"\\" text))* "'"
   end
 
   rule protocol
@@ -153,7 +181,7 @@ grammar RakiSyntax
   end
 
   rule linebreak
-    '' "\n"+ <LinebreakNode>
+    [\n] '' <LinebreakNode>
   end
 
   rule space
@@ -170,6 +198,10 @@ grammar RakiSyntax
 
   rule ignore_whitespace
     whitespace '' <IgnoreNode>
+  end
+
+  rule ignore_linebreak
+    linebreak '' <IgnoreNode>
   end
 
 end

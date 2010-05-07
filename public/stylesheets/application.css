@@ -222,3 +222,7 @@ a.feed img {
     background-color: #c8ff96;
     border: 1px solid #b9f087;
 }
+
+.underline {
+    text-decoration: underline;
+}
