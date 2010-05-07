@@ -226,3 +226,7 @@ a.feed img {
 .underline {
     text-decoration: underline;
 }
+
+ul.line {
+    list-style-type:square;
+}
