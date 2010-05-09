@@ -206,7 +206,7 @@ class GitProviderTest < Test::Unit::TestCase
     attachment = 'SomeFile.test'
     data = generate_binary_data
     assert !page_attachment_exists?(page, attachment)
-    page_attachment_save(page, attachment, generate_binary_data, "test message", default_user)
+    page_attachment_save(page, attachment, data, "test message", default_user)
     assert page_attachment_exists?(page, attachment)
   end
 
@@ -294,6 +294,7 @@ class GitProviderTest < Test::Unit::TestCase
       data += file.gets
     end
     file.close
+    data
   end
 
 end
