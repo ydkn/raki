@@ -167,7 +167,16 @@ class PluginNode < Treetop::Runtime::SyntaxNode
       end
       Raki::Plugin.execute(name.text_value, params, text, {}).to_s
     rescue => e
-      "<div class=\"error\">#{h e.to_s}</div>"
+      show_backtrace = Raki.config('plugins', 'backtrace_on_error') == 'true'
+      if show_backtrace
+        "<div class=\"error\">#{h e.to_s}</div>"
+      else
+        backtrace = ""
+        e.backtrace.each do |bte|
+          backtrace += h(bte)+"<br/>"
+        end
+        "<div class=\"error\"><b>#{h e.to_s}</b><br/>#{backtrace}</div>"
+      end
     end
   end
 end
