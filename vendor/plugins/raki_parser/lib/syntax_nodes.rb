@@ -195,7 +195,7 @@ end
 
 class TableNode < Treetop::Runtime::SyntaxNode
   def to_html
-    out = "<table>\n"
+    out = "<table class=\"wikitable\">\n"
     out += "<tr>" + first_row.to_html + "</tr>\n"
     other_rows.elements.each do |row|
       out += "<tr>" + row.to_html + "</tr>\n"

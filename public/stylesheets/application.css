@@ -231,20 +231,20 @@ ul.line {
     list-style-type:square;
 }
 
-table {
+table.wikitable {
     margin: 0.5em 0.25em;
     border-collapse: collapse;
     border-spacing: 0;
     empty-cells: show;
 }
 
-table th {
+table.wikitable th {
     border: 1px solid #dadada;
     background-color: #eaeaea;
     padding: 0.25em 0.5em;
 }
 
-table td {
+table.wikitable td {
     border: 1px solid #dadada;
     padding: 0.25em 0.5em;
 }
