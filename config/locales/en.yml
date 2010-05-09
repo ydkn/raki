@@ -32,6 +32,7 @@ en:
       view: View
       info: Info
       edit: Edit
+      attachments: Attachments
 
     edit:
       save: Save
@@ -44,6 +45,7 @@ en:
       version:
         id: Version
         date: Date
+        size: Size
         user: Author
         message: Comment
       rename: Rename Page
@@ -54,3 +56,18 @@ en:
 
     not_exists:
       msg: Userpage does not exsists.
+
+  attachment:
+    list: Attachments
+
+    name: Name
+    size: Size
+    version: Version
+    date: Date
+    user: Author
+    message: Comment
+
+    upload:
+      file: File
+      message: Comment
+      save: Upload

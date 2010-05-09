@@ -76,11 +76,46 @@ class PageController < ApplicationController
     redirect_to :controller => 'page', :action => 'info', :id => Raki.frontpage
   end
 
+  def attachments
+    @attachments = []
+    @provider.page_attachment_all(@page).each do |attachment|
+      @attachments << {
+        :name => attachment,
+        :revision => @provider.page_attachment_revisions(@page, attachment).last
+      }
+    end
+    @attachments.sort { |a,b| a[:name] <=> b[:name] }
+  end
+
+  def attachment_upload
+    @provider.page_attachment_save(
+      @page,
+      File.basename(params[:attachment_upload].original_filename),
+      params[:attachment_upload].read,
+      params[:message],
+      User.current
+    )
+    redirect_to :controller => 'page', :action => 'attachments', :id => @page
+  end
+
+  def attachment
+    # ugly fix for ruby1.9 and rails2.5
+    revision = @provider.page_attachment_revisions(@page, @attachment).last.id if @revision.nil?
+    unless File.exists? "#{Rails.root}/tmp/attachments/#{@page}/#{revision}/#{@attachment}"
+      FileUtils.mkdir_p "#{Rails.root}/tmp/attachments/#{@page}/#{revision}"
+      File.open "#{Rails.root}/tmp/attachments/#{@page}/#{revision}/#{@attachment}", 'w' do |f|
+        f.write(@provider.page_attachment_contents(@page, @attachment, @revision))
+      end
+    end
+    send_file "#{Rails.root}/tmp/attachments/#{@page}/#{revision}/#{@attachment}"
+  end
+
   private
 
   def common_init
     @page = params[:id]
     @revision = params[:revision]
+    @attachment = params[:attachment].join '' unless params[:attachment].nil?
     @provider = Raki.provider(:page)
     @title = @page
   end

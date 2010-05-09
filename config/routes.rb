@@ -7,6 +7,10 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'wiki/:id/update', :controller => 'page', :action => 'update', :conditions => { :method => :post }
   map.connect 'wiki/:id/rename', :controller => 'page', :action => 'rename', :conditions => { :method => :post }
   map.connect 'wiki/:id/delete', :controller => 'page', :action => 'delete'
+  map.connect 'wiki/:id/attachment/*attachment', :controller => 'page', :action => 'attachment'
+  map.connect 'wiki/:id/attachments', :controller => 'page', :action => 'attachments'
+  map.connect 'wiki/:id/attachments.:format', :controller => 'page', :action => 'attachments'
+  map.connect 'wiki/:id/attachment_upload', :controller => 'page', :action => 'attachment_upload'
   map.connect 'wiki/:id/:revision', :controller => 'page', :action => 'view'
   map.connect 'wiki/:id/:revision.:format', :controller => 'page', :action => 'view'
   map.connect 'wiki/:id', :controller => 'page', :action => 'view'

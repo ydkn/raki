@@ -4,6 +4,7 @@
     <tr>
       <th><%=t 'page.info.version.id' %></th>
       <th><%=t 'page.info.version.date' %></th>
+      <th><%=t 'page.info.version.size' %></th>
       <th><%=t 'page.info.version.user' %></th>
       <th><%=t 'page.info.version.message' %></th>
     </tr>
@@ -14,8 +15,9 @@
       <tr class="<%=((cnt+=1)%2==0)?'even':'odd'%>">
         <td class="version"><%=link_to revision.version, :controller => 'user_page', :action => 'view', :id => h(@user), :revision => h(revision.id) %></td>
         <td><%=l revision.date, :format => :full %></td>
-        <td><%=link_to revision.user, :controller => 'user_page', :action => 'view', :id => h(revision.user) %></td>
-        <td><%=h revision.message%></td>
+        <td><%=h format_size(revision.size) %></td>
+        <td><%=link_to h(revision.user), :controller => 'user_page', :action => 'view', :id => h(revision.user) %></td>
+        <td><%=h revision.message %></td>
       </tr>
     <%  end %>
   </tbody>
