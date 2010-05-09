@@ -1,7 +1,7 @@
 <form id="edit-form" action="<%=url_for :controller => 'user_page', :id => h(@user), :action => 'update' %>" method="post" accept-charset="UTF-8">
   <div>
     <input type="submit" value="<%=t 'page.edit.save' %>" />
-    <input type="button" value="<%=t 'page.edit.preview' %>" onclick="javascript:document.getElementById('edit-form').action='<%=url_for :controller => 'user_page', :action => 'edit', :id => h(@page) %>'; document.getElementById('edit-form').submit();" />
+    <input type="button" value="<%=t 'page.edit.preview' %>" onclick="javascript:document.getElementById('edit-form').action='<%=url_for :controller => 'user_page', :action => 'edit', :id => h(@user) %>'; document.getElementById('edit-form').submit();" />
     <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=url_for :controller => 'user_page', :action => 'view', :id => h(@user) %>';" />
   </div>
   <div>
