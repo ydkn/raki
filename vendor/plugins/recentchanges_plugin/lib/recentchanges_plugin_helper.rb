@@ -42,7 +42,7 @@ class RecentchangesPluginHelper
       "<table cellpadding=\"0\" cellspacing=\"0\" class=\"recentchanges\">#{out}</table>"
     end
 
-    def changes(type, limit)
+    def changes(type, limit=nil)
       Raki.provider(type).page_changes(limit)
     end
 

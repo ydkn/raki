@@ -59,7 +59,7 @@ class GitProvider < Raki::AbstractProvider
     all('pages')
   end
 
-  def page_changes(amount=0)
+  def page_changes(amount=nil)
     logger.debug("Fetching all page changes: #{{:limit => amount}}")
     changes(:page, 'pages', amount)
   end
@@ -94,7 +94,7 @@ class GitProvider < Raki::AbstractProvider
     all('users')
   end
 
-  def userpage_changes(amount=0)
+  def userpage_changes(amount=nil)
     logger.debug("Fetching all userpage changes: #{{:limit => amount}}")
     changes(:userpage, 'users', amount)
   end
@@ -186,10 +186,11 @@ class GitProvider < Raki::AbstractProvider
     cmd = "#{GIT_BIN} --git-dir #{@git_path} log --reverse --raw --date=iso --all -- \"#{shell_quote(format_obj(obj))}\""
     shell_cmd(cmd) do |line|
       if line =~ /^commit ([0-9a-f]{40})$/
-        if(changeset.length == 4)
+        if changeset.length == 4
           revs << Revision.new(
             changeset[:commit],
             changeset[:commit][0..7].upcase,
+            size(obj, changeset[:commit]),
             changeset[:author],
             changeset[:date],
             changeset[:message].strip
@@ -209,10 +210,11 @@ class GitProvider < Raki::AbstractProvider
         end
       end
     end
-    if(changeset.length == 4)
+    if changeset.length == 4
       revs << Revision.new(
         changeset[:commit],
         changeset[:commit][0..7].upcase,
+        size(obj, changeset[:commit]),
         changeset[:author],
         changeset[:date],
         changeset[:message].strip
@@ -243,11 +245,31 @@ class GitProvider < Raki::AbstractProvider
       end
     end
     changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
-    if amount > 0
-      changes[0..(amount-1)]
-    else
+    if amount.nil?
       changes
+    else
+      changes[0..(amount-1)]
     end
+  end
+
+  def size(obj, revision=nil)
+    revision = 'HEAD' if revision.nil?
+    filename = file(obj)
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} ls-tree -l #{shell_quote(revision)}:#{path(obj)}"
+    shell_cmd(cmd) do |line|
+      if line.chomp.to_s =~ /^\d+\s+\w+\s+[0-9a-f]{40}\s+([0-9-]+)\s+(.+)$/
+        return $1 if filename == $2
+      end
+    end
+    nil
+  end
+
+  def path(obj)
+    obj.gsub(/[^\/]+$/, '')
+  end
+
+  def file(obj)
+    File.basename(obj)
   end
 
   def format_obj(obj)
