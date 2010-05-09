@@ -64,6 +64,49 @@ class GitProvider < Raki::AbstractProvider
     changes(:page, 'pages', amount)
   end
 
+  def page_attachment_exists?(page, name, revision=nil)
+    logger.debug("Checking if page attachment exists: #{{:name => name, :revision => revision}}")
+    exists?("attachments/pages/#{page}", name, revision)
+  end
+
+  def page_attachment_contents(page, name, revision=nil)
+    logger.debug("Fetching contents of page attachment: #{{:name => name, :revision => revision}}")
+    contents("attachments/pages/#{page}/#{name}", revision)
+  end
+
+  def page_attachment_revisions(page, name)
+    logger.debug("Fetching revisions for page attachment: #{{:name => name}}")
+    revisions("attachments/pages/#{page}/#{name}")
+  end
+
+  def page_attachment_save(page, name, contents, message, user)
+    logger.debug("Saving page attachment: #{{:name => name, :contents => contents, :message => message, :user => user}}")
+    save("attachments/pages/#{page}/#{name}", contents, message, user)
+  end
+
+  def page_attachment_delete(page, name, user)
+    logger.debug("Deleting page attachment: #{{:page => name, :user => user}}")
+    delete("attachments/pages/#{page}/#{name}", "#{page}/#{name} ==> /dev/null", user)
+  end
+
+  def page_attachment_all(page=nil)
+    logger.debug("Fetching all page attachments: #{{:page => page}}")
+    if page.nil?
+      all('attachments/pages')
+    else
+      all("attachments/pages/#{page}")
+    end
+  end
+
+  def page_attachment_changes(page=nil, amount=nil)
+    logger.debug("Fetching all page attachment changes: #{{:page => page, :limit => amount}}")
+    if page.nil?
+      changes(:page_attachment, 'attachments/pages', amount)
+    else
+      changes(:page_attachment, "attachments/pages/#{page}", amount)
+    end
+  end
+
   def userpage_exists?(user, revision=nil)
     logger.debug("Checking if userpage exists: #{{:userpage => user, :revision => revision}}")
     exists?('users', user, revision)
@@ -138,6 +181,7 @@ class GitProvider < Raki::AbstractProvider
     check_repository
     obj = format_obj(obj)
     message = '-' if message.empty?
+    FileUtils.mkdir_p(path("#{@path}/#{obj}"))
     File.open("#{@path}/#{obj}", 'w') do |f|
       f.write(contents)
     end

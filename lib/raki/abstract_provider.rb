@@ -52,6 +52,34 @@ module Raki
       raise ProviderError.new 'not implemented'
     end
 
+    def page_attachment_exists?(page, name, revision=nil)
+      raise ProviderError.new 'not implemented'
+    end
+
+    def page_attachment_contents(page, name, revision=nil)
+      raise ProviderError.new 'not implemented'
+    end
+
+    def page_attachment_revisions(page, name)
+      raise ProviderError.new 'not implemented'
+    end
+
+    def page_attachment_save(page, name, contents, message, user)
+      raise ProviderError.new 'not implemented'
+    end
+
+    def page_attachment_delete(page, name, user)
+      raise ProviderError.new 'not implemented'
+    end
+
+    def page_attachment_all(page=nil)
+      raise ProviderError.new 'not implemented'
+    end
+
+    def page_attachment_changes(page=nil, amount=0)
+      raise ProviderError.new 'not implemented'
+    end
+
     def userpage_exists?(user, revision=nil)
       raise ProviderError.new 'not implemented'
     end

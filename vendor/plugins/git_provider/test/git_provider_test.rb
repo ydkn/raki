@@ -201,6 +201,15 @@ class GitProviderTest < Test::Unit::TestCase
     end
   end
 
+  def test_page_attachment_exists
+    page = 'TestPage'
+    attachment = 'SomeFile.test'
+    data = generate_binary_data
+    assert !page_attachment_exists?(page, attachment)
+    page_attachment_save(page, attachment, generate_binary_data, "test message", default_user)
+    assert page_attachment_exists?(page, attachment)
+  end
+
   private
 
   # Creates a user
@@ -267,6 +276,24 @@ class GitProviderTest < Test::Unit::TestCase
 
   def userpage_all
     @provider.page_all
+  end
+
+  def page_attachment_exists?(page, name)
+    @provider.page_attachment_exists? page, name
+  end
+
+  def page_attachment_save(page, name, contents, message, user)
+    @provider.page_attachment_save(page, name, contents, message, user)
+  end
+
+  def generate_binary_data(length=nil)
+    length = 1024 + rand(4096) if length.nil?
+    data = ""
+    file = File.new("/dev/random", "r")
+    length.times do
+      data += file.gets
+    end
+    file.close
   end
 
 end
