@@ -1,6 +1,7 @@
 ActionController::Routing::Routes.draw do |map|
   
   # Routes for wiki pages
+  map.connect 'wiki', :controller => 'page', :action => 'redirect_to_frontpage'
   map.connect 'wiki/:id/info', :controller => 'page', :action => 'info'
   map.connect 'wiki/:id/info.:format', :controller => 'page', :action => 'info'
   map.connect 'wiki/:id/edit', :controller => 'page', :action => 'edit'
@@ -14,9 +15,9 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'wiki/:id/:revision.:format', :controller => 'page', :action => 'view'
   map.connect 'wiki/:id', :controller => 'page', :action => 'view'
   map.connect 'wiki/:id.:format', :controller => 'page', :action => 'view'
-  map.connect 'wiki' , :controller => 'page', :action => 'redirect_to_frontpage'
 
   # Routes for user pages
+  map.connect 'user', :controller => 'user_page', :action => 'redirect_to_userpage'
   map.connect 'user/:id/info', :controller => 'user_page', :action => 'info'
   map.connect 'user/:id/info.:format', :controller => 'user_page', :action => 'info'
   map.connect 'user/:id/edit', :controller => 'user_page', :action => 'edit'
@@ -28,7 +29,6 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'user/:id/:revision.:format', :controller => 'user_page', :action => 'view'
   map.connect 'user/:id', :controller => 'user_page', :action => 'view'
   map.connect 'user/:id.:format', :controller => 'user_page', :action => 'view'
-  map.connect 'user', :controller => 'user_page', :action => 'redirect_to_userpage'
   
   # Authentication
   map.signin 'login', :controller => 'authentication', :action => 'login'
