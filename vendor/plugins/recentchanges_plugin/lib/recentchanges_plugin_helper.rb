@@ -19,14 +19,17 @@ class RecentchangesPluginHelper
     include Raki::Helpers
 
     def build(params, body, context)
-      out = ""
+      types = [:page, :userpage, :page_attachment, :userpage_attachment]
       days = {}
-      changes(:page).each do |change|
-        day = change.revision.date.strftime("%Y-%m-%d")
-        days[day] = [] unless days.key?(day)
-        days[day] << change
+      types.each do |type|
+        changes(type).each do |change|
+          day = change.revision.date.strftime("%Y-%m-%d")
+          days[day] = [] unless days.key?(day)
+          days[day] << change
+        end
       end
       days = days.sort { |a,b| b <=> a }
+      out = ""
       days.each do |day,changes|
         out += "<tr><th>#{l(Time.parse(day), :format => :date)}</th><th></th><th></th><th></th></tr>"
         changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
@@ -43,7 +46,18 @@ class RecentchangesPluginHelper
     end
 
     def changes(type, limit=nil)
-      Raki.provider(type).page_changes(limit)
+      case
+        when type == :page
+          return Raki.provider(type).page_changes(limit)
+        when type == :userpage
+          return Raki.provider(type).userpage_changes(limit)
+        when type == :page_attachment
+          return Raki.provider(type).page_attachment_changes(nil, limit)
+        when type == :userpage_attachment
+          return Raki.provider(type).userpage_attachment_changes(nil, limit)
+        else
+          return []
+      end
     end
 
   end
