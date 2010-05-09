@@ -65,27 +65,27 @@ class GitProvider < Raki::AbstractProvider
   end
 
   def page_attachment_exists?(page, name, revision=nil)
-    logger.debug("Checking if page attachment exists: #{{:name => name, :revision => revision}}")
+    logger.debug("Checking if page attachment exists: #{{:page => page, :name => name, :revision => revision}}")
     exists?("attachments/pages/#{page}", name, revision)
   end
 
   def page_attachment_contents(page, name, revision=nil)
-    logger.debug("Fetching contents of page attachment: #{{:name => name, :revision => revision}}")
+    logger.debug("Fetching contents of page attachment: #{{:page => page, :name => name, :revision => revision}}")
     contents("attachments/pages/#{page}/#{name}", revision)
   end
 
   def page_attachment_revisions(page, name)
-    logger.debug("Fetching revisions for page attachment: #{{:name => name}}")
+    logger.debug("Fetching revisions for page attachment: #{{:page => page, :name => name}}")
     revisions("attachments/pages/#{page}/#{name}")
   end
 
   def page_attachment_save(page, name, contents, message, user)
-    logger.debug("Saving page attachment: #{{:name => name, :contents => contents, :message => message, :user => user}}")
+    logger.debug("Saving page attachment: #{{:page => page, :name => name, :contents => contents, :message => message, :user => user}}")
     save("attachments/pages/#{page}/#{name}", contents, message, user)
   end
 
   def page_attachment_delete(page, name, user)
-    logger.debug("Deleting page attachment: #{{:page => name, :user => user}}")
+    logger.debug("Deleting page attachment: #{{:page => page, :name => name, :user => user}}")
     delete("attachments/pages/#{page}/#{name}", "#{page}/#{name} ==> /dev/null", user)
   end
 
@@ -140,6 +140,49 @@ class GitProvider < Raki::AbstractProvider
   def userpage_changes(amount=nil)
     logger.debug("Fetching all userpage changes: #{{:limit => amount}}")
     changes(:userpage, 'users', amount)
+  end
+
+  def userpage_attachment_exists?(user, name, revision=nil)
+    logger.debug("Checking if userpage attachment exists: #{{:user => user, :name => name, :revision => revision}}")
+    exists?("attachments/users/#{user}", name, revision)
+  end
+
+  def userpage_attachment_contents(user, name, revision=nil)
+    logger.debug("Fetching contents of userpage attachment: #{{:user => user, :name => name, :revision => revision}}")
+    contents("attachments/users/#{user}/#{name}", revision)
+  end
+
+  def userpage_attachment_revisions(user, name)
+    logger.debug("Fetching revisions for userpage attachment: #{{:user => user, :name => name}}")
+    revisions("attachments/users/#{user}/#{name}")
+  end
+
+  def userpage_attachment_save(username, name, contents, message, user)
+    logger.debug("Saving userpage attachment: #{{:username => username, :name => name, :contents => contents, :message => message, :user => user}}")
+    save("attachments/users/#{username}/#{name}", contents, message, user)
+  end
+
+  def userpage_attachment_delete(username, name, user)
+    logger.debug("Deleting userpage attachment: #{{:username => username, :name => name, :user => user}}")
+    delete("attachments/users/#{username}/#{name}", "#{username}/#{name} ==> /dev/null", user)
+  end
+
+  def userpage_attachment_all(user=nil)
+    logger.debug("Fetching all userpage attachments: #{{:user => user}}")
+    if user.nil?
+      all('attachments/users')
+    else
+      all("attachments/users/#{user}")
+    end
+  end
+
+  def userpage_attachment_changes(user=nil, amount=nil)
+    logger.debug("Fetching all userpage attachment changes: #{{:user => user, :limit => amount}}")
+    if user.nil?
+      changes(:page_attachment, 'attachments/users', amount)
+    else
+      changes(:page_attachment, "attachments/users/#{user}", amount)
+    end
   end
 
   private

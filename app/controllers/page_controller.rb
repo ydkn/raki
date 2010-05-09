@@ -101,13 +101,13 @@ class PageController < ApplicationController
   def attachment
     # ugly fix for ruby1.9 and rails2.5
     revision = @provider.page_attachment_revisions(@page, @attachment).last.id if @revision.nil?
-    unless File.exists? "#{Rails.root}/tmp/attachments/#{@page}/#{revision}/#{@attachment}"
-      FileUtils.mkdir_p "#{Rails.root}/tmp/attachments/#{@page}/#{revision}"
-      File.open "#{Rails.root}/tmp/attachments/#{@page}/#{revision}/#{@attachment}", 'w' do |f|
+    unless File.exists? "#{Rails.root}/tmp/attachments/pages/#{@page}/#{revision}/#{@attachment}"
+      FileUtils.mkdir_p "#{Rails.root}/tmp/attachments/pages/#{@page}/#{revision}"
+      File.open "#{Rails.root}/tmp/attachments/pages/#{@page}/#{revision}/#{@attachment}", 'w' do |f|
         f.write(@provider.page_attachment_contents(@page, @attachment, @revision))
       end
     end
-    send_file "#{Rails.root}/tmp/attachments/#{@page}/#{revision}/#{@attachment}"
+    send_file "#{Rails.root}/tmp/attachments/pages/#{@page}/#{revision}/#{@attachment}"
   end
 
   private

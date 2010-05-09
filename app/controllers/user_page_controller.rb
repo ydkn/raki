@@ -62,12 +62,47 @@ class UserPageController < ApplicationController
     @provider.userpage_save @user, params[:content], params[:message], User.current
     redirect_to :controller => 'user_page', :action => 'view', :id => @user
   end
+
+  def attachments
+    @attachments = []
+    @provider.userpage_attachment_all(@user).each do |attachment|
+      @attachments << {
+        :name => attachment,
+        :revision => @provider.userpage_attachment_revisions(@user, attachment).last
+      }
+    end
+    @attachments.sort { |a,b| a[:name] <=> b[:name] }
+  end
+
+  def attachment_upload
+    @provider.userpage_attachment_save(
+      @user,
+      File.basename(params[:attachment_upload].original_filename),
+      params[:attachment_upload].read,
+      params[:message],
+      User.current
+    )
+    redirect_to :controller => 'user_page', :action => 'attachments', :id => @user
+  end
+
+  def attachment
+    # ugly fix for ruby1.9 and rails2.5
+    revision = @provider.userpage_attachment_revisions(@user, @attachment).last.id if @revision.nil?
+    unless File.exists? "#{Rails.root}/tmp/attachments/users/#{@user}/#{revision}/#{@attachment}"
+      FileUtils.mkdir_p "#{Rails.root}/tmp/attachments/users/#{@user}/#{revision}"
+      File.open "#{Rails.root}/tmp/attachments/users/#{@user}/#{revision}/#{@attachment}", 'w' do |f|
+        f.write(@provider.userpage_attachment_contents(@user, @attachment, @revision))
+      end
+    end
+    send_file "#{Rails.root}/tmp/attachments/users/#{@user}/#{revision}/#{@attachment}"
+  end
   
   private
 
   def common_init
     @user = params[:id]
     @revision = params[:revision]
+    @attachment = params[:attachment].join '' unless params[:attachment].nil?
     @provider = Raki.provider(:userpage)
     @title = @user
   end

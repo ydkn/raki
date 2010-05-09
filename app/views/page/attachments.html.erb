@@ -18,7 +18,7 @@
         <td><%=h format_size(attachment[:revision].size) %></td>
         <td class="version"><%=link_to attachment[:revision].version, :controller => 'page', :action => 'view', :id => h(@page), :revision => h(attachment[:revision].id) %></td>
         <td><%=l attachment[:revision].date, :format => :full %></td>
-        <td><%=link_to h(attachment[:revision].user), :controller => 'user_page', :action => 'view', :id => h(attachment[:user]) %></td>
+        <td><%=link_to h(attachment[:revision].user), :controller => 'user_page', :action => 'view', :id => h(attachment[:revision].user) %></td>
         <td><%=h attachment[:revision].message %></td>
       </tr>
     <%  end %>
