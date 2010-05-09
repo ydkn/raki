@@ -1,0 +1,40 @@
+<h2><%=t 'attachment.list' %></h2>
+<table id="revisions" cellspacing="0" cellpadding="0">
+  <thead>
+    <tr>
+      <th><%=t 'attachment.name' %></th>
+      <th><%=t 'attachment.size' %></th>
+      <th><%=t 'attachment.version' %></th>
+      <th><%=t 'attachment.date' %></th>
+      <th><%=t 'attachment.user' %></th>
+      <th><%=t 'attachment.message' %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% cnt = 0 %>
+    <% @attachments.each do |attachment|%>
+      <tr class="<%=((cnt+=1)%2==0)?'even':'odd'%>">
+        <td><%=link_to h(attachment[:name]), :controller => 'user_page', :action => 'attachment', :id => h(@user), :attachment => h(attachment[:name]) %></td>
+        <td><%=h format_size(attachment[:revision].size) %></td>
+        <td class="version"><%=link_to attachment[:revision].version, :controller => 'user_page', :action => 'view', :id => h(@user), :revision => h(attachment[:revision].id) %></td>
+        <td><%=l attachment[:revision].date, :format => :full %></td>
+        <td><%=link_to h(attachment[:revision].user), :controller => 'user_page', :action => 'view', :id => h(attachment[:revision].user) %></td>
+        <td><%=h attachment[:revision].message %></td>
+      </tr>
+    <%  end %>
+  </tbody>
+</table>
+<% if authenticated? %>
+  <br/>
+  <form id="edit-form" action="<%=url_for :controller => 'user_page', :id => h(@user), :action => 'attachment_upload' %>" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
+    <div>
+      <label for="attachment-file"><%=t 'attachment.upload.file' %></label>
+      <input id="attachment-file" name="attachment_upload" size="30" type="file" />
+    </div>
+    <div>
+      <label for="attachment-message"><%=t 'attachment.upload.message' %></label>
+      <input type="text" id="attachment-message" name="message" />
+    </div>
+    <input type="submit" value="<%=t 'attachment.upload.save' %>" />
+  </form>
+<% end %>
