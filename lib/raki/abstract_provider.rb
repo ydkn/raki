@@ -160,11 +160,13 @@ module Raki
       attr_reader :type
       attr_reader :name
       attr_reader :revision
+      attr_reader :attachment
 
-      def initialize(type, name, revision)
+      def initialize(type, name, revision, attachment=nil)
         @type = type
         @name = name
         @revision = revision
+        @attachment = attachment
       end
     end
 

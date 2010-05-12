@@ -35,7 +35,8 @@ class RecentchangesPluginHelper
         changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
         changes.each do |change|
           out += "<tr>"
-          out += "<td><a href=\"#{url_for(:controller => 'page', :action => 'view', :id => h(change.name))}\">#{h(change.name)}</a></td>"
+          out += "<td><a href=\"#{url_for(:controller => change.type, :action => 'view', :id => h(change.name))}\">#{h(change.name)}</a></td>" if change.attachment.nil?
+          out += "<td><a href=\"#{url_for(:controller => change.type, :action => 'attachment', :id => h(change.name), :attachment => h(change.attachment))}\">#{h(change.name+"/"+change.attachment)}</a></td>" unless change.attachment.nil?
           out += "<td>#{l(change.revision.date, :format => :time)}</td>"
           out += "<td><a href=\"#{url_for(:controller => 'user_page', :action => 'view', :id => h(change.revision.user))}\">#{h(change.revision.user)}</a></td>"
           out += "<td>#{h(change.revision.message)}</td>"

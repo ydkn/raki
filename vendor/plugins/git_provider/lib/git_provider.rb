@@ -101,9 +101,9 @@ class GitProvider < Raki::AbstractProvider
   def page_attachment_changes(page=nil, amount=nil)
     logger.debug("Fetching all page attachment changes: #{{:page => page, :limit => amount}}")
     if page.nil?
-      changes(:page, 'attachments/pages', amount)
+      changes(:page, 'attachments/pages', amount, true)
     else
-      changes(:page, "attachments/pages/#{page}", amount)
+      changes(:page, "attachments/pages/#{page}", amount, true)
     end
   end
 
@@ -179,9 +179,9 @@ class GitProvider < Raki::AbstractProvider
   def userpage_attachment_changes(user=nil, amount=nil)
     logger.debug("Fetching all userpage attachment changes: #{{:user => user, :limit => amount}}")
     if user.nil?
-      changes(:user_page, 'attachments/users', amount)
+      changes(:user_page, 'attachments/users', amount, true)
     else
-      changes(:user_page, "attachments/users/#{user}", amount)
+      changes(:user_page, "attachments/users/#{user}", amount, true)
     end
   end
 
@@ -352,13 +352,21 @@ class GitProvider < Raki::AbstractProvider
     objs.sort { |a,b| a <=> b }
   end
 
-  def changes(type, dir, amount=0)
+  def changes(type, dir, amount=0, attachment=false)
     check_repository
     check_obj(dir)
     changes = []
     all(dir).each do |obj|
-      revisions("#{dir}/#{obj}").each do |revision|
-        changes << Change.new(type, obj, obj, revision)
+      if attachment
+        all("#{dir}/#{obj}").each do |att|
+          revisions("#{dir}/#{obj}/#{att}").each do |revision|
+            changes << Change.new(type, obj, revision, att)
+          end
+        end
+      else
+        revisions("#{dir}/#{obj}").each do |revision|
+          changes << Change.new(type, obj, revision)
+        end
       end
     end
     changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
