@@ -1,20 +1,20 @@
 ActionController::Routing::Routes.draw do |map|
   
   # Routes for wiki pages
-  map.connect 'wiki', :controller => 'page', :action => 'redirect_to_frontpage'
-  map.connect 'wiki/:id/info', :controller => 'page', :action => 'info'
-  map.connect 'wiki/:id/info.:format', :controller => 'page', :action => 'info'
-  map.connect 'wiki/:id/edit', :controller => 'page', :action => 'edit'
-  map.connect 'wiki/:id/update', :controller => 'page', :action => 'update', :conditions => { :method => :post }
-  map.connect 'wiki/:id/rename', :controller => 'page', :action => 'rename', :conditions => { :method => :post }
-  map.connect 'wiki/:id/delete', :controller => 'page', :action => 'delete'
-  map.connect 'wiki/:id/attachment/*attachment', :controller => 'page', :action => 'attachment'
-  map.connect 'wiki/:id/attachments', :controller => 'page', :action => 'attachments'
-  map.connect 'wiki/:id/attachment_upload', :controller => 'page', :action => 'attachment_upload'
-  map.connect 'wiki/:id/:revision', :controller => 'page', :action => 'view'
-  map.connect 'wiki/:id/:revision.:format', :controller => 'page', :action => 'view'
-  map.connect 'wiki/:id', :controller => 'page', :action => 'view'
-  map.connect 'wiki/:id.:format', :controller => 'page', :action => 'view'
+  map.connect 'page', :controller => 'page', :action => 'redirect_to_frontpage'
+  map.connect 'page/:id/info', :controller => 'page', :action => 'info'
+  map.connect 'page/:id/info.:format', :controller => 'page', :action => 'info'
+  map.connect 'page/:id/edit', :controller => 'page', :action => 'edit'
+  map.connect 'page/:id/update', :controller => 'page', :action => 'update', :conditions => { :method => :post }
+  map.connect 'page/:id/rename', :controller => 'page', :action => 'rename', :conditions => { :method => :post }
+  map.connect 'page/:id/delete', :controller => 'page', :action => 'delete'
+  map.connect 'page/:id/attachment/*attachment', :controller => 'page', :action => 'attachment'
+  map.connect 'page/:id/attachments', :controller => 'page', :action => 'attachments'
+  map.connect 'page/:id/attachment_upload', :controller => 'page', :action => 'attachment_upload'
+  map.connect 'page/:id/:revision', :controller => 'page', :action => 'view'
+  map.connect 'page/:id/:revision.:format', :controller => 'page', :action => 'view'
+  map.connect 'page/:id', :controller => 'page', :action => 'view'
+  map.connect 'page/:id.:format', :controller => 'page', :action => 'view'
 
   # Routes for user pages
   map.connect 'user', :controller => 'user_page', :action => 'redirect_to_userpage'
