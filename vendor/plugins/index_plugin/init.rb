@@ -25,26 +25,7 @@ Raki::Plugin.register :index do
   add_stylesheet '/plugin_assets/index_plugin/stylesheets/index.css'
 
   execute do |params, body, context|
-    rnd = rand(900)+100
-    letters = {}
-    Raki.provider(:page).page_all.each do |page|
-      letter = page[0].chr.upcase
-      letters[letter] = [] unless letters.key?(letter)
-      letters[letter] << page
-    end
-    header = ""
-    body = ""
-    letters = letters.sort { |a,b| a <=> b }
-    letters.each do |letter, value|
-      header += "<a href=\"#INDEX-#{letter}-#{rnd}\">#{letter}</a> - "
-      body += "<div class=\"index_letter\" id=\"INDEX-#{letter}-#{rnd}\">#{letter}</div><div class=\"index_pages\">"
-      value.sort.each do |page|
-        body += "<a href=\"/wiki/#{page}\">#{page}</a>, "
-      end
-      body = body[0..-3]
-      body += "</div>"
-    end
-    "<div class=\"index\"><div class=\"index_header\">#{header[0..-4]}</div><div class=\"index_body\">#{body}</div></div>"
+    IndexPluginHelper.build(params, body, context)
   end
 
 end
