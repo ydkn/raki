@@ -101,9 +101,9 @@ class GitProvider < Raki::AbstractProvider
   def page_attachment_changes(page=nil, amount=nil)
     logger.debug("Fetching all page attachment changes: #{{:page => page, :limit => amount}}")
     if page.nil?
-      changes(:page_attachment, 'attachments/pages', amount)
+      changes(:page, 'attachments/pages', amount)
     else
-      changes(:page_attachment, "attachments/pages/#{page}", amount)
+      changes(:page, "attachments/pages/#{page}", amount)
     end
   end
 
@@ -139,7 +139,7 @@ class GitProvider < Raki::AbstractProvider
 
   def userpage_changes(amount=nil)
     logger.debug("Fetching all userpage changes: #{{:limit => amount}}")
-    changes(:userpage, 'users', amount)
+    changes(:user_page, 'users', amount)
   end
 
   def userpage_attachment_exists?(user, name, revision=nil)
@@ -179,9 +179,9 @@ class GitProvider < Raki::AbstractProvider
   def userpage_attachment_changes(user=nil, amount=nil)
     logger.debug("Fetching all userpage attachment changes: #{{:user => user, :limit => amount}}")
     if user.nil?
-      changes(:page_attachment, 'attachments/users', amount)
+      changes(:user_page, 'attachments/users', amount)
     else
-      changes(:page_attachment, "attachments/users/#{user}", amount)
+      changes(:user_page, "attachments/users/#{user}", amount)
     end
   end
 
@@ -196,8 +196,23 @@ class GitProvider < Raki::AbstractProvider
     raise ProviderError.new 'Invalid git repository' if output.empty?
   end
 
+  def check_obj(obj)
+    raise ProviderError.new 'Invalid filename' if obj.nil? || obj.empty?
+  end
+
+  def check_user(user)
+    raise ProviderError.new 'Invalid user' if user.nil? || !user.is_a?(User)
+  end
+
+
+  def check_contents(contents)
+    raise ProviderError.new 'Invalid content' if contents.nil?
+  end
+
   def exists?(dir, name, revision=nil)
     check_repository
+    check_obj(name)
+    dir = '' if dir.nil?
     name = format_obj(name)
     revision = 'HEAD' if revision.nil?
     cmd = "#{GIT_BIN} --git-dir #{@git_path} ls-tree -l #{shell_quote(revision)}:#{dir}"
@@ -211,6 +226,7 @@ class GitProvider < Raki::AbstractProvider
 
   def contents(obj, revision=nil)
     check_repository
+    check_obj(obj)
     revision = 'HEAD' if revision.nil?
     cmd = "#{GIT_BIN} --git-dir #{@git_path} show #{shell_quote(revision)}:#{format_obj(obj)}"
     contents = ""
@@ -222,8 +238,11 @@ class GitProvider < Raki::AbstractProvider
 
   def save(obj, contents, message, user)
     check_repository
+    check_obj(obj)
+    check_contents(contents)
+    check_user(user)
     obj = format_obj(obj)
-    message = '-' if message.empty?
+    message = '-' if message.nil? || message.empty?
     FileUtils.mkdir_p(path("#{@path}/#{obj}"))
     File.open("#{@path}/#{obj}", 'w') do |f|
       f.write(contents)
@@ -240,6 +259,10 @@ class GitProvider < Raki::AbstractProvider
 
   def rename(old_obj, new_obj, message, user)
     check_repository
+    check_obj(old_obj)
+    check_obj(new_obj)
+    check_user(user)
+    message = '-' if message.nil? || message.empty?
     old_obj = format_obj(old_obj)
     new_obj = format_obj(new_obj)
     File.open("#{@path}/#{shell_quote(new_obj)}", 'w') do |f|
@@ -258,6 +281,9 @@ class GitProvider < Raki::AbstractProvider
 
   def delete(obj, message, user)
     check_repository
+    check_obj(obj)
+    check_user(user)
+    message = '-' if message.nil? || message.empty?
     obj = format_obj(obj)
     File.delete("#{@path}/#{shell_quote(obj)}")
     cmd = "cd #{@path} && #{GIT_BIN} commit -m \"#{shell_quote(message)}\" --author=\"#{shell_quote(user.username)} <#{shell_quote(user.email)}>\" \"#{shell_quote(obj)}\""
@@ -268,6 +294,7 @@ class GitProvider < Raki::AbstractProvider
 
   def revisions(obj)
     check_repository
+    check_obj(obj)
     revs = []
     changeset = {}
     cmd = "#{GIT_BIN} --git-dir #{@git_path} log --reverse --raw --date=iso --all -- \"#{shell_quote(format_obj(obj))}\""
@@ -312,6 +339,7 @@ class GitProvider < Raki::AbstractProvider
 
   def all(dir, revision=nil)
     check_repository
+    check_obj(dir)
     objs = []
     revision = 'HEAD' if revision.nil?
     cmd = "#{GIT_BIN} --git-dir #{@git_path} ls-tree -l #{shell_quote(revision)}:#{dir}"
@@ -325,10 +353,12 @@ class GitProvider < Raki::AbstractProvider
   end
 
   def changes(type, dir, amount=0)
+    check_repository
+    check_obj(dir)
     changes = []
     all(dir).each do |obj|
       revisions("#{dir}/#{obj}").each do |revision|
-        changes << Change.new(type, obj, revision)
+        changes << Change.new(type, obj, obj, revision)
       end
     end
     changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
@@ -340,6 +370,7 @@ class GitProvider < Raki::AbstractProvider
   end
 
   def size(obj, revision=nil)
+    check_obj(obj)
     revision = 'HEAD' if revision.nil?
     filename = file(obj)
     cmd = "#{GIT_BIN} --git-dir #{@git_path} ls-tree -l #{shell_quote(revision)}:#{path(obj)}"
