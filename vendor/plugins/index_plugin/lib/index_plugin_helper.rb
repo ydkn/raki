@@ -19,9 +19,10 @@ class IndexPluginHelper
     include Raki::Helpers
 
     def build(params, body, context)
+      type = :page
       rnd = rand(900)+100
       letters = {}
-      Raki.provider(:page).page_all.each do |page|
+      Raki.provider(type).page_all(type).each do |page|
         letter = page[0].chr.upcase
         letters[letter] = [] unless letters.key?(letter)
         letters[letter] << page
@@ -33,7 +34,7 @@ class IndexPluginHelper
         header += "<a href=\"#INDEX-#{h(letter)}-#{rnd}\">#{h(letter)}</a> - "
         content += "<div class=\"index_letter\" id=\"INDEX-#{h(letter)}-#{rnd}\">#{h(letter)}</div><div class=\"index_pages\">"
         value.sort.each do |page|
-          content += "<a href=\"#{url_for(:controller => 'page', :action => 'view', :id => h(page))}\">#{h(page)}</a>, "
+          content += "<a href=\"#{url_for(:controller => 'page', :action => 'view', :type => h(type), :id => h(page))}\">#{h(page)}</a>, "
         end
         content = content[0..-3]
         content += "</div>"

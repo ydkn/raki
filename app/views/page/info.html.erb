@@ -11,12 +11,12 @@
   </thead>
   <tbody>
     <% cnt = 0 %>
-    <% @revisions.reverse_each do |revision|%>
+    <% @revisions.reverse_each do |revision| %>
       <tr class="<%=((cnt+=1)%2==0)?'even':'odd'%>">
-        <td class="version"><%=link_to revision.version, :controller => 'page', :action => 'view', :id => h(@page), :revision => h(revision.id) %></td>
+        <td class="version"><%=link_to revision.version, :controller => 'page', :action => 'view', :type => h(@type), :id => h(@page), :revision => h(revision.id) %></td>
         <td><%=l revision.date, :format => :full %></td>
         <td><%=h format_size(revision.size) %></td>
-        <td><%=link_to h(revision.user), :controller => 'user_page', :action => 'view', :id => h(revision.user) %></td>
+        <td><%=link_to h(revision.user), :controller => 'page', :action => 'view', :type => :user, :id => h(revision.user) %></td>
         <td><%=h revision.message %></td>
       </tr>
     <%  end %>

@@ -4,7 +4,7 @@ atom_feed do |feed|
   feed.updated @revisions.last.date
 
   @revisions.reverse_each do |revision|
-    feed.entry revision, :url => url_for(:controller => 'page', :action => 'view', :revision => revision.id) do |entry|
+    feed.entry revision, :url => url_for(:controller => 'page', :action => 'view', :type => h(@type), :revision => revision.id) do |entry|
       entry.title revision.message
       entry.content revision.message, :type => 'html'
       entry.author do |author|

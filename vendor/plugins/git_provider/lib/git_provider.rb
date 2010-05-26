@@ -24,165 +24,79 @@ class GitProvider < Raki::AbstractProvider
     check_repository
   end
 
-  def page_exists?(name, revision=nil)
-    logger.debug("Checking if page exists: #{{:name => name, :revision => revision}}")
-    exists?('pages', name, revision)
+  def page_exists?(type, name, revision=nil)
+    logger.debug("Checking if page exists: #{{:type => type, :name => name, :revision => revision}}")
+    exists?(type.to_s, name, revision)
   end
 
-  def page_contents(name, revision=nil)
-    logger.debug("Fetching contents of page: #{{:name => name, :revision => revision}}")
-    contents("pages/#{name}", revision)
+  def page_contents(type, name, revision=nil)
+    logger.debug("Fetching contents of page: #{{:type => type, :name => name, :revision => revision}}")
+    contents("#{type.to_s}/#{name}", revision)
   end
 
-  def page_revisions(name)
-    logger.debug("Fetching revisions for page: #{{:name => name}}")
-    revisions("pages/#{name}")
+  def page_revisions(type, name)
+    logger.debug("Fetching revisions for page: #{{:type => type, :name => name}}")
+    revisions("#{type.to_s}/#{name}")
   end
 
-  def page_save(name, contents, message, user)
-    logger.debug("Saving page: #{{:name => name, :contents => contents, :message => message, :user => user}}")
-    save("pages/#{name}", contents, message, user)
+  def page_save(type, name, contents, message, user)
+    logger.debug("Saving page: #{{:type => type, :name => name, :contents => contents, :message => message, :user => user}}")
+    save("#{type.to_s}/#{name}", contents, message, user)
   end
 
-  def page_rename(old_name, new_name, user)
-    logger.debug("Renaming page: #{{:from => old_name, :to => new_name, :user => user}}")
-    rename("pages/#{old_name}", "pages/#{new_name}", "#{old_name} ==> #{new_name}", user)
+  def page_rename(type, old_name, new_name, user)
+    logger.debug("Renaming page: #{{:type => type, :from => old_name, :to => new_name, :user => user}}")
+    rename("#{type.to_s}/#{old_name}", "#{type}/#{new_name}", "#{old_name} ==> #{new_name}", user)
   end
 
-  def page_delete(name, user)
-    logger.debug("Deleting page: #{{:page => name, :user => user}}")
-    delete("pages/#{name}", "#{name} ==> /dev/null", user)
+  def page_delete(type, name, user)
+    logger.debug("Deleting page: #{{:type => type, :page => name, :user => user}}")
+    delete("#{type.to_s}/#{name}", "#{name} ==> /dev/null", user)
   end
 
-  def page_all
+  def page_all(type)
     logger.debug("Fetching all pages")
-    all('pages')
+    all(type.to_s)
   end
 
-  def page_changes(amount=nil)
-    logger.debug("Fetching all page changes: #{{:limit => amount}}")
-    changes(:page, 'pages', amount)
+  def page_changes(type, amount=nil)
+    logger.debug("Fetching all page changes: #{{:type => type, :limit => amount}}")
+    changes(type, type.to_s, amount)
   end
 
-  def page_attachment_exists?(page, name, revision=nil)
-    logger.debug("Checking if page attachment exists: #{{:page => page, :name => name, :revision => revision}}")
-    exists?("attachments/pages/#{page}", name, revision)
+  def attachment_exists?(type, page, name, revision=nil)
+    logger.debug("Checking if page attachment exists: #{{:type => type, :page => page, :name => name, :revision => revision}}")
+    exists?("#{type.to_s}/#{page}_att", name, revision)
   end
 
-  def page_attachment_contents(page, name, revision=nil)
-    logger.debug("Fetching contents of page attachment: #{{:page => page, :name => name, :revision => revision}}")
-    contents("attachments/pages/#{page}/#{name}", revision)
+  def attachment_contents(type, page, name, revision=nil)
+    logger.debug("Fetching contents of page attachment: #{{:type => type, :page => page, :name => name, :revision => revision}}")
+    contents("#{type.to_s}/#{page}_att/#{name}", revision)
   end
 
-  def page_attachment_revisions(page, name)
-    logger.debug("Fetching revisions for page attachment: #{{:page => page, :name => name}}")
-    revisions("attachments/pages/#{page}/#{name}")
+  def attachment_revisions(type, page, name)
+    logger.debug("Fetching revisions for page attachment: #{{:type => type, :page => page, :name => name}}")
+    revisions("#{type.to_s}/#{page}_att/#{name}")
   end
 
-  def page_attachment_save(page, name, contents, message, user)
-    logger.debug("Saving page attachment: #{{:page => page, :name => name, :contents => contents, :message => message, :user => user}}")
-    save("attachments/pages/#{page}/#{name}", contents, message, user)
+  def attachment_save(type, page, name, contents, message, user)
+    logger.debug("Saving page attachment: #{{:type => type, :page => page, :name => name, :contents => contents, :message => message, :user => user}}")
+    save("#{type.to_s}/#{page}_att/#{name}", contents, message, user)
   end
 
-  def page_attachment_delete(page, name, user)
-    logger.debug("Deleting page attachment: #{{:page => page, :name => name, :user => user}}")
-    delete("attachments/pages/#{page}/#{name}", "#{page}/#{name} ==> /dev/null", user)
+  def attachment_delete(type, page, name, user)
+    logger.debug("Deleting page attachment: #{{:type => type, :page => page, :name => name, :user => user}}")
+    delete("#{type.to_s}/#{page}_att/#{name}", "#{page}/#{name} ==> /dev/null", user)
   end
 
-  def page_attachment_all(page=nil)
-    logger.debug("Fetching all page attachments: #{{:page => page}}")
-    if page.nil?
-      all('attachments/pages')
-    else
-      all("attachments/pages/#{page}")
-    end
+  def attachment_all(type, page)
+    logger.debug("Fetching all page attachments: #{{:type => type, :page => page}}")
+    all("#{type}/#{page}_att")
   end
 
-  def page_attachment_changes(page=nil, amount=nil)
-    logger.debug("Fetching all page attachment changes: #{{:page => page, :limit => amount}}")
-    if page.nil?
-      changes(:page, 'attachments/pages', amount, true)
-    else
-      changes(:page, "attachments/pages/#{page}", amount, true)
-    end
-  end
-
-  def userpage_exists?(user, revision=nil)
-    logger.debug("Checking if userpage exists: #{{:userpage => user, :revision => revision}}")
-    exists?('users', user, revision)
-  end
-
-  def userpage_contents(user, revision=nil)
-    logger.debug("Fetching contents of userpage: #{{:username => user, :revision => revision}}")
-    contents("users/#{user}", revision)
-  end
-
-  def userpage_revisions(user)
-    logger.debug("Fetching revisions for userpage: #{{:username => user}}")
-    revisions("users/#{user}")
-  end
-
-  def userpage_save(username, contents, message, user)
-    logger.debug("Saving userpage: #{{:username => username, :contents => contents, :message => message, :user => user}}")
-    save("users/#{username}", contents, message, user)
-  end
-
-  def userpage_delete(username, user)
-    logger.debug("Deleting userpage: #{{:userpage => username, :user => user}}")
-    delete("users/#{username}", "#{user} ==> /dev/null", user)
-  end
-
-  def userpage_all
-    logger.debug("Fetching all userpages")
-    all('users')
-  end
-
-  def userpage_changes(amount=nil)
-    logger.debug("Fetching all userpage changes: #{{:limit => amount}}")
-    changes(:user_page, 'users', amount)
-  end
-
-  def userpage_attachment_exists?(user, name, revision=nil)
-    logger.debug("Checking if userpage attachment exists: #{{:user => user, :name => name, :revision => revision}}")
-    exists?("attachments/users/#{user}", name, revision)
-  end
-
-  def userpage_attachment_contents(user, name, revision=nil)
-    logger.debug("Fetching contents of userpage attachment: #{{:user => user, :name => name, :revision => revision}}")
-    contents("attachments/users/#{user}/#{name}", revision)
-  end
-
-  def userpage_attachment_revisions(user, name)
-    logger.debug("Fetching revisions for userpage attachment: #{{:user => user, :name => name}}")
-    revisions("attachments/users/#{user}/#{name}")
-  end
-
-  def userpage_attachment_save(username, name, contents, message, user)
-    logger.debug("Saving userpage attachment: #{{:username => username, :name => name, :contents => contents, :message => message, :user => user}}")
-    save("attachments/users/#{username}/#{name}", contents, message, user)
-  end
-
-  def userpage_attachment_delete(username, name, user)
-    logger.debug("Deleting userpage attachment: #{{:username => username, :name => name, :user => user}}")
-    delete("attachments/users/#{username}/#{name}", "#{username}/#{name} ==> /dev/null", user)
-  end
-
-  def userpage_attachment_all(user=nil)
-    logger.debug("Fetching all userpage attachments: #{{:user => user}}")
-    if user.nil?
-      all('attachments/users')
-    else
-      all("attachments/users/#{user}")
-    end
-  end
-
-  def userpage_attachment_changes(user=nil, amount=nil)
-    logger.debug("Fetching all userpage attachment changes: #{{:user => user, :limit => amount}}")
-    if user.nil?
-      changes(:user_page, 'attachments/users', amount, true)
-    else
-      changes(:user_page, "attachments/users/#{user}", amount, true)
-    end
+  def attachment_changes(type, page, amount=nil)
+    logger.debug("Fetching all page attachment changes: #{{:type => type, :page => page, :limit => amount}}")
+    changes(type, "#{type}/#{page}_att", amount, page)
   end
 
   private
@@ -204,7 +118,6 @@ class GitProvider < Raki::AbstractProvider
     raise ProviderError.new 'Invalid user' if user.nil? || !user.is_a?(User)
   end
 
-
   def check_contents(contents)
     raise ProviderError.new 'Invalid content' if contents.nil?
   end
@@ -217,8 +130,8 @@ class GitProvider < Raki::AbstractProvider
     revision = 'HEAD' if revision.nil?
     cmd = "#{GIT_BIN} --git-dir #{@git_path} ls-tree -l #{shell_quote(revision)}:#{dir}"
     shell_cmd(cmd) do |line|
-      if line.chomp.to_s =~ /^\d+\s+\w+\s+[0-9a-f]{40}\s+[0-9-]+\s+(.+)$/
-        return true if $1 == name
+      if line.chomp.to_s =~ /^\d+\s+(\w+)\s+[0-9a-f]{40}\s+[0-9-]+\s+(.+)$/
+        return true if ($1 == 'blob' && $2 == name)
       end
     end
     false
@@ -337,35 +250,32 @@ class GitProvider < Raki::AbstractProvider
     revs
   end
 
-  def all(dir, revision=nil)
+  def all(dir)
     check_repository
     check_obj(dir)
     objs = []
     revision = 'HEAD' if revision.nil?
     cmd = "#{GIT_BIN} --git-dir #{@git_path} ls-tree -l #{shell_quote(revision)}:#{dir}"
     shell_cmd(cmd) do |line|
-      if line.chomp.to_s =~ /^\d+\s+\w+\s+[0-9a-f]{40}\s+[0-9-]+\s+(.+)$/
-        page_name = $1
+      if line.chomp.to_s =~ /^\d+\s+(\w+)\s+[0-9a-f]{40}\s+[0-9-]+\s+(.+)$/
+        page_name = $2
+        next unless $1 == 'blob'
         objs << page_name unless page_name =~ /^\./
       end
     end
     objs.sort { |a,b| a <=> b }
   end
 
-  def changes(type, dir, amount=0, attachment=false)
+  def changes(type, dir, amount=0, page=nil)
     check_repository
     check_obj(dir)
     changes = []
     all(dir).each do |obj|
-      if attachment
-        all("#{dir}/#{obj}").each do |att|
-          revisions("#{dir}/#{obj}/#{att}").each do |revision|
-            changes << Change.new(type, obj, revision, att)
-          end
-        end
-      else
-        revisions("#{dir}/#{obj}").each do |revision|
+      revisions("#{dir}/#{obj}").each do |revision|
+        if page.nil?
           changes << Change.new(type, obj, revision)
+        else
+          changes << Change.new(type, page, revision, obj)
         end
       end
     end

@@ -19,10 +19,18 @@ class RecentchangesPluginHelper
     include Raki::Helpers
 
     def build(params, body, context)
-      types = [:page, :userpage, :page_attachment, :userpage_attachment]
+      page_types = [:page, :user]
+      attachment_types = [:page, :user]
       days = {}
-      types.each do |type|
-        changes(type).each do |change|
+      page_types.each do |type|
+        page_changes(type).each do |change|
+          day = change.revision.date.strftime("%Y-%m-%d")
+          days[day] = [] unless days.key?(day)
+          days[day] << change
+        end
+      end
+      attachment_types.each do |type|
+        attachment_changes(type).each do |change|
           day = change.revision.date.strftime("%Y-%m-%d")
           days[day] = [] unless days.key?(day)
           days[day] << change
@@ -35,30 +43,29 @@ class RecentchangesPluginHelper
         changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
         changes.each do |change|
           out += "<tr>"
-          out += "<td><a href=\"#{url_for(:controller => change.type, :action => 'view', :id => h(change.name))}\">#{h(change.name)}</a></td>" if change.attachment.nil?
-          out += "<td><a href=\"#{url_for(:controller => change.type, :action => 'attachment', :id => h(change.name), :attachment => h(change.attachment))}\">#{h(change.name+"/"+change.attachment)}</a></td>" unless change.attachment.nil?
+          out += "<td><a href=\"#{url_for(:controller => 'page', :action => 'view', :type => change.type, :id => h(change.name), :revision => h(change.revision.id))}\">#{h(change.name)}</a></td>" if change.attachment.nil?
+          out += "<td><a href=\"#{url_for(:controller => 'page', :action => 'attachment', :type => change.type, :id => h(change.name), :attachment => h(change.attachment), :revision => h(change.revision.id))}\">#{h(change.name+"/"+change.attachment)}</a></td>" unless change.attachment.nil?
           out += "<td>#{l(change.revision.date, :format => :time)}</td>"
-          out += "<td><a href=\"#{url_for(:controller => 'user_page', :action => 'view', :id => h(change.revision.user))}\">#{h(change.revision.user)}</a></td>"
+          out += "<td><a href=\"#{url_for(:controller => 'page', :action => 'view', :type => :user, :id => h(change.revision.user))}\">#{h(change.revision.user)}</a></td>"
           out += "<td>#{h(change.revision.message)}</td>"
           out += "</tr>"
         end
       end
       "<table cellpadding=\"0\" cellspacing=\"0\" class=\"recentchanges\">#{out}</table>"
     end
+    
+    private
 
-    def changes(type, limit=nil)
-      case
-        when type == :page
-          return Raki.provider(type).page_changes(limit)
-        when type == :userpage
-          return Raki.provider(type).userpage_changes(limit)
-        when type == :page_attachment
-          return Raki.provider(type).page_attachment_changes(nil, limit)
-        when type == :userpage_attachment
-          return Raki.provider(type).userpage_attachment_changes(nil, limit)
-        else
-          return []
+    def page_changes(type, limit=nil)
+      return Raki.provider(type).page_changes(type, limit)
+    end
+    
+    def attachment_changes(type, limit=nil)
+      changes = []
+      Raki.provider(type).page_all(type).each do |page|
+        changes += Raki.provider(type).attachment_changes(type, page, limit)
       end
+      changes
     end
 
   end

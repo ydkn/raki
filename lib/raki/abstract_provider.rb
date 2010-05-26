@@ -52,87 +52,31 @@ module Raki
       raise ProviderError.new 'not implemented'
     end
 
-    def page_attachment_exists?(page, name, revision=nil)
+    def attachment_exists?(page, name, revision=nil)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_attachment_contents(page, name, revision=nil)
+    def attachment_contents(page, name, revision=nil)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_attachment_revisions(page, name)
+    def attachment_revisions(page, name)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_attachment_save(page, name, contents, message, user)
+    def attachment_save(page, name, contents, message, user)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_attachment_delete(page, name, user)
+    def attachment_delete(page, name, user)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_attachment_all(page=nil)
+    def attachment_all(page=nil)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_attachment_changes(page=nil, amount=nil)
-      raise ProviderError.new 'not implemented'
-    end
-
-    def userpage_exists?(user, revision=nil)
-      raise ProviderError.new 'not implemented'
-    end
-
-    def userpage_contents(user, revision=nil)
-      raise ProviderError.new 'not implemented'
-    end
-
-    def userpage_revisions(user)
-      raise ProviderError.new 'not implemented'
-    end
-
-    def userpage_save(user, contents, message)
-      raise ProviderError.new 'not implemented'
-    end
-
-    def userpage_delete(user)
-      raise ProviderError.new 'not implemented'
-    end
-
-    def userpage_all
-      raise ProviderError.new 'not implemented'
-    end
-
-    def userpage_changes(amount=nil)
-      raise ProviderError.new 'not implemented'
-    end
-
-    def userpage_attachment_exists?(user, name, revision=nil)
-      raise ProviderError.new 'not implemented'
-    end
-
-    def userpage_attachment_contents(user, name, revision=nil)
-      raise ProviderError.new 'not implemented'
-    end
-
-    def userpage_attachment_revisions(user, name)
-      raise ProviderError.new 'not implemented'
-    end
-
-    def userpage_attachment_save(username, name, contents, message, user)
-      raise ProviderError.new 'not implemented'
-    end
-
-    def userpage_attachment_delete(username, name, user)
-      raise ProviderError.new 'not implemented'
-    end
-
-    def userpage_attachment_all(user=nil)
-      raise ProviderError.new 'not implemented'
-    end
-
-    def userpage_attachment_changes(user=nil, amount=nil)
+    def attachment_changes(page=nil, amount=nil)
       raise ProviderError.new 'not implemented'
     end
 

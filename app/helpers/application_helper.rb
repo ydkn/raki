@@ -20,6 +20,10 @@ module ApplicationHelper
     Raki.parser(parser).parse(text)
   end
 
+  def format(text)
+    Raki.parser(:default).parse(text)
+  end
+
   def plugin_stylesheets
     stylesheets = []
     Raki::Plugin.stylesheets.each do |stylesheet|

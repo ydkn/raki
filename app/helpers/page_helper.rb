@@ -17,7 +17,7 @@
 module PageHelper
 
   def page_contents(name, revision=nil)
-    Raki.provider(:page).page_contents(name, revision)
+    Raki.provider(@type).page_contents(@type, name, revision)
   end
 
   def insert_page(name, revision=nil)
@@ -28,11 +28,11 @@ module PageHelper
   end
 
   def page_exists?(name, revision=nil)
-    Raki.provider(:page).page_exists?(name, revision)
+    Raki.provider(@type).page_exists?(@type, name, revision)
   end
 
   def page_revisions(name)
-    Raki.provider(:page).page_revisions(name)
+    Raki.provider(@type).page_revisions(@type, name)
   end
 
 end

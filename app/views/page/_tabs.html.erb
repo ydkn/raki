@@ -1,7 +1,7 @@
 <div id="controls_left">
   <%=link_to t('page.tab.view'), {:controller => 'page', :action => 'view', :id => h(@page)}, :class => (action_name=='view'?'active':'inactive') %>
   <% if page_exists? @page %>
-    <%=link_to t('page.tab.attachments'), {:controller => 'page', :action => 'attachments', :id => h(@page)}, :class => (action_name=='attachments'?'active':'inactive') %>
+    <%=link_to t('page.tab.attachments'), {:controller => 'page', :action => 'attachments', :id => h(@page)}, :class => (action_name=~/^attachment/?'active':'inactive') %>
     <%=link_to t('page.tab.info'), {:controller => 'page', :action => 'info', :id => h(@page)}, :class => (action_name=='info'?'active':'inactive') %>
   <% end %>
 </div>

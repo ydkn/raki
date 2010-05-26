@@ -52,11 +52,6 @@ en:
       delete: Remove entire Page
       page_already_exists: Page already exists
 
-  user_page:
-
-    not_exists:
-      msg: Userpage does not exsists.
-
   attachment:
     list: Attachments
 
@@ -71,3 +66,6 @@ en:
       file: File
       message: Comment
       save: Upload
+
+    info:
+        versions: Versions
