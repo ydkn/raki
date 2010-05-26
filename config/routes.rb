@@ -1,4 +1,7 @@
 ActionController::Routing::Routes.draw do |map|
+  
+  # Root
+  map.root :controller => 'page', :action => 'redirect_to_frontpage'
 
   # Authentication
   map.signin  'login', :controller => 'authentication', :action => 'login'
@@ -20,8 +23,5 @@ ActionController::Routing::Routes.draw do |map|
   map.connect ':type/:id/:revision', :controller => 'page', :action => 'view'
   map.connect ':type/:id.:format', :controller => 'page', :action => 'view'
   map.connect ':type/:id', :controller => 'page', :action => 'view'
-
-  # Root
-  map.root :controller => 'page', :action => 'redirect_to_frontpage'
 
 end
