@@ -26,7 +26,7 @@ Raki::Plugin.register :insertpage do
     type = :page
     unless params[:name].nil?
       Raki.parser(type).parse(
-        Raki.provider(type).page_contents(type, params[:name])
+        Raki.provider(type).page_contents(type, params[:name]),
         context
       )
     end
