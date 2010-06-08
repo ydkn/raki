@@ -23,9 +23,10 @@ Raki::Plugin.register :insertpage do
   version '0.1'
 
   execute do |params, body, context|
-    unless params[:page].nil?
-      Raki.parser(:page).parse(
-        Raki.provider(:page).page_contents(params[:page]),
+    type = :page
+    unless params[:name].nil?
+      Raki.parser(type).parse(
+        Raki.provider(type).page_contents(type, params[:name])
         context
       )
     end
