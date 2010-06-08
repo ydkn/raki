@@ -1,4 +1,4 @@
-# SrvControl - server and hosting management software
+# Raki - extensible rails-based wiki
 # Copyright (C) 2010 Florian Schwab
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,8 +19,13 @@ namespace :db do
 
     desc 'Migrate plugins to current status.'
     task :plugins => :environment do
-      SrvControl::Master::Plugin.all.each_key do |plugin_id|
-        ActiveRecord::Migrator.migrate("vendor/plugins/#{plugin_id}/db/migrate/", ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+      Dir["#{Rails.root}/vendor/plugins"].each do |dir|
+        if File.directory?(dir) && File.exists?("#{dir}/db/migrate")
+          ActiveRecord::Migrator.migrate(
+            "#{Rails.root}/vendor/plugins/#{plugin_id}/db/migrate/",
+            ENV["VERSION"] ? ENV["VERSION"].to_i : nil
+          )
+        end
       end
     end
 
