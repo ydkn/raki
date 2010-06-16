@@ -22,10 +22,10 @@ en:
 
   page:
 
-    footer: "{{user}} changed this page on {{date}}. This is version {{version}}"
+    footer: "%{user} changed this page on %{date}. This is version %{version}"
     not_exists:
       msg: Page does not exsist.
-      edit_msg: You can {{edit_link}} it!
+      edit_msg: You can %{edit_link} it!
       edit_link: create
 
     tab:
