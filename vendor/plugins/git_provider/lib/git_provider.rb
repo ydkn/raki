@@ -16,6 +16,9 @@
 
 class GitProvider < Raki::AbstractProvider
   GIT_BIN = 'git'
+  
+  extend Cacheable
+  include Cacheable
 
   def initialize(params)
     @path = params['path']
@@ -109,6 +112,7 @@ class GitProvider < Raki::AbstractProvider
     end
     raise ProviderError.new 'Invalid git repository' if output.empty?
   end
+  cache :check_repository
 
   def check_obj(obj)
     raise ProviderError.new 'Invalid filename' if obj.nil? || obj.empty?
@@ -136,6 +140,7 @@ class GitProvider < Raki::AbstractProvider
     end
     false
   end
+  cache :exists?
 
   def contents(obj, revision=nil)
     check_repository
@@ -148,6 +153,7 @@ class GitProvider < Raki::AbstractProvider
     end
     contents
   end
+  cache :contents
 
   def save(obj, contents, message, user)
     check_repository
@@ -168,6 +174,11 @@ class GitProvider < Raki::AbstractProvider
     shell_cmd(cmd) do |line|
       #nothing
     end
+    flush_cache(:exists?)
+    flush_cache(:contents)
+    flush_cache(:revisions)
+    flush_cache(:changes)
+    flush_cache(:size)
   end
 
   def rename(old_obj, new_obj, message, user)
@@ -190,6 +201,11 @@ class GitProvider < Raki::AbstractProvider
     shell_cmd(cmd) do |line|
       #nothing
     end
+    flush_cache(:exists?)
+    flush_cache(:contents)
+    flush_cache(:revisions)
+    flush_cache(:changes)
+    flush_cache(:size)
   end
 
   def delete(obj, message, user)
@@ -203,6 +219,11 @@ class GitProvider < Raki::AbstractProvider
     shell_cmd(cmd) do |line|
       #nothing
     end
+    flush_cache(:exists?)
+    flush_cache(:contents)
+    flush_cache(:revisions)
+    flush_cache(:changes)
+    flush_cache(:size)
   end
 
   def revisions(obj)
@@ -249,6 +270,7 @@ class GitProvider < Raki::AbstractProvider
     end
     revs
   end
+  cache :revisions
 
   def all(dir)
     check_repository
@@ -265,6 +287,7 @@ class GitProvider < Raki::AbstractProvider
     end
     objs.sort { |a,b| a <=> b }
   end
+  cache :all
 
   def changes(type, dir, amount=0, page=nil)
     check_repository
@@ -286,6 +309,7 @@ class GitProvider < Raki::AbstractProvider
       changes[0..(amount-1)]
     end
   end
+  cache :changes
 
   def size(obj, revision=nil)
     check_obj(obj)
@@ -299,6 +323,7 @@ class GitProvider < Raki::AbstractProvider
     end
     nil
   end
+  cache :size
 
   def path(obj)
     obj.gsub(/[^\/]+$/, '')
