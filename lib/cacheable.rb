@@ -17,7 +17,7 @@
 module Cacheable
   
   def cache(name, options={})
-    ttl = options.key?(:ttl) ? options[:ttl].to_i : 30
+    ttl = options.key?(:ttl) ? options[:ttl].to_i : 600
     uncached = "__uncached_#{name}"
     class_eval %Q{
       alias :#{uncached} :#{name}
