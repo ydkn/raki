@@ -175,10 +175,10 @@ class GitProvider < Raki::AbstractProvider
       #nothing
     end
     flush_cache(:exists?)
-    flush_cache(:contents)
+    flush_cache(:contents, obj)
     flush_cache(:revisions)
     flush_cache(:changes)
-    flush_cache(:size)
+    flush_cache(:size, obj)
   end
 
   def rename(old_obj, new_obj, message, user)
@@ -202,10 +202,8 @@ class GitProvider < Raki::AbstractProvider
       #nothing
     end
     flush_cache(:exists?)
-    flush_cache(:contents)
     flush_cache(:revisions)
     flush_cache(:changes)
-    flush_cache(:size)
   end
 
   def delete(obj, message, user)
@@ -220,10 +218,10 @@ class GitProvider < Raki::AbstractProvider
       #nothing
     end
     flush_cache(:exists?)
-    flush_cache(:contents)
+    flush_cache(:contents, obj)
     flush_cache(:revisions)
     flush_cache(:changes)
-    flush_cache(:size)
+    flush_cache(:size, obj)
   end
 
   def revisions(obj)

@@ -17,21 +17,31 @@
 module Cacheable
   
   def cache(name, options={})
-    ttl = options.key?(:ttl) ? options[:ttl].to_i : 600
+    ttl = options.key?(:ttl) ? options[:ttl].to_i : 30
     uncached = "__uncached_#{name}"
     class_eval %Q{
       alias :#{uncached} :#{name}
       private :#{uncached}
       def #{name}(*args)
-        @class_cache = Hash.new{|h,k| h[k] = Hash.new{|h,k| h[k] = {}}} unless defined?(@class_cache)
+        unless defined?(@class_cache)
+          @class_cache = Hash.new{|h,k| h[k] = Hash.new{|h,k| h[k] = {}}}
+          @class_cache_queue = Queue.new
+          Thread.new do
+            op = @class_cache_queue.pop
+            @class_cache[op[:method]][args] = {:cached => send(op[:method], *op[:args]), :time => Time.new}
+          end
+        end
         cache = @class_cache[#{name.inspect}]
-        if !cache.key?(args) || cache[args][:time] < (Time.new - #{ttl})
+        unless cache.key?(args)
           cache[args] = {:cached => send(:#{uncached}, *args), :time => Time.new}
+        end
+        if cache[args][:time] < (Time.new - #{ttl})
+          @class_cache_queue << {:method => #{name.inspect}, :args => args}
         end
         cache[args][:cached]
       end
     }
-  end
+  end  
   
   def flush_cache(name=nil, *args)
     if name.nil?
