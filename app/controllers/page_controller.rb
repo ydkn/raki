@@ -129,6 +129,11 @@ class PageController < ApplicationController
     @attachment = params[:attachment]
     @provider = Raki.provider(:page)
     @title = @page
+    
+    @context = {
+      :type = @type,
+      :page => @page
+    }
   end
 
   def redirect_if_page_not_exists

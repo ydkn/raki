@@ -22,7 +22,7 @@ module PageHelper
 
   def insert_page(name, revision=nil)
     if page_exists?(name, revision)
-      parsed = Raki.parser(:page).parse(page_contents(name, revision))
+      parsed = Raki.parser(:page).parse(page_contents(name, revision), @context)
       (parsed.nil?)?"<div class=\"error\">PARSING ERROR</div>":parsed
     end
   end
