@@ -20,63 +20,63 @@ module Raki
     class ProviderError < StandardError
     end
 
-    def page_exists?(name, revision=nil)
+    def page_exists?(type, name, revision=nil)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_contents(name, revision=nil)
+    def page_contents(type, name, revision=nil)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_revisions(name)
+    def page_revisions(type, name)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_save(name, contents, message, user)
+    def page_save(type, name, contents, message, user)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_rename(old_name, new_name, user)
+    def page_rename(type, old_name, new_name, user)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_delete(name, user)
+    def page_delete(type, name, user)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_all
+    def page_all(type)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_changes(amount=0)
+    def page_changes(type, amount=0)
       raise ProviderError.new 'not implemented'
     end
 
-    def attachment_exists?(page, name, revision=nil)
+    def attachment_exists?(type, page, name, revision=nil)
       raise ProviderError.new 'not implemented'
     end
 
-    def attachment_contents(page, name, revision=nil)
+    def attachment_contents(type, page, name, revision=nil)
       raise ProviderError.new 'not implemented'
     end
 
-    def attachment_revisions(page, name)
+    def attachment_revisions(type, page, name)
       raise ProviderError.new 'not implemented'
     end
 
-    def attachment_save(page, name, contents, message, user)
+    def attachment_save(type, page, name, contents, message, user)
       raise ProviderError.new 'not implemented'
     end
 
-    def attachment_delete(page, name, user)
+    def attachment_delete(type, page, name, user)
       raise ProviderError.new 'not implemented'
     end
 
-    def attachment_all(page=nil)
+    def attachment_all(type, page=nil)
       raise ProviderError.new 'not implemented'
     end
 
-    def attachment_changes(page=nil, amount=nil)
+    def attachment_changes(type, page=nil, amount=nil)
       raise ProviderError.new 'not implemented'
     end
 
