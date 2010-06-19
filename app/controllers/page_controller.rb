@@ -131,7 +131,7 @@ class PageController < ApplicationController
     @title = @page
     
     @context = {
-      :type = @type,
+      :type => @type,
       :page => @page
     }
   end
