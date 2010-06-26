@@ -101,6 +101,20 @@ class GitProvider < Raki::AbstractProvider
     logger.debug("Fetching all page attachment changes: #{{:type => type, :page => page, :limit => amount}}")
     changes(type, "#{type}/#{page}_att", amount, page)
   end
+  
+  def types
+    check_repository
+    revision = 'HEAD'
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} ls-tree -l #{shell_quote(revision)}"
+    types = []
+    shell_cmd(cmd) do |line|
+      if line.chomp.to_s =~ /^\d+\s+(\w+)\s+[0-9a-f]{40}\s+[0-9-]+\s+(.+)$/
+        types << $2.to_sym if $1 == 'tree'
+      end
+    end
+    types
+  end
+  cache :types
 
   private
 
@@ -179,6 +193,7 @@ class GitProvider < Raki::AbstractProvider
     flush_cache(:revisions)
     flush_cache(:changes)
     flush_cache(:size, obj)
+    flush_cache(:types)
   end
 
   def rename(old_obj, new_obj, message, user)
@@ -222,6 +237,7 @@ class GitProvider < Raki::AbstractProvider
     flush_cache(:revisions)
     flush_cache(:changes)
     flush_cache(:size, obj)
+    flush_cache(:types)
   end
 
   def revisions(obj)

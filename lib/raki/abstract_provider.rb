@@ -79,6 +79,10 @@ module Raki
     def attachment_changes(type, page=nil, amount=nil)
       raise ProviderError.new 'not implemented'
     end
+    
+    def types
+      raise ProviderError.new 'not implemented'
+    end
 
     private
 
