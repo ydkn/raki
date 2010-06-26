@@ -23,6 +23,9 @@ ActionController::Routing::Routes.draw do |map|
   map.signin  'login', :controller => 'authentication', :action => 'login'
   map.signout 'logout', :controller => 'authentication', :action => 'logout'
   map.connect 'login_callback', :controller => 'authentication', :action => 'callback'
+  
+  # Route for atom feed
+  map.connect 'feed.atom', :controller => 'feed', :action => 'feed'
 
   # Routes for wiki pages
   map.connect ':type', :controller => 'page', :action => 'redirect_to_frontpage'

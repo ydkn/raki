@@ -61,6 +61,11 @@ a, a:visited {
     height: 1.8em;
 }
 
+#global_feed {
+	margin-top: 0.45em;
+	float: left;
+}
+
 #application_info {
     margin-top: 1.5em;
     text-align: center;

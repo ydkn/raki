@@ -20,6 +20,8 @@ en:
     login: Login
     logout: Logout
 
+  feed: Feed for %{app_name}
+
   page:
 
     footer: "%{user} changed this page on %{date}. This is version %{version}"
@@ -51,6 +53,8 @@ en:
       rename: Rename Page
       delete: Remove entire Page
       page_already_exists: Page already exists
+    
+    feed: Feed for %{type}/%{page}
 
   attachment:
     list: Attachments
