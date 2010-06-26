@@ -33,16 +33,13 @@ class PageController < ApplicationController
     respond_to do |format|
       format.html
       format.atom { @revisions = @provider.page_revisions(@type, @page) }
-      format.txt { render :inline => @provider.page_contents(@type, @page, @revision), :content_type => 'text/plain' }
+      format.src { render :inline => @provider.page_contents(@type, @page, @revision), :content_type => 'text/plain' }
     end
   end
 
   def info
     return if redirect_if_page_not_exists
     @revisions = @provider.page_revisions @type, @page
-    respond_to do |format|
-      format.html
-    end
   end
 
   def edit
@@ -115,9 +112,6 @@ class PageController < ApplicationController
   def attachment_info
     return if redirect_if_attachment_not_exists
     @revisions = @provider.attachment_revisions @type, @page, @attachment
-    respond_to do |format|
-      format.html
-    end
   end
 
   private
@@ -127,7 +121,7 @@ class PageController < ApplicationController
     @page = params[:id]
     @revision = params[:revision]
     @attachment = params[:attachment]
-    @provider = Raki.provider(:page)
+    @provider = Raki.provider(@type)
     @title = @page
     
     @context = {
