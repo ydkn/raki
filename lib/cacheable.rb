@@ -28,15 +28,16 @@ module Cacheable
           @class_cache_queue = Queue.new
           Thread.new do
             op = @class_cache_queue.pop
-            @class_cache[op[:method]][args] = {:cached => send(op[:method], *op[:args]), :time => Time.new}
+            @class_cache[op[:method]][args] = {:cached => send(op[:method], *op[:args]), :time => Time.new, :enqueued => false}
           end
         end
         cache = @class_cache[#{name.inspect}]
         unless cache.key?(args)
           cache[args] = {:cached => send(:#{uncached}, *args), :time => Time.new}
         end
-        if cache[args][:time] < (Time.new - #{ttl})
+        if cache[args][:time] < (Time.new - #{ttl}) && !cache[args][:enqueued]
           @class_cache_queue << {:method => #{name.inspect}, :args => args}
+          cache[args][:enqueued] = true
         end
         cache[args][:cached]
       end
