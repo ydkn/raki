@@ -19,17 +19,13 @@ class RecentchangesPluginHelper
     include Raki::Helpers
 
     def build(params, body, context)
-      page_types = [:page, :user]
-      attachment_types = [:page, :user]
       days = {}
-      page_types.each do |type|
+      provider_types.each do |type|
         page_changes(type).each do |change|
           day = change.revision.date.strftime("%Y-%m-%d")
           days[day] = [] unless days.key?(day)
           days[day] << change
         end
-      end
-      attachment_types.each do |type|
         attachment_changes(type).each do |change|
           day = change.revision.date.strftime("%Y-%m-%d")
           days[day] = [] unless days.key?(day)
@@ -55,6 +51,14 @@ class RecentchangesPluginHelper
     end
     
     private
+    
+    def provider_types
+      types = []
+      Raki.providers.keys.each do |provider|
+        types += Raki.provider(provider).types
+      end
+      types
+    end
 
     def page_changes(type, limit=nil)
       return Raki.provider(type).page_changes(type, limit)
