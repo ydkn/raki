@@ -62,6 +62,7 @@ a, a:visited {
 }
 
 #global_feed {
+	margin-left: -0.75em;
 	float: left;
 }
 
