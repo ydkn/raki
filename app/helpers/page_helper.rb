@@ -16,23 +16,23 @@
 
 module PageHelper
 
-  def page_contents(name, revision=nil)
-    Raki.provider(@type).page_contents(@type, name, revision)
+  def page_contents(type, name, revision=nil)
+    Raki.provider(type).page_contents(type, name, revision)
   end
 
-  def insert_page(name, revision=nil)
-    if page_exists?(name, revision)
-      parsed = Raki.parser(:page).parse(page_contents(name, revision), @context)
-      (parsed.nil?)?"<div class=\"error\">PARSING ERROR</div>":parsed
+  def insert_page(type, name, revision=nil)
+    if page_exists?(type, name, revision)
+      parsed = Raki.parser(type).parse(page_contents(type, name, revision), @context)
+      parsed.nil? ? "<div class=\"error\">PARSING ERROR</div>" : parsed
     end
   end
 
-  def page_exists?(name, revision=nil)
-    Raki.provider(@type).page_exists?(@type, name, revision)
+  def page_exists?(type, name, revision=nil)
+    Raki.provider(type).page_exists?(type, name, revision)
   end
 
-  def page_revisions(name)
-    Raki.provider(@type).page_revisions(@type, name)
+  def page_revisions(type, name)
+    Raki.provider(type).page_revisions(type, name)
   end
 
 end

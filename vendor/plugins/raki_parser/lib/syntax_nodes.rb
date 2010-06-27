@@ -37,7 +37,7 @@ end
 
 class WikiLinkNode < Treetop::Runtime::SyntaxNode
   def to_html
-    pagelink = url_for :controller => 'page', :action => 'view', :id => href.text_value
+    pagelink = url_for :controller => 'page', :action => 'view', :type => :page, :id => href.text_value
     return '<a href="' + pagelink + '">' +
       (desc.to_html.empty? ? href.to_html : desc.to_html.strip) + '</a>'
   end

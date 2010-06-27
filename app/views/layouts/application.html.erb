@@ -15,10 +15,10 @@
           <%=link_to image_tag('raki_logo.png', :alt => 'Raki'), :controller => 'page', :action => 'redirect_to_frontpage' %>
         </div>
         <div id="left_menu">
-          <%=insert_page 'LeftMenu' %>
+          <%=insert_page :page, 'LeftMenu' %>
         </div>
         <div id="left_menu_footer">
-          <%=insert_page 'LeftMenuFooter' %>
+          <%=insert_page :page, 'LeftMenuFooter' %>
         </div>
 		<div id="global_feed">
 		  <%=link_to image_tag('feed.png', :alt => 'Feed'), { :controller => 'feed', :action => 'feed'}, {:title => t('feed'), :class => 'feed'} %>

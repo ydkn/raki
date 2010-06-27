@@ -1,5 +1,5 @@
-<% if page_exists? @page %>
-  <%=insert_page @page, @revision %>
+<% if page_exists? @type, @page %>
+  <%=insert_page @type, @page, @revision %>
 <% else %>
   <div class="information">
     <%=t 'page.not_exists.msg' %>
