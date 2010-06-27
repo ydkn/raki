@@ -20,11 +20,13 @@
         <div id="left_menu_footer">
           <%=insert_page :page, 'LeftMenuFooter' %>
         </div>
-		<div id="global_feed">
-		  <%=link_to image_tag('feed.png', :alt => 'Feed'), { :controller => 'feed', :action => 'feed'}, {:title => t('feed'), :class => 'feed'} %>
-		  <%= auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'feed'}, :title => t('feed', :app_name => Raki.app_name)) %>
+        <div id="application_info">
+		  <div id="global_feed">
+		    <%=link_to image_tag('feed.png', :alt => 'Feed'), { :controller => 'feed', :action => 'feed'}, {:title => t('feed'), :class => 'feed'} %>
+		    <%= auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'feed'}, :title => t('feed', :app_name => Raki.app_name)) %>
+		  </div>
+		  Raki v<%=Raki.version %>
 		</div>
-        <div id="application_info">Raki v<%=Raki.version %></div>
       </div>
       <div id="main">
         <div id="auth">
