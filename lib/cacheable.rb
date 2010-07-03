@@ -27,22 +27,29 @@ module Cacheable
           @class_cache = Hash.new{|h,k| h[k] = Hash.new{|h,k| h[k] = {}}}
           @class_cache_queue = Queue.new
           Thread.new do
-            op = @class_cache_queue.pop
-            @class_cache[op[:method]][args] = {:cached => send(op[:method], *op[:args]), :time => Time.new, :enqueued => false}
+            while true do
+              op = @class_cache_queue.pop
+              @class_cache[op[:method]][args] = {
+                :cached => send(op[:method], *op[:args]),
+                :time => Time.new,
+                :enqueued => false
+              }
+            end
           end
         end
         cache = @class_cache[#{name.inspect}]
         unless cache.key?(args)
           cache[args] = {:cached => send(:#{uncached}, *args), :time => Time.new}
-        end
-        if cache[args][:time] < (Time.new - #{ttl}) && !cache[args][:enqueued]
-          @class_cache_queue << {:method => #{name.inspect}, :args => args}
-          cache[args][:enqueued] = true
+        else
+          if !cache[args][:enqueued] && cache[args][:time] < (Time.new - #{ttl})
+            @class_cache_queue << {:method => #{name.inspect}, :args => args}
+            cache[args][:enqueued] = true
+          end
         end
         cache[args][:cached]
       end
     }
-  end  
+  end
   
   def flush_cache(name=nil, *args)
     if name.nil?
