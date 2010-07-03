@@ -1,6 +1,8 @@
 config/database.yml
 config/raki.yml
 
+public/plugin_assets/
+
 .bundle
 db/*.sqlite3
 log/*.log
