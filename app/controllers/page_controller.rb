@@ -113,6 +113,10 @@ class PageController < ApplicationController
     return if redirect_if_attachment_not_exists
     @revisions = @provider.attachment_revisions @type, @page, @attachment
   end
+  
+  def diff
+    @diff = @provider.page_diff(@type, @page, @revision_from, @revision_to)
+  end
 
   private
 
@@ -120,6 +124,8 @@ class PageController < ApplicationController
     @type = params[:type].to_sym
     @page = params[:id]
     @revision = params[:revision]
+    @revision_from = params[:revision_from]
+    @revision_to = params[:revision_to]
     @attachment = params[:attachment]
     @provider = Raki.provider(@type)
     @title = @page

@@ -30,6 +30,8 @@ ActionController::Routing::Routes.draw do |map|
   # Routes for wiki pages
   map.connect ':type', :controller => 'page', :action => 'redirect_to_frontpage'
   map.connect ':type/:id/info', :controller => 'page', :action => 'info'
+  map.connect ':type/:id/diff/:revision_from/:revision_to', :controller => 'page', :action => 'diff'
+  map.connect ':type/:id/diff', :controller => 'page', :action => 'diff'
   map.connect ':type/:id/edit', :controller => 'page', :action => 'edit'
   map.connect ':type/:id/update', :controller => 'page', :action => 'update', :conditions => { :method => :post }
   map.connect ':type/:id/rename', :controller => 'page', :action => 'rename', :conditions => { :method => :post }

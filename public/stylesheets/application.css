@@ -163,6 +163,12 @@ a, a:visited {
     text-align: center;
 }
 
+#revisions td.diff {
+	width: 10px;
+	padding: 0;
+	text-align: center;
+}
+
 #revisions tr.odd {
 
 }

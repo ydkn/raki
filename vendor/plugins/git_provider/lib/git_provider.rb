@@ -66,6 +66,11 @@ class GitProvider < Raki::AbstractProvider
     logger.debug("Fetching all page changes: #{{:type => type, :limit => amount}}")
     changes(type, type.to_s, amount)
   end
+  
+  def page_diff(type, page, revision_from=nil, revision_to=nil)
+    logger.debug("Fetching diff: #{{:type => type, :page => page, :revision_from => revision_from, :revision_to => revision_to}}")
+    diff("#{type}/#{page}", revision_from, revision_to)
+  end
 
   def attachment_exists?(type, page, name, revision=nil)
     logger.debug("Checking if page attachment exists: #{{:type => type, :page => page, :name => name, :revision => revision}}")
@@ -324,6 +329,21 @@ class GitProvider < Raki::AbstractProvider
     end
   end
   cache :changes
+  
+  def diff(obj, revision_from=nil, revision_to=nil)
+    check_repository
+    check_obj(obj)
+    revisions = revisions(obj)
+    revision_from = revisions[revisions.length-2].id if revision_from.nil?
+    revision_to = revisions.last.id if revision_to.nil?
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} diff #{shell_quote revision_to} #{shell_quote revision_from} -- #{shell_quote(obj)}"
+    diff = []
+    shell_cmd(cmd) do |line|
+      diff << line
+    end
+    Diff.new(diff)
+  end
+  cache :diff
 
   def size(obj, revision=nil)
     check_obj(obj)

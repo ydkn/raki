@@ -1,24 +1,31 @@
 <h2><%=t 'page.info.versions' %></h2>
-<table id="revisions" cellspacing="0" cellpadding="0">
-  <thead>
-    <tr>
-      <th><%=t 'page.info.version.id' %></th>
-      <th><%=t 'page.info.version.date' %></th>
-      <th><%=t 'page.info.version.size' %></th>
-      <th><%=t 'page.info.version.user' %></th>
-      <th><%=t 'page.info.version.message' %></th>
-    </tr>
-  </thead>
-  <tbody>
-    <% cnt = 0 %>
-    <% @revisions.reverse_each do |revision| %>
-      <tr class="<%=((cnt+=1)%2==0)?'even':'odd'%>">
-        <td class="version"><%=link_to revision.version, :controller => 'page', :action => 'view', :type => h(@type), :id => h(@page), :revision => h(revision.id) %></td>
-        <td><%=l revision.date, :format => :full %></td>
-        <td><%=h format_size(revision.size) %></td>
-        <td><%=link_to h(revision.user), :controller => 'page', :action => 'view', :type => :user, :id => h(revision.user) %></td>
-        <td><%=h revision.message %></td>
+<% form_tag({:controller => 'page', :action => 'diff', :type => h(@type), :id => h(@page)}, :method => :get) do %>
+  <table id="revisions" cellspacing="0" cellpadding="0">
+    <thead>
+      <tr>
+        <th><%=t 'page.info.version.id' %></th>
+	    <th></th>
+	    <th></th>
+        <th><%=t 'page.info.version.date' %></th>
+        <th><%=t 'page.info.version.size' %></th>
+        <th><%=t 'page.info.version.user' %></th>
+        <th><%=t 'page.info.version.message' %></th>
       </tr>
-    <%  end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% cnt = 0 %>
+      <% @revisions.reverse_each do |revision| %>
+        <tr class="<%=((cnt+=1)%2==0) ? 'even' : 'odd' %>">
+          <td class="version"><%=link_to revision.version, :controller => 'page', :action => 'view', :type => h(@type), :id => h(@page), :revision => h(revision.id) %></td>
+		  <td class="diff"><%=radio_button_tag 'revision_from', revision.id, (cnt==1) %></td>
+		  <td class="diff"><%=radio_button_tag 'revision_to', revision.id, (cnt==2) %></td>
+          <td><%=l revision.date, :format => :full %></td>
+          <td><%=h format_size(revision.size) %></td>
+          <td><%=link_to h(revision.user), :controller => 'page', :action => 'view', :type => :user, :id => h(revision.user) %></td>
+          <td><%=h revision.message %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<%= submit_tag('test', :name => nil) %>
+<% end %>

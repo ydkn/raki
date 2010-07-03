@@ -51,6 +51,10 @@ module Raki
     def page_changes(type, amount=0)
       raise ProviderError.new 'not implemented'
     end
+    
+    def page_diff(type, page, revision_from=nil, revision_to=nil)
+      raise ProviderError.new 'not implemented'
+    end
 
     def attachment_exists?(type, page, name, revision=nil)
       raise ProviderError.new 'not implemented'
@@ -115,6 +119,13 @@ module Raki
         @name = name
         @revision = revision
         @attachment = attachment
+      end
+    end
+    
+    class Diff
+      attr_reader :lines
+      def initialize(lines)
+        @lines = lines
       end
     end
 
