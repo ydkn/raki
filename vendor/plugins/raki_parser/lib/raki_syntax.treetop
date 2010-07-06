@@ -17,7 +17,7 @@
 grammar RakiSyntax
 
   rule syntax
-    ignore_whitespace* line+
+    ignore_linebreak* line*
   end
 
   rule line
