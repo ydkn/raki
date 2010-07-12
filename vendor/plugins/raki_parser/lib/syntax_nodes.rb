@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-include Raki::Helpers
-
 class IgnoreNode < Treetop::Runtime::SyntaxNode
   
   def to_html context
@@ -111,8 +109,6 @@ end
 
 
 class ListNode < Treetop::Runtime::SyntaxNode
-
-  @lists
 
   def to_html context
 
