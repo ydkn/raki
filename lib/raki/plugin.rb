@@ -86,6 +86,8 @@ module Raki
       end
 
     end
+    
+    include Raki::Helpers
 
     def_field :name, :description, :url, :author, :version
 
