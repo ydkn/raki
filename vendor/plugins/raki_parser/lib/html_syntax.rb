@@ -15,12 +15,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 module HTMLSyntax
-  def to_html
+  
+  def to_html context
     output = ''
     unless elements.nil?
       elements.each do |e|
         unless e.elements.nil?
-          output += e.to_html
+          output += e.to_html context
         else
           output += h e.text_value
         end
@@ -28,4 +29,5 @@ module HTMLSyntax
     end
     output
   end
+  
 end

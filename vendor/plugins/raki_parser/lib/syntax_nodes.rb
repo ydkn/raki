@@ -17,68 +17,96 @@
 include Raki::Helpers
 
 class IgnoreNode < Treetop::Runtime::SyntaxNode
-  def to_html
+  
+  def to_html context
     ''
   end
+  
 end
+
 
 class LinebreakNode < Treetop::Runtime::SyntaxNode
-  def to_html
+  
+  def to_html context
     "<br/>\n"
   end
+  
 end
+
 
 class LinkNode < Treetop::Runtime::SyntaxNode
-  def to_html
-    return '<a href="' + href.to_html.strip + '">' +
-      (desc.to_html.empty? ? href : desc).to_html.strip + '</a>'
+  
+  def to_html context
+    return '<a href="' + href.to_html(context).strip + '">' +
+      (desc.to_html(context).empty? ? href : desc).to_html(context).strip + '</a>'
   end
+  
 end
+
 
 class WikiLinkNode < Treetop::Runtime::SyntaxNode
-  def to_html
+  
+  def to_html context
     pagelink = url_for :controller => 'page', :action => 'view', :type => :page, :id => href.text_value
     return '<a href="' + pagelink + '">' +
-      (desc.to_html.empty? ? href.to_html : desc.to_html.strip) + '</a>'
+      (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip) + '</a>'
   end
+  
 end
+
 
 class BoldNode < Treetop::Runtime::SyntaxNode
-  def to_html
-    return '<b>' + text.to_html + '</b>'
+  
+  def to_html context
+    return '<b>' + text.to_html(context) + '</b>'
   end
+  
 end
+
 
 class ItalicNode < Treetop::Runtime::SyntaxNode
-  def to_html
-    return '<i>' + text.to_html + '</i>'
+  
+  def to_html context
+    return '<i>' + text.to_html(context) + '</i>'
   end
+  
 end
+
 
 class UnderlineNode < Treetop::Runtime::SyntaxNode
-  def to_html
-    return '<span class="underline">' + text.to_html + '</span>'
+  
+  def to_html context
+    return '<span class="underline">' + text.to_html(context) + '</span>'
   end
 end
+
 
 class StrikethroughNode < Treetop::Runtime::SyntaxNode
-  def to_html
-    return '<del>' + text.to_html + '</del>'
+  
+  def to_html context
+    return '<del>' + text.to_html(context) + '</del>'
   end
+  
 end
+
 
 class HeadingNode < Treetop::Runtime::SyntaxNode
-  def to_html
+  
+  def to_html context
     l = level.text_value.length
     l = 6 if l > 6
-    return "<h#{l}>" + text.to_html.strip + "</h#{l}>\n"
+    return "<h#{l}>" + text.to_html(context).strip + "</h#{l}>\n"
   end
+  
 end
 
+
 class InfoboxNode < Treetop::Runtime::SyntaxNode
-  def to_html
-    '<div class="' + type.to_html + '">' + text.to_html.strip + '</div>'
+  
+  def to_html context
+    '<div class="' + type.to_html(context) + '">' + text.to_html(context).strip + '</div>'
   end
+  
 end
 
 
@@ -86,7 +114,7 @@ class ListNode < Treetop::Runtime::SyntaxNode
 
   @lists
 
-  def to_html
+  def to_html context
 
     items = [first_item]
     other_items.elements.each do |other|
@@ -99,7 +127,7 @@ class ListNode < Treetop::Runtime::SyntaxNode
     items.each do |item|
       out += adapt item.level.text_value.length + 1, item.type.text_value
       out += '<li>'
-      out += item.text.to_html
+      out += item.text.to_html context
     end
     out += adapt 0, ''
    end
@@ -140,8 +168,7 @@ class ListNode < Treetop::Runtime::SyntaxNode
     else
       out += "</li>\n"
     end
-
-
+    
     if type != @lists[-1] && level != 0
       out += "</#{@lists.slice!(-1)}>\n"
       out += "<#{type}>\n"
@@ -149,11 +176,13 @@ class ListNode < Treetop::Runtime::SyntaxNode
     end
     out
   end
+  
 end
+
 
 class PluginNode < Treetop::Runtime::SyntaxNode
   
-  def to_html
+  def to_html context
     begin
       if defined? body and !body.nil?
         text = body.text_value
@@ -167,7 +196,7 @@ class PluginNode < Treetop::Runtime::SyntaxNode
         end
       end
       begin
-        Raki::Plugin.execute(name.text_value, params, text, {}).to_s
+        Raki::Plugin.execute(name.text_value, params, text, context).to_s
       rescue Raki::Plugin::PluginError => pe
         "<div class=\"error\"><b>#{h pe.to_s}</b></div>"
       end
@@ -179,7 +208,9 @@ class PluginNode < Treetop::Runtime::SyntaxNode
   
 end
 
+
 class ParameterNode < Treetop::Runtime::SyntaxNode
+  
   def keyval
     val = value.text_value
     if val[0] == '"' && val[-1] == '"';
@@ -189,30 +220,37 @@ class ParameterNode < Treetop::Runtime::SyntaxNode
     end
     Hash[key.text_value.to_sym, val]
   end
+  
 end
 
+
 class TableNode < Treetop::Runtime::SyntaxNode
-  def to_html
+  
+  def to_html context
     out = "<table class=\"wikitable\">\n"
-    out += "<tr>" + first_row.to_html + "</tr>\n"
+    out += "<tr>" + first_row.to_html(context) + "</tr>\n"
     other_rows.elements.each do |row|
-      out += "<tr>" + row.to_html + "</tr>\n"
+      out += "<tr>" + row.to_html(context) + "</tr>\n"
     end
     out += "</table>\n"
   end
+  
 end
 
+
 class TableRowNode < Treetop::Runtime::SyntaxNode
-  def to_html
+  
+  def to_html context
     out = ''
     is_head_row = !head_row.text_value.empty?
     cells.elements.each do |cell|
       if is_head_row || !cell.head.text_value.empty?
-        out += "<th>" + cell.data.to_html + "</th>\n"
+        out += "<th>" + cell.data.to_html(context) + "</th>\n"
       else
-        out += "<td>" + cell.data.to_html + "</td>\n"
+        out += "<td>" + cell.data.to_html(context) + "</td>\n"
       end
     end
     out
   end
+  
 end
