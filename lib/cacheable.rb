@@ -26,7 +26,6 @@ module Cacheable
         unless defined?(@class_cache)
           @class_cache = Hash.new{|h,k| h[k] = Hash.new{|h,k| h[k] = {}}}
           @class_cache_queue = Queue.new
-          Rails.logger.error 'before'
           Thread.new do
             while true do
               op = @class_cache_queue.pop
@@ -37,7 +36,6 @@ module Cacheable
               }
             end
           end
-          Rails.logger.error 'after'
         end
         cache = @class_cache[#{name.inspect}]
         unless cache.key?(args)
