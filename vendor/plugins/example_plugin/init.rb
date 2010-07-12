@@ -31,7 +31,7 @@ Raki::Plugin.register :example do
       end
     end
     Raki.parser(:page).parse(
-      "%%information *Example Plugin*\n\nContext: #{context.inspect}\nParameters: #{params.inspect}\nBody: #{body}%%"
+      "%%information *Example Plugin*\n\nContext: #{context.inspect.gsub /\\/, ''}\nParameters: #{params.inspect.gsub /\\/, ''}\nBody: #{body}%%"
     )
   end
 
