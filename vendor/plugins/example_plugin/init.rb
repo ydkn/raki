@@ -23,6 +23,13 @@ Raki::Plugin.register :example do
   version '0.1'
 
   execute do |params, body, context|
+    if params.key?(:error)
+      if params[:error] == 'plugin'
+        raise PluginError.new 'PluginError raised by parameter'
+      else
+        raise StandardError.new 'Error raised by parameter'
+      end
+    end
     Raki.parser(:page).parse(
       "%%information *Example Plugin*\n\nContext: #{context}\nParameters: #{params}\nBody: #{body}%%"
     )

@@ -30,6 +30,3 @@ parsers:
     parser: raki
 
 authenticator: db
-
-plugins:
-  backtrace_on_error: false
