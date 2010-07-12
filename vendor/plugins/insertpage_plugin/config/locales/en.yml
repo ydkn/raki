@@ -1,0 +1,4 @@
+en:
+
+  insertpage:
+    already_included: Page '%{name}' already included
