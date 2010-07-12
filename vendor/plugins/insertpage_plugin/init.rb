@@ -24,12 +24,16 @@ Raki::Plugin.register :insertpage do
 
   execute do |params, body, context|
     type = :page
-    unless params[:name].nil?
-      Raki.parser(type).parse(
-        Raki.provider(type).page_contents(type, params[:name]),
-        context
-      )
-    end
+    p params[:name]
+    p context.inspect
+    raise Raki::Plugin::PluginError.new(t 'plugin.missing_parameter') if params[:name].nil?
+    context[:insertpage] = [] if context[:insertpage].nil?
+    raise Raki::Plugin::PluginError.new(t 'insertpage.already_included') if context[:insertpage].include? params[:name]
+    context[:insertpage] << params[:name]
+    Raki.parser(type).parse(
+      Raki.provider(type).page_contents(type, params[:name]),
+      context
+    )
   end
 
 end
