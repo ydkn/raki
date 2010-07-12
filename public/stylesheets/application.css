@@ -200,6 +200,7 @@ a.feed {
 
 a.feed img {
     vertical-align: bottom;
+    border: 0;
 }
 
 .information, .warning, .error, .confirmation {
