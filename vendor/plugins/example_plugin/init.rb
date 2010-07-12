@@ -25,7 +25,7 @@ Raki::Plugin.register :example do
   execute do |params, body, context|
     if params.key?(:error)
       if params[:error] == 'plugin'
-        raise PluginError.new 'PluginError raised by parameter'
+        raise Raki::Plugin::PluginError.new 'PluginError raised by parameter'
       else
         raise StandardError.new 'Error raised by parameter'
       end
