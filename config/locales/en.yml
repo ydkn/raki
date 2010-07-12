@@ -50,6 +50,7 @@ en:
         size: Size
         user: Author
         message: Comment
+      diff: Diff
       rename: Rename Page
       delete: Remove entire Page
       page_already_exists: Page already exists
