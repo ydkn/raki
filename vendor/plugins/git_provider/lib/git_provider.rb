@@ -194,10 +194,10 @@ class GitProvider < Raki::AbstractProvider
       #nothing
     end
     flush_cache(:exists?)
-    flush_cache(:contents, obj)
-    flush_cache(:revisions)
+    flush_cache(:contents, obj, nil)
+    flush_cache(:revisions, obj)
     flush_cache(:changes)
-    flush_cache(:size, obj)
+    flush_cache(:size, obj, nil)
     flush_cache(:types)
   end
 
@@ -238,10 +238,10 @@ class GitProvider < Raki::AbstractProvider
       #nothing
     end
     flush_cache(:exists?)
-    flush_cache(:contents, obj)
-    flush_cache(:revisions)
+    flush_cache(:contents, obj, nil)
+    flush_cache(:revisions, obj)
     flush_cache(:changes)
-    flush_cache(:size, obj)
+    flush_cache(:size, obj, nil)
     flush_cache(:types)
   end
 
@@ -336,7 +336,7 @@ class GitProvider < Raki::AbstractProvider
     revisions = revisions(obj)
     revision_from = revisions[revisions.length-2].id if revision_from.nil?
     revision_to = revisions.last.id if revision_to.nil?
-    cmd = "#{GIT_BIN} --git-dir #{@git_path} diff #{shell_quote revision_to} #{shell_quote revision_from} -- #{shell_quote(obj)}"
+    cmd = "#{GIT_BIN} --git-dir #{@git_path} diff #{shell_quote(revision_to)} #{shell_quote(revision_from)} -- #{shell_quote(obj)}"
     diff = []
     shell_cmd(cmd) do |line|
       diff << line

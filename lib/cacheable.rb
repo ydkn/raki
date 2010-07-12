@@ -26,6 +26,7 @@ module Cacheable
         unless defined?(@class_cache)
           @class_cache = Hash.new{|h,k| h[k] = Hash.new{|h,k| h[k] = {}}}
           @class_cache_queue = Queue.new
+          Rails.logger.error 'before'
           Thread.new do
             while true do
               op = @class_cache_queue.pop
@@ -36,14 +37,16 @@ module Cacheable
               }
             end
           end
+          Rails.logger.error 'after'
         end
         cache = @class_cache[#{name.inspect}]
         unless cache.key?(args)
           cache[args] = {:cached => send(:#{uncached}, *args), :time => Time.new}
         else
           if !cache[args][:enqueued] && cache[args][:time] < (Time.new - #{ttl})
-            @class_cache_queue << {:method => #{name.inspect}, :args => args}
+            @class_cache_queue << {:method => #{uncached.inspect}, :args => args}
             cache[args][:enqueued] = true
+            Rails.logger.debug "Enqueued refresh: \#{cache[args].inspect}"
           end
         end
         cache[args][:cached]
@@ -53,11 +56,13 @@ module Cacheable
   
   def flush_cache(name=nil, *args)
     if name.nil?
-      @class_cache.clear
+      @class_cache.each do |key, value|
+        value.clear
+      end
     elsif args.empty?
       @class_cache[name].clear
     else
-      @class_cache[name][args].clear
+      @class_cache[name].delete(args)
     end
   end
   
