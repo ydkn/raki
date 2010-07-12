@@ -73,3 +73,6 @@ en:
 
     info:
         versions: Versions
+  
+  plugin:
+    error: Plugin '%{name}' caused error

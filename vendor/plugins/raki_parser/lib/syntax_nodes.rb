@@ -152,6 +152,7 @@ class ListNode < Treetop::Runtime::SyntaxNode
 end
 
 class PluginNode < Treetop::Runtime::SyntaxNode
+  
   def to_html
     begin
       if defined? body and !body.nil?
@@ -165,19 +166,17 @@ class PluginNode < Treetop::Runtime::SyntaxNode
           params = params.merge element.parameter.keyval
         end
       end
-      Raki::Plugin.execute(name.text_value, params, text, {}).to_s
-    rescue => e
-      if Raki.config('plugins', 'backtrace_on_error') == 'true'
-        backtrace = ""
-        e.backtrace.each do |bte|
-          backtrace += h(bte)+"<br/>"
-        end
-        "<div class=\"error\"><b>#{h e.to_s}</b><br/>#{backtrace}</div>"
-      else
-        "<div class=\"error\"><b>#{h e.to_s}</b></div>"
+      begin
+        Raki::Plugin.execute(name.text_value, params, text, {}).to_s
+      rescue Raki::Plugin::PluginError => pe
+        "<div class=\"error\"><b>#{h pe.to_s}</b></div>"
       end
+    rescue => e
+      Rails.logger.error "Plugin '#{name.text_value}' caused error (#{e.class}): #{e.to_s}\n#{e.backtrace.join "\n"}"
+      "<div class=\"error\"><b>#{t 'plugin.error', :name => name.text_value}</b></div>"
     end
   end
+  
 end
 
 class ParameterNode < Treetop::Runtime::SyntaxNode
