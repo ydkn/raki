@@ -23,7 +23,7 @@ Raki::Plugin.register :insertpage do
   version '0.1'
 
   execute do |params, body, context|
-    type = :page
+    type = params[:type].nil? ? :page : params[:type].to_sym
     raise Raki::Plugin::PluginError.new(t 'plugin.missing_parameter') if params[:name].nil?
     context[:insertpage] = [] if context[:insertpage].nil?
     raise Raki::Plugin::PluginError.new(t 'insertpage.already_included', :name => params[:name]) if context[:insertpage].include? params[:name]

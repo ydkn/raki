@@ -19,7 +19,7 @@ class IndexPluginHelper
     include Raki::Helpers
 
     def build(params, body, context)
-      type = :page
+      type = params[:type].nil? ? :page : params[:type].to_sym
       rnd = rand(900)+100
       letters = {}
       Raki.provider(type).page_all(type).each do |page|
