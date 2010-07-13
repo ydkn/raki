@@ -22,16 +22,24 @@ class ImagePluginHelper
     def show(params, body, context)
       
       img = body.strip
-      type = context[:type].to_s
-      page = context[:page]
+      type = params[:type].nil? ? context[:type].to_s : params[:type]
+      page = params[:page].nil? ? context[:page].to_s : params[:page]
 
-      url = "/#{h type}/#{h page}/attachment/#{h img}"
+      if isurl? img
+        url = img
+      else
+        url = "/#{h type}/#{h page}/attachment/#{h img}"
+      end
 
       width  = params[:width ].nil? ? ""  : "width=\"#{h params[:width]}\""
       height = params[:height].nil? ? ""  : "height=\"#{h params[:height]}\""
-      alt    = params[:alt   ].nil? ? img : h params[:alt]
+      alt    = params[:alt   ].nil? ? img : h(params[:alt])
 
       "<img src=\"#{url}\" alt=\"#{alt}\" #{width} #{height} />"
+    end
+
+    def isurl? string
+      string.include? "://"
     end
 
   end
