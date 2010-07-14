@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,8 +24,29 @@ Raki::Plugin.register :index do
 
   add_stylesheet '/plugin_assets/index_plugin/stylesheets/index.css'
 
-  execute do |params, body, context|
-    IndexPluginHelper.build(params, body, context)
+  include IndexPluginHelper
+
+  execute do
+    rnd = rand(900)+100
+    
+    type = params[:type].nil? ? context[:type] : params[:type].to_sym
+    
+    header = ""
+    content = ""
+    
+    letters_pages(type).each do |letter, pages|
+      
+      header += "<a href=\"#INDEX-#{h letter}-#{rnd}\">#{h letter}</a> - "
+      content += "<div class=\"index_letter\" id=\"INDEX-#{h letter}-#{rnd}\">#{h letter}</div><div class=\"index_pages\">"
+      pages.sort.each do |page|
+        content += "<a href=\"#{url_for :controller => 'page', :action => 'view', :type => h(type), :id => h(page)}\">#{h page}</a>, "
+      end
+      content = content[0..-3]
+      content += "</div>"
+      
+    end
+    
+    "<div class=\"index\"><div class=\"index_header\">#{header[0..-4]}</div><div class=\"index_body\">#{content}</div></div>"
   end
 
 end

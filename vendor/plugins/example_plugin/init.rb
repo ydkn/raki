@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,14 +22,11 @@ Raki::Plugin.register :example do
   author 'Florian Schwab'
   version '0.1'
 
-  execute do |params, body, context|
+  execute do
     if params.key?(:error)
-      if params[:error] == 'plugin'
-        raise Raki::Plugin::PluginError.new 'PluginError raised by parameter'
-      else
-        raise StandardError.new 'Error raised by parameter'
-      end
+      raise Raki::Plugin::PluginError.new "ERROR: #{params[:error]}"
     end
+    
     Raki.parser(:page).parse(
       "%%information *Example Plugin*\n\nContext: #{context.inspect.gsub /\\/, ''}\nParameters: #{params.inspect.gsub /\\/, ''}\nBody: #{body}%%"
     )

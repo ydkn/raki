@@ -113,11 +113,26 @@ module Raki
     end
 
     def exec(params, body, context={})
-      @execute.call(params, body, context)
+      @params = params
+      @body = body
+      @context = context
+      @execute.call
     end
 
     def executable?
       !@execute.nil?
+    end
+    
+    def params
+      @params
+    end
+    
+    def body
+      @body
+    end
+    
+    def context
+      @context
     end
     
     def url?(url)

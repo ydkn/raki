@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Martin Sigloch
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,8 +22,20 @@ Raki::Plugin.register :img do
   author 'Martin Sigloch'
   version '0.1'
 
-  execute do |params, body, context|
-    ImagePluginHelper.show params, body, context
+  execute do
+    img = body.strip
+    type = params[:type].nil? ? context[:type].to_s : params[:type]
+    page = params[:page].nil? ? context[:page].to_s : params[:page]
+    
+    url = url?(img) ? img : "/#{type}/#{page}/attachment/#{img}"
+    
+    alt = params[:alt].nil? ? img : params[:alt]
+    
+    attributes = []
+    attributes << "width=\"#{h params[:width]}\"" unless params[:width].nil?
+    attributes << "height=\"#{h params[:height]}\"" unless params[:height].nil?
+    
+    "<img src=\"#{h url}\" alt=\"#{h alt}\" #{attributes.join ' '} />"
   end
 
 end
