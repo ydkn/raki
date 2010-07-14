@@ -1,0 +1,18 @@
+Raki::Plugin.register :<%=plugin_name %> do
+  
+  name '<%=plugin_pretty_name %> plugin'
+  description 'This is a plugin for Raki'
+  url 'Url to your site'
+  author 'Author name'
+  version '0.0.1'
+  
+  execute do
+    body # Body of plugin
+    params # Parameters given to plugin
+    context # Execution context
+    
+    # Reverse plugin body
+    body.reverse
+  end
+  
+end

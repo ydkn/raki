@@ -1,0 +1,3 @@
+= <%=plugin_pretty_name %>
+
+Description goes here
