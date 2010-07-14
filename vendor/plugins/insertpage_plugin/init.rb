@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,14 +22,26 @@ Raki::Plugin.register :insertpage do
   author 'Florian Schwab'
   version '0.1'
 
-  execute do |params, body, context|
-    type = params[:type].nil? ? :page : params[:type].to_sym
-    raise Raki::Plugin::PluginError.new(t 'plugin.missing_parameter') if params[:name].nil?
+  execute do
+    parts = body.strip.split /\//, 2
+    if parts.length == 2
+      type = parts[0].strip.to_sym
+      page = parts[1].strip
+    else
+      type = context[:type]
+      page = parts[0].nil? ? nil : parts[0].strip
+    end
+    key = [type, page]
+    
+    raise Raki::Plugin::PluginError.new(t 'insertpage.no_page') if page.nil? || page.empty?
+    raise Raki::Plugin::PluginError.new(t 'page.not_exists.msg') unless Raki.provider(type).page_exists? type, page
+    
     context[:insertpage] = [] if context[:insertpage].nil?
-    raise Raki::Plugin::PluginError.new(t 'insertpage.already_included', :name => params[:name]) if context[:insertpage].include? params[:name]
-    context[:insertpage] << params[:name]
+    raise Raki::Plugin::PluginError.new(t 'insertpage.already_included', :name => params[:name]) if context[:insertpage].include? key
+    context[:insertpage] << key
+    
     Raki.parser(type).parse(
-      Raki.provider(type).page_contents(type, params[:name]),
+      Raki.provider(type).page_contents(type, page),
       context
     )
   end
