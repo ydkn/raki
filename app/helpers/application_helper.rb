@@ -17,11 +17,11 @@
 module ApplicationHelper
 
   def format(parser, text)
-    Raki.parser(parser).parse(text)
+    Raki.parser(parser).parse(text, @context)
   end
 
   def format(text)
-    Raki.parser(:default).parse(text)
+    Raki.parser(:default).parse(text, @context)
   end
 
   def plugin_stylesheets
