@@ -54,10 +54,12 @@ module Raki
       def register(id, &block)
         id = id.to_s.downcase.to_sym
         @plugins = {} if @plugins.nil?
-        raise PluginError.new "Plugin with name '#{id}' is already registred" if @plugins.key?(id)
+        raise PluginError.new "A plugin with the name '#{id}' is already registred" if @plugins.key?(id)
         plugin = new(id)
         plugin.instance_eval(&block)
+        raise PluginError.new "Plugin '#{id}' is not executable" unless plugin.executable?
         @plugins[id] = plugin
+        Rails.logger.info "Registered plugin: #{id}"
       end
 
       # Returns an array off all registred plugins
@@ -97,6 +99,10 @@ module Raki
       @id = id
       @stylesheets = []
     end
+    
+    def include(clazz)
+      extend(clazz)
+    end
 
     def add_stylesheet(url, options={})
       @stylesheets << {:url => url, :options => options}
@@ -112,6 +118,10 @@ module Raki
 
     def executable?
       !@execute.nil?
+    end
+    
+    def url?(url)
+      !(url.match "^[a-zA-Z]+:\/\/(.+(:.+)?@)?[a-zA-Z0-9_-](\.[a-zA-Z0-9_-])*(:[0-9]+)?/").nil?
     end
 
   end
