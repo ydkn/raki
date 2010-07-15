@@ -17,8 +17,8 @@ Raki::Plugin.register /^red|blue|green|yellow|grey|black|white|[0-9a-f]{3}|[0-9a
         :white => 'fff'
       }
       
-    if callname =~ /[0-9a-f]{3}|[0-9a-f]{6}/i
-      "<font style=\"color:##{callname};\">#{body}</font>"
+    if callname.to_s =~ /^[0-9a-f]{3}|[0-9a-f]{6}$/i
+      "<font style=\"color:##{callname.to_s};\">#{body}</font>"
     elsif colors.key? callname.to_sym
       "<font style=\"color:##{colors[callname.to_sym]};\">#{body}</font>"
     else
