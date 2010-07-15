@@ -37,18 +37,18 @@ module ApplicationHelper
   GIGABYTE = 1073741824.0
 
   def format_size(size)
-    size = size.to_f
+    size = size.to_i
     case
       when size == 1
         out = "1 Byte"
       when size < KILOBYTE
         out = "#{size} Bytes"
       when size < MEGABYTE
-        out = "%.2f KB" % (size/KILOBYTE)
+        out = "%.2f KB" % (size.to_f/KILOBYTE)
       when size < GIGABYTE
-        out = "%.2f MB" % (size/MEGABYTE)
+        out = "%.2f MB" % (size.to_f/MEGABYTE)
       else
-        out = "%.2f GB" % (size/GIGABYTE)
+        out = "%.2f GB" % (size.to_f/GIGABYTE)
     end
     out
   end
