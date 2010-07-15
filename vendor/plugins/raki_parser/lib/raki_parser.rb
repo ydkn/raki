@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,7 +25,9 @@ class RakiParser < Raki::AbstractParser
 
   def initialize params={}
     Treetop.load "#{File.dirname(__FILE__)}/raki_syntax"
+    RakiSyntaxParser.send(:include, Cacheable)
     @parser = RakiSyntaxParser.new
+    @parser.cache :parse
   end
 
   def parse text, context={}
