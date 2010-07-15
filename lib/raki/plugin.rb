@@ -79,7 +79,7 @@ module Raki
           plugin = @plugins[id]
         else
           @plugins_regexp.each do |key, pi|
-            if id =~ key
+            if id.to_s =~ key
               plugin = pi
               break
             end
