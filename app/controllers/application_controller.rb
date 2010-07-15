@@ -30,6 +30,7 @@ class ApplicationController < ActionController::Base
 
   def init_raki
     Raki::Helpers.init self
+    @context = {}
   end
 
   def try_to_authenticate_user
