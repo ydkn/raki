@@ -358,7 +358,7 @@ class GitProvider < Raki::AbstractProvider
     cmd = "#{GIT_BIN} --git-dir #{@git_path} ls-tree -l #{shell_quote(revision)}:#{path(obj)}"
     shell_cmd(cmd) do |line|
       if line.chomp.to_s =~ /^\d+\s+\w+\s+[0-9a-f]{40}\s+([0-9-]+)\s+(.+)$/
-        return $1 if filename == $2
+        return $1.to_i if filename == $2
       end
     end
     nil
