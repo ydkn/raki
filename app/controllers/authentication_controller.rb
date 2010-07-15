@@ -20,6 +20,9 @@ class AuthenticationController < ApplicationController
     redirect_to :controller => 'page', :action => 'view', :id => Raki.frontpage unless User.current.nil?
     @title = t 'auth.login'
     @form_fields = Raki.authenticator.form_fields
+    @context = {
+      :login => true
+    }
     begin
       unless params[:loginsubmit].nil?
         res = Raki.authenticator.login(params, session)
