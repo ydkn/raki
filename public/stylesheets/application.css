@@ -260,3 +260,29 @@ table.wikitable td {
     border: 1px solid #dadada;
     padding: 0.25em 0.5em;
 }
+
+table.diff {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+table.diff td.linenumber {
+	width: 2em;
+}
+
+table.diff td.line {
+	font-family: monospace;
+	font-size: 1.2em;
+	padding: 0.2em 0.5em;
+	height: 1.4em;
+	margin: 10px;
+	background-color: #f5f5f5;
+}
+
+table.diff td.add {
+	background-color: #ccffcc;
+}
+
+table.diff td.remove {
+	background-color: #ffcccc;
+}

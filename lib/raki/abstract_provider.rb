@@ -91,12 +91,7 @@ module Raki
     private
 
     class Revision
-      attr_reader :id
-      attr_reader :version
-      attr_reader :size
-      attr_reader :user
-      attr_reader :date
-      attr_reader :message
+      attr_reader :id, :version, :size, :user, :date, :message
 
       def initialize(id, version, size, user, date, message)
         @id = id
@@ -109,23 +104,49 @@ module Raki
     end
 
     class Change
-      attr_reader :type
-      attr_reader :name
-      attr_reader :revision
-      attr_reader :attachment
+      attr_reader :type, :page, :revision, :attachment
 
-      def initialize(type, name, revision, attachment=nil)
+      def initialize(type, page, revision, attachment=nil)
         @type = type
-        @name = name
+        @page = page
         @revision = revision
         @attachment = attachment
       end
     end
     
-    class Diff
+    class Diff < Array
       attr_reader :lines
+      
       def initialize(lines)
-        @lines = lines
+        @lines = []
+        found_start = false
+        lines.each do |line|
+          if line =~ /^@@ (\+|\-)(\d+)(,\d+)? (\+|\-)(\d+)(,\d+)? @@/
+            found_start = true
+            @lines << line
+            next
+          end
+          next unless found_start
+          next if line =~ /^\\/
+          @lines << line
+          self << DiffLine.new(nil, nil, line)
+        end
+      end
+      
+      class DiffLine
+        attr_reader :type, :line, :line_number1, :line_number2
+        
+        def initialize(line_num_1, line_num_2, line)
+          @line_number1 = line_num_1
+          @line_number2 = line_num_2
+          if line =~ /^(\+|\-)(.*)/
+            @type = $1 == '+' ? 'add' : 'remove'
+            @line = $2
+          else
+            @type = 'same'
+            @line = line
+          end
+        end
       end
     end
 
