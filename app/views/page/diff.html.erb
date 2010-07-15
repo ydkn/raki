@@ -1,7 +1,7 @@
-<% @diff.each do |diff_line| %>
 <table class="diff">
-  <tr>
-	<td class="line <%=diff_line.type %>"><%=diff_line.line %></td>
-  </tr>	
+  <% @diff.each do |diff_line| %>
+    <tr>
+	  <td class="line <%=diff_line.type %>"><%=diff_line.line %></td>
+    </tr>
+  <% end %>
 </table>
-<% end %>
