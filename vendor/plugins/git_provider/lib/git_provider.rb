@@ -67,7 +67,7 @@ class GitProvider < Raki::AbstractProvider
     changes(type, type.to_s, amount)
   end
   
-  def page_diff(type, page, revision_from=nil, revision_to=nil)
+  def page_diff(type, page, revision_from, revision_to=nil)
     logger.debug("Fetching diff: #{{:type => type, :page => page, :revision_from => revision_from, :revision_to => revision_to}}")
     diff("#{type}/#{page}", revision_from, revision_to)
   end
@@ -330,12 +330,18 @@ class GitProvider < Raki::AbstractProvider
   end
   cache :changes
   
-  def diff(obj, revision_from=nil, revision_to=nil)
+  def diff(obj, revision_from, revision_to=nil)
     check_repository
     check_obj(obj)
     revisions = revisions(obj)
     revision_from = revisions[revisions.length-2].id if revision_from.nil?
-    revision_to = revisions.last.id if revision_to.nil?
+    if revision_to.nil?
+      rev_from = nil
+      revisions.each do |rev|
+        rev_from = rev if rev.id == revision_from
+      end
+      revision_to = revisions[revisions.index(rev_from)-1].id
+    end
     cmd = "#{GIT_BIN} --git-dir #{@git_path} diff #{shell_quote(revision_to)} #{shell_quote(revision_from)} -- #{shell_quote(obj)}"
     diff = []
     shell_cmd(cmd) do |line|

@@ -52,7 +52,7 @@ module Raki
       raise ProviderError.new 'not implemented'
     end
     
-    def page_diff(type, page, revision_from=nil, revision_to=nil)
+    def page_diff(type, page, revision_from, revision_to=nil)
       raise ProviderError.new 'not implemented'
     end
 
