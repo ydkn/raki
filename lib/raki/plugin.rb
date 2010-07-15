@@ -48,35 +48,46 @@ module Raki
         end
       end
 
-      @plugins = {}
-
       # Register a plugin
       def register(id, &block)
-        id = id.to_s.downcase.to_sym
+        id = id.to_s.downcase.to_sym unless id.is_a?(Regexp)
         @plugins = {} if @plugins.nil?
-        raise PluginError.new "A plugin with the name '#{id}' is already registred" if @plugins.key?(id)
+        @plugins_regexp = {} if @plugins_regexp.nil?
+        if (!id.is_a?(Regexp) && @plugins.key?(id)) || @plugins_regexp.key?(id)
+          raise PluginError.new "A plugin with the name '#{id}' is already registred"
+        end
         plugin = new(id)
         plugin.instance_eval(&block)
-        raise PluginError.new "Plugin '#{id}' is not executable" unless plugin.executable?
-        @plugins[id] = plugin
+        if id.is_a?(Regexp)
+          @plugins_regexp[id] = plugin
+        else
+          @plugins[id] = plugin
+        end
         Rails.logger.info "Registered plugin: #{id}"
       end
 
       # Returns an array off all registred plugins
       def all
-        @plugins.values.sort
+        (@plugins.values + @plugins_regexp.values).sort
       end
 
       # Executes the plugin specified by <tt>id</tt> with the give <tt>content</tt> and in the given <tt>context</tt>
       def execute(id, params, body, context={})
         id = id.to_s.downcase.to_sym
+        plugin = nil
         if @plugins.key?(id)
           plugin = @plugins[id]
-          raise PluginError.new "Plugin '#{id}' is not executable" unless plugin.executable?
-          plugin.exec(params, body, context)
         else
-          raise PluginError.new "unknown plugin (#{id})"
+          @plugins_regexp.each do |key, pi|
+            if id =~ key
+              plugin = pi
+              break
+            end
+          end
         end
+        raise PluginError.new "Unknown plugin (#{id})" if plugin.nil?
+        raise PluginError.new "Plugin '#{id}' is not executable" unless plugin.executable?
+        plugin.exec(id, params, body, context)
       end
 
       def stylesheets
@@ -94,6 +105,7 @@ module Raki
     def_field :name, :description, :url, :author, :version
 
     attr_reader :id, :stylesheets
+    attr_reader :params, :body, :context, :callname
     
     def initialize(id)
       @id = id
@@ -112,7 +124,8 @@ module Raki
       @execute = block
     end
 
-    def exec(params, body, context={})
+    def exec(id, params, body, context={})
+      @callname = id
       @params = params
       @body = body
       @context = context
@@ -121,18 +134,6 @@ module Raki
 
     def executable?
       !@execute.nil?
-    end
-    
-    def params
-      @params
-    end
-    
-    def body
-      @body
-    end
-    
-    def context
-      @context
     end
     
     def url?(url)
