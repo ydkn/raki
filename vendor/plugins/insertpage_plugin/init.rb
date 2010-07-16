@@ -40,9 +40,13 @@ Raki::Plugin.register :insertpage do
     raise Raki::Plugin::PluginError.new(t 'insertpage.already_included', :name => params[:name]) if context[:insertpage].include? key
     context[:insertpage] << key
     
+    new_context = context.clone
+    new_context[:type] = type
+    new_context[:page] = page
+    
     Raki.parser(type).parse(
       Raki.provider(type).page_contents(type, page),
-      context
+      new_context
     )
   end
 

@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,7 +30,9 @@ class ApplicationController < ActionController::Base
 
   def init_raki
     Raki::Helpers.init self
-    @context = {}
+    @context = {
+      :params => params
+    }
   end
 
   def try_to_authenticate_user

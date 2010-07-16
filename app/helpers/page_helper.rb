@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,10 @@ module PageHelper
 
   def insert_page(type, name, revision=nil)
     if page_exists?(type, name, revision)
-      parsed = Raki.parser(type).parse(page_contents(type, name, revision), @context)
+      context = @context.clone
+      context[:type] = type
+      context[:page] = name
+      parsed = Raki.parser(type).parse(page_contents(type, name, revision), context)
       parsed.nil? ? "<div class=\"error\">PARSING ERROR</div>" : parsed
     end
   end

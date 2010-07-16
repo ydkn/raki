@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -130,10 +130,10 @@ class PageController < ApplicationController
     @provider = Raki.provider(@type)
     @title = @page
     
-    @context = {
-      :type => @type,
-      :page => @page
-    }
+    @context[:type] = @type
+    @context[:page] = @page
+    @context[:real_type] = @type
+    @context[:real_page] = @page
   end
 
   def redirect_if_page_not_exists
