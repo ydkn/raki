@@ -6,7 +6,7 @@ atom_feed do |feed|
   @revisions.reverse_each do |revision|
     feed.entry revision, :url => url_for(:controller => 'page', :action => 'view', :type => h(@type), :id => h(@page), :revision => h(revision.id)) do |entry|
       entry.title h revision.message
-      entry.updated @revisions.last.date
+      entry.updated revision.date.xmlschema
       entry.content %Q{
         <h1>#{h revision.version}: #{h revision.message}</h1>
         <div><b>Author: </b>#{h revision.user}</div>

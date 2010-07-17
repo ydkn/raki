@@ -1,13 +1,13 @@
 atom_feed do |feed|
 
   feed.title h "#{Raki.app_name}"
-  feed.updated @changes.last.revision.date
+  feed.updated @changes.first.revision.date
 
-  @changes.reverse_each do |change|
+  @changes.each do |change|
     if change.attachment.nil?
       feed.entry change.revision, :url => url_for(:controller => 'page', :action => 'view', :type => h(change.type), :id => h(change.page), :revision => h(change.revision.id)) do |entry|
         entry.title h "#{change.type}/#{change.page}"
-        entry.updated @changes.last.revision.date
+        entry.updated change.revision.date.xmlschema
         entry.content %Q{
           <h1>#{h change.type}/#{h change.page}</h1>
           <h2>#{h change.revision.version}: #{h change.revision.message}</h2>
@@ -26,7 +26,7 @@ atom_feed do |feed|
     else
       feed.entry change.revision, :url => url_for(:controller => 'page', :action => 'attachment', :type => h(change.type), :id => h(change.page), :attachment => h(change.attachment), :revision => h(change.revision.id)) do |entry|
         entry.title h "#{change.type}/#{change.page}/#{change.attachment}"
-        entry.updated @changes.last.revision.date
+        entry.updated change.revision.date.xmlschema
         entry.content %Q{
           <h1>#{h change.type}/#{h change.page}/#{h change.attachment}</h1>
           <h2>#{h change.revision.version}: #{h change.revision.message}</h2>
