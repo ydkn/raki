@@ -100,6 +100,10 @@ module Raki
 
     end
     
+    def <=> b
+      name <=> b.name
+    end
+    
     include Raki::Helpers
 
     def_field :name, :description, :url, :author, :version
