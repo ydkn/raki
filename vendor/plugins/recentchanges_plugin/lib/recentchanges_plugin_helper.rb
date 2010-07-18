@@ -16,9 +16,10 @@
 
 module RecentchangesPluginHelper
   
-  def days_changes
+  def days_changes types
     days = {}
-    provider_types.each do |type|
+    types.each do |type|
+      type = type.to_sym
       page_changes(type).each do |change|
         day = change.revision.date.strftime("%Y-%m-%d")
         days[day] = [] unless days.key?(day)
