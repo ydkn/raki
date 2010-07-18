@@ -29,17 +29,17 @@ Raki::Plugin.register :index do
   execute do
     rnd = rand(900)+100
     
-    type = params[:type].nil? ? context[:type] : params[:type].to_sym
+    types = params[:type].nil? ? [context[:type]] : params[:type].split(',')
     
     header = ""
     content = ""
     
-    letters_pages(type).each do |letter, pages|
+    letters_pages(types).each do |letter, pages|
       
       header += "<a href=\"#INDEX-#{h letter}-#{rnd}\">#{h letter}</a> - "
       content += "<div class=\"index_letter\" id=\"INDEX-#{h letter}-#{rnd}\">#{h letter}</div><div class=\"index_pages\">"
-      pages.sort.each do |page|
-        content += "<a href=\"#{url_for :controller => 'page', :action => 'view', :type => h(type), :id => h(page)}\">#{h page}</a>, "
+      pages.each do |page|
+        content += "<a href=\"#{url_for :controller => 'page', :action => 'view', :type => h(page[:type]), :id => h(page[:page])}\">#{h types.length == 1 ? page[:page] : "#{page[:type]}/#{page[:page]}"}</a>, "
       end
       content = content[0..-3]
       content += "</div>"

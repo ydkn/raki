@@ -16,14 +16,37 @@
 
 module IndexPluginHelper
   
-  def letters_pages type
+  def letters_pages types
     chars = {}
-    Raki.provider(type).page_all(type).each do |page|
-      letter = page[0].chr.upcase
-      chars[letter] = [] unless chars.key?(letter)
-      chars[letter] << page
+    types.each do |type|
+      type = type.to_sym
+      Raki.provider(type).page_all(type).each do |page|
+        letter = page[0].chr.upcase
+        chars[letter] = [] unless chars.key?(letter)
+        chars[letter] << {:type => type, :page => page}
+      end
     end
-    chars.sort { |a,b| a <=> b }
+    chars = array_to_hash chars.sort { |a, b| a[0] <=> b[0] }
+    chars.keys.each { |letter| chars[letter] = sort_pages chars[letter] }
+    chars
+  end
+  
+  def array_to_hash array
+    hash = {}
+    array.each do |item|
+      hash[item[0]] = item[1]
+    end
+    hash
+  end
+  
+  def sort_pages pages
+    pages.each.sort do |a, b|
+      if a[:type] == b[:type]
+        a[:page] <=> b[:page]
+      else
+        a[:type] <=> b[:type]
+      end
+    end
   end
   
 end
