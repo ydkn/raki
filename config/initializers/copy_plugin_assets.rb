@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+FileUtils.rm_rf(File.join(Rails.root, 'public', 'plugin_assets'))
 FileUtils.mkdir_p(File.join(Rails.root, 'public', 'plugin_assets'))
 
 Dir[File.join(Rails.root, 'vendor', 'plugins', '*')].each do |plugin|
