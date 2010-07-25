@@ -16,7 +16,7 @@
 
 class DBAuthenticator < Raki::AbstractAuthenticator
 
-  def login(params)
+  def login(params, session, cookies)
     username = params[:username]
     password = params[:password]
     begin

@@ -19,8 +19,23 @@ module Raki
 
     class AuthenticatorError < StandardError
     end
+    
+    include Raki::Helpers
 
-    def login(username, password, session=nil)
+    def login(params, session, cookies)
+      raise AuthenticatorError.new 'not implemented'
+    end
+    
+    def try_to_authenticate(params, session, cookies)
+      raise AuthenticatorError.new 'not implemented'
+    end
+    
+    def login_hook(params, session, cookies)
+      raise AuthenticatorError.new 'not implemented'
+    end
+    
+    def form_fields
+      raise AuthenticatorError.new 'not implemented'
     end
 
   end

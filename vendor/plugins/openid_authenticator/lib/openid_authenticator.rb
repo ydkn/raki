@@ -19,9 +19,8 @@ require 'openid'
 require 'openid/store/filesystem'
 
 class OpenIDAuthenticator < Raki::AbstractAuthenticator
-  include Raki::Helpers
 
-  def login(params, session)
+  def login(params, session, cookies)
     openid = params[:openid]
     begin
       request = openid_consumer(session).begin(openid)
@@ -36,7 +35,7 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
     end
   end
 
-  def callback(params, session)
+  def callback(params, session, cookies)
     response = openid_consumer(session).complete(params, url_for(:controller => 'authentication', :action => 'callback'))
     if response.status == :success
       raise AuthenticatorError.new("Nickname or email missing") if params['openid.sreg.nickname'].nil? || params['openid.sreg.email'].nil?

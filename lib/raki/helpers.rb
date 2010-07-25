@@ -37,6 +37,10 @@ module Raki
     def url_for(*args)
       Raki::Helpers.controller.url_for(*args)
     end
+    
+    def redirect_to(*args)
+      Raki::Helpers.controller.send(:redirect_to, *args)
+    end
 
   end
 end

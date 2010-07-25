@@ -38,14 +38,15 @@ class ApplicationController < ActionController::Base
   def try_to_authenticate_user
     User.current = nil
     begin
-      unless session[:user].nil?
-        user = session[:user]
-        if user.is_a?(User)
-          User.current = user
-        end
-      end
+      Raki.authenticator.try_to_authenticate params, session, cookies
     rescue
-      User.current = nil
+      begin
+        unless session[:user].nil?
+          User.current = session[:user] if session[:user].is_a?(User)
+        end
+      rescue
+        User.current = nil
+      end
     end
   end
 

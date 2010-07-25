@@ -17,13 +17,24 @@
 class AuthenticationController < ApplicationController
 
   def login
-    redirect_to :controller => 'page', :action => 'view', :id => Raki.frontpage unless User.current.nil?
+    redirect_to :controller => 'page', :action => 'view', :type => 'page', :id => Raki.frontpage unless User.current.nil?
+    begin
+      Raki.authenticator.login_hook params, session, cookies
+    rescue
+      # ignore
+    end
     @title = t 'auth.login'
-    @form_fields = Raki.authenticator.form_fields
+    begin
+      @form_fields = Raki.authenticator.form_fields
+    rescue
+      @form_fields = []
+    end
     @context[:login] = true
     begin
       unless params[:loginsubmit].nil?
-        res = Raki.authenticator.login(params, session)
+        params.delete(:controller)
+        params.delete(:action)
+        res = Raki.authenticator.login(params, session, cookies)
         if res.is_a?(String)
           redirect_to res
         elsif res.is_a?(User)
@@ -49,7 +60,7 @@ class AuthenticationController < ApplicationController
     begin
       params.delete(:controller)
       params.delete(:action)
-      resp = Raki.authenticator.callback(params, session)
+      resp = Raki.authenticator.callback(params, session, cookies)
       if resp.is_a?(User)
         session[:user] = resp
         User.current= resp
