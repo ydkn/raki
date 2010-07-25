@@ -22,21 +22,22 @@ module Raki
 
     def config(*keys)
       @config = YAML.load(File.read("#{Rails.root}/config/raki.yml")) if @config.nil?
-      @requested_config = @config
+      requested_config = @config
       keys.each do |key,value|
-        return nil if @requested_config[key].nil?
-        @requested_config = @requested_config[key]
+        key = key.to_s
+        return nil if requested_config[key].nil?
+        requested_config = requested_config[key]
       end
-      @requested_config
+      requested_config
     end
 
     def frontpage
-      return config[:frontpage] unless config[:frontpage].nil?
+      return config(:frontpage) unless config(:frontpage).nil?
       'Main'
     end
 
     def app_name
-      return config[:app_name] unless config[:app_name].nil?
+      return config(:app_name) unless config(:frontpage).nil?
       'Raki'
     end
 
