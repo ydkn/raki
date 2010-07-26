@@ -1,4 +1,4 @@
-<form action="<%=url_for :controller => 'page', :type => h(@type), :id => h(@page), :action => 'rename' %>" method="post">
+<%=form_tag({:controller => 'page', :type => h(@type), :id => h(@page), :action => 'rename'}) %>
   <div>
     <% unless flash[:notice].nil? %>
       <div class="error"><%=flash[:notice] %></div>
@@ -6,7 +6,7 @@
     <input type="text" id="page-name" name="name" value="<%=h @page%>" />
     <input type="submit" value="<%=t 'page.info.rename' %>" />
   </div>
-</form>
+<% $end %>
 <input type="button" value="<%=t 'page.info.delete' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :type => h(@type), :id => h(@page), :action => 'delete' %>';" />
 <br/>
 <form id="edit-form" action="<%=url_for :controller => 'page', :type => h(@type), :id => h(@page), :action => 'update' %>" method="post" accept-charset="UTF-8">
@@ -22,7 +22,7 @@
   <div>
     <textarea name="content" cols="100" rows="25"><%=@content %></textarea>
   </div>
-</form>
+<% $end %>
 <% unless @preview.nil? %>
   <h2><%=t 'page.edit.preview' %></h2>
   <div id="preview">

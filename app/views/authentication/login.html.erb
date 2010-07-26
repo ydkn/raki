@@ -1,5 +1,5 @@
 <div id="login">
-  <form action="<%=url_for :controller => 'authentication', :action => 'login' %>" method="post" accept-charset="UTF-8">
+  <%=form_tag({:controller => 'authentication', :action => 'login'}) %>
     <% unless flash[:notice].nil? %>
       <div class="error"><%=h flash[:notice] %></div>
     <% end %>
@@ -10,5 +10,5 @@
     <% end %>
     <input type="submit" value="<%=t 'auth.login' %>" />
     <input type="hidden" name="loginsubmit" value="true" />
-  </form>
+  <% $end %>
 </div>
