@@ -1,5 +1,5 @@
 <h2><%=t 'page.info.versions' %></h2>
-<% form_tag({:controller => 'page', :action => 'diff', :type => h(@type), :id => h(@page)}, :method => :get) do %>
+<% form_tag({:controller => 'page', :action => 'diff', :type => h(@type), :id => h(@page)}, :method => :get) do |f| %>
   <table id="revisions" cellspacing="0" cellpadding="0">
     <thead>
       <tr>
@@ -27,5 +27,5 @@
       <% end %>
     </tbody>
   </table>
-<%= submit_tag(t('page.info.diff'), :name => nil) %>
+<%=submit_tag(t('page.info.diff'), :name => nil) %>
 <% end %>

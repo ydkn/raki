@@ -26,7 +26,7 @@
 </table>
 <% if authenticated? %>
   <br/>
-  <%=form_tag({:controller => 'page', :type => h(@type), :id => h(@page), :action => 'attachment_upload'}, {:enctype => 'multipart/form-data'}) %>
+  <% form_tag({:controller => 'page', :type => h(@type), :id => h(@page), :action => 'attachment_upload'}, {:enctype => 'multipart/form-data'}) do |f| %>
     <div>
       <label for="attachment-file"><%=t 'attachment.upload.file' %></label>
       <input id="attachment-file" name="attachment_upload" size="30" type="file" />
@@ -36,5 +36,5 @@
       <input type="text" id="attachment-message" name="message" />
     </div>
     <input type="submit" value="<%=t 'attachment.upload.save' %>" />
-  <% $end %>
+  <% end %>
 <% end %>

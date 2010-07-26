@@ -1,14 +1,14 @@
 <div id="login">
-  <%=form_tag({:controller => 'authentication', :action => 'login'}) %>
+  <% form_tag({:controller => 'authentication', :action => 'login'}) do |f| %>
     <% unless flash[:notice].nil? %>
       <div class="error"><%=h flash[:notice] %></div>
     <% end %>
     <% @form_fields.each do |field| %>
-      <label for="login-<%=field[:name]%>"><%=t field[:title] %></label>
-      <input type="text" id="login-<%=field[:name]%>" name="<%=field[:name]%>" />
+      <label for="login-<%=field[:name] %>"><%=t field[:title] %></label>
+      <input type="<%=field[:type] %>" id="login-<%=field[:name] %>" name="<%=field[:name] %>" />
       <br />
     <% end %>
     <input type="submit" value="<%=t 'auth.login' %>" />
     <input type="hidden" name="loginsubmit" value="true" />
-  <% $end %>
+  <% end %>
 </div>
