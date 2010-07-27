@@ -27,26 +27,13 @@ Raki::Plugin.register :index do
   include IndexPluginHelper
 
   execute do
-    rnd = rand(900)+100
+    @types = params[:type].nil? ? [context[:type]] : params[:type].split(',')
     
-    types = params[:type].nil? ? [context[:type]] : params[:type].split(',')
+    @rnd = rand(900)+100
     
-    header = ""
-    content = ""
+    @letters_pages = letters_pages @types
     
-    letters_pages(types).each do |letter, pages|
-      
-      header += "<a href=\"#INDEX-#{h letter}-#{rnd}\">#{h letter}</a> - "
-      content += "<div class=\"index_letter\" id=\"INDEX-#{h letter}-#{rnd}\">#{h letter}</div><div class=\"index_pages\">"
-      pages.each do |page|
-        content += "<a href=\"#{url_for :controller => 'page', :action => 'view', :type => h(page[:type]), :id => h(page[:page])}\">#{h types.length == 1 ? page[:page] : "#{page[:type]}/#{page[:page]}"}</a>, "
-      end
-      content = content[0..-3]
-      content += "</div>"
-      
-    end
-    
-    "<div class=\"index\"><div class=\"index_header\">#{header[0..-4]}</div><div class=\"index_body\">#{content}</div></div>"
+    render :index
   end
 
 end

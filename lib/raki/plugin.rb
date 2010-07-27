@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,6 +13,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+require 'ostruct'
 
 module Raki
 
@@ -30,6 +32,9 @@ module Raki
   #     end
   #   end
   class Plugin
+    
+    TMPL_INGORE_VARS = ['stylesheets', 'execute']
+    TMPL_LOCAL_VARS = ['callname', 'version', 'description', 'name', 'context', 'body', 'id', 'author', 'params', 'url']
 
     class PluginError < StandardError
     end
@@ -97,6 +102,21 @@ module Raki
         end
         stylesheets
       end
+      
+      def add_template(file)
+        @templates = {} if @templates.nil?
+        template = ''
+        File.open(file, 'r').each_line do |line|
+          template += line
+        end
+        key = /([^\/]+)\.erb$/.match(file)[1].to_sym
+        @templates[key] = ERB.new(template)
+      end
+      
+      def templates
+        @templates = {} if @templates.nil?
+        @templates
+      end
 
     end
     
@@ -105,6 +125,7 @@ module Raki
     end
     
     include Raki::Helpers
+    include Raki::PluginHelpers
 
     def_field :name, :description, :url, :author, :version
 
@@ -140,8 +161,23 @@ module Raki
       !@execute.nil?
     end
     
-    def url?(url)
-      !(url.match "^[a-zA-Z]+:\/\/(.+(:.+)?@)?[a-zA-Z0-9_-](\.[a-zA-Z0-9_-])*(:[0-9]+)?/").nil?
+    def render(tmpl)
+      template = Raki::Plugin.templates[tmpl.to_sym]
+      raise PluginError.new "Template '#{tmpl.to_s}' not found" if template.nil?
+      vars = {}
+      instance_variable_names.each do |var_name|
+        next if TMPL_INGORE_VARS.include?(var_name.gsub(/^@/, ''))
+        if TMPL_LOCAL_VARS.include?(var_name.gsub(/^@/, ''))
+          vars[var_name.gsub(/^@/, '').to_sym] = instance_variable_get(var_name)
+        else
+          vars[var_name.gsub(/^@/, '').to_sym] = instance_variable_get(var_name)
+          #vars[var_name.to_sym] = instance_variable_get(var_name)
+        end
+      end
+      vars = OpenStruct.new(vars)
+      vars.send(:extend, Raki::Helpers)
+      vars.send(:extend, Raki::PluginHelpers)
+      template.result(vars.send(:binding))
     end
 
   end

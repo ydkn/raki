@@ -14,24 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Raki::Plugin.register :recentchanges do
-
-  name 'Recent changes plugin'
-  description 'Plugin to list recent changes'
-  url 'http://github.com/ydkn/raki'
-  author 'Florian Schwab'
-  version '0.1'
-
-  add_stylesheet '/plugin_assets/recentchanges_plugin/stylesheets/recentchanges.css'
-  
-  include RecentchangesPluginHelper
-
-  execute do
-    @types = params[:type].nil? ? [context[:type]] : params[:type].split(',')
-    
-    @days_changes = days_changes @types
-    
-    render :recentchanges
+Dir[File.join(Rails.root, 'vendor', 'plugins', '*')].each do |plugin|
+  if File.directory?(plugin)
+    template_dir = File.join(plugin, 'templates')
+    if File.exists?(template_dir) && File.directory?(template_dir)
+      Dir[File.join(template_dir, '*')].each do |template|
+        if File.exists?(template) && !File.directory?(template) && /\.erb$/.match(template)
+          Raki::Plugin.add_template(template)
+        end
+      end
+    end
   end
-
 end

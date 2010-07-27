@@ -14,24 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Raki::Plugin.register :recentchanges do
-
-  name 'Recent changes plugin'
-  description 'Plugin to list recent changes'
-  url 'http://github.com/ydkn/raki'
-  author 'Florian Schwab'
-  version '0.1'
-
-  add_stylesheet '/plugin_assets/recentchanges_plugin/stylesheets/recentchanges.css'
-  
-  include RecentchangesPluginHelper
-
-  execute do
-    @types = params[:type].nil? ? [context[:type]] : params[:type].split(',')
+module Raki
+  module PluginHelpers
     
-    @days_changes = days_changes @types
+    def url?(url)
+      !(url.match "^[a-zA-Z]+:\/\/(.+(:.+)?@)?[a-zA-Z0-9_-](\.[a-zA-Z0-9_-])*(:[0-9]+)?/").nil?
+    end
     
-    render :recentchanges
   end
-
 end

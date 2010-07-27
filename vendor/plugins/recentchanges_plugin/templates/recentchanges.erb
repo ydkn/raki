@@ -1,0 +1,23 @@
+<table cellpadding="0" cellspacing="0" class="recentchanges">
+  <% days_changes.each do |day, changes| %>
+    <tr>
+	  <th><%=l Time.parse(day), :format => :date %></th>
+	  <th></th>
+	  <th></th>
+	  <th></th>
+	</tr>
+	<% changes = changes.sort { |a,b| b.revision.date <=> a.revision.date } %>
+	<% changes.each do |change| %>
+	  <tr>
+		<% if change.attachment.nil? %>
+		  <td><%=link_to h(types.length == 1 ? change.page : "#{change.type}/#{change.page}"), {:controller => 'page', :action => 'view', :type => change.type, :id => h(change.page), :revision => h(change.revision.id)} %></td>
+		<% else %>
+		  <td><%=link_to h(types.length == 1 ? "#{change.page}/#{change.attachment}" : "#{change.type}/#{change.page}/#{change.attachment}"), {:controller => 'page', :action => 'attachment', :type => change.type, :id => h(change.page), :attachment => h(change.attachment), :revision => h(change.revision.id)} %></td>
+		<% end %>
+		<td><%=l change.revision.date, :format => :time %></td>
+		<td><%=link_to h(change.revision.user), {:controller => 'page', :action => 'view', :type => :user, :id => h(change.revision.user)} %></td>
+		<td><%=h change.revision.message %></td>
+	  </tr>
+	<% end %>
+  <% end %>
+</table>
