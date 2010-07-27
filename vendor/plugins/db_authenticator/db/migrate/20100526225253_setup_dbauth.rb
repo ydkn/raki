@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,15 +16,16 @@
 
 class SetupDbauth < ActiveRecord::Migration
   def self.up
-    change_table :users do |t|
+    create_table :users, :id => false do |t|
+      t.string :username, :primary => true
       t.string :password
+      t.string :email, :unique => true, :null => false
+      t.timestamp :last_login
+      t.timestamp :created_at
     end
   end
 
   def self.down
-    change_table :users do |t|
-      t.remove :password
-    end
+    drop_table :users
   end
 end
-

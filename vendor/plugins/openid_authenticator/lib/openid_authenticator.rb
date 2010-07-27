@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,10 +27,6 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
       request.add_extension_arg('sreg', 'required', 'nickname,email')
       return request.redirect_url(url_for(''), url_for(:controller => 'authentication', :action => 'callback'))
     rescue => e
-      p e.message
-      e.backtrace.each do |se|
-        p se
-      end
       raise AuthenticatorError.new("Unable to authenticate: #{openid}")
     end
   end
@@ -39,10 +35,7 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
     response = openid_consumer(session).complete(params, url_for(:controller => 'authentication', :action => 'callback'))
     if response.status == :success
       raise AuthenticatorError.new("Nickname or email missing") if params['openid.sreg.nickname'].nil? || params['openid.sreg.email'].nil?
-      user = User.new
-      user.username = params['openid.sreg.nickname']
-      user.email = params['openid.sreg.email']
-      return user
+      return User.new(params['openid.sreg.nickname'], params['openid.sreg.email'])
     end
     nil
   end
