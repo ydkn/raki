@@ -1,0 +1,81 @@
+en:
+
+  time:
+    formats:
+      date: %d.%m.%Y
+      time: %H:%M:%S
+      full: %d.%m.%Y %H:%M:%S
+
+  auth:
+
+    tab:
+      login: Einloggen
+
+    username: Benutzername
+    password: Passwort
+    login: Login
+    invalid_credentials: Falsche Zugangsdaten
+
+  authinfo:
+    login: Login
+    logout: Logout
+
+  feed: Newsfeed für %{app_name}
+
+  page:
+
+    footer: "%{user} veränderte diese Seite am %{date}. Dies ist Version %{version}."
+    not_exists:
+      msg: Diese Seite existiert nicht.
+      edit_msg: Sie kann aber %{edit_link} werden!
+      edit_link: angelegt
+
+    tab:
+      view: Lesen
+      info: Infrmation
+      edit: Bearbeiten
+      attachments: Anhänge
+
+    edit:
+      save: Speichern
+      preview: Vorschau
+      abort: Abbrechen
+      message: Kommentar
+
+    info:
+      versions: Versionen
+      version:
+        id: Version
+        date: Datum
+        size: Größe
+        user: Autor
+        message: Kommentar
+      diff: Unterschiede
+      rename: Seite umbenennen
+      delete: Komplette Seite löschen
+      page_already_exists: Seite existiert bereits.
+
+    feed: Newsfeed für %{type}/%{page}
+
+  attachment:
+    list: Anhänge
+
+    name: Name
+    size: Größe
+    version: Version
+    date: Datum
+    user: Autor
+    message: Kommentar
+
+    upload:
+      file: Datei
+      message: Kommentar
+      save: Hochladen
+
+    info:
+        versions: Versionen
+
+  plugin:
+    error: Plugin '%{name}' gab einen Fehler aus.
+    missing_parameter: Fehlende Parameter
+

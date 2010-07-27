@@ -24,9 +24,9 @@ en:
 
   page:
 
-    footer: "%{user} changed this page on %{date}. This is version %{version}"
+    footer: "%{user} changed this page on %{date}. This is version %{version}."
     not_exists:
-      msg: Page does not exsist.
+      msg: This Page does not exsist.
       edit_msg: You can %{edit_link} it!
       edit_link: create
 
@@ -54,7 +54,7 @@ en:
       rename: Rename Page
       delete: Remove entire Page
       page_already_exists: Page already exists
-    
+
     feed: Feed for %{type}/%{page}
 
   attachment:
@@ -74,7 +74,8 @@ en:
 
     info:
         versions: Versions
-  
+
   plugin:
     error: Plugin '%{name}' caused error
     missing_parameter: Missing parameter
+
