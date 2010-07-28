@@ -6,5 +6,6 @@ en:
     invalid_response: Invalid Response from OpenID-Provider
     nickname_email_missing: Required information is missing
     no_sreg: Response from OpenID-Provider did not contain SReg data
+    no_or_invalid_sreg: Response from OpenID-Provider is invalid or did not contain SReg data
     setup_needed: Setup needed
     transaction_cancelled: OpenID-Provider cancelled transaction

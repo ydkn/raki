@@ -48,7 +48,11 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
       when OpenID::Consumer::FAILURE
         raise AuthenticatorError.new(t 'auth.openid.verification_failed')
       when OpenID::Consumer::SUCCESS
-        sreg = OpenID::SReg::Response.from_success_response(response)
+        begin
+          sreg = OpenID::SReg::Response.from_success_response(response)
+        rescue => e
+          raise AuthenticatorError.new(t 'auth.openid.no_or_invalid_sreg')
+        end
         raise AuthenticatorError.new(t 'auth.openid.no_sreg') if sreg.empty?
         raise AuthenticatorError.new(t 'auth.openid.nickname_email_missing') unless sreg.data.key?('nickname') && sreg.data.key?('email')
         return User.new(sreg.data['nickname'], sreg.data['email'])
