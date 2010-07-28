@@ -15,6 +15,7 @@ en:
     password: Password
     login: Login
     invalid_credentials: Invalid credentials
+    logged out: Logged out
 
   authinfo:
     login: Login
