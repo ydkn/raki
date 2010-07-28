@@ -15,6 +15,7 @@ de:
     password: Passwort
     login: Login
     invalid_credentials: Falsche Zugangsdaten
+    logged_out: Ausgeloggt
 
   authinfo:
     login: Login
