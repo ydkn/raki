@@ -17,6 +17,7 @@
 require 'rubygems'
 require 'openid'
 require 'openid/store/filesystem'
+require 'openid/extensions/sreg'
 
 class OpenIDAuthenticator < Raki::AbstractAuthenticator
 
@@ -24,18 +25,35 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
     openid = params[:openid]
     begin
       request = openid_consumer(session).begin(openid)
-      request.add_extension_arg('sreg', 'required', 'nickname,email')
-      return request.redirect_url(url_for(''), url_for(:controller => 'authentication', :action => 'callback'))
+      sreg = OpenID::SReg::Request.new
+      sreg.request_fields(['email','nickname'], true)
+      request.add_extension(sreg)
+      request.return_to_args['did_sreg'] = 'y'
+      return request.redirect_url(
+          url_for(:controller => 'page', :action => 'redirect_to_frontpage', :only_path => false),
+          url_for(:controller => 'authentication', :action => 'callback', :only_path => false)
+        )
     rescue => e
       raise AuthenticatorError.new("Unable to authenticate: #{openid}")
     end
   end
 
   def callback(params, session, cookies)
-    response = openid_consumer(session).complete(params, url_for(:controller => 'authentication', :action => 'callback'))
-    if response.status == :success
-      raise AuthenticatorError.new("Nickname or email missing") if params['openid.sreg.nickname'].nil? || params['openid.sreg.email'].nil?
-      return User.new(params['openid.sreg.nickname'], params['openid.sreg.email'])
+    begin
+      response = openid_consumer(session).complete(params, url_for(:controller => 'authentication', :action => 'callback', :only_path => false))
+    rescue => e
+      raise AuthenticatorError.new(t 'auth.openid.invalid_response')
+    end
+    case response.status
+      when OpenID::Consumer::FAILURE
+        raise AuthenticatorError.new(t 'auth.openid.verification_failed')
+      when OpenID::Consumer::SUCCESS
+        sreg = OpenID::SReg::Response.from_success_response(response)
+        raise AuthenticatorError.new(t 'auth.openid.no_sreg') if sreg.empty?
+        raise AuthenticatorError.new(t 'auth.openid.nickname_email_missing') unless sreg.data.key?('nickname') && sreg.data.key?('email')
+        return User.new(sreg.data['nickname'], sreg.data['email'])
+      else
+        raise AuthenticatorError.new(t 'auth.openid.invalid_response')
     end
     nil
   end
@@ -45,7 +63,7 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
       {
         :name => 'openid',
         :type => 'text',
-        :title => 'auth.openid'
+        :title => t('auth.openid')
       }
     ]
   end

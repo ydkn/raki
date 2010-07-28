@@ -4,7 +4,7 @@
       <div class="error"><%=h flash[:notice] %></div>
     <% end %>
     <% @form_fields.each do |field| %>
-      <label for="login-<%=field[:name] %>"><%=t field[:title] %></label>
+      <label for="login-<%=field[:name] %>"><%=field[:title] %></label>
       <input type="<%=field[:type] %>" id="login-<%=field[:name] %>" name="<%=field[:name] %>" />
       <br />
     <% end %>

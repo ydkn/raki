@@ -33,12 +33,12 @@ class DBAuthenticator < Raki::AbstractAuthenticator
       {
         :name => 'username',
         :type => 'text',
-        :title => 'auth.username'
+        :title => t('auth.username')
       },
       {
         :name => 'password',
         :type => 'password',
-        :title => 'auth.password'
+        :title => t('auth.password')
       }
     ]
   end
