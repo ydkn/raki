@@ -42,11 +42,19 @@ module IndexPluginHelper
   def sort_pages pages
     pages.each.sort do |a, b|
       if a[:type] == b[:type]
-        a[:page] <=> b[:page]
+        a[:page].to_s <=> b[:page].to_s
       else
-        a[:type] <=> b[:type]
+        a[:type].to_s <=> b[:type].to_s
       end
     end
+  end
+  
+  def provider_types
+    types = []
+    Raki.providers.keys.each do |provider|
+      types += Raki.provider(provider).types
+    end
+    types
   end
   
 end

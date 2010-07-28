@@ -28,6 +28,7 @@ Raki::Plugin.register :index do
 
   execute do
     @types = params[:type].nil? ? [context[:type]] : params[:type].split(',')
+    @types = provider_types if params[:type] == 'all'
     
     @rnd = rand(900)+100
     

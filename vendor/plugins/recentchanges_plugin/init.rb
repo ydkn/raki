@@ -28,6 +28,7 @@ Raki::Plugin.register :recentchanges do
 
   execute do
     @types = params[:type].nil? ? [context[:type]] : params[:type].split(',')
+    @types = provider_types if params[:type] == 'all'
     
     @days_changes = days_changes @types
     
