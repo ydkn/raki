@@ -1,4 +1,4 @@
-en:
+de:
 
   time:
     formats:
@@ -78,4 +78,3 @@ en:
   plugin:
     error: Plugin '%{name}' gab einen Fehler aus.
     missing_parameter: Fehlende Parameter
-

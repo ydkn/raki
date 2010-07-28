@@ -78,4 +78,3 @@ en:
   plugin:
     error: Plugin '%{name}' caused error
     missing_parameter: Missing parameter
-
