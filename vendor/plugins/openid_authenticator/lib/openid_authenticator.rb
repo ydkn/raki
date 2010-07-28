@@ -71,7 +71,7 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
       {
         :name => 'openid',
         :type => 'text',
-        :title => t('auth.openid')
+        :title => t('auth.openid.label')
       }
     ]
   end
