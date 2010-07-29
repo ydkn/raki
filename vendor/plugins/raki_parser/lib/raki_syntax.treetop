@@ -161,7 +161,7 @@ grammar RakiSyntax
   # Strings
 
   rule parameter
-    ignore_whitespace* key:(!'=' text)+ '=' value:parameter_value <ParameterNode>
+    ignore_whitespace* key:(!('=' / whitespace) text)+ '=' value:parameter_value <ParameterNode>
   end
 
   rule parameter_key
