@@ -15,6 +15,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 module PageHelper
+  
+  def url_for_page(type, name, revision=nil)
+    if revision.nil?
+      {:controller => 'page', :action => 'view', :type => h(type), :id => h(name)}
+    else
+      {:controller => 'page', :action => 'view', :type => h(type), :id => h(name), :revision => h(revision)}
+    end
+  end
 
   def page_contents(type, name, revision=nil)
     Raki.provider(type).page_contents(type, name, revision)
