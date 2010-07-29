@@ -1,5 +1,5 @@
 <% if authenticated? %>
-  <%= link_to((h User.current.username), "/user/#{h(User.current.username)}", :id => 'auth_username') %>
+  <%= link_to((h User.current.username), {:controller => 'page', :action => 'view', :type => :user, :id => h(User.current.username)}, :id => 'auth_username') %>
   <%=link_to((t 'authinfo.logout'), {:controller => 'authentication', :action => 'logout'}) %>
 <% else %>
   <%=link_to((t 'authinfo.login'), {:controller => 'authentication', :action => 'login'}) %>
