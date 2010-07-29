@@ -19,6 +19,7 @@
 app_name: Raki
 
 frontpage: Main
+userpage_type: user
 
 providers:
   default:

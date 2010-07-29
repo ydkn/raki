@@ -53,7 +53,6 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
     rescue => e
       raise AuthenticatorError.new(t 'auth.openid.invalid_response')
     end
-    p response.inspect
     case response.status
       when OpenID::Consumer::FAILURE
         raise AuthenticatorError.new(t 'auth.openid.verification_failed')
