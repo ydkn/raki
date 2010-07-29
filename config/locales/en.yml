@@ -27,7 +27,7 @@ en:
 
     footer: "%{user} changed this page on %{date}. This is version %{version}."
     not_exists:
-      msg: This Page does not exsist.
+      msg: This Page does not exist.
       edit_msg: You can %{edit_link} it!
       edit_link: create
 
