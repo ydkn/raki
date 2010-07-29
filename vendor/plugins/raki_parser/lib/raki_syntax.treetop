@@ -90,23 +90,44 @@ grammar RakiSyntax
   end
 
   rule underlined
-    '_' !whitespace text:(unprotected_formating
-    / (!'_' in_line ('_' !(whitespace / '*' / '´' / '-'))?)+) '_' <UnderlineNode>
+    '_' !whitespace text:(unprotected_formating # nested formating
+	# in_line* without whitespace at the end
+    / ((!underlined_end (!'_' in_line ('_' !(whitespace / '´' / '*' / '-'))?))* underlined_end)+
+	) '_' <UnderlineNode>
+  end
+
+  rule underlined_end
+	!(whitespace / '_') in_line
   end
 
   rule italic
     '´' !whitespace text:(unprotected_formating
-    / (!'´' in_line ('´' !(whitespace / '_' / '*' / '-'))?)+) '´' <ItalicNode>
+    / ((!italic_end (!'´' in_line ('´' !(whitespace / '_' / '*' / '-'))?))* italic_end)+
+	) '´' <ItalicNode>
+  end
+
+  rule italic_end
+	!(whitespace / '´') in_line
   end
 
   rule bold
     '*' !whitespace text:(unprotected_formating
-    / (!'*' in_line ('*' !(whitespace / '_' / '´' / '-'))?)+) '*' <BoldNode>
+    / ((!bold_end (!'*' in_line ('*' !(whitespace / '_' / '´' / '-'))?))* bold_end)+
+	) '*' <BoldNode>
+  end
+
+  rule bold_end
+	!(whitespace / '*') in_line
   end
 
   rule strikethrough
     '-' !whitespace text:(unprotected_formating
-    / (!'-' in_line ('-' !(whitespace / '_' / '*' / '´'))?)+) '-' <StrikethroughNode>
+    / ((!strikethrough_end (!'-' in_line ('-' !(whitespace / '_' / '´' / '*'))?))* strikethrough_end)+
+	) '-' <StrikethroughNode>
+  end
+
+  rule strikethrough_end
+	!(whitespace / '-') in_line
   end
 
 
