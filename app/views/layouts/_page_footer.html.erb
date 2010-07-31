@@ -2,7 +2,7 @@
   <% unless @page_info.nil? %>
     <%=t 'page.footer',
       :date => l(@page_info[:date], :format => :full),
-      :user => link_to(@page_info[:user], :controller => 'page', :action => 'view', :type => Raki.userpage_type, :id => h(@page_info[:user])),
+      :user => link_to(@page_info[:user].username, :controller => 'page', :action => 'view', :type => Raki.userpage_type, :id => h(@page_info[:user].username)),
       :version => h(@page_info[:version]) unless @page_info.nil?
     %>
   <% end %>
