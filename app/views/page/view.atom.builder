@@ -7,12 +7,16 @@ atom_feed do |feed|
     feed.entry revision, :url => url_for(:controller => 'page', :action => 'view', :type => h(@type), :id => h(@page), :revision => h(revision.id)) do |entry|
       entry.title h revision.message
       entry.updated revision.date.xmlschema
+      diff = []
+      @provider.page_diff(@type, @page, revision.id).lines.each do |line|
+        diff << h(line)
+      end
       entry.content %Q{
         <h1>#{h revision.version}: #{h revision.message}</h1>
         <div><b>Author: </b>#{h revision.user}</div>
         <div><b>Size: </b>#{h format_size(revision.size)}</div>
         <br />
-        <div>#{@provider.page_diff(@type, @page, revision.id).lines.join("<br/>")}</div>
+        <div>#{diff.join('<br/>')}</div>
         <br />
         <hr />
         <div>#{insert_page @type, @page, revision.id}</div>
