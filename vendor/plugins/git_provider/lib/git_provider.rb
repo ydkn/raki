@@ -34,32 +34,32 @@ class GitProvider < Raki::AbstractProvider
 
   def page_exists?(type, name, revision=nil)
     logger.debug("Checking if page exists: #{{:type => type, :name => name, :revision => revision}}")
-    exists?(type.to_s, name, revision)
+    exists?("#{type.to_s}/#{name.to_s}", revision)
   end
 
   def page_contents(type, name, revision=nil)
     logger.debug("Fetching contents of page: #{{:type => type, :name => name, :revision => revision}}")
-    contents("#{type.to_s}/#{name}", revision)
+    contents("#{type.to_s}/#{name.to_s}", revision)
   end
 
   def page_revisions(type, name)
     logger.debug("Fetching revisions for page: #{{:type => type, :name => name}}")
-    revisions("#{type.to_s}/#{name}")
+    revisions("#{type.to_s}/#{name.to_s}")
   end
 
   def page_save(type, name, contents, message, user)
     logger.debug("Saving page: #{{:type => type, :name => name, :contents => contents, :message => message, :user => user}}")
-    save("#{type.to_s}/#{name}", contents, message, user)
+    save("#{type.to_s}/#{name.to_s}", contents, message, user)
   end
 
   def page_rename(old_type, old_name, new_type, new_name, user)
     logger.debug("Renaming page: #{{:old_type => old_type, :old_page => old_name, :new_type => new_type, :new_page => new_name, :user => user}}")
-    rename("#{old_type.to_s}/#{old_name}", "#{new_type.to_s}/#{new_name}", "#{old_name} ==> #{new_name}", user)
+    rename("#{old_type.to_s}/#{old_name.to_s}", "#{new_type.to_s}/#{new_name.to_s}", "#{old_name.to_s} ==> #{new_name.to_s}", user)
   end
 
   def page_delete(type, name, user)
     logger.debug("Deleting page: #{{:type => type, :page => name, :user => user}}")
-    delete("#{type.to_s}/#{name}", "#{name} ==> /dev/null", user)
+    delete("#{type.to_s}/#{name.to_s}", "#{name.to_s} ==> /dev/null", user)
   end
 
   def page_all(type)
@@ -69,47 +69,47 @@ class GitProvider < Raki::AbstractProvider
 
   def page_changes(type, amount=nil)
     logger.debug("Fetching all page changes: #{{:type => type, :limit => amount}}")
-    changes(type, type.to_s, amount)
+    changes(type.to_s, type.to_s, amount)
   end
   
   def page_diff(type, page, revision_from, revision_to=nil)
     logger.debug("Fetching diff: #{{:type => type, :page => page, :revision_from => revision_from, :revision_to => revision_to}}")
-    diff("#{type}/#{page}", revision_from, revision_to)
+    diff("#{type.to_s}/#{page.to_s}", revision_from, revision_to)
   end
 
   def attachment_exists?(type, page, name, revision=nil)
     logger.debug("Checking if page attachment exists: #{{:type => type, :page => page, :name => name, :revision => revision}}")
-    exists?("#{type.to_s}/#{page}_att", name, revision)
+    exists?("#{type.to_s}/#{page.to_s}_att/#{name.to_s}", revision)
   end
 
   def attachment_contents(type, page, name, revision=nil)
     logger.debug("Fetching contents of page attachment: #{{:type => type, :page => page, :name => name, :revision => revision}}")
-    contents("#{type.to_s}/#{page}_att/#{name}", revision)
+    contents("#{type.to_s}/#{page.to_s}_att/#{name.to_s}", revision)
   end
 
   def attachment_revisions(type, page, name)
     logger.debug("Fetching revisions for page attachment: #{{:type => type, :page => page, :name => name}}")
-    revisions("#{type.to_s}/#{page}_att/#{name}")
+    revisions("#{type.to_s}/#{page.to_s}_att/#{name.to_s}")
   end
 
   def attachment_save(type, page, name, contents, message, user)
     logger.debug("Saving page attachment: #{{:type => type, :page => page, :name => name, :contents => contents, :message => message, :user => user}}")
-    save("#{type.to_s}/#{page}_att/#{name}", contents, message, user)
+    save("#{type.to_s}/#{page.to_s}_att/#{name.to_s}", contents, message, user)
   end
 
   def attachment_delete(type, page, name, user)
     logger.debug("Deleting page attachment: #{{:type => type, :page => page, :name => name, :user => user}}")
-    delete("#{type.to_s}/#{page}_att/#{name}", "#{page}/#{name} ==> /dev/null", user)
+    delete("#{type.to_s}/#{page.to_s}_att/#{name.to_s}", "#{page.to_s}/#{name.to_s} ==> /dev/null", user)
   end
 
   def attachment_all(type, page)
     logger.debug("Fetching all page attachments: #{{:type => type, :page => page}}")
-    all("#{type}/#{page}_att")
+    all("#{type.to_s}/#{page.to_s}_att")
   end
 
   def attachment_changes(type, page, amount=nil)
     logger.debug("Fetching all page attachment changes: #{{:type => type, :page => page, :limit => amount}}")
-    changes(type, "#{type}/#{page}_att", amount, page)
+    changes(type, "#{type.to_s}/#{page.to_s}_att", amount, page)
   end
   
   def types
@@ -139,14 +139,12 @@ class GitProvider < Raki::AbstractProvider
     raise ProviderError.new 'Invalid content' if contents.nil?
   end
 
-  def exists?(dir, name, revision=nil)
-    check_obj(dir)
-    check_obj(name)
+  def exists?(obj, revision=nil)
+    check_obj(obj)
     revision = 'HEAD' if revision.nil?
     begin
-      @repo.gtree("#{revision}:#{dir}").blobs.each do |page, blob|
-        return true if page == name
-      end
+      @repo.gblob("#{revision}:#{obj}").size
+      return true
     rescue => e
     end
     false
@@ -171,6 +169,7 @@ class GitProvider < Raki::AbstractProvider
     end
     @repo.add(obj)
     @repo.commit(message, {:author => "#{user.username} <#{user.email}>"})
+    @repo.push(@repo.remote('origin'))
     flush_cache(:exists?)
     flush_cache(:contents, obj, nil)
     flush_cache(:revisions, obj)
@@ -189,6 +188,7 @@ class GitProvider < Raki::AbstractProvider
     @repo.remove(old_obj)
     @repo.add(new_obj)
     @repo.commit(message, {:author => "#{user.username} <#{user.email}>"})
+    @repo.push(@repo.remote('origin'))
     flush_cache(:exists?)
     flush_cache(:contents, old_obj, nil)
     flush_cache(:contents, new_obj, nil)
@@ -204,6 +204,7 @@ class GitProvider < Raki::AbstractProvider
     message = '-' if message.nil? || message.empty?
     @repo.remove(obj)
     @repo.commit(message, {:author => "#{user.username} <#{user.email}>"})
+    @repo.push(@repo.remote('origin'))
     flush_cache(:exists?)
     flush_cache(:contents, obj, nil)
     flush_cache(:revisions, obj)
