@@ -25,7 +25,11 @@ module PageHelper
   end
 
   def page_contents(type, name, revision=nil)
-    Raki.provider(type).page_contents(type, name, revision)
+    if page_exists?(type, name, revision)
+      Raki.provider(type).page_contents(type, name, revision)
+    else
+      return nil
+    end
   end
 
   def insert_page(type, name, revision=nil)
