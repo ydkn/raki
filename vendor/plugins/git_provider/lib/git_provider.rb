@@ -301,7 +301,12 @@ class GitProvider < Raki::AbstractProvider
   end
   
   def normalize(str)
-    Unicode.normalize_KD(str).gsub(/[^a-zA-Z0-9_<>\-\+\-\*\/\.,;]/, '')
+    str = Unicode.normalize_KD(str)
+    new_str = ""
+    str.each_byte do |c|
+      new_str += c.chr if c < 128
+    end
+    new_str
   end
   cache :normalize
 
