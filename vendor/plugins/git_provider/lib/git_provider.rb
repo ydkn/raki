@@ -16,6 +16,7 @@
 
 require 'rubygems'
 require 'git'
+require 'unicode'
 
 class GitProvider < Raki::AbstractProvider
   
@@ -143,7 +144,7 @@ class GitProvider < Raki::AbstractProvider
     check_obj(obj)
     revision = 'HEAD' if revision.nil?
     begin
-      @repo.gblob("#{revision}:#{obj}").size
+      @repo.gblob("#{revision}:#{normalize(obj)}").size
       return true
     rescue => e
     end
@@ -154,7 +155,7 @@ class GitProvider < Raki::AbstractProvider
   def contents(obj, revision=nil)
     check_obj(obj)
     revision = 'HEAD' if revision.nil?
-    @repo.gblob("#{revision}:#{obj}").contents
+    @repo.gblob("#{revision}:#{normalize(obj)}").contents
   end
   cache :contents
 
@@ -163,16 +164,18 @@ class GitProvider < Raki::AbstractProvider
     check_contents(contents)
     check_user(user)
     message = '-' if message.nil? || message.empty?
-    FileUtils.mkdir_p(path("#{@repo.dir.path}/#{obj}"))
-    File.open("#{@repo.dir.path}/#{obj}", 'w') do |f|
+    FileUtils.mkdir_p(path("#{@repo.dir.path}/#{normalize(obj)}"))
+    File.open("#{@repo.dir.path}/#{normalize(obj)}", 'w') do |f|
       f.write(contents)
     end
-    @repo.add(obj)
+    @repo.add(normalize(obj))
     @repo.commit(message, {:author => "#{user.username} <#{user.email}>"})
     @repo.push(@repo.remote('origin'))
     flush_cache(:exists?)
     flush_cache(:contents, obj, nil)
+    flush_cache(:contents, normalize(obj), nil)
     flush_cache(:revisions, obj)
+    flush_cache(:revisions, normalize(obj))
     flush_cache(:changes)
     flush_cache(:types)
   end
@@ -182,19 +185,23 @@ class GitProvider < Raki::AbstractProvider
     check_obj(new_obj)
     check_user(user)
     message = '-' if message.nil? || message.empty?
-    FileUtils.mkdir_p(path("#{@repo.dir.path}/#{new_obj}"))
-    File.open("#{@repo.dir.path}/#{new_obj}", 'w') do |f|
+    FileUtils.mkdir_p(path("#{@repo.dir.path}/#{normalize(new_obj)}"))
+    File.open("#{@repo.dir.path}/#{normalize(new_obj)}", 'w') do |f|
       f.write(contents(old_obj))
     end
-    @repo.remove(old_obj)
-    @repo.add(new_obj)
+    @repo.remove(normalize(old_obj))
+    @repo.add(normalize(new_obj))
     @repo.commit(message, {:author => "#{user.username} <#{user.email}>"})
     @repo.push(@repo.remote('origin'))
     flush_cache(:exists?)
     flush_cache(:contents, old_obj, nil)
+    flush_cache(:contents, normalize(old_obj), nil)
     flush_cache(:contents, new_obj, nil)
+    flush_cache(:contents, normalize(new_obj), nil)
     flush_cache(:revisions, old_obj)
+    flush_cache(:revisions, normalize(old_obj))
     flush_cache(:revisions, new_obj)
+    flush_cache(:revisions, normalize(new_obj))
     flush_cache(:changes)
     flush_cache(:types)
   end
@@ -203,12 +210,14 @@ class GitProvider < Raki::AbstractProvider
     check_obj(obj)
     check_user(user)
     message = '-' if message.nil? || message.empty?
-    @repo.remove(obj)
+    @repo.remove(normalize(obj))
     @repo.commit(message, {:author => "#{user.username} <#{user.email}>"})
     @repo.push(@repo.remote('origin'))
     flush_cache(:exists?)
     flush_cache(:contents, obj, nil)
+    flush_cache(:contents, normalize(obj), nil)
     flush_cache(:revisions, obj)
+    flush_cache(:revisions, normalize(obj))
     flush_cache(:changes)
     flush_cache(:types)
   end
@@ -216,7 +225,7 @@ class GitProvider < Raki::AbstractProvider
   def revisions(obj)
     check_obj(obj)
     revs = []
-    @repo.gblob(obj).log.each do |commit|
+    @repo.gblob(normalize(obj)).log.each do |commit|
       revs << Revision.new(
           commit.sha,
           commit.sha[0..7].upcase,
@@ -234,8 +243,8 @@ class GitProvider < Raki::AbstractProvider
     check_obj(dir)
     pages = []
     revision = 'HEAD' if revision.nil?
-    @repo.gtree("#{revision}:#{dir}").blobs.each do |filename, tree|
-      pages << filename
+    @repo.gtree("#{revision}:#{normalize(dir)}").blobs.each do |filename, tree|
+      pages << normalize(filename)
     end
     pages.sort { |a,b| a <=> b }
   end
@@ -249,9 +258,9 @@ class GitProvider < Raki::AbstractProvider
         begin
           revisions("#{dir}/#{obj}").each do |revision|
             if page.nil?
-              changes << Change.new(type, obj, revision)
+              changes << Change.new(type, normalize(obj), revision)
             else
-              changes << Change.new(type, page, revision, obj)
+              changes << Change.new(type, normalize(page), revision, normalize(obj))
             end
           end
         rescue => e
@@ -280,7 +289,7 @@ class GitProvider < Raki::AbstractProvider
       revision_to = revisions[revisions.index(rev_from)-1].id
     end
     diff = []
-    @repo.diff(revision_to, revision_from).path(obj).each do |diff_part|
+    @repo.diff(revision_to, revision_from).path(normalize(obj)).each do |diff_part|
       diff << diff_part.patch
     end
     Diff.new(diff.join("\n"))
@@ -290,6 +299,11 @@ class GitProvider < Raki::AbstractProvider
   def path(obj)
     obj.gsub(/[^\/]+$/, '')
   end
+  
+  def normalize(str)
+    Unicode.normalize_KD(str).gsub(/[^a-zA-Z0-9_<>\-\+\-\*\/\.,;]/, '')
+  end
+  cache :normalize
 
   def logger
     Rails.logger
