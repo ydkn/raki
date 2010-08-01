@@ -117,6 +117,48 @@ module Raki
       end
       @authenticator
     end
+    
+    def permission?(type, page, action, user)
+      @permissions = YAML.load(File.read("#{Rails.root}/config/permissions.yml")) if @permissions.nil?
+      pages = @permissions['pages']
+      users = @permissions['users']
+      mappings = @permissions['mappings']
+      
+      page_keys = []
+      pages.each do |p_key, p_pattern|
+        page_keys << p_key if page_match(type, page, p_pattern)
+      end
+      
+      user_keys = []
+      users.each do |u_key, u_pattern|
+        user_keys << u_key if user_match(user, u_pattern)
+      end
+      
+      mappings.each do |p_key, data|
+        next unless page_keys.include?(p_key)
+        u_keys, rights = data.split(/\w+/, 2)
+        u_keys = u_keys.split(/,/)
+        rights = rights.split(/,/)
+        u_keys.each do |u_key|
+          next unless user_keys.include?(u_key)
+          return false if rights.include?("!#{action.to_s}")
+          return true if rights.include?(action.to_s)
+        end
+      end
+      false
+    end
+    
+    private
+    
+    def page_match(type, page, pattern)
+      return true if pattern == "*/*"
+      return !"#{type.to_s}/#{page.to_s}".match(pattern).nil?
+    end
+    
+    def user_match(user, pattern)
+      return true if pattern == "*"
+      return !user.username.match(pattern).nil?
+    end
 
   end
 end
