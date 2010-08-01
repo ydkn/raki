@@ -64,12 +64,20 @@ class PageController < ApplicationController
 
   def rename
     return if redirect_if_page_not_exists
-    unless @provider.page_exists? @type, params[:name]
-      @provider.page_rename @type, @page, params[:name], User.current
-      redirect_to :controller => 'page', :action => 'view', :id => params[:name]
+    parts = params[:name].split '/', 2
+    if parts.length == 2
+      new_type = parts[0]
+      new_page = parts[1]
+    else
+      new_type = @type
+      new_page = parts[0]
+    end
+    unless @provider.page_exists? new_type, new_page
+      @provider.page_rename @type, @page, new_type, new_page, User.current
+      redirect_to :controller => 'page', :action => 'view', :type => new_type, :id => new_page
     else
       flash[:notice] = t 'page.info.page_already_exists'
-      redirect_to :controller => 'page', :action => 'info', :id => @page
+      redirect_to :controller => 'page', :action => 'info', :type => @type, :id => @page
     end
   end
 
@@ -147,7 +155,7 @@ class PageController < ApplicationController
   end
 
   def redirect_if_page_not_exists
-    unless @provider.page_exists?(@type, @page)
+    unless @provider.page_exists?(@type, @page, @revision)
       redirect_to :controller => 'page', :action => 'view', :type => @type, :id => @page
       return true
     end

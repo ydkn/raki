@@ -182,6 +182,7 @@ class GitProvider < Raki::AbstractProvider
     check_obj(new_obj)
     check_user(user)
     message = '-' if message.nil? || message.empty?
+    FileUtils.mkdir_p(path("#{@repo.dir.path}/#{new_obj}"))
     File.open("#{@repo.dir.path}/#{new_obj}", 'w') do |f|
       f.write(contents(old_obj))
     end
