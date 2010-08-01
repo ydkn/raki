@@ -76,6 +76,9 @@ de:
     info:
         versions: Versionen
 
+  parser:
+    parsing_error: Parsen der Seite schlug fehl
+
   plugin:
     error: Plugin '%{name}' gab einen Fehler aus.
     missing_parameter: Fehlende Parameter

@@ -33,8 +33,12 @@ module PageHelper
       context = @context.clone
       context[:type] = type
       context[:page] = name
-      parsed = Raki.parser(type).parse(page_contents(type, name, revision), context)
-      parsed.nil? ? "<div class=\"error\">PARSING ERROR</div>" : parsed
+      begin
+        parsed = Raki.parser(type).parse(page_contents(type, name, revision), context)
+        parsed.nil? ? "<div class=\"error\">#{t 'parser.parsing_error'}</div>" : parsed
+      rescue
+        "<div class=\"error\">#{t 'parser.parsing_error'}</div>"
+      end
     end
   end
 
