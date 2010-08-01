@@ -14,25 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class User
-  
-  attr_reader :id
-  attr_reader :username, :email
-  attr_reader :real_object
-  
-  def initialize(id, username, email, real_object=nil)
+class AnonymousUser < User
+    
+  def initialize(id, username, email)
     @id = id
     @username = username
     @email = email
-    @real_object = real_object
-  end
-  
-  def self.current
-    @current
-  end
-
-  def self.current=(user)
-    @current = user
   end
   
 end

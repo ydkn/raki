@@ -17,7 +17,8 @@
 module AuthenticationHelper
 
   def authenticated?
-    !User.current.nil?
+    return false if User.current.is_a? AnonymousUser
+    User.current.is_a? User
   end
 
 end

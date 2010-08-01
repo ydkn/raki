@@ -64,7 +64,7 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
           email = email2 if email.nil?
         end
         raise AuthenticatorError.new(t 'auth.openid.nickname_email_missing') if nickname.nil? || email.nil?
-        return User.new(nickname, email)
+        return User.new(response.identity_url, nickname, email)
       when OpenID::Consumer::SETUP_NEEDED
         raise AuthenticatorError.new(t 'auth.openid.setup_needed')
       when OpenID::Consumer::CANCEL

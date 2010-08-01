@@ -15,9 +15,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class AuthenticationController < ApplicationController
+  
+  include AuthenticationHelper
 
   def login
-    redirect_to :controller => 'page', :action => 'view', :type => 'page', :id => Raki.frontpage unless User.current.nil?
+    redirect_to :controller => 'page', :action => 'view', :type => 'page', :id => Raki.frontpage if authenticated?
     begin
       Raki.authenticator.login_hook params, session, cookies
     rescue
@@ -40,7 +42,7 @@ class AuthenticationController < ApplicationController
         elsif res.is_a?(User)
           session[:user] = res
         else
-          session[:user] = nil
+          session[:user] = anonymous_user
           flash[:notice] = t 'auth.invalid_credentials'
         end
       end
@@ -50,7 +52,7 @@ class AuthenticationController < ApplicationController
   end
 
   def logout
-    User.current = nil
+    User.current = anonymous_user
     reset_session
     flash[:notice] = t 'auth.logged_out'
     redirect

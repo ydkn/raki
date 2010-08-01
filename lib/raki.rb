@@ -136,15 +136,16 @@ module Raki
       
       mappings.each do |p_key, data|
         next unless page_keys.include?(p_key)
-        u_keys, rights = data.split(/\w+/, 2)
-        u_keys = u_keys.split(/,/)
-        rights = rights.split(/,/)
+        u_keys, rights = data.split(' ', 2)
+        u_keys = u_keys.split(',')
+        rights = rights.split(',')
         u_keys.each do |u_key|
-          next unless user_keys.include?(u_key)
+          next unless user_keys.include?(u_key.strip)
           return false if rights.include?("!#{action.to_s}")
           return true if rights.include?(action.to_s)
         end
       end
+      
       false
     end
     
@@ -157,7 +158,7 @@ module Raki
     
     def user_match(user, pattern)
       return true if pattern == "*"
-      return !user.username.match(pattern).nil?
+      return !user.id.match(pattern).nil?
     end
 
   end

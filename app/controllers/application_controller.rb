@@ -36,18 +36,19 @@ class ApplicationController < ActionController::Base
   end
 
   def try_to_authenticate_user
-    User.current = nil
-    begin
+    User.current = anonymous_user
+    if Raki.authenticator.respond_to? :try_to_authenticate
       Raki.authenticator.try_to_authenticate params, session, cookies
-    rescue
-      begin
-        unless session[:user].nil?
-          User.current = session[:user] if session[:user].is_a?(User)
-        end
-      rescue
-        User.current = nil
-      end
     end
+    unless session[:user].nil?
+      User.current = session[:user] if session[:user].is_a?(User)
+    end
+  end
+  
+  private
+  
+  def anonymous_user
+    AnonymousUser.new request.remote_ip, request.remote_ip, "#{request.remote_ip}@#{Raki.app_name}"
   end
 
 end

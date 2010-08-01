@@ -23,13 +23,19 @@ module PageHelper
       {:controller => 'page', :action => 'view', :type => h(type), :id => h(name), :revision => h(revision)}
     end
   end
+  
+  def authorized?(type, name, action)
+    Raki.permission?(type, name, action, User.current)
+  end
 
   def page_contents(type, name, revision=nil)
-    Raki.provider(type).page_contents(type, name, revision)
+    if authorized?(type, name, :read)
+      Raki.provider(type).page_contents(type, name, revision)
+    end
   end
 
   def insert_page(type, name, revision=nil)
-    if page_exists?(type, name, revision)
+    if authorized?(type, name, :read) && page_exists?(type, name, revision)
       context = @context.clone
       context[:type] = type
       context[:page] = name
@@ -43,11 +49,19 @@ module PageHelper
   end
 
   def page_exists?(type, name, revision=nil)
-    Raki.provider(type).page_exists?(type, name, revision)
+    if authorized?(type, name, :read)
+      Raki.provider(type).page_exists?(type, name, revision)
+    else
+      false
+    end
   end
 
   def page_revisions(type, name)
-    Raki.provider(type).page_revisions(type, name)
+    if authorized?(type, name, :read)
+      Raki.provider(type).page_revisions(type, name)
+    else
+      nil
+    end
   end
 
 end
