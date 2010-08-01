@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@ module Raki
 
     class ProviderError < StandardError
     end
+    
+    include Raki::Helpers
 
     def page_exists?(type, name, revision=nil)
       raise ProviderError.new 'not implemented'
@@ -36,7 +38,7 @@ module Raki
       raise ProviderError.new 'not implemented'
     end
 
-    def page_rename(type, old_name, new_name, user)
+    def page_rename(old_type, old_name, new_type, new_name, user)
       raise ProviderError.new 'not implemented'
     end
 
