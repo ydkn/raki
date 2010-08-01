@@ -75,6 +75,9 @@ en:
 
     info:
         versions: Versions
+  
+  parser:
+    parsing_error: Parsing Error
 
   plugin:
     error: Plugin '%{name}' caused error
