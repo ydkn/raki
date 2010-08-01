@@ -241,12 +241,15 @@ class GitProvider < Raki::AbstractProvider
 
   def all(dir, revision=nil)
     check_obj(dir)
-    pages = []
+    files = []
     revision = 'HEAD' if revision.nil?
-    @repo.gtree("#{revision}:#{normalize(dir)}").blobs.each do |filename, tree|
-      pages << normalize(filename)
+    begin
+      @repo.gtree("#{revision}:#{normalize(dir)}").blobs.each do |filename, tree|
+        files << normalize(filename)
+      end
+    rescue => e
     end
-    pages.sort { |a,b| a <=> b }
+    files.sort { |a,b| a <=> b }
   end
   cache :all
 
