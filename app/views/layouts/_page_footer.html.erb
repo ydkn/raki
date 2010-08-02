@@ -1,12 +1,12 @@
 <div id="page_footer">
-  <% unless @page_info.nil? %>
+  <% if !@page_info.nil? && authorized?(@type, @page, :view) %>
     <%=t 'page.footer',
       :date => l(@page_info[:date], :format => :full),
       :user => link_to(@page_info[:user], :controller => 'page', :action => 'view', :type => Raki.userpage_type, :id => h(@page_info[:user])),
       :version => h(@page_info[:version]) unless @page_info.nil?
     %>
   <% end %>
-  <% if !@type.nil? && !@page.nil? %>
+  <% if !@type.nil? && !@page.nil? && authorized?(@type, @page, :view) %>
     <%=link_to image_tag('feed.png', :alt => 'Feed'), { :controller => 'page', :action => 'view', :format => 'atom', :type => h(@type), :id => h(@page) }, {:title => t('page.feed', :type => h(@type), :page => h(@page)), :class => 'feed'} %>
     <%=auto_discovery_link_tag(:rss, {:controller => 'page', :action => 'view', :format => 'atom', :type => h(@type), :id => h(@page)}, :title => t('page.feed', :type => h(@type), :page => h(@page))) %>
   <% end %>

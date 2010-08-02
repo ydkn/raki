@@ -1,14 +1,18 @@
-<% form_tag({:controller => 'page', :type => h(@type), :id => h(@page), :action => 'rename'}) do |f| %>
-  <div>
-    <% unless flash[:notice].nil? %>
-      <div class="error"><%=flash[:notice] %></div>
-    <% end %>
-    <input type="text" id="page-name" name="name" value="<%=h @page%>" />
-    <input type="submit" value="<%=t 'page.info.rename' %>" />
-  </div>
+<% if authorized?(@type, @page, :rename) && page_exists?(@type, @page) %>
+  <% form_tag({:controller => 'page', :type => h(@type), :id => h(@page), :action => 'rename'}) do |f| %>
+    <div>
+      <% unless flash[:notice].nil? %>
+        <div class="error"><%=flash[:notice] %></div>
+      <% end %>
+      <input type="text" id="page-name" name="name" value="<%=h @page%>" />
+      <input type="submit" value="<%=t 'page.info.rename' %>" />
+    </div>
+  <% end %>
 <% end %>
-<input type="button" value="<%=t 'page.info.delete' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :type => h(@type), :id => h(@page), :action => 'delete' %>';" />
-<br/>
+<% if authorized?(@type, @page, :delete) && page_exists?(@type, @page) %>
+  <input type="button" value="<%=t 'page.info.delete' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :type => h(@type), :id => h(@page), :action => 'delete' %>';" />
+  <br/>
+<% end %>
 <% form_tag({:controller => 'page', :type => h(@type), :id => h(@page), :action => 'update'}, {:id => 'edit-form'}) do |f| %>
   <div>
     <input type="submit" value="<%=t 'page.edit.save' %>" />

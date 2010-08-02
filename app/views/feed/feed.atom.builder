@@ -1,9 +1,11 @@
 atom_feed do |feed|
 
   feed.title h "#{Raki.app_name}"
-  feed.updated @changes.first.revision.date
-
+  
+  updated = nil
   @changes.each do |change|
+    next unless authorized?(change.type, change.page, :view)
+    updated = change.revision.date if updated.nil?    
     if change.attachment.nil?
       feed.entry change.revision, :url => url_for(:controller => 'page', :action => 'view', :type => h(change.type), :id => h(change.page), :revision => h(change.revision.id)) do |entry|
         entry.title h "#{change.type}/#{change.page}"
@@ -43,5 +45,7 @@ atom_feed do |feed|
       end
     end
   end
+  
+  feed.updated updated
 
 end

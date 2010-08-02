@@ -20,12 +20,17 @@ de:
   authinfo:
     login: Login
     logout: Logout
+    
+  permission_denied: Keine Berechtigung
 
   feed: Newsfeed für %{app_name}
 
   page:
 
     footer: "%{user} veränderte diese Seite am %{date}. Dies ist Version %{version}."
+    
+    no_permission: Sie sind nicht berechtigt diese Seite anzuzeigen.
+    
     not_exists:
       msg: Diese Seite existiert nicht.
       edit_msg: Sie kann aber %{edit_link} werden!

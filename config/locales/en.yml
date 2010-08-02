@@ -20,12 +20,17 @@ en:
   authinfo:
     login: Login
     logout: Logout
+    
+  permission_denied: Permission denied
 
   feed: Feed for %{app_name}
 
   page:
 
     footer: "%{user} changed this page on %{date}. This is version %{version}."
+    
+    no_permission: You are not authorized to view this page.
+    
     not_exists:
       msg: This Page does not exist.
       edit_msg: You can %{edit_link} it!
