@@ -29,8 +29,10 @@ module PageHelper
   end
 
   def page_contents(type, name, revision=nil)
-    if authorized?(type, name, :view)
+    if authorized?(type, name, :view) && page_exists?(type, name, revision)
       Raki.provider(type).page_contents(type, name, revision)
+    else
+      return nil
     end
   end
 

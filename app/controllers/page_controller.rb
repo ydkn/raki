@@ -22,18 +22,20 @@ class PageController < ApplicationController
   end
 
   def view
-    current_revision = @provider.page_revisions(@type, @page).last
-    @page_info = {
-      :date => current_revision.date,
-      :user => current_revision.user,
-      :version => current_revision.version,
-      :type => @type,
-      :id => @page
-    } unless current_revision.nil?
-    respond_to do |format|
-      format.html
-      format.atom { @revisions = @provider.page_revisions(@type, @page) }
-      format.src { render :inline => @provider.page_contents(@type, @page, @revision), :content_type => 'text/plain' }
+    if @provider.page_exists?(@type, @page, @revision)
+      current_revision = @provider.page_revisions(@type, @page).last
+      @page_info = {
+        :date => current_revision.date,
+        :user => current_revision.user,
+        :version => current_revision.version,
+        :type => @type,
+        :id => @page
+      } unless current_revision.nil?
+      respond_to do |format|
+        format.html
+        format.atom { @revisions = @provider.page_revisions(@type, @page) }
+        format.src { render :inline => @provider.page_contents(@type, @page, @revision), :content_type => 'text/plain' }
+      end
     end
   end
 
@@ -44,7 +46,11 @@ class PageController < ApplicationController
 
   def edit
     if params[:content].nil?
-      @content = @provider.page_contents(@type, @page, @revision)
+      begin
+        @content = @provider.page_contents(@type, @page, @revision)
+      rescue => e
+        @content = ''
+      end
     else
       @content = params[:content]
       @preview = @content
@@ -58,12 +64,20 @@ class PageController < ApplicationController
 
   def rename
     return if redirect_if_page_not_exists
-    unless @provider.page_exists? @type, params[:name]
-      @provider.page_rename @type, @page, params[:name], User.current
-      redirect_to :controller => 'page', :action => 'view', :id => params[:name]
+    parts = params[:name].split '/', 2
+    if parts.length == 2
+      new_type = parts[0]
+      new_page = parts[1]
+    else
+      new_type = @type
+      new_page = parts[0]
+    end
+    unless @provider.page_exists? new_type, new_page
+      @provider.page_rename @type, @page, new_type, new_page, User.current
+      redirect_to :controller => 'page', :action => 'view', :type => new_type, :id => new_page
     else
       flash[:notice] = t 'page.info.page_already_exists'
-      redirect_to :controller => 'page', :action => 'info', :id => @page
+      redirect_to :controller => 'page', :action => 'info', :type => @type, :id => @page
     end
   end
 
@@ -74,6 +88,7 @@ class PageController < ApplicationController
   end
 
   def attachments
+    return if redirect_if_page_not_exists
     @attachments = []
     @provider.attachment_all(@type, @page).each do |attachment|
       @attachments << {
@@ -85,6 +100,7 @@ class PageController < ApplicationController
   end
 
   def attachment_upload
+    return if redirect_if_page_not_exists
     @provider.attachment_save(
       @type,
       @page,
@@ -97,6 +113,7 @@ class PageController < ApplicationController
   end
 
   def attachment
+    return if redirect_if_attachment_not_exists
     # ugly fix for ruby1.9 and rails2.5
     revision = @revision
     revision = @provider.attachment_revisions(@type, @page, @attachment).last.id if revision.nil?
@@ -115,6 +132,7 @@ class PageController < ApplicationController
   end
   
   def diff
+    return if redirect_if_page_not_exists
     @diff = @provider.page_diff(@type, @page, @revision_from, @revision_to)
   end
 
@@ -137,9 +155,9 @@ class PageController < ApplicationController
   end
 
   def redirect_if_page_not_exists
-    unless @provider.page_exists?(@type, @page)
+    unless @provider.page_exists?(@type, @page, @revision)
       redirect_to :controller => 'page', :action => 'view', :type => @type, :id => @page
-      true
+      return true
     end
     false
   end
@@ -147,7 +165,7 @@ class PageController < ApplicationController
   def redirect_if_attachment_not_exists
     unless @provider.attachment_exists?(@type, @page, @attachment)
       redirect_to :controller => 'page', :action => 'attachments', :type => @type, :id => @page
-      true
+      return true
     end
     false
   end

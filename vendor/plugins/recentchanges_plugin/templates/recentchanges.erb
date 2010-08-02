@@ -15,7 +15,7 @@
 		  <td><%=link_to h(types.length == 1 ? "#{change.page}/#{change.attachment}" : "#{change.type}/#{change.page}/#{change.attachment}"), {:controller => 'page', :action => 'attachment', :type => change.type, :id => h(change.page), :attachment => h(change.attachment), :revision => h(change.revision.id)} %></td>
 		<% end %>
 		<td><%=l change.revision.date, :format => :time %></td>
-		<td><%=link_to h(change.revision.user), {:controller => 'page', :action => 'view', :type => Raki.userpage_type, :id => h(change.revision.user)} %></td>
+		<td><%=link_to h(change.revision.user.username), {:controller => 'page', :action => 'view', :type => Raki.userpage_type, :id => h(change.revision.user.username)} %></td>
 		<td><%=h change.revision.message %></td>
 	  </tr>
 	<% end %>
