@@ -1,0 +1,40 @@
+== Raki
+Raki is a extensible wiki written using the Ruby on Rails framework. It primary
+uses a SCM like git to namage the pages and the attachments. To edit a page or
+upload a file, the system can be accessed with the SCM-tools or the web-interface.
+
+*Authors*
+* Florian Schwab
+* Martin Sigloch
+
+*Contributors*
+* Aaron Mueller
+* Benjamin Schweizer
+
+
+== Dependencies
+  $ gem install -v=2.3.8 rails
+  $ gem install git
+  $ gem install treetop
+  $ gem install htmlentities
+  $ gem install unicode
+  $ gem install ruby-openid (NOT "openid")
+
+
+== Set up the repository
+Create a empty repository with <tt>git init git-repo</tt>.
+
+
+== Installation
+Rename the file <tt>config/database.yml.example</tt> to <tt>database.yml</tt> and edit the
+credentials for the database if necessary. Then. rename the file
+<tt>config/raki.yml.example</tt> to <tt>raki.yml</tt> and edit the path to the git repository
+just created. Now, you can initualize and migrate the database:
+
+  $ rake db:setup
+
+
+== Run it
+  $ touch tmp/restart.txt
+  $ script/server
+
