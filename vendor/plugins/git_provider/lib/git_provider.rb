@@ -116,7 +116,7 @@ class GitProvider < Raki::AbstractProvider
   def types
     types = []
     @repo.log.each do |commit|
-      @repo.gtree(commit.sha).subtrees.keys do |type|
+      @repo.gtree(commit.sha).subtrees.keys.each do |type|
         types << type
       end
     end
