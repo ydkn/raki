@@ -21,15 +21,13 @@ en:
     login: Login
     logout: Logout
     
-  permission_denied: Permission denied
+  forbidden: Permission denied
 
   feed: Feed for %{app_name}
 
   page:
 
     footer: "%{user} changed this page on %{date}. This is version %{version}."
-    
-    no_permission: You are not authorized to view this page.
     
     not_exists:
       msg: This Page does not exist.
@@ -47,6 +45,10 @@ en:
       preview: Preview
       abort: Abort
       message: Comment
+      rename: Rename Page
+      delete: Remove entire Page
+      page_already_exists: Page already exists
+      no_permission_to_create: No Permission to create page
 
     info:
       versions: Versions
@@ -57,9 +59,6 @@ en:
         user: Author
         message: Comment
       diff: Diff
-      rename: Rename Page
-      delete: Remove entire Page
-      page_already_exists: Page already exists
 
     feed: Feed for %{type}/%{page}
 

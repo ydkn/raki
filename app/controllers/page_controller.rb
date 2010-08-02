@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class PageController < ApplicationController
+  
   before_filter :common_init, :except => :redirect_to_frontpage
 
   def redirect_to_frontpage
@@ -22,6 +23,7 @@ class PageController < ApplicationController
   end
 
   def view
+    return if render_forbidden_if_not_authorized :view
     if @provider.page_exists?(@type, @page, @revision)
       current_revision = @provider.page_revisions(@type, @page).last
       @page_info = {
@@ -40,11 +42,19 @@ class PageController < ApplicationController
   end
 
   def info
+    return if redirect_if_not_authorized :view
     return if redirect_if_page_not_exists
     @revisions = @provider.page_revisions @type, @page
   end
 
   def edit
+    unless (@provider.page_exists?(@type, @page) && Raki.permission?(@type, @page, :edit, User.current) ||
+        !@provider.page_exists?(@type, @page) && Raki.permission?(@type, @page, :create, User.current) ||
+        Raki.permission?(@type, @page, :rename, User.current) ||
+        Raki.permission?(@type, @page, :delete, User.current))
+      render 'common/forbidden'
+      return
+    end
     if params[:content].nil?
       begin
         @content = @provider.page_contents(@type, @page, @revision)
@@ -58,11 +68,17 @@ class PageController < ApplicationController
   end
 
   def update
+    if (!@provider.page_exists?(@type, @page) && !Raki.permission?(@type, @page, :create, User.current) ||
+        @provider.page_exists?(@type, @page) && !Raki.permission?(@type, @page, :edit, User.current))
+      render 'common/forbidden'
+      return
+    end
     @provider.page_save @type, @page, params[:content], params[:message], User.current
     redirect_to :controller => 'page', :action => 'view', :id => @page
   end
 
   def rename
+    return if render_forbidden_if_not_authorized :rename
     return if redirect_if_page_not_exists
     parts = params[:name].split '/', 2
     if parts.length == 2
@@ -72,22 +88,29 @@ class PageController < ApplicationController
       new_type = @type
       new_page = parts[0]
     end
+    unless Raki.permission?(new_type, new_page, :create, User.current)
+      flash[:notice] = t 'page.edit.no_permission_to_create'
+      redirect_to :controller => 'page', :action => 'edit', :type => @type, :id => @page
+      return
+    end
     unless @provider.page_exists? new_type, new_page
       @provider.page_rename @type, @page, new_type, new_page, User.current
       redirect_to :controller => 'page', :action => 'view', :type => new_type, :id => new_page
     else
-      flash[:notice] = t 'page.info.page_already_exists'
-      redirect_to :controller => 'page', :action => 'info', :type => @type, :id => @page
+      flash[:notice] = t 'page.edit.page_already_exists'
+      redirect_to :controller => 'page', :action => 'edit', :type => @type, :id => @page
     end
   end
 
   def delete
+    return if render_forbidden_if_not_authorized :delete
     return if redirect_if_page_not_exists
     @provider.page_delete @type, @page, User.current
     redirect_to :controller => 'page', :action => 'info', :id => Raki.frontpage
   end
 
   def attachments
+    return if redirect_if_not_authorized :view
     return if redirect_if_page_not_exists
     @attachments = []
     @provider.attachment_all(@type, @page).each do |attachment|
@@ -100,6 +123,7 @@ class PageController < ApplicationController
   end
 
   def attachment_upload
+    return if render_forbidden_if_not_authorized :upload
     return if redirect_if_page_not_exists
     @provider.attachment_save(
       @type,
@@ -113,6 +137,7 @@ class PageController < ApplicationController
   end
 
   def attachment
+    return if redirect_if_not_authorized :view
     return if redirect_if_attachment_not_exists
     # ugly fix for ruby1.9 and rails2.5
     revision = @revision
@@ -127,11 +152,13 @@ class PageController < ApplicationController
   end
   
   def attachment_info
+    return if redirect_if_not_authorized :view
     return if redirect_if_attachment_not_exists
     @revisions = @provider.attachment_revisions @type, @page, @attachment
   end
   
   def diff
+    return if redirect_if_not_authorized :view
     return if redirect_if_page_not_exists
     @diff = @provider.page_diff(@type, @page, @revision_from, @revision_to)
   end
@@ -152,6 +179,22 @@ class PageController < ApplicationController
     @context[:page] = @page
     @context[:real_type] = @type
     @context[:real_page] = @page
+  end
+  
+  def render_forbidden_if_not_authorized(action)
+    unless Raki.permission?(@type, @page, action, User.current)
+      render 'common/forbidden'
+      return true
+    end
+    false
+  end
+
+  def redirect_if_not_authorized(action)
+    unless Raki.permission?(@type, @page, action, User.current)
+      redirect_to :controller => 'page', :action => 'view', :type => @type, :id => @page
+      return true
+    end
+    false
   end
 
   def redirect_if_page_not_exists

@@ -21,15 +21,13 @@ de:
     login: Login
     logout: Logout
     
-  permission_denied: Keine Berechtigung
+  forbidden: Keine Berechtigung
 
   feed: Newsfeed für %{app_name}
 
   page:
 
     footer: "%{user} veränderte diese Seite am %{date}. Dies ist Version %{version}."
-    
-    no_permission: Sie sind nicht berechtigt diese Seite anzuzeigen.
     
     not_exists:
       msg: Diese Seite existiert nicht.
@@ -47,6 +45,10 @@ de:
       preview: Vorschau
       abort: Abbrechen
       message: Kommentar
+      rename: Seite umbenennen
+      delete: Komplette Seite löschen
+      page_already_exists: Seite existiert bereits.
+      no_permission_to_create: Keine Berechtigung um Seite anzulegen
 
     info:
       versions: Versionen
@@ -57,9 +59,6 @@ de:
         user: Autor
         message: Kommentar
       diff: Unterschiede
-      rename: Seite umbenennen
-      delete: Komplette Seite löschen
-      page_already_exists: Seite existiert bereits.
 
     feed: Newsfeed für %{type}/%{page}
 

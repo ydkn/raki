@@ -4,32 +4,34 @@
       <% unless flash[:notice].nil? %>
         <div class="error"><%=flash[:notice] %></div>
       <% end %>
-      <input type="text" id="page-name" name="name" value="<%=h @page%>" />
-      <input type="submit" value="<%=t 'page.info.rename' %>" />
+      <input type="text" id="page-name" name="name" value="<%=h @page %>" />
+      <input type="submit" value="<%=t 'page.edit.rename' %>" />
     </div>
   <% end %>
 <% end %>
 <% if authorized?(@type, @page, :delete) && page_exists?(@type, @page) %>
-  <input type="button" value="<%=t 'page.info.delete' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :type => h(@type), :id => h(@page), :action => 'delete' %>';" />
+  <input type="button" value="<%=t 'page.edit.delete' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :type => h(@type), :id => h(@page), :action => 'delete' %>';" />
   <br/>
 <% end %>
-<% form_tag({:controller => 'page', :type => h(@type), :id => h(@page), :action => 'update'}, {:id => 'edit-form'}) do |f| %>
-  <div>
-    <input type="submit" value="<%=t 'page.edit.save' %>" />
-    <input type="button" value="<%=t 'page.edit.preview' %>" onclick="javascript:document.getElementById('edit-form').action='<%=url_for :controller => 'page', :action => 'edit', :type => h(@type), :id => h(@page) %>'; document.getElementById('edit-form').submit();" />
-    <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :action => 'view', :type => h(@type), :id => h(@page) %>';" />
-  </div>
-  <div>
-    <label for="page-message"><%=t 'page.edit.message' %></label>
-    <input type="text" id="page-message" name="message" />
-  </div>
-  <div>
-    <textarea name="content" cols="100" rows="25"><%=@content %></textarea>
-  </div>
-<% end %>
-<% unless @preview.nil? %>
-  <h2><%=t 'page.edit.preview' %></h2>
-  <div id="preview">
-    <%=format @preview %>
-  </div>
+<% if authorized?(@type, @page, :edit) && page_exists?(@type, @page) || authorized?(@type, @page, :create) && !page_exists?(@type, @page) %>
+  <% form_tag({:controller => 'page', :type => h(@type), :id => h(@page), :action => 'update'}, {:id => 'edit-form'}) do |f| %>
+    <div>
+      <input type="submit" value="<%=t 'page.edit.save' %>" />
+      <input type="button" value="<%=t 'page.edit.preview' %>" onclick="javascript:document.getElementById('edit-form').action='<%=url_for :controller => 'page', :action => 'edit', :type => h(@type), :id => h(@page) %>'; document.getElementById('edit-form').submit();" />
+      <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :action => 'view', :type => h(@type), :id => h(@page) %>';" />
+    </div>
+    <div>
+      <label for="page-message"><%=t 'page.edit.message' %></label>
+      <input type="text" id="page-message" name="message" />
+    </div>
+    <div>
+      <textarea name="content" cols="100" rows="25"><%=@content %></textarea>
+    </div>
+  <% end %>
+  <% unless @preview.nil? %>
+    <h2><%=t 'page.edit.preview' %></h2>
+    <div id="preview">
+      <%=format @preview %>
+    </div>
+  <% end %>
 <% end %>

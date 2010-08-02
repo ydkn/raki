@@ -1,8 +1,4 @@
-<% if !authorized? @type, @page, :view %>
-  <div class="warning">
-    <%=t 'page.no_permission' %>
-  </div>
-<% elsif page_exists? @type, @page %>
+<% if page_exists? @type, @page %>
   <%=insert_page @type, @page, @revision %>
 <% else %>
   <div class="information">
