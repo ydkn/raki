@@ -21,11 +21,13 @@ module RecentchangesPluginHelper
     types.each do |type|
       type = type.to_sym
       page_changes(type).each do |change|
+        next unless Raki.permission?(change.type, change.page, :view, User.current)
         day = change.revision.date.strftime("%Y-%m-%d")
         days[day] = [] unless days.key?(day)
         days[day] << change
       end
       attachment_changes(type).each do |change|
+        next unless Raki.permission?(change.type, change.page, :view, User.current)
         day = change.revision.date.strftime("%Y-%m-%d")
         days[day] = [] unless days.key?(day)
         days[day] << change
