@@ -96,20 +96,28 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
   end
   
   def parse_sreg_response(response)
-    sreg = OpenID::SReg::Response.from_success_response(response)
-    return sreg.data['nickname'], sreg.data['email']
+    begin
+      sreg = OpenID::SReg::Response.from_success_response(response)
+      return sreg.data['nickname'], sreg.data['email']
+    rescue => e
+      return nil, nil
+    end
   end
   
   def parse_ax_response(response)
-    ax = OpenID::AX::FetchResponse.from_success_response(response)
-    nickname = ax.data['http://axschema.org/namePerson/friendly'].first
-    if nickname.nil? && !ax.data['http://axschema.org/namePerson/first'].first.nil?
-      nickname = ax.data['http://axschema.org/namePerson/first'].first
-      unless ax.data['http://axschema.org/namePerson/last'].first.nil?
-        nickname += " #{ax.data['http://axschema.org/namePerson/last'].first}"
+    begin
+      ax = OpenID::AX::FetchResponse.from_success_response(response)
+      nickname = ax.data['http://axschema.org/namePerson/friendly'].first
+      if nickname.nil? && !ax.data['http://axschema.org/namePerson/first'].first.nil?
+        nickname = ax.data['http://axschema.org/namePerson/first'].first
+        unless ax.data['http://axschema.org/namePerson/last'].first.nil?
+          nickname += " #{ax.data['http://axschema.org/namePerson/last'].first}"
+        end
       end
+      return nickname, ax.data['http://axschema.org/contact/email'].first
+    rescue => e
+      return nil, nil
     end
-    return nickname, ax.data['http://axschema.org/contact/email'].first
   end
 
 end
