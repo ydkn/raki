@@ -34,20 +34,25 @@ Raki::Plugin.register :insertpage do
     key = [type, page]
     
     raise Raki::Plugin::PluginError.new(t 'insertpage.no_page') if page.nil? || page.empty?
-    raise Raki::Plugin::PluginError.new(t 'page.not_exists.msg') unless Raki.provider(type).page_exists? type, page
     
-    context[:insertpage] = [] if context[:insertpage].nil?
-    raise Raki::Plugin::PluginError.new(t 'insertpage.already_included', :name => params[:name]) if context[:insertpage].include? key
-    context[:insertpage] << key
-    
-    new_context = context.clone
-    new_context[:type] = type
-    new_context[:page] = page
-    
-    Raki.parser(type).parse(
-      Raki.provider(type).page_contents(type, page),
-      new_context
-    )
+    if Raki.permission? type, page, :view, User.current
+      raise Raki::Plugin::PluginError.new(t 'page.not_exists.msg') unless Raki.provider(type).page_exists? type, page
+
+      context[:insertpage] = [] if context[:insertpage].nil?
+      raise Raki::Plugin::PluginError.new(t 'insertpage.already_included', :name => params[:name]) if context[:insertpage].include? key
+      context[:insertpage] << key
+
+      new_context = context.clone
+      new_context[:type] = type
+      new_context[:page] = page
+
+      Raki.parser(type).parse(
+        Raki.provider(type).page_contents(type, page),
+        new_context
+      )
+    else
+      ""
+    end
   end
 
 end
