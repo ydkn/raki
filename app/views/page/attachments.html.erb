@@ -24,7 +24,7 @@
     <%  end %>
   </tbody>
 </table>
-<% if authenticated? %>
+<% if authorized?(@type, @page, :upload) %>
   <br/>
   <% form_tag({:controller => 'page', :type => h(@type), :id => h(@page), :action => 'attachment_upload'}, {:enctype => 'multipart/form-data'}) do |f| %>
     <div>
