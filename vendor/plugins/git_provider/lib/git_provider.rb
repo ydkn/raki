@@ -230,7 +230,7 @@ class GitProvider < Raki::AbstractProvider
           commit.sha,
           commit.sha[0..7].upcase,
           commit.size,
-          User.new(commit.author.name, commit.author.email),
+          User.new(commit.author.name, commit.author.name, commit.author.email),
           commit.date,
           commit.message
         )
