@@ -118,35 +118,48 @@ module Raki
       @authenticator
     end
     
-    def permission?(type, page, action, user)
+    def permissions
       if @permissions.nil?
         @permissions = YAML.load(File.read("#{Rails.root}/config/permissions.yml"))
+        unless @permissions.key?(:OVERWRITE)
+          @permissions[:OVERWRITE] = []
+        end
       end
-      
-      permissions = @permissions[:ALL]
+      @permissions
+    end
+    
+    def permission?(type, page, action, user)
+      perms = permissions[:ALL]
       if user.is_a?(AnonymousUser)
-        permissions = permissions + @permissions[:ANONYMOUS]
+        perms = perms + permissions[:ANONYMOUS]
       elsif user.is_a?(User)
-        permissions = permissions + @permissions[:AUTHENTICATED]
+        perms = perms + permissions[:AUTHENTICATED]
       end
+      perms = perms + permissions[:OVERWRITE]
       
-      @permissions.each do |u_key, rights|
+      permissions.each do |u_key, rights|
         next if u_key.is_a?(Symbol)
         next if user.id.match("^#{u_key}$").nil?
-        permissions += rights
+        perms += rights
       end
       
       perm = false
-      permissions.each do |right|
+      perms.each do |right|
         right = right.first
         next if "#{type.to_s}/#{page.to_s}".match("^#{right[0].gsub('*', '.*')}$").nil?
         rights = right[1].split(',')
-        rights.map {|r| r.strip}
+        rights.map {|r| r.to_s.strip}
         perm = false if rights.include?("!#{action.to_s}")
         perm = true if rights.include?(action.to_s)
       end
       
       perm
+    end
+    
+    def add_permission_overwrite(type, page, rights)
+      rights = [rights] unless rights.is_a?(Array)
+      rights.map {|r| r.to_s.strip}
+      permissions[:OVERWRITE] << {"#{type.to_s}/#{page.to_s}" => rights.join(',')}
     end
 
   end
