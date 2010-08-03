@@ -169,7 +169,7 @@ class GitProvider < Raki::AbstractProvider
       f.write(contents)
     end
     @repo.add(normalize(obj))
-    @repo.commit(message, {:author => "#{user.username} <#{user.email}>"})
+    @repo.commit(message, {:author => format_user(user)})
     @repo.push(@repo.remote('origin'))
     flush_cache(:exists?)
     flush_cache(:contents, obj, nil)
@@ -191,7 +191,7 @@ class GitProvider < Raki::AbstractProvider
     end
     @repo.remove(normalize(old_obj))
     @repo.add(normalize(new_obj))
-    @repo.commit(message, {:author => "#{user.username} <#{user.email}>"})
+    @repo.commit(message, {:author => format_user(user)})
     @repo.push(@repo.remote('origin'))
     flush_cache(:exists?)
     flush_cache(:contents, old_obj, nil)
@@ -211,7 +211,7 @@ class GitProvider < Raki::AbstractProvider
     check_user(user)
     message = '-' if message.nil? || message.empty?
     @repo.remove(normalize(obj))
-    @repo.commit(message, {:author => "#{user.username} <#{user.email}>"})
+    @repo.commit(message, {:author => format_user(user)})
     @repo.push(@repo.remote('origin'))
     flush_cache(:exists?)
     flush_cache(:contents, obj, nil)
@@ -230,7 +230,7 @@ class GitProvider < Raki::AbstractProvider
           commit.sha,
           commit.sha[0..7].upcase,
           commit.size,
-          User.new(commit.author.name, commit.author.name, commit.author.email),
+          User.new(commit.author.name, :username => commit.author.name, :email => commit.author.email),
           commit.date,
           commit.message
         )
@@ -312,6 +312,14 @@ class GitProvider < Raki::AbstractProvider
     new_str
   end
   cache :normalize
+  
+  def format_user(user)
+    if user.email.nil?
+      "#{user.username} <#{user.username}@#{Raki.app_name.underscore}>"
+    else
+      "#{user.username} <#{user.email}>"
+    end
+  end
 
   def logger
     Rails.logger

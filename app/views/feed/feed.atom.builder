@@ -17,7 +17,7 @@ atom_feed do |feed|
         entry.content %Q{
           <h1>#{h change.type}/#{h change.page}</h1>
           <h2>#{h change.revision.version}: #{h change.revision.message}</h2>
-          <div><b>Author: </b>#{h change.revision.user}</div>
+          <div><b>Author: </b>#{h change.revision.user.display_name}</div>
           <div><b>Size: </b>#{h format_size(change.revision.size)}</div>
           <br />
           <div>#{diff.join('<br/>')}</div>
@@ -26,7 +26,7 @@ atom_feed do |feed|
           <div>#{insert_page change.type, change.page, change.revision.id}</div>
         }, :type => 'html'
         entry.author do |author|
-          author.name h change.revision.user
+          author.name h change.revision.user.display_name
         end
       end
     else
@@ -36,11 +36,11 @@ atom_feed do |feed|
         entry.content %Q{
           <h1>#{h change.type}/#{h change.page}/#{h change.attachment}</h1>
           <h2>#{h change.revision.version}: #{h change.revision.message}</h2>
-          <div><b>Author: </b>#{h change.revision.user}</div>
+          <div><b>Author: </b>#{h change.revision.user.display_name}</div>
           <div><b>Size: </b>#{h format_size(change.revision.size)}</div>
         }, :type => 'html'
         entry.author do |author|
-          author.name h change.revision.user
+          author.name h change.revision.user.display_name
         end
       end
     end

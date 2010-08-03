@@ -48,7 +48,7 @@ class ApplicationController < ActionController::Base
   private
   
   def anonymous_user
-    AnonymousUser.new request.remote_ip, request.remote_ip, "#{request.remote_ip}@#{Raki.app_name}"
+    AnonymousUser.new request.remote_ip
   end
 
 end

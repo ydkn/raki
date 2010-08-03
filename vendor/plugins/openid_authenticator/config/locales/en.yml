@@ -7,6 +7,6 @@ en:
       unable_to_authenticate: Unable to authenticate '%{openid}'
       verification_failed: Verification failed
       invalid_response: Invalid Response from OpenID-Provider
-      nickname_email_missing: Required information is missing
+      nickname_missing: Required information is missing
       setup_needed: Setup needed
       transaction_cancelled: OpenID-Provider cancelled transaction
