@@ -293,9 +293,9 @@ class GitProvider < Raki::AbstractProvider
     end
     diff = []
     @repo.diff(revision_to, revision_from).path(normalize(obj)).each do |diff_part|
-      diff << diff_part.patch
+      diff += diff_part.patch.split("\n")
     end
-    Diff.new(diff.join("\n"))
+    Diff.new(diff)
   end
   cache :diff
   
