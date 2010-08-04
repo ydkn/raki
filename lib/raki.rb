@@ -16,10 +16,10 @@
 
 module Raki
   class << self
-
+    
     class RakiError < StandardError
     end
-
+    
     def config(*keys)
       @config = YAML.load(File.read("#{Rails.root}/config/raki.yml")) if @config.nil?
       requested_config = @config
@@ -30,93 +30,78 @@ module Raki
       end
       requested_config
     end
-
+    
     def frontpage
       return config(:frontpage) unless config(:frontpage).nil?
       'Main'
     end
-
+    
     def app_name
       return config(:app_name) unless config(:frontpage).nil?
       'Raki'
     end
-
+    
     def userpage_type
       return config(:userpage_type) unless config(:userpage_type).nil?
       'user'
     end
-
+    
     def version
       '0.1pre'
     end
-
+    
+    attr_reader :providers, :initialized_providers
+    
     def register_provider(id, clazz)
       @providers = {} if @providers.nil?
-      @providers[id] = clazz
-    end
-
-    def providers
-      @providers
-    end
-
-    def provider(type)
       @initialized_providers = {} if @initialized_providers.nil?
-      if @initialized_providers.key?(type)
-        return @initialized_providers[type]
-      elsif !config('providers', type.to_s).nil?
-        id = config('providers', type.to_s)['provider']
-        @initialized_providers[type] = @providers[id.to_sym].new(config('providers', type.to_s))
-      elsif !config('providers', 'default').nil?
-        id = config('providers', 'default')['provider']
-        @initialized_providers[type] = @providers[id.to_sym].new(config('providers', 'default'))
-      else
+      @providers[id.to_sym] = clazz
+      config('providers').each do |type, settings|
+        if settings['provider'] == id.to_s
+          @initialized_providers[type.to_sym] = clazz.new(settings)
+        end
+      end
+    end
+    
+    def provider(type)
+      type = type.to_sym
+      unless @initialized_providers.key?(type)
+        return @initialized_providers[:default] if @initialized_providers.key?(:default)
         raise RakiError.new("No Provider")
       end
       @initialized_providers[type]
     end
-
+    
+    attr_reader :parsers, :initialized_parsers
+    
     def register_parser(id, clazz)
       @parsers = {} if @parsers.nil?
-      @parsers[id] = clazz
-    end
-
-    def parsers
-      @parsers
-    end
-
-    def parser(type)
       @initialized_parsers = {} if @initialized_parsers.nil?
-      if @initialized_parsers.key?(type)
-        return @initialized_parsers[type]
-      elsif !config('parsers', type.to_s).nil?
-        id = config('parsers', type.to_s)['parser']
-        @initialized_parsers[type] = @parsers[id.to_sym].new(config('parsers', type.to_s))
-      elsif !config('parsers', 'default').nil?
-        id = config('parsers', 'default')['parser']
-        @initialized_parsers[type] = @parsers[id.to_sym].new(config('parsers', 'default'))
-      else
+      @parsers[id.to_sym] = clazz
+      config('parsers').each do |type, settings|
+        if settings['parser'] == id.to_s
+          @initialized_parsers[type.to_sym] = clazz.new(settings)
+        end
+      end
+      
+    end
+    
+    def parser(type)
+      type = type.to_sym
+      unless @initialized_parsers.key?(type)
+        return @initialized_parsers[:default] if @initialized_parsers.key?(:default)
         raise RakiError.new("No Parser")
       end
       @initialized_parsers[type]
     end
-
+    
+    attr_reader :authenticators, :authenticator
+    
     def register_authenticator(id, clazz)
       @authenticators = {} if @authenticators.nil?
-      @authenticators[id] = clazz
+      @authenticators[id.to_sym] = clazz
+      @authenticator = clazz.new if config('authenticator') == id.to_s
     end
-
-    def authenticators
-      @authenticators
-    end
-
-    def authenticator
-      if @authenticator.nil?
-        id = config('authenticator')
-        raise RakiError.new("No Authenticator") if id.nil?
-        @authenticator = @authenticators[id.to_sym].new
-      end
-      @authenticator
-    end
-
+    
   end
 end

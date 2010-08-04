@@ -27,13 +27,6 @@ Raki::Plugin.register :index do
   include IndexPluginHelper
 
   execute do
-    @types = params[:type].nil? ? [context[:type]] : params[:type].split(',')
-    @types = provider_types if params[:type] == 'all'
-    
-    @rnd = rand(900)+100
-    
-    @letters_pages = letters_pages @types
-    
     render :index
   end
 
