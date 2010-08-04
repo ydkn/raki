@@ -171,12 +171,14 @@ module Raki
           vars[var_name.gsub(/^@/, '').to_sym] = instance_variable_get(var_name)
         else
           vars[var_name.gsub(/^@/, '').to_sym] = instance_variable_get(var_name)
-          #vars[var_name.to_sym] = instance_variable_get(var_name)
         end
       end
       vars = OpenStruct.new(vars)
       vars.send(:extend, Raki::Helpers)
       vars.send(:extend, Raki::PluginHelpers)
+      extended_by.each do |m|
+        vars.send(:extend, m)
+      end
       template.result(vars.send(:binding))
     end
 
