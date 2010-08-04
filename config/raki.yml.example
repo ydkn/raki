@@ -30,4 +30,4 @@ parsers:
   default:
     parser: raki
 
-authenticator: db
+authenticator: openid

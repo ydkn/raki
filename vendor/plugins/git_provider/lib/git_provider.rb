@@ -73,7 +73,7 @@ class GitProvider < Raki::AbstractProvider
     changes(type.to_s, type.to_s, amount)
   end
   
-  def page_diff(type, page, revision_from, revision_to=nil)
+  def page_diff(type, page, revision_from=nil, revision_to=nil)
     logger.debug("Fetching diff: #{{:type => type, :page => page, :revision_from => revision_from, :revision_to => revision_to}}")
     diff("#{type.to_s}/#{page.to_s}", revision_from, revision_to)
   end
@@ -108,9 +108,17 @@ class GitProvider < Raki::AbstractProvider
     all("#{type.to_s}/#{page.to_s}_att")
   end
 
-  def attachment_changes(type, page, amount=nil)
+  def attachment_changes(type, page=nil, amount=nil)
     logger.debug("Fetching all page attachment changes: #{{:type => type, :page => page, :limit => amount}}")
-    changes(type, "#{type.to_s}/#{page.to_s}_att", amount, page)
+    if page.nil?
+      changes = []
+      page_all(type).each do |page|
+        changes += changes(type, "#{type.to_s}/#{page.to_s}_att", amount, page)
+      end
+      changes.sort { |a,b| a.revision.date <=> b.revision.date }
+    else
+      changes(type, "#{type.to_s}/#{page.to_s}_att", amount, page)
+    end
   end
   
   def types
@@ -293,9 +301,9 @@ class GitProvider < Raki::AbstractProvider
     end
     diff = []
     @repo.diff(revision_to, revision_from).path(normalize(obj)).each do |diff_part|
-      diff << diff_part.patch
+      diff += diff_part.patch.split("\n")
     end
-    Diff.new(diff.join("\n"))
+    Diff.new(diff)
   end
   cache :diff
   
