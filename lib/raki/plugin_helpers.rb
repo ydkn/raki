@@ -95,5 +95,17 @@ module Raki
       types
     end
     
+    def parse(type, content, context=context)
+      Raki.parser(type).parse(content, context)
+    end
+    
+    def parsed_page(type, page, revision=nil, context=context)
+      parse(
+        type,
+        page_contents(type, page, revision),
+        context
+      )
+    end
+    
   end
 end
