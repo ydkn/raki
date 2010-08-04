@@ -25,8 +25,7 @@ module IndexPluginHelper
     p_types.each do |type|
       type = type.to_sym
       
-      page_all(type).each do |page|
-        next unless authorized? type, page, :view
+      page_all!(type).each do |page|
         letter = page[0].chr.upcase
         chars[letter] = [] unless chars.key?(letter)
         chars[letter] << {:type => type, :page => page}
