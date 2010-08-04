@@ -21,6 +21,10 @@ module Raki
     end
     
     include Raki::Helpers
+    
+    def user_for(options)
+      raise AuthenticatorError.new 'not implemented'
+    end
 
     #def login(params, session, cookies)
     #  raise AuthenticatorError.new 'not implemented'

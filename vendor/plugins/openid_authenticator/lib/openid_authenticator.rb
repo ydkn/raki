@@ -27,16 +27,15 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
     begin
       request = openid_consumer(session).begin(openid)
       sreg = OpenID::SReg::Request.new
-      sreg.request_fields(['email','nickname'], true)
+      sreg.request_fields(['nickname'], true)
+      sreg.request_fields(['email', 'fullname'], false)
       request.add_extension(sreg)
       ax = OpenID::AX::FetchRequest.new
-      ax.add(OpenID::AX::AttrInfo.new('http://axschema.org/contact/email', 'email', true))
-      if openid =~ /google\.com\//
-        ax.add(OpenID::AX::AttrInfo.new('http://axschema.org/namePerson/first', 'firstname', true))
-        ax.add(OpenID::AX::AttrInfo.new('http://axschema.org/namePerson/last', 'lastname', true))
-      else
-        ax.add(OpenID::AX::AttrInfo.new('http://axschema.org/namePerson/friendly', 'nickname', true))
-      end
+      ax.add(OpenID::AX::AttrInfo.new('http://axschema.org/namePerson/friendly', 'nickname', true))
+      ax.add(OpenID::AX::AttrInfo.new('http://axschema.org/contact/email', 'email', false))
+      required = openid =~ /^https?:\/\/www\.google\.com\//
+      ax.add(OpenID::AX::AttrInfo.new('http://axschema.org/namePerson/first', 'firstname', required))
+      ax.add(OpenID::AX::AttrInfo.new('http://axschema.org/namePerson/last', 'lastname', required))
       request.add_extension(ax)
       return request.redirect_url(
           url_for(:controller => 'page', :action => 'redirect_to_frontpage', :only_path => false),
@@ -57,14 +56,13 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
       when OpenID::Consumer::FAILURE
         raise AuthenticatorError.new(t 'auth.openid.verification_failed')
       when OpenID::Consumer::SUCCESS
-        nickname, email = parse_sreg_response(response)
-        if nickname.nil? || email.nil?
-          nickname2, email2 = parse_ax_response(response)
-          nickname = nickname2 if nickname.nil?
-          email = email2 if email.nil?
-        end
-        raise AuthenticatorError.new(t 'auth.openid.nickname_email_missing') if nickname.nil? || email.nil?
-        return User.new(response.identity_url, nickname, email)
+        sreg = parse_sreg_response(response)
+        ax = parse_ax_response(response)
+        fields = sreg.merge(ax)
+        p fields
+        fields[:nickname] = fields[:fullname] if fields[:nickname].nil?
+        raise AuthenticatorError.new(t 'auth.openid.nickname_missing') if fields[:nickname].nil?
+        return User.new(fields[:nickname], :username => fields[:nickname], :email => fields[:email], :display_name => fields[:fullname])
       when OpenID::Consumer::SETUP_NEEDED
         raise AuthenticatorError.new(t 'auth.openid.setup_needed')
       when OpenID::Consumer::CANCEL
@@ -84,6 +82,11 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
       }
     ]
   end
+  
+  def user_for(options)
+    id = options.key?(:id).nil? ? options[:username] : options[:id]
+    User.new(id, :username => options[:username], :email => options[:email], :fullname => options[:fullname])
+  end
 
   private
 
@@ -98,25 +101,32 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
   def parse_sreg_response(response)
     begin
       sreg = OpenID::SReg::Response.from_success_response(response)
-      return sreg.data['nickname'], sreg.data['email']
+      return {} if sreg.nil?
+      fields = {}
+      fields[:email] = sreg.data['email'] unless sreg.data['email'].nil?
+      fields[:nickname] = sreg.data['nickname'] unless sreg.data['nickname'].nil?
+      fields[:fullname] = sreg.data['fullname'] unless sreg.data['fullname'].nil?
+      fields
     rescue => e
-      return nil, nil
+      return {}
     end
   end
   
   def parse_ax_response(response)
     begin
       ax = OpenID::AX::FetchResponse.from_success_response(response)
-      nickname = ax.data['http://axschema.org/namePerson/friendly'].first
-      if nickname.nil? && !ax.data['http://axschema.org/namePerson/first'].first.nil?
-        nickname = ax.data['http://axschema.org/namePerson/first'].first
-        unless ax.data['http://axschema.org/namePerson/last'].first.nil?
-          nickname += " #{ax.data['http://axschema.org/namePerson/last'].first}"
-        end
+      p ax.inspect
+      p response
+      return {} if ax.nil?
+      fields = {}
+      fields[:email] = ax.data['http://axschema.org/contact/email'].first unless ax.data['http://axschema.org/contact/email'].first.nil?
+      fields[:nickname] = ax.data['http://axschema.org/namePerson/friendly'].first unless ax.data['http://axschema.org/namePerson/friendly'].first.nil?
+      if !ax.data['http://axschema.org/namePerson/first'].first.nil? && !ax.data['http://axschema.org/namePerson/last'].first.nil?
+        fields[:fullname] = "#{ax.data['http://axschema.org/namePerson/first'].first} #{ax.data['http://axschema.org/namePerson/last'].first}"
       end
-      return nickname, ax.data['http://axschema.org/contact/email'].first
+      fields
     rescue => e
-      return nil, nil
+      return {}
     end
   end
 

@@ -15,11 +15,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class AnonymousUser < User
-    
-  def initialize(id, username, email)
-    @id = id
-    @username = username
-    @email = email
+  
+  def initialize(ip)
+    @id = ip
+    @email = "#{ip}@#{Raki.app_name.underscore}"
   end
   
 end
