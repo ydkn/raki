@@ -21,5 +21,9 @@ module Raki
       !(url.match "^[a-zA-Z]+:\/\/(.+(:.+)?@)?[a-zA-Z0-9_-](\.[a-zA-Z0-9_-])*(:[0-9]+)?/").nil?
     end
     
+    def authorized?(type, name, action, user=User.current)
+      Raki.permission?(type, name, action, user)
+    end
+    
   end
 end

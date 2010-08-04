@@ -23,13 +23,13 @@ module RecentchangesPluginHelper
     types.each do |type|
       type = type.to_sym
       page_changes(type).each do |change|
-        next unless permission?(change.type, change.page)
+        next unless permission? change.type, change.page
         day = change.revision.date.strftime("%Y-%m-%d")
         days[day] = [] unless days.key?(day)
         days[day] << change
       end
       attachment_changes(type).each do |change|
-        next unless permission?(change.type, change.page)
+        next unless permission? change.type, change.page
         day = change.revision.date.strftime("%Y-%m-%d")
         days[day] = [] unless days.key?(day)
         days[day] << change
@@ -62,7 +62,7 @@ module RecentchangesPluginHelper
   
   def permission?(type, page)
     RIGHTS.each do |right|
-      return true if Raki.permission?(type, page, right, User.current)
+      return true if authorized? type, page, right
     end
     false
   end

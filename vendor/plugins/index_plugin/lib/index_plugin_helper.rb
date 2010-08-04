@@ -21,7 +21,7 @@ module IndexPluginHelper
     types.each do |type|
       type = type.to_sym
       Raki.provider(type).page_all(type).each do |page|
-        next unless Raki.permission?(type, page, :view, User.current)
+        next unless authorized? type, page, :view
         letter = page[0].chr.upcase
         chars[letter] = [] unless chars.key?(letter)
         chars[letter] << {:type => type, :page => page}
