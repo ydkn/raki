@@ -149,8 +149,10 @@ module Raki
         next if "#{type.to_s}/#{page.to_s}".match("^#{right[0].gsub('*', '.*')}$").nil?
         rights = right[1].split(',')
         rights.map {|r| r.to_s.strip}
-        perm = false if rights.include?("!#{action.to_s}")
+        perm = true if rights.include?('all')
+        perm = false if rights.include?('!all')
         perm = true if rights.include?(action.to_s)
+        perm = false if rights.include?("!#{action.to_s}")
       end
       
       perm
