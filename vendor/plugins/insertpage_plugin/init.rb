@@ -46,10 +46,7 @@ Raki::Plugin.register :insertpage do
       new_context[:type] = type
       new_context[:page] = page
 
-      Raki.parser(type).parse(
-        Raki.provider(type).page_contents(type, page),
-        new_context
-      )
+      parsed_page!(type, page, nil, new_context)
     else
       ""
     end
