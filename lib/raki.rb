@@ -17,6 +17,8 @@
 module Raki
   class << self
     
+    VERSION = '0.1pre'
+    
     class RakiError < StandardError
     end
     
@@ -47,7 +49,7 @@ module Raki
     end
     
     def version
-      '0.1pre'
+      VERSION
     end
     
     attr_reader :providers, :initialized_providers
