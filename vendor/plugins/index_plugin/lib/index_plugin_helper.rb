@@ -17,6 +17,8 @@
 module IndexPluginHelper
   
   def letters_pages
+    return @index unless @index.nil?
+    
     p_types = params[:type].nil? ? [context[:type]] : params[:type].split(',')
     p_types = types if params[:type] == 'all'
     
@@ -33,35 +35,18 @@ module IndexPluginHelper
       
     end
     
-    chars = array_to_hash chars.sort { |a, b| a[0] <=> b[0] }
-    chars.keys.each { |letter| chars[letter] = sort_pages chars[letter] }
+    index = {}
+    chars.keys.each do |key|
+      index[key] = chars[key]
+    end
+    @index = index
     
-    chars
+    @index
   end
   
   def rnd
     @rnd = rand(900)+100 if @rnd.nil?
     @rnd
-  end
-  
-  private
-  
-  def array_to_hash array
-    hash = {}
-    array.each do |item|
-      hash[item[0]] = item[1]
-    end
-    hash
-  end
-  
-  def sort_pages pages
-    pages.each.sort do |a, b|
-      if a[:type] == b[:type]
-        a[:page].to_s <=> b[:page].to_s
-      else
-        a[:type].to_s <=> b[:type].to_s
-      end
-    end
   end
   
 end
