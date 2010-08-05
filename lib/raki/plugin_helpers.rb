@@ -219,7 +219,14 @@ module Raki
     end
     
     def authorized?(type, name, action, user=User.current)
-      Raki.permission?(type, name, action, user)
+      if action.is_a?(Array)
+        action.each do |a|
+          return true if Raki.permission?(type, name, a, user)
+        end
+        false
+      else
+        Raki.permission?(type, name, action, user)
+      end
     end
     
     def authorized!(type, name, action, user=User.current)
