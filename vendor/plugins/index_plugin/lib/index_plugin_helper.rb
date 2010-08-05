@@ -35,9 +35,13 @@ module IndexPluginHelper
       
     end
     
-    index = {}
-    chars.keys.each do |key|
-      index[key] = chars[key]
+    index = []
+    keys = chars.keys.sort {|a,b| a <=> b}
+    keys.each do |key|
+      index << {
+          :letter => key,
+          :pages => sort_pages(chars[key])
+        }
     end
     @index = index
     
@@ -47,6 +51,18 @@ module IndexPluginHelper
   def rnd
     @rnd = rand(900)+100 if @rnd.nil?
     @rnd
+  end
+  
+  private
+  
+  def sort_pages pages
+    pages.sort do |a,b|
+      if a[:page].downcase == b[:page].downcase
+        a[:page] <=> b[:page]
+      else
+        a[:page].downcase <=> b[:page].downcase
+      end
+    end
   end
   
 end

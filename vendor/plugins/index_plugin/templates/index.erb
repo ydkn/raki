@@ -1,17 +1,17 @@
 <div class="index">
   <div class="index_header">
-  	<% i = 0; letters_pages.each do |letter, pages| %>
-	  <a href="#INDEX-<%=h("#{letter}-#{rnd}") %>"><%=h letter %></a>
+  	<% i = 0; letters_pages.each do |index| %>
+	  <a href="#INDEX-<%=h("#{index[:letter]}-#{rnd}") %>"><%=h index[:letter] %></a>
 	  <%=h " - " if (i += 1) < letters_pages.size %>
 	<% end %>
   </div>
   <div class="index_body">
-  	<% letters_pages.each do |letter, pages| %>
-	  <div class="index_letter" id="INDEX-<%=h("#{letter}-#{rnd}") %>"><%=h letter %></div>
+  	<% letters_pages.each do |index| %>
+	  <div class="index_letter" id="INDEX-<%=h("#{index[:letter]}-#{rnd}") %>"><%=h index[:letter] %></div>
 	  <div class="index_pages">
-		<% i = 0; pages.each do |page| %>
+		<% i = 0; index[:pages].each do |page| %>
 		  <%=link_to h(types.length == 1 ? page[:page] : "#{page[:type]}/#{page[:page]}"), {:controller => 'page', :action => 'view', :type => h(page[:type]), :id => h(page[:page])} %>
-		  <%=h ", " if (i += 1) < pages.size %>
+		  <%=h ", " if (i += 1) < index[:pages].size %>
 	  	<% end %>
 	  </div>
 	<% end %>
