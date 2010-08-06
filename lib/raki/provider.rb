@@ -15,32 +15,39 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 module Raki
-  module Helpers
+  class Provider
     
-    module PermissionHelper
+    @providers = {}
+    @initialized = {}
+    
+    class << self
       
-      class NotAuthorizedError < StandardError
-      end
-      
-      def authorized?(type, name, action, user=User.current)
-        if action.is_a?(Array)
-          action.each do |a|
-            return true if Raki::Permission.to?(type, name, a, user)
+      def register(id, clazz)
+        @providers[id.to_sym] = clazz
+        Raki.config('providers').each do |type, settings|
+          if settings['provider'] == id.to_s
+            @initialized[type.to_sym] = clazz.new(settings)
           end
-          false
-        else
-          Raki::Permission.to?(type, name, action, user)
         end
       end
 
-      def authorized!(type, name, action, user=User.current)
-        unless authorized?(type, name, action, user)
-          raise NotAuthorizedError.new "#{user.id.to_s} has no permission to #{action.to_s} #{type.to_s}/#{name.to_s}"
+      def [](type)
+        type = type.to_sym
+        unless @initialized.key?(type)
+          return @initialized[:default] if @initialized.key?(:default)
+          raise RakiError.new("No Provider")
         end
-        true
+        @initialized[type]
       end
 
+      def all
+        @providers
+      end
+
+      def used
+        @initialized
+      end
+      
     end
-    
   end
 end

@@ -16,4 +16,4 @@
 
 require 'git_provider'
 
-Raki.register_provider(:git, GitProvider)
+Raki::Provider.register(:git, GitProvider)

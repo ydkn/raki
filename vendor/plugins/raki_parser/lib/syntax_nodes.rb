@@ -185,6 +185,8 @@ end
 
 class PluginNode < RakiSyntaxNode
   
+  include Raki::Helpers::I18nHelper
+  
   def to_html context
     begin
       if defined? body and !body.nil?

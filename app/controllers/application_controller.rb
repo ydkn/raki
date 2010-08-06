@@ -23,13 +23,12 @@ class ApplicationController < ActionController::Base
   helper PageHelper
   helper AuthenticationHelper
 
-  before_filter :init_raki
+  before_filter :init_context
   before_filter :try_to_authenticate_user
 
   private
 
-  def init_raki
-  #  Raki::Helpers.init self
+  def init_context
     @context = {
       :params => params
     }
@@ -37,8 +36,8 @@ class ApplicationController < ActionController::Base
 
   def try_to_authenticate_user
     User.current = anonymous_user
-    if Raki.authenticator.respond_to? :try_to_authenticate
-      Raki.authenticator.try_to_authenticate params, session, cookies
+    if Raki::Authenticator.respond_to? :try_to_authenticate
+      Raki::Authenticator.try_to_authenticate params, session, cookies
     end
     unless session[:user].nil?
       User.current = session[:user] if session[:user].is_a?(User)

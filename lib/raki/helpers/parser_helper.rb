@@ -22,7 +22,7 @@ module Raki
       include ProviderHelper
       
       def parser(type)
-        Raki.parser(type)
+        Raki::Parser[type]
       end
 
       def parse(type, content, context=context)

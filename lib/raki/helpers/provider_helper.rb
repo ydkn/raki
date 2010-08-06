@@ -22,7 +22,7 @@ module Raki
       include PermissionHelper
       
       def provider(type)
-        Raki.provider(type)
+        Raki::Provider[type]
       end
 
       def page_exists?(type, name, revision=nil)
@@ -183,7 +183,7 @@ module Raki
 
       def types
         types = []
-        Raki.initialized_providers.values.each do |provider|
+        Raki::Provider.used.values.each do |provider|
           provider.types.each do |type|
             types << type if provider(type) == provider
           end

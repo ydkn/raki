@@ -238,7 +238,7 @@ class GitProvider < Raki::AbstractProvider
           commit.sha,
           commit.sha[0..7].upcase,
           commit.size,
-          Raki.authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
+          Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
           commit.date,
           commit.message
         )

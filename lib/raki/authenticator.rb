@@ -15,32 +15,35 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 module Raki
-  module Helpers
+  class Authenticator
     
-    module PermissionHelper
+    @authenticators = {}
+    @authenticator = nil
+    
+    class << self
       
-      class NotAuthorizedError < StandardError
-      end
-      
-      def authorized?(type, name, action, user=User.current)
-        if action.is_a?(Array)
-          action.each do |a|
-            return true if Raki::Permission.to?(type, name, a, user)
-          end
-          false
-        else
-          Raki::Permission.to?(type, name, action, user)
-        end
+      def register(id, clazz)
+        @authenticators[id.to_sym] = clazz
+        @authenticator = clazz.new if Raki.config('authenticator') == id.to_s
       end
 
-      def authorized!(type, name, action, user=User.current)
-        unless authorized?(type, name, action, user)
-          raise NotAuthorizedError.new "#{user.id.to_s} has no permission to #{action.to_s} #{type.to_s}/#{name.to_s}"
-        end
-        true
+      def all
+        @authenticators
+      end
+      
+      alias :self_respond_to? :respond_to?
+      
+      def respond_to?(method)
+        return true if self_respond_to?(method)
+        @authenticator.respond_to?(method)
       end
 
+      def method_missing(method, *args, &block)
+        raise RakiError.new("No Authenticator") if @authenticator.nil?
+        @authenticator.send(method, *args, &block)
+      end
+      private :method_missing
+      
     end
-    
   end
 end

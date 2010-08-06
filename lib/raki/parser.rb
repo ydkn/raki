@@ -14,8 +14,40 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+module Raki
+  class Parser
+    
+    @parsers = {}
+    @initialized = {}
+    
+    class << self
+      
+      def register(id, clazz)
+        @parsers[id.to_sym] = clazz
+        Raki.config('parsers').each do |type, settings|
+          if settings['parser'] == id.to_s
+            @initialized[type.to_sym] = clazz.new(settings)
+          end
+        end
+      end
 
-Raki::Parser.register(:raki, RakiParser)
+      def [](type)
+        type = type.to_sym
+        unless @initialized.key?(type)
+          return @initialized[:default] if @initialized.key?(:default)
+          raise RakiError.new("No Parser")
+        end
+        @initialized[type]
+      end
 
-# extending Treetop to html-encode text
-Treetop::Runtime::SyntaxNode.send(:include, HTMLSyntax)
+      def all
+        @parsers
+      end
+
+      def used
+        @initialized
+      end
+      
+    end
+  end
+end

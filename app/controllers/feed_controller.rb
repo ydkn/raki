@@ -16,9 +16,11 @@
 
 class FeedController < ApplicationController
   
+  include Raki::Helpers::ProviderHelper
+  
   def feed
     days = {}
-    provider_types.each do |type|
+    types.each do |type|
       page_changes(type).each do |change|
         day = change.revision.date.strftime("%Y-%m-%d")
         days[day] = [] unless days.key?(day)
@@ -42,28 +44,6 @@ class FeedController < ApplicationController
     respond_to do |format|
       format.atom
     end
-  end
-  
-  private
-  
-  def provider_types
-    types = []
-    Raki.providers.keys.each do |provider|
-      types += Raki.provider(provider).types
-    end
-    types
-  end
-
-  def page_changes(type, limit=nil)
-    return Raki.provider(type).page_changes(type, limit)
-  end
-  
-  def attachment_changes(type, limit=nil)
-    changes = []
-    Raki.provider(type).page_all(type).each do |page|
-      changes += Raki.provider(type).attachment_changes(type, page, limit)
-    end
-    changes
   end
   
 end
