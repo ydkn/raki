@@ -23,8 +23,7 @@ class ApplicationController < ActionController::Base
   helper PageHelper
   helper AuthenticationHelper
 
-  before_filter :init_context
-  before_filter :try_to_authenticate_user
+  before_filter :try_to_authenticate_user, :set_locale, :init_context
 
   private
 
@@ -35,7 +34,7 @@ class ApplicationController < ActionController::Base
   end
 
   def try_to_authenticate_user
-    User.current = anonymous_user
+    User.current = AnonymousUser.new request.remote_ip
     if Raki::Authenticator.respond_to? :try_to_authenticate
       Raki::Authenticator.try_to_authenticate params, session, cookies
     end
@@ -44,10 +43,26 @@ class ApplicationController < ActionController::Base
     end
   end
   
-  private
-  
-  def anonymous_user
-    AnonymousUser.new request.remote_ip
+  def set_locale
+    I18n.locale = I18n.default_locale
+    begin
+      if request.accept_language
+        request.accept_language.split(',').each do |lang|
+          lang = lang.split(';').first.strip
+          if I18n.available_locales.include?(lang.to_sym)
+            I18n.locale = lang.to_sym
+            break
+          end
+          lang = lang.split('-').first
+          if I18n.available_locales.include?(lang.to_sym)
+            I18n.locale = lang.to_sym
+            break
+          end
+        end
+      end
+    rescue => e
+      # ignore
+    end
   end
 
 end
