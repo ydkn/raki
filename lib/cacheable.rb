@@ -16,6 +16,10 @@
 
 module Cacheable
   
+  def self.included(base)
+    base.extend(Cacheable)
+  end
+  
   def cache(name, options={})
     ttl = options.key?(:ttl) ? options[:ttl].to_i : 600
     uncached = "__uncached_#{name}"

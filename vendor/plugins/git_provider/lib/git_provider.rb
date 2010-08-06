@@ -20,7 +20,6 @@ require 'unicode'
 
 class GitProvider < Raki::AbstractProvider
   
-  extend Cacheable
   include Cacheable
 
   def initialize(params)
