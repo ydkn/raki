@@ -28,8 +28,15 @@ class GitProvider < Raki::AbstractProvider
     begin
       FileUtils.rm_rf("#{Rails.root}/tmp/git-repo")
       @repo = Git.clone(params['path'], "#{Rails.root}/tmp/git-repo")
+      if params.key?('branch')
+        @repo.checkout(params['branch'])
+        @branch = params['branch']
+      else
+        @repo.checkout('master')
+        @branch = 'master'
+      end
     rescue => e
-      raise ProviderError.new("Invalid GIT repository", e)
+      raise ProviderError.new("Invalid GIT repository: #{e.to_s}")
     end
   end
 
@@ -178,7 +185,7 @@ class GitProvider < Raki::AbstractProvider
     end
     @repo.add(normalize(obj))
     @repo.commit(message, {:author => format_user(user)})
-    @repo.push(@repo.remote('origin'))
+    @repo.push(@repo.remote('origin'), @branch)
     flush_cache(:exists?)
     flush_cache(:contents, obj, nil)
     flush_cache(:contents, normalize(obj), nil)
@@ -200,7 +207,7 @@ class GitProvider < Raki::AbstractProvider
     @repo.remove(normalize(old_obj))
     @repo.add(normalize(new_obj))
     @repo.commit(message, {:author => format_user(user)})
-    @repo.push(@repo.remote('origin'))
+    @repo.push(@repo.remote('origin'), @branch)
     flush_cache(:exists?)
     flush_cache(:contents, old_obj, nil)
     flush_cache(:contents, normalize(old_obj), nil)
@@ -220,7 +227,7 @@ class GitProvider < Raki::AbstractProvider
     message = '-' if message.nil? || message.empty?
     @repo.remove(normalize(obj))
     @repo.commit(message, {:author => format_user(user)})
-    @repo.push(@repo.remote('origin'))
+    @repo.push(@repo.remote('origin'), @branch)
     flush_cache(:exists?)
     flush_cache(:contents, obj, nil)
     flush_cache(:contents, normalize(obj), nil)
