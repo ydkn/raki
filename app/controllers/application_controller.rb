@@ -29,7 +29,7 @@ class ApplicationController < ActionController::Base
   private
 
   def init_raki
-    Raki::Helpers.init self
+  #  Raki::Helpers.init self
     @context = {
       :params => params
     }

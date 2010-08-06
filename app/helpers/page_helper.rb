@@ -44,7 +44,8 @@ module PageHelper
       begin
         parsed = Raki.parser(type).parse(page_contents(type, name, revision), context)
         parsed.nil? ? "<div class=\"error\">#{t 'parser.parsing_error'}</div>" : parsed
-      rescue
+      rescue => e
+        Rails.logger.error e
         "<div class=\"error\">#{t 'parser.parsing_error'}</div>"
       end
     end

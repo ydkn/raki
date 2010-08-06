@@ -19,6 +19,3 @@ Raki.register_parser(:raki, RakiParser)
 
 # extending Treetop to html-encode text
 Treetop::Runtime::SyntaxNode.send(:include, HTMLSyntax)
-
-# make Raki-helpes available in Treetop
-Treetop::Runtime::SyntaxNode.send(:include, Raki::Helpers)

@@ -20,8 +20,6 @@ module Raki
     class ProviderError < StandardError
     end
     
-    include Raki::Helpers
-    
     attr_reader :id
 
     def page_exists?(type, name, revision=nil)

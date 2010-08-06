@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'ostruct'
-
 module Raki
 
   # Base class for Raki plugins.
@@ -120,12 +118,13 @@ module Raki
 
     end
     
-    def <=> b
-      name <=> b.name
-    end
-    
-    include Raki::Helpers
-    include Raki::PluginHelpers
+    include Raki::Helpers::PluginHelper
+    include Raki::Helpers::PermissionHelper
+    include Raki::Helpers::ProviderHelper
+    include Raki::Helpers::ParserHelper
+    include Raki::Helpers::URLHelper
+    include Raki::Helpers::I18nHelper
+    include ERB::Util
 
     def_field :name, :description, :url, :author, :version
 
@@ -135,6 +134,10 @@ module Raki
     def initialize(id)
       @id = id
       @stylesheets = []
+    end
+    
+    def <=> b
+      name <=> b.name
     end
     
     def include(clazz)
@@ -163,23 +166,8 @@ module Raki
     
     def render(tmpl)
       template = Raki::Plugin.templates[tmpl.to_sym]
-      raise PluginError.new "Template '#{tmpl.to_s}' not found" if template.nil?
-      vars = {}
-      instance_variable_names.each do |var_name|
-        next if TMPL_INGORE_VARS.include?(var_name.gsub(/^@/, ''))
-        if TMPL_LOCAL_VARS.include?(var_name.gsub(/^@/, ''))
-          vars[var_name.gsub(/^@/, '').to_sym] = instance_variable_get(var_name)
-        else
-          vars[var_name.gsub(/^@/, '').to_sym] = instance_variable_get(var_name)
-        end
-      end
-      vars = OpenStruct.new(vars)
-      vars.send(:extend, Raki::Helpers)
-      vars.send(:extend, Raki::PluginHelpers)
-      extended_by.each do |m|
-        vars.send(:extend, m)
-      end
-      template.result(vars.send(:binding))
+      raise PluginError.new("Template '#{tmpl.to_s}' not found") if template.nil?
+      template.result(binding)
     end
 
   end

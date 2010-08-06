@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,30 +15,37 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 module Raki
-  class AbstractAuthenticator
+  module Helpers
+    
+    module ParserHelper
+      
+      include ProviderHelper
+      
+      def parser(type)
+        Raki.parser(type)
+      end
 
-    class AuthenticatorError < StandardError
+      def parse(type, content, context=context)
+        parser(type).parse(content, context)
+      end
+
+      def parsed_page(type, page, revision=nil, context=context)
+        parse(
+          type,
+          page_contents(type, page, revision),
+          context
+        )
+      end
+
+      def parsed_page!(type, page, revision=nil, context=context, user=User.current)
+        parse(
+          type,
+          page_contents!(type, page, revision, user),
+          context
+        )
+      end
+
     end
     
-    def user_for(options)
-      raise AuthenticatorError.new 'not implemented'
-    end
-
-    #def login(params, session, cookies)
-    #  raise AuthenticatorError.new 'not implemented'
-    #end
-    
-    #def try_to_authenticate(params, session, cookies)
-    #  raise AuthenticatorError.new 'not implemented'
-    #end
-    
-    #def login_hook(params, session, cookies)
-    #  raise AuthenticatorError.new 'not implemented'
-    #end
-    
-    #def form_fields
-    #  raise AuthenticatorError.new 'not implemented'
-    #end
-
   end
 end

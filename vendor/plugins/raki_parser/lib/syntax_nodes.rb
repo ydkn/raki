@@ -14,7 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class IgnoreNode < Treetop::Runtime::SyntaxNode
+class RakiSyntaxNode < Treetop::Runtime::SyntaxNode
+  
+  include Raki::Helpers::URLHelper
+  include ERB::Util
+  
+end
+
+class IgnoreNode < RakiSyntaxNode
   
   def to_html context
     ''
@@ -23,7 +30,7 @@ class IgnoreNode < Treetop::Runtime::SyntaxNode
 end
 
 
-class LinebreakNode < Treetop::Runtime::SyntaxNode
+class LinebreakNode < RakiSyntaxNode
   
   def to_html context
     "<br/>\n"
@@ -32,7 +39,7 @@ class LinebreakNode < Treetop::Runtime::SyntaxNode
 end
 
 
-class LinkNode < Treetop::Runtime::SyntaxNode
+class LinkNode < RakiSyntaxNode
   
   def to_html context
     return '<a href="' + href.to_html(context).strip + '">' +
@@ -42,7 +49,7 @@ class LinkNode < Treetop::Runtime::SyntaxNode
 end
 
 
-class WikiLinkNode < Treetop::Runtime::SyntaxNode
+class WikiLinkNode < RakiSyntaxNode
   
   def to_html context
     pagelink = url_for :controller => 'page', :action => 'view', :type => :page, :id => href.text_value
@@ -53,7 +60,7 @@ class WikiLinkNode < Treetop::Runtime::SyntaxNode
 end
 
 
-class BoldNode < Treetop::Runtime::SyntaxNode
+class BoldNode < RakiSyntaxNode
   
   def to_html context
     return '<b>' + text.to_html(context) + '</b>'
@@ -62,7 +69,7 @@ class BoldNode < Treetop::Runtime::SyntaxNode
 end
 
 
-class ItalicNode < Treetop::Runtime::SyntaxNode
+class ItalicNode < RakiSyntaxNode
   
   def to_html context
     return '<i>' + text.to_html(context) + '</i>'
@@ -71,7 +78,7 @@ class ItalicNode < Treetop::Runtime::SyntaxNode
 end
 
 
-class UnderlineNode < Treetop::Runtime::SyntaxNode
+class UnderlineNode < RakiSyntaxNode
   
   def to_html context
     return '<span class="underline">' + text.to_html(context) + '</span>'
@@ -79,7 +86,7 @@ class UnderlineNode < Treetop::Runtime::SyntaxNode
 end
 
 
-class StrikethroughNode < Treetop::Runtime::SyntaxNode
+class StrikethroughNode < RakiSyntaxNode
   
   def to_html context
     return '<del>' + text.to_html(context) + '</del>'
@@ -88,7 +95,7 @@ class StrikethroughNode < Treetop::Runtime::SyntaxNode
 end
 
 
-class HeadingNode < Treetop::Runtime::SyntaxNode
+class HeadingNode < RakiSyntaxNode
   
   def to_html context
     l = level.text_value.length
@@ -99,7 +106,7 @@ class HeadingNode < Treetop::Runtime::SyntaxNode
 end
 
 
-class InfoboxNode < Treetop::Runtime::SyntaxNode
+class InfoboxNode < RakiSyntaxNode
   
   def to_html context
     '<div class="' + type.to_html(context) + '">' + text.to_html(context).strip + '</div>'
@@ -108,7 +115,7 @@ class InfoboxNode < Treetop::Runtime::SyntaxNode
 end
 
 
-class ListNode < Treetop::Runtime::SyntaxNode
+class ListNode < RakiSyntaxNode
 
   def to_html context
 
@@ -176,7 +183,7 @@ class ListNode < Treetop::Runtime::SyntaxNode
 end
 
 
-class PluginNode < Treetop::Runtime::SyntaxNode
+class PluginNode < RakiSyntaxNode
   
   def to_html context
     begin
@@ -205,7 +212,7 @@ class PluginNode < Treetop::Runtime::SyntaxNode
 end
 
 
-class ParameterNode < Treetop::Runtime::SyntaxNode
+class ParameterNode < RakiSyntaxNode
   
   def keyval
     val = value.text_value
@@ -220,7 +227,7 @@ class ParameterNode < Treetop::Runtime::SyntaxNode
 end
 
 
-class TableNode < Treetop::Runtime::SyntaxNode
+class TableNode < RakiSyntaxNode
   
   def to_html context
     out = "<table class=\"wikitable\">\n"
@@ -234,7 +241,7 @@ class TableNode < Treetop::Runtime::SyntaxNode
 end
 
 
-class TableRowNode < Treetop::Runtime::SyntaxNode
+class TableRowNode < RakiSyntaxNode
   
   def to_html context
     out = ''
