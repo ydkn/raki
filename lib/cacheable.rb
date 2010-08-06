@@ -40,6 +40,16 @@ module Cacheable
               }
             end
           end
+          Thread.new do
+            while true do
+              @class_cache.each do |method, params|
+                params.delete_if do |args, cache|
+                  cache[:time] < (Time.new - #{ttl}*10)
+                end
+              end
+              sleep 10
+            end
+          end
         end
         cache = @class_cache[#{name.inspect}]
         unless cache.key?(args)
