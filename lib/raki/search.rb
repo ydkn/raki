@@ -18,54 +18,72 @@ require 'ferret'
 
 module Raki
   class Search
+    
+    @index = Ferret::Index::Index.new(:path => "#{Rails.root}/tmp/search.idx")
+    
     class << self
       
-      include Ferret
-      
-      def init
-        @index = Index::Index.new(:path => "#{Rails.root}/tmp/search.idx") if @index.nil?
-      end
+      include Raki::Helpers::PermissionHelper
+      include Raki::Helpers::ProviderHelper
       
       def search(querystring)
-        init
         results = []
-        @index.search_each("content:\"#{querystring}\"") do |id, score|
+        # TODO build query
+        @index.search_each(querystring) do |id, score|
           doc = @index[id]
-          results << {:type => doc[:type], :page => doc[:page], :score => score}
+          results << {
+              :type => doc[:type],
+              :page => doc[:page],
+              :revision => doc[:revision],
+              :score => score,
+              :excerpt => @index.highlight(querystring, id, :field => :content, :pre_tag => '<b>', :post_tag => '</b>')
+            }
         end
         results.sort {|a,b| a[:score] <=> b[:score]}
       end
       
-      def <<(type, page, revision, content=nil, attachment=nil, date=Time.now)
-        init
+      def <<(type, page, revision, content=nil, attachment=nil)
+        type = type.to_s
+        page = page.to_s
+        revision = revision.to_s
+        doc_id = nil
+        @index.search_each("(type:\"#{type}\" AND page:\"#{page}\" AND revision:\"#{revision}\")") {|id, score| doc_id = id}
+        @index.delete doc_id unless doc_id.nil?
         if attachment.nil?
-          @index << {:type => type, :page => page, :revision => revision, :date => date, :content => content}
+          doc = {:type => type, :page => page, :revision => revision, :content => content}
         else
-          @index << {:type => type, :page => page, :revision => revision, :date => date, :attachment => attachment}
+          doc = {:type => type, :page => page, :revision => revision, :attachment => attachment}
         end
+        @index << doc
       end
       
       def refresh
-        init
-        Raki.initialized_providers.values.each do |provider|
-          provider.types.each do |type|
-            next unless Raki.provider(type) == provider
-            Raki.provider(type).page_changes(type).each do |change|
+        types.each do |type|
+          page_all(type).each do |page|
+            page_revisions(type, page).reverse_each do |revision|
               begin
-                self.<< change.type, change.page, change.revision.id, Raki.provider(type).page_contents(change.type, change.page, change.revision.id), nil, change.revision.date
+                self.<< type, page, revision.id, page_contents(type, page, revision.id), nil
               rescue => e
               end
             end
-            Raki.provider(type).attachment_changes(type).each do |att_change|
-              begin
-                self.<< att_change.type, att_change.page, change.revision.id, nil, att_change.attachment, change.revision.date
-              rescue => e
+            attachment_all(type, page).each do |attachment|
+              attachment_revisions(type, page, attachment).reverse_each do |revision|
+                begin
+                  self.<< type, page, revision.id, nil, attachment
+                rescue => e
+                end
               end
             end
           end
         end
+        nil
       end
       
     end
+    
+    Thread.new do
+      refresh
+    end
+    
   end
 end

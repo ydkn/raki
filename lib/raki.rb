@@ -19,6 +19,7 @@ require 'raki/provider'
 require 'raki/parser'
 require 'raki/authenticator'
 require 'raki/plugin'
+require 'raki/search'
 
 module Raki
   
