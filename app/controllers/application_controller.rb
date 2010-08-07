@@ -23,9 +23,14 @@ class ApplicationController < ActionController::Base
   helper PageHelper
   helper AuthenticationHelper
 
-  before_filter :try_to_authenticate_user, :set_locale, :init_context
+  before_filter :init_url_helper, :try_to_authenticate_user, :set_locale, :init_context
 
   private
+  
+  def init_url_helper
+    Raki::Helpers::URLHelper.host = request.host
+    Raki::Helpers::URLHelper.port = request.port
+  end
 
   def init_context
     @context = {

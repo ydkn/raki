@@ -19,6 +19,10 @@ module Raki
     
     module URLHelper
       
+      class << self
+        attr_accessor :host, :port
+      end
+      
       include ActionView::Helpers::UrlHelper
       include ActionController::UrlWriter
       
@@ -29,7 +33,11 @@ module Raki
       module ClassMethods
         
         def default_url_options
-          {:only_path => true }
+          {
+            :host => Raki::Helpers::URLHelper.host,
+            :port => Raki::Helpers::URLHelper.port,
+            :only_path => true
+          }
         end
         
       end

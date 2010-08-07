@@ -21,6 +21,10 @@ require 'openid/extensions/sreg'
 require 'openid/extensions/ax'
 
 class OpenIDAuthenticator < Raki::AbstractAuthenticator
+  
+  include Raki::Helpers::URLHelper
+  include Raki::Helpers::I18nHelper
+  include ERB::Util
 
   def login(params, session, cookies)
     openid = params[:openid]
@@ -42,6 +46,7 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
           url_for(:controller => 'authentication', :action => 'callback', :only_path => false)
         )
     rescue => e
+      raise e
       raise AuthenticatorError.new(t 'auth.openid.unable_to_authenticate', :openid => h(openid))
     end
   end
