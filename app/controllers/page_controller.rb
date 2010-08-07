@@ -25,7 +25,7 @@ class PageController < ApplicationController
   def view
     return if render_forbidden_if_not_authorized :view
     if @provider.page_exists?(@type, @page, @revision)
-      current_revision = @provider.page_revisions(@type, @page).last
+      current_revision = @provider.page_revisions(@type, @page).first
       @page_info = {
         :date => current_revision.date,
         :user => current_revision.user,
@@ -116,7 +116,7 @@ class PageController < ApplicationController
     @provider.attachment_all(@type, @page).each do |attachment|
       @attachments << {
         :name => attachment,
-        :revision => @provider.attachment_revisions(@type, @page, attachment).last
+        :revision => @provider.attachment_revisions(@type, @page, attachment).first
       }
     end
     @attachments.sort { |a,b| a[:name] <=> b[:name] }
@@ -141,7 +141,7 @@ class PageController < ApplicationController
     return if redirect_if_attachment_not_exists
     # ugly fix for ruby1.9 and rails2.5
     revision = @revision
-    revision = @provider.attachment_revisions(@type, @page, @attachment).last.id if revision.nil?
+    revision = @provider.attachment_revisions(@type, @page, @attachment).first.id if revision.nil?
     unless File.exists? "#{Rails.root}/tmp/attachments/#{@type}/#{@page}/#{revision}/#{@attachment}"
       FileUtils.mkdir_p "#{Rails.root}/tmp/attachments/#{@type}/#{@page}/#{revision}"
       File.open "#{Rails.root}/tmp/attachments/#{@type}/#{@page}/#{revision}/#{@attachment}", 'w' do |f|
