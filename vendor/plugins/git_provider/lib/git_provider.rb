@@ -247,7 +247,7 @@ class GitProvider < Raki::AbstractProvider
           commit.size,
           Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
           commit.date,
-          commit.message
+          (commit.message == '-' ? '' : commit.message)
         )
     end
     revs
