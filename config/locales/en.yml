@@ -79,6 +79,10 @@ en:
 
     info:
         versions: Versions
+    
+  search:
+    tab: Search
+    title: Search
   
   parser:
     parsing_error: Parsing Error

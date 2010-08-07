@@ -79,6 +79,10 @@ de:
 
     info:
         versions: Versionen
+    
+  search:
+    tab: Suche
+    title: Suche
 
   parser:
     parsing_error: Parsen der Seite schlug fehl

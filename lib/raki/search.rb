@@ -23,7 +23,6 @@ module Raki
     
     class << self
       
-      include Raki::Helpers::PermissionHelper
       include Raki::Helpers::ProviderHelper
       
       def search(querystring)

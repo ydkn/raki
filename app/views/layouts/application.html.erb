@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="robots" content="<%=controller_name=='search' ? 'noindex' : 'index' %>,follow">
     <meta name="generator" content="Raki wiki engine"/>
     <title><%=h "#{Raki.app_name} :: #{@title}" %></title>
     <%=stylesheet_link_tag 'application', :media => 'all' %>
@@ -30,9 +31,14 @@
         </div>
       </div>
       <div id="main">
-        <div id="auth">
-          <%=render :partial => 'layouts/auth' %>
-        </div>
+	    <div id="top_right">
+		  <div id="auth">
+	        <%=render :partial => 'layouts/auth' %>
+	      </div>
+	      <div id="search">
+		    <%=render :partial => 'layouts/search' %>
+		  </div>
+		</div>
         <div id="page_title"><%=h @title %></div>
         <div id="content_container">
           <div id="controls">

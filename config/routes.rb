@@ -24,6 +24,10 @@ ActionController::Routing::Routes.draw do |map|
   map.signout 'logout', :controller => 'authentication', :action => 'logout'
   map.connect 'login_callback', :controller => 'authentication', :action => 'callback'
   
+  # Search
+  map.connect 'search/*query', :controller => 'search', :action => 'search'
+  map.connect 'search', :controller => 'search', :action => 'search'
+  
   # Route for atom feed
   map.connect 'feed.atom', :controller => 'feed', :action => 'feed'
 

@@ -30,12 +30,13 @@ a, a:visited {
 
 #main {
     margin-left: 17em;
+	margin-top: -.5em;
+    margin-right: 1em;
 }
 
-#auth {
-    float: right;
-    margin-top: -.5em;
-    margin-right: 1em;
+#top_right {
+	float: right;
+	text-align: right;
 }
 
 #auth a {
@@ -51,6 +52,10 @@ a, a:visited {
     padding-left: 20px;
     padding-right: 1em;
     background: url(../images/user.png) no-repeat;
+}
+
+#search {
+	margin-top: 2em;
 }
 
 #page_title {
@@ -201,6 +206,10 @@ a.feed {
 a.feed img {
     vertical-align: bottom;
     border: 0;
+}
+
+.search_results {
+	list-style-type: none;
 }
 
 .information, .warning, .error, .confirmation {

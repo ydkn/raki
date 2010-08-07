@@ -14,24 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module Raki
-  module Helpers
-    
-    module SearchHelper
-      
-      include PermissionHelper
-      
-      def search(querystring)
-        Raki::Search.search(querystring)
-      end
-      
-      def search!(querystring, user=User.current)
-        Raki::Search.search(querystring).select do |result|
-          authorized?(result[:type], result[:page], :view, user)
-        end
-      end
-      
-    end
-    
-  end
+require 'test_helper'
+
+class SearchControllerTest < ActionController::TestCase
 end
