@@ -157,6 +157,7 @@ module Raki
       @params = params
       @body = body
       @context = context
+      @context[:subcontext] = context[:subcontext].clone
       @execute.call
     end
 
