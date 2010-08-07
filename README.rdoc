@@ -43,6 +43,5 @@ The final step is to change the <tt>authenticator</tt> to <tt>openid</tt>.
 
 
 == Run it
-  (Currently Raki only runs in production mode)
   $ touch tmp/restart.txt
-  $ script/server -e production
+  $ script/server

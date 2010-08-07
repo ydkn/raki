@@ -16,32 +16,18 @@
 
 module Raki
   module Helpers
+    
+    module I18nHelper
 
-    include ERB::Util
-    include ActionView::Helpers::UrlHelper
-
-    class << self
-      attr_reader :controller
-      def init(controller)
-        @controller = controller
+      def t(*args)
+        I18n.t(*args)
       end
-    end
 
-    def t(*args)
-      Raki::Helpers.controller.t(*args)
-    end
+      def l(*args)
+        I18n.l(*args)
+      end
 
-    def l(*args)
-      Raki::Helpers.controller.l(*args)
-    end
-
-    def url_for(*args)
-      Raki::Helpers.controller.url_for(*args)
     end
     
-    def redirect_to(*args)
-      Raki::Helpers.controller.send(:redirect_to, *args)
-    end
-
   end
 end

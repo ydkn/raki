@@ -25,12 +25,12 @@ module PageHelper
   end
   
   def authorized?(type, name, action)
-    Raki.permission?(type, name, action, User.current)
+    Raki::Permission.to?(type, name, action, User.current)
   end
 
   def page_contents(type, name, revision=nil)
     if authorized?(type, name, :view) && page_exists?(type, name, revision)
-      Raki.provider(type).page_contents(type, name, revision)
+      Raki::Provider[type].page_contents(type, name, revision)
     else
       return nil
     end
@@ -42,9 +42,10 @@ module PageHelper
       context[:type] = type
       context[:page] = name
       begin
-        parsed = Raki.parser(type).parse(page_contents(type, name, revision), context)
+        parsed = Raki::Parser[type].parse(page_contents(type, name, revision), context)
         parsed.nil? ? "<div class=\"error\">#{t 'parser.parsing_error'}</div>" : parsed
-      rescue
+      rescue => e
+        Rails.logger.error e
         "<div class=\"error\">#{t 'parser.parsing_error'}</div>"
       end
     end
@@ -52,7 +53,7 @@ module PageHelper
 
   def page_exists?(type, name, revision=nil)
     if authorized?(type, name, :view)
-      Raki.provider(type).page_exists?(type, name, revision)
+      Raki::Provider[type].page_exists?(type, name, revision)
     else
       false
     end
@@ -60,7 +61,7 @@ module PageHelper
 
   def page_revisions(type, name)
     if authorized?(type, name, :view)
-      Raki.provider(type).page_revisions(type, name)
+      Raki::Provider[type].page_revisions(type, name)
     else
       nil
     end

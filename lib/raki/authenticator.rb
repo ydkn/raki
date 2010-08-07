@@ -14,22 +14,36 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module HTMLSyntax
-  
-  include ERB::Util
-  
-  def to_html context
-    output = ''
-    unless elements.nil?
-      elements.each do |e|
-        unless e.elements.nil?
-          output += e.to_html context
-        else
-          output += h e.text_value
-        end
+module Raki
+  class Authenticator
+    
+    @authenticators = {}
+    @authenticator = nil
+    
+    class << self
+      
+      def register(id, clazz)
+        @authenticators[id.to_sym] = clazz
+        @authenticator = clazz.new if Raki.config('authenticator') == id.to_s
       end
+
+      def all
+        @authenticators
+      end
+      
+      alias :self_respond_to? :respond_to?
+      
+      def respond_to?(method)
+        return true if self_respond_to?(method)
+        @authenticator.respond_to?(method)
+      end
+
+      def method_missing(method, *args, &block)
+        raise RakiError.new("No Authenticator") if @authenticator.nil?
+        @authenticator.send(method, *args, &block)
+      end
+      private :method_missing
+      
     end
-    output
   end
-  
 end

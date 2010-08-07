@@ -28,38 +28,45 @@ class GitProvider < Raki::AbstractProvider
     begin
       FileUtils.rm_rf("#{Rails.root}/tmp/git-repo")
       @repo = Git.clone(params['path'], "#{Rails.root}/tmp/git-repo")
+      if params.key?('branch')
+        @repo.checkout(params['branch'])
+        @branch = params['branch']
+      else
+        @repo.checkout('master')
+        @branch = 'master'
+      end
     rescue => e
-      raise ProviderError.new("Invalid GIT repository", e)
+      raise ProviderError.new("Invalid GIT repository: #{e.to_s}")
     end
   end
 
   def page_exists?(type, name, revision=nil)
-    logger.debug("Checking if page exists: #{{:type => type, :name => name, :revision => revision}}")
+    logger.debug("Checking if page exists: #{{:type => type, :name => name, :revision => revision}.inspect}")
     exists?("#{type.to_s}/#{name.to_s}", revision)
   end
 
   def page_contents(type, name, revision=nil)
-    logger.debug("Fetching contents of page: #{{:type => type, :name => name, :revision => revision}}")
+    logger.debug("Fetching contents of page: #{{:type => type, :name => name, :revision => revision}.inspect}")
     contents("#{type.to_s}/#{name.to_s}", revision)
   end
 
   def page_revisions(type, name)
-    logger.debug("Fetching revisions for page: #{{:type => type, :name => name}}")
+    logger.debug("Fetching revisions for page: #{{:type => type, :name => name}.inspect}")
     revisions("#{type.to_s}/#{name.to_s}")
   end
 
   def page_save(type, name, contents, message, user)
-    logger.debug("Saving page: #{{:type => type, :name => name, :contents => contents, :message => message, :user => user}}")
+    logger.debug("Saving page: #{{:type => type, :name => name, :contents => contents, :message => message, :user => user}.inspect}")
     save("#{type.to_s}/#{name.to_s}", contents, message, user)
   end
 
   def page_rename(old_type, old_name, new_type, new_name, user)
-    logger.debug("Renaming page: #{{:old_type => old_type, :old_page => old_name, :new_type => new_type, :new_page => new_name, :user => user}}")
+    logger.debug("Renaming page: #{{:old_type => old_type, :old_page => old_name, :new_type => new_type, :new_page => new_name, :user => user}.inspect}")
     rename("#{old_type.to_s}/#{old_name.to_s}", "#{new_type.to_s}/#{new_name.to_s}", "#{old_name.to_s} ==> #{new_name.to_s}", user)
   end
 
   def page_delete(type, name, user)
-    logger.debug("Deleting page: #{{:type => type, :page => name, :user => user}}")
+    logger.debug("Deleting page: #{{:type => type, :page => name, :user => user}.inspect}")
     delete("#{type.to_s}/#{name.to_s}", "#{name.to_s} ==> /dev/null", user)
   end
 
@@ -69,47 +76,47 @@ class GitProvider < Raki::AbstractProvider
   end
 
   def page_changes(type, amount=nil)
-    logger.debug("Fetching all page changes: #{{:type => type, :limit => amount}}")
+    logger.debug("Fetching all page changes: #{{:type => type, :limit => amount}.inspect}")
     changes(type.to_s, type.to_s, amount)
   end
   
   def page_diff(type, page, revision_from=nil, revision_to=nil)
-    logger.debug("Fetching diff: #{{:type => type, :page => page, :revision_from => revision_from, :revision_to => revision_to}}")
+    logger.debug("Fetching diff: #{{:type => type, :page => page, :revision_from => revision_from, :revision_to => revision_to}.inspect}")
     diff("#{type.to_s}/#{page.to_s}", revision_from, revision_to)
   end
 
   def attachment_exists?(type, page, name, revision=nil)
-    logger.debug("Checking if page attachment exists: #{{:type => type, :page => page, :name => name, :revision => revision}}")
+    logger.debug("Checking if page attachment exists: #{{:type => type, :page => page, :name => name, :revision => revision}.inspect}")
     exists?("#{type.to_s}/#{page.to_s}_att/#{name.to_s}", revision)
   end
 
   def attachment_contents(type, page, name, revision=nil)
-    logger.debug("Fetching contents of page attachment: #{{:type => type, :page => page, :name => name, :revision => revision}}")
+    logger.debug("Fetching contents of page attachment: #{{:type => type, :page => page, :name => name, :revision => revision}.inspect}")
     contents("#{type.to_s}/#{page.to_s}_att/#{name.to_s}", revision)
   end
 
   def attachment_revisions(type, page, name)
-    logger.debug("Fetching revisions for page attachment: #{{:type => type, :page => page, :name => name}}")
+    logger.debug("Fetching revisions for page attachment: #{{:type => type, :page => page, :name => name}.inspect}")
     revisions("#{type.to_s}/#{page.to_s}_att/#{name.to_s}")
   end
 
   def attachment_save(type, page, name, contents, message, user)
-    logger.debug("Saving page attachment: #{{:type => type, :page => page, :name => name, :contents => contents, :message => message, :user => user}}")
+    logger.debug("Saving page attachment: #{{:type => type, :page => page, :name => name, :contents => contents, :message => message, :user => user}.inspect}")
     save("#{type.to_s}/#{page.to_s}_att/#{name.to_s}", contents, message, user)
   end
 
   def attachment_delete(type, page, name, user)
-    logger.debug("Deleting page attachment: #{{:type => type, :page => page, :name => name, :user => user}}")
+    logger.debug("Deleting page attachment: #{{:type => type, :page => page, :name => name, :user => user}.inspect}")
     delete("#{type.to_s}/#{page.to_s}_att/#{name.to_s}", "#{page.to_s}/#{name.to_s} ==> /dev/null", user)
   end
 
   def attachment_all(type, page)
-    logger.debug("Fetching all page attachments: #{{:type => type, :page => page}}")
+    logger.debug("Fetching all page attachments: #{{:type => type, :page => page}.inspect}")
     all("#{type.to_s}/#{page.to_s}_att")
   end
 
   def attachment_changes(type, page=nil, amount=nil)
-    logger.debug("Fetching all page attachment changes: #{{:type => type, :page => page, :limit => amount}}")
+    logger.debug("Fetching all page attachment changes: #{{:type => type, :page => page, :limit => amount}.inspect}")
     if page.nil?
       changes = []
       page_all(type).each do |page|
@@ -178,7 +185,7 @@ class GitProvider < Raki::AbstractProvider
     end
     @repo.add(normalize(obj))
     @repo.commit(message, {:author => format_user(user)})
-    @repo.push(@repo.remote('origin'))
+    @repo.push(@repo.remote('origin'), @branch)
     flush_cache(:exists?)
     flush_cache(:contents, obj, nil)
     flush_cache(:contents, normalize(obj), nil)
@@ -200,7 +207,7 @@ class GitProvider < Raki::AbstractProvider
     @repo.remove(normalize(old_obj))
     @repo.add(normalize(new_obj))
     @repo.commit(message, {:author => format_user(user)})
-    @repo.push(@repo.remote('origin'))
+    @repo.push(@repo.remote('origin'), @branch)
     flush_cache(:exists?)
     flush_cache(:contents, old_obj, nil)
     flush_cache(:contents, normalize(old_obj), nil)
@@ -220,7 +227,7 @@ class GitProvider < Raki::AbstractProvider
     message = '-' if message.nil? || message.empty?
     @repo.remove(normalize(obj))
     @repo.commit(message, {:author => format_user(user)})
-    @repo.push(@repo.remote('origin'))
+    @repo.push(@repo.remote('origin'), @branch)
     flush_cache(:exists?)
     flush_cache(:contents, obj, nil)
     flush_cache(:contents, normalize(obj), nil)
@@ -238,9 +245,9 @@ class GitProvider < Raki::AbstractProvider
           commit.sha,
           commit.sha[0..7].upcase,
           commit.size,
-          Raki.authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
+          Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
           commit.date,
-          commit.message
+          (commit.message == '-' ? '' : commit.message)
         )
     end
     revs

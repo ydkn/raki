@@ -16,4 +16,4 @@
 
 require 'openid_authenticator'
 
-Raki.register_authenticator(:openid, OpenIDAuthenticator)
+Raki::Authenticator.register(:openid, OpenIDAuthenticator)

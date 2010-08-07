@@ -25,7 +25,7 @@ class PageController < ApplicationController
   def view
     return if render_forbidden_if_not_authorized :view
     if @provider.page_exists?(@type, @page, @revision)
-      current_revision = @provider.page_revisions(@type, @page).last
+      current_revision = @provider.page_revisions(@type, @page).first
       @page_info = {
         :date => current_revision.date,
         :user => current_revision.user,
@@ -48,10 +48,10 @@ class PageController < ApplicationController
   end
 
   def edit
-    unless (@provider.page_exists?(@type, @page) && Raki.permission?(@type, @page, :edit, User.current) ||
-        !@provider.page_exists?(@type, @page) && Raki.permission?(@type, @page, :create, User.current) ||
-        Raki.permission?(@type, @page, :rename, User.current) ||
-        Raki.permission?(@type, @page, :delete, User.current))
+    unless (@provider.page_exists?(@type, @page) && Raki::Permission.to?(@type, @page, :edit, User.current) ||
+        !@provider.page_exists?(@type, @page) && Raki::Permission.to?(@type, @page, :create, User.current) ||
+        Raki::Permission.to?(@type, @page, :rename, User.current) ||
+        Raki::Permission.to?(@type, @page, :delete, User.current))
       render 'common/forbidden'
       return
     end
@@ -68,8 +68,8 @@ class PageController < ApplicationController
   end
 
   def update
-    if (!@provider.page_exists?(@type, @page) && !Raki.permission?(@type, @page, :create, User.current) ||
-        @provider.page_exists?(@type, @page) && !Raki.permission?(@type, @page, :edit, User.current))
+    if (!@provider.page_exists?(@type, @page) && !Raki::Permission.to?(@type, @page, :create, User.current) ||
+        @provider.page_exists?(@type, @page) && !Raki::Permission.to?(@type, @page, :edit, User.current))
       render 'common/forbidden'
       return
     end
@@ -88,7 +88,7 @@ class PageController < ApplicationController
       new_type = @type
       new_page = parts[0]
     end
-    unless Raki.permission?(new_type, new_page, :create, User.current)
+    unless Raki::Permission.to?(new_type, new_page, :create, User.current)
       flash[:notice] = t 'page.edit.no_permission_to_create'
       redirect_to :controller => 'page', :action => 'edit', :type => @type, :id => @page
       return
@@ -116,7 +116,7 @@ class PageController < ApplicationController
     @provider.attachment_all(@type, @page).each do |attachment|
       @attachments << {
         :name => attachment,
-        :revision => @provider.attachment_revisions(@type, @page, attachment).last
+        :revision => @provider.attachment_revisions(@type, @page, attachment).first
       }
     end
     @attachments.sort { |a,b| a[:name] <=> b[:name] }
@@ -141,7 +141,7 @@ class PageController < ApplicationController
     return if redirect_if_attachment_not_exists
     # ugly fix for ruby1.9 and rails2.5
     revision = @revision
-    revision = @provider.attachment_revisions(@type, @page, @attachment).last.id if revision.nil?
+    revision = @provider.attachment_revisions(@type, @page, @attachment).first.id if revision.nil?
     unless File.exists? "#{Rails.root}/tmp/attachments/#{@type}/#{@page}/#{revision}/#{@attachment}"
       FileUtils.mkdir_p "#{Rails.root}/tmp/attachments/#{@type}/#{@page}/#{revision}"
       File.open "#{Rails.root}/tmp/attachments/#{@type}/#{@page}/#{revision}/#{@attachment}", 'w' do |f|
@@ -172,7 +172,7 @@ class PageController < ApplicationController
     @revision_from = params[:revision_from]
     @revision_to = params[:revision_to]
     @attachment = params[:attachment]
-    @provider = Raki.provider(@type)
+    @provider = Raki::Provider[@type]
     @title = @page
     
     @context[:type] = @type
@@ -182,7 +182,7 @@ class PageController < ApplicationController
   end
   
   def render_forbidden_if_not_authorized(action)
-    unless Raki.permission?(@type, @page, action, User.current)
+    unless Raki::Permission.to?(@type, @page, action, User.current)
       render 'common/forbidden'
       return true
     end
@@ -190,7 +190,7 @@ class PageController < ApplicationController
   end
 
   def redirect_if_not_authorized(action)
-    unless Raki.permission?(@type, @page, action, User.current)
+    unless Raki::Permission.to?(@type, @page, action, User.current)
       redirect_to :controller => 'page', :action => 'view', :type => @type, :id => @page
       return true
     end

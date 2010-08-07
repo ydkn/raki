@@ -14,22 +14,33 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module HTMLSyntax
-  
-  include ERB::Util
-  
-  def to_html context
-    output = ''
-    unless elements.nil?
-      elements.each do |e|
-        unless e.elements.nil?
-          output += e.to_html context
+module Raki
+  module Helpers
+    
+    module PermissionHelper
+      
+      class NotAuthorizedError < StandardError
+      end
+      
+      def authorized?(type, name, action, user=User.current)
+        if action.is_a?(Array)
+          action.each do |a|
+            return true if Raki::Permission.to?(type, name, a, user)
+          end
+          false
         else
-          output += h e.text_value
+          Raki::Permission.to?(type, name, action, user)
         end
       end
+
+      def authorized!(type, name, action, user=User.current)
+        unless authorized?(type, name, action, user)
+          raise NotAuthorizedError.new "#{user.id.to_s} has no permission to #{action.to_s} #{type.to_s}/#{name.to_s}"
+        end
+        true
+      end
+
     end
-    output
+    
   end
-  
 end

@@ -1,9 +1,9 @@
 atom_feed do |feed|
 
   feed.title h "#{Raki.app_name} :: #{@type}/#{@page}"
-  feed.updated @revisions.last.date
+  feed.updated @revisions.first.date
 
-  @revisions.reverse_each do |revision|
+  @revisions.each do |revision|
     feed.entry revision, :url => url_for(:controller => 'page', :action => 'view', :type => h(@type), :id => h(@page), :revision => h(revision.id)) do |entry|
       entry.title h revision.message
       entry.updated revision.date.xmlschema

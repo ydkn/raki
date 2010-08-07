@@ -15,10 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-Raki.register_parser(:raki, RakiParser)
+Raki::Parser.register(:raki, RakiParser)
 
 # extending Treetop to html-encode text
 Treetop::Runtime::SyntaxNode.send(:include, HTMLSyntax)
-
-# make Raki-helpes available in Treetop
-Treetop::Runtime::SyntaxNode.send(:include, Raki::Helpers)

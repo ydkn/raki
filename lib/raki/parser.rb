@@ -14,21 +14,40 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Raki settings
+module Raki
+  class Parser
+    
+    @parsers = {}
+    @initialized = {}
+    
+    class << self
+      
+      def register(id, clazz)
+        @parsers[id.to_sym] = clazz
+        Raki.config('parsers').each do |type, settings|
+          if settings['parser'] == id.to_s
+            @initialized[type.to_sym] = clazz.new(settings)
+          end
+        end
+      end
 
-app_name: Raki
+      def [](type)
+        type = type.to_sym
+        unless @initialized.key?(type)
+          return @initialized[:default] if @initialized.key?(:default)
+          raise RakiError.new("No Parser")
+        end
+        @initialized[type]
+      end
 
-frontpage: Main
-userpage_type: user
+      def all
+        @parsers
+      end
 
-providers:
-  default:
-    provider: git
-    path: /path/to/git/repo
-    branch: master
-
-parsers:
-  default:
-    parser: raki
-
-authenticator: openid
+      def used
+        @initialized
+      end
+      
+    end
+  end
+end

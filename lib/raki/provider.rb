@@ -14,22 +14,40 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module HTMLSyntax
-  
-  include ERB::Util
-  
-  def to_html context
-    output = ''
-    unless elements.nil?
-      elements.each do |e|
-        unless e.elements.nil?
-          output += e.to_html context
-        else
-          output += h e.text_value
+module Raki
+  class Provider
+    
+    @providers = {}
+    @initialized = {}
+    
+    class << self
+      
+      def register(id, clazz)
+        @providers[id.to_sym] = clazz
+        Raki.config('providers').each do |type, settings|
+          if settings['provider'] == id.to_s
+            @initialized[type.to_sym] = clazz.new(settings)
+          end
         end
       end
+
+      def [](type)
+        type = type.to_sym
+        unless @initialized.key?(type)
+          return @initialized[:default] if @initialized.key?(:default)
+          raise RakiError.new("No Provider")
+        end
+        @initialized[type]
+      end
+
+      def all
+        @providers
+      end
+
+      def used
+        @initialized
+      end
+      
     end
-    output
   end
-  
 end

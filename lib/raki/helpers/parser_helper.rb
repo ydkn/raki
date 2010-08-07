@@ -14,21 +14,38 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Raki settings
+module Raki
+  module Helpers
+    
+    module ParserHelper
+      
+      include ProviderHelper
+      
+      def parser(type)
+        Raki::Parser[type]
+      end
 
-app_name: Raki
+      def parse(type, content, context=context)
+        parser(type).parse(content, context)
+      end
 
-frontpage: Main
-userpage_type: user
+      def parsed_page(type, page, revision=nil, context=context)
+        parse(
+          type,
+          page_contents(type, page, revision),
+          context
+        )
+      end
 
-providers:
-  default:
-    provider: git
-    path: /path/to/git/repo
-    branch: master
+      def parsed_page!(type, page, revision=nil, context=context, user=User.current)
+        parse(
+          type,
+          page_contents!(type, page, revision, user),
+          context
+        )
+      end
 
-parsers:
-  default:
-    parser: raki
-
-authenticator: openid
+    end
+    
+  end
+end

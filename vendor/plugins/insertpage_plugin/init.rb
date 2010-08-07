@@ -36,7 +36,7 @@ Raki::Plugin.register :insertpage do
     raise Raki::Plugin::PluginError.new(t 'insertpage.no_page') if page.nil? || page.empty?
     
     if authorized? type, page, :view
-      raise Raki::Plugin::PluginError.new(t 'page.not_exists.msg') unless Raki.provider(type).page_exists? type, page
+      raise Raki::Plugin::PluginError.new(t 'page.not_exists.msg') unless page_exists? type, page
 
       context[:insertpage] = [] if context[:insertpage].nil?
       raise Raki::Plugin::PluginError.new(t 'insertpage.already_included', :name => params[:name]) if context[:insertpage].include? key
