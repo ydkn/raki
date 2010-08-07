@@ -178,13 +178,13 @@ class GitProvider < Raki::AbstractProvider
     @repo.add(normalize(obj))
     @repo.commit(message, {:author => format_user(user)})
     @repo.push(@repo.remote('origin'))
-    flush_cache(:exists?)
-    flush_cache(:contents, obj, nil)
-    flush_cache(:contents, normalize(obj), nil)
-    flush_cache(:revisions, obj)
-    flush_cache(:revisions, normalize(obj))
-    flush_cache(:changes)
-    flush_cache(:types)
+    flush(:exists?)
+    flush(:contents, obj, nil)
+    flush(:contents, normalize(obj), nil)
+    flush(:revisions, obj)
+    flush(:revisions, normalize(obj))
+    flush(:changes)
+    flush(:types)
   end
 
   def rename(old_obj, new_obj, message, user)
@@ -200,17 +200,17 @@ class GitProvider < Raki::AbstractProvider
     @repo.add(normalize(new_obj))
     @repo.commit(message, {:author => format_user(user)})
     @repo.push(@repo.remote('origin'))
-    flush_cache(:exists?)
-    flush_cache(:contents, old_obj, nil)
-    flush_cache(:contents, normalize(old_obj), nil)
-    flush_cache(:contents, new_obj, nil)
-    flush_cache(:contents, normalize(new_obj), nil)
-    flush_cache(:revisions, old_obj)
-    flush_cache(:revisions, normalize(old_obj))
-    flush_cache(:revisions, new_obj)
-    flush_cache(:revisions, normalize(new_obj))
-    flush_cache(:changes)
-    flush_cache(:types)
+    flush(:exists?)
+    flush(:contents, old_obj, nil)
+    flush(:contents, normalize(old_obj), nil)
+    flush(:contents, new_obj, nil)
+    flush(:contents, normalize(new_obj), nil)
+    flush(:revisions, old_obj)
+    flush(:revisions, normalize(old_obj))
+    flush(:revisions, new_obj)
+    flush(:revisions, normalize(new_obj))
+    flush(:changes)
+    flush(:types)
   end
 
   def delete(obj, message, user)
@@ -220,13 +220,13 @@ class GitProvider < Raki::AbstractProvider
     @repo.remove(normalize(obj))
     @repo.commit(message, {:author => format_user(user)})
     @repo.push(@repo.remote('origin'))
-    flush_cache(:exists?)
-    flush_cache(:contents, obj, nil)
-    flush_cache(:contents, normalize(obj), nil)
-    flush_cache(:revisions, obj)
-    flush_cache(:revisions, normalize(obj))
-    flush_cache(:changes)
-    flush_cache(:types)
+    flush(:exists?)
+    flush(:contents, obj, nil)
+    flush(:contents, normalize(obj), nil)
+    flush(:revisions, obj)
+    flush(:revisions, normalize(obj))
+    flush(:changes)
+    flush(:types)
   end
 
   def revisions(obj)
@@ -318,7 +318,7 @@ class GitProvider < Raki::AbstractProvider
     end
     new_str
   end
-  cache :normalize
+  cache :normalize, :ttl => 86400
   
   def format_user(user)
     if user.email.nil?

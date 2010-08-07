@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,65 +16,147 @@
 
 module Cacheable
   
-  def self.included(base)
-    base.extend(Cacheable)
-  end
+  @cache = Hash.new{|h,k| h[k] = Hash.new{|h,k| h[k] = Hash.new{|h,k| h[k] = {}}}}
+  @queue = Queue.new
   
-  def cache(name, options={})
-    ttl = options.key?(:ttl) ? options[:ttl].to_i : 600
-    uncached = "__uncached_#{name}"
-    class_eval %Q{
-      alias :#{uncached} :#{name}
-      private :#{uncached}
-      def #{name}(*args)
-        unless defined?(@class_cache)
-          @class_cache = Hash.new{|h,k| h[k] = Hash.new{|h,k| h[k] = {}}}
-          @class_cache_queue = Queue.new
-          Thread.new do
-            while true do
-              op = @class_cache_queue.pop
-              @class_cache[op[:method]][args] = {
-                :cached => send(op[:method], *op[:args]),
-                :time => Time.new,
-                :enqueued => false
-              }
-            end
-          end
-          Thread.new do
-            while true do
-              @class_cache.each do |method, params|
-                params.delete_if do |args, cache|
-                  cache[:time] < (Time.new - #{ttl}*10)
-                end
-              end
-              sleep 10
-            end
-          end
-        end
-        cache = @class_cache[#{name.inspect}]
-        unless cache.key?(args)
-          cache[args] = {:cached => send(:#{uncached}, *args), :time => Time.new}
-        else
-          if !cache[args][:enqueued] && cache[args][:time] < (Time.new - #{ttl})
-            @class_cache_queue << {:method => #{uncached.inspect}, :args => args}
-            cache[args][:enqueued] = true
-            Rails.logger.debug "Enqueued refresh: \#{cache[args].inspect}"
-          end
-        end
-        cache[args][:cached]
+  Thread.new do
+    while true do
+      op = nil
+      begin
+        op = @queue.pop
+        $stdout.flush
+        @cache[op[:object]][op[:method]][op[:args]] = {
+          :data => op[:object].send("__uncached_#{op[:method].to_s}", *op[:args]),
+          :time => Time.new,
+          :enqueued => false
+        }
+        op = nil
+      rescue => e
+        @queue << op unless op.nil?
       end
-    }
+    end
   end
   
-  def flush_cache(name=nil, *args)
+  Thread.new do
+    while true do
+      begin
+        @cache.each do |clazz, methods|
+          methods.each do |method, method_args|
+            method_args.delete_if do |args, params|
+              params[:time] < (Time.new - params[:ttl]*10)
+            end
+          end
+          methods.delete_if do |method, method_args|
+            method_args.length == 0
+          end
+        end
+        @cache.delete_if do |clazz, methods|
+          methods.length == 0
+        end
+      rescue => e
+      end
+      sleep 60
+    end
+  end
+  
+  def self.included(base)
+    base.extend(ClassMethods)
+  end
+  
+  module ClassMethods
+    
+    def cache(name, options={})
+      name = name.to_s
+      name_uncached = "__uncached_#{name.to_s}"
+      
+      ttl = options.key?(:ttl) ? options[:ttl].to_i : 10
+      force = options.key?(:force) ? options[:ttl] : false
+      
+      class_eval("alias :#{name_uncached} :#{name}")
+      class_eval("private :#{name_uncached}")
+      
+      class_eval do
+        define_method name do |*args|
+          cache = Cacheable.cache[self][name.to_sym]
+          unless cache.key?(args)
+            cache[args] = {:data => send(name_uncached.to_sym, *args), :time => Time.new, :ttl => ttl}
+          else
+            if cache[args][:time] < (Time.new - ttl)
+              if force
+                cache[args] = {:data => send(name_uncached.to_sym, *args), :time => Time.new, :ttl => ttl}
+              elsif !cache[args][:enqueued]
+                Cacheable.queue << {:object => self, :method => name.to_sym, :args => args}
+                cache[args][:enqueued] = true
+              end
+            end
+          end
+          cache[args][:data]
+        end
+      end
+      
+      nil
+    end
+    
+  end
+  
+  def self.cache
+    @cache
+  end
+  
+  def self.queue
+    @queue
+  end
+  
+  def self.expire
+    time = Time.parse('1900-01-01')
+    @cache.values.each do |clazz|
+      clazz.values.each do |cached|
+        cached.values.each do |params|
+          params[:time] = time
+        end
+      end
+    end
+  end
+  
+  def self.flush
+    @cache.values.each do |clazz|
+      clazz.values.each do |cached|
+        cached.clear
+      end
+      clazz.clear
+    end
+  end
+  
+  def expire(name=nil, *args)
+    name = name.to_sym
+    cache = Cacheable.cache[self]
+    time = Time.parse('1900-01-01')
     if name.nil?
-      @class_cache.each do |key, value|
-        value.clear
+      cache.values.each do |method_args|
+        method_args.values.each do |params|
+          params[:time] = time
+        end
       end
     elsif args.empty?
-      @class_cache[name].clear
+      cache[name].values do |params|
+        params[:time] = time
+      end
     else
-      @class_cache[name].delete(args)
+      cache[name][args][:time] = time
+    end
+  end
+  
+  def flush(name=nil, *args)
+    name = name.to_sym
+    cache = Cacheable.cache[self]
+    if name.nil?
+      cache.each do |method, params|
+        params.clear
+      end
+    elsif args.empty?
+      cache[name].clear
+    else
+      cache[name].delete(args)
     end
   end
   
