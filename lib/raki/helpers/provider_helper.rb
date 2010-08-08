@@ -147,7 +147,11 @@ module Raki
       end
 
       def attachment_save!(type, page, name, contents, message, user=User.current)
-        authorized!(type, page, :edit, user)
+        if attachment_exists?(type, page, name)
+          authorized!(type, page, :edit, user)
+        else
+          authorized!(type, page, :create, user)
+        end
         attachment_save(type, page, name, contents, message, user)
       end
 
@@ -156,7 +160,7 @@ module Raki
       end
 
       def attachment_delete!(type, page, name, user=User.current)
-        authorized!(type, page, :edit, user)
+        authorized!(type, page, :delete, user)
         attachment_delete(type, page, name, user)
       end
 
