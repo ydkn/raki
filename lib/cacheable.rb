@@ -79,11 +79,11 @@ module Cacheable
         define_method name do |*args|
           cache = Cacheable.cache[self][name.to_sym]
           unless cache.key?(args)
-            cache[args] = {:data => send(name_uncached.to_sym, *args), :time => Time.new, :ttl => ttl}
+            cache[args] = {:data => send(name_uncached.to_sym, *args), :time => Time.new, :ttl => ttl, :force => force}
           else
             if cache[args][:time] < (Time.new - ttl)
               if force
-                cache[args] = {:data => send(name_uncached.to_sym, *args), :time => Time.new, :ttl => ttl}
+                cache[args] = {:data => send(name_uncached.to_sym, *args), :time => Time.new, :ttl => ttl, :force => force}
               elsif !cache[args][:enqueued]
                 Cacheable.queue << {:object => self, :method => name.to_sym, :args => args}
                 cache[args][:enqueued] = true
@@ -162,7 +162,9 @@ module Cacheable
   
   def cached?(name, *args)
     cache = Cacheable.cache[self][name.to_sym]
-    cache.key?(args)
+    return false unless cache.key?(args)
+    params = cache[args]
+    !(params[:force] && (params[:time] < (Time.new - params[:ttl])))
   end
   
 end

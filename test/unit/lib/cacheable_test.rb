@@ -20,33 +20,45 @@ class UserTest < Test::Unit::TestCase
   
   class TestCache
     include Cacheable
-    def cached_method
+    def m1
       @test.nil? ? @test = 0 : @test += 1
       @test
     end
-    cache :cached_method, :ttl => 3
-    def cached_method2
+    cache :m1, :ttl => 3
+    def m2
     end
-    cache :cached_method2, :ttl => 3
+    cache :m2, :ttl => 3
+    def m3
+    end
+    cache :m3, :ttl => 2, :force => true
   end
   
   def test_refresh
     cached = TestCache.new
     5.times do |i|
-      assert_equal i, cached.cached_method
+      assert_equal i, cached.m1
       sleep 1
-      assert_equal i, cached.cached_method
+      assert_equal i, cached.m1
       sleep 2
-      assert_equal i, cached.cached_method
+      assert_equal i, cached.m1
       sleep 1
     end
   end
   
   def test_cached
     cached = TestCache.new
-    cached.cached_method
-    assert cached.cached?(:cached_method)
-    assert !cached.cached?(:cached_method2)
+    assert !cached.cached?(:m1)
+    cached.m1
+    assert cached.cached?(:m1)
+    sleep 4
+    assert cached.cached?(:m1)
+    assert !cached.cached?(:m2)
+    assert !cached.cached?(:m3)
+    cached.m3
+    sleep 1
+    assert cached.cached?(:m3)
+    sleep 2
+    assert !cached.cached?(:m3)
   end
   
 end
