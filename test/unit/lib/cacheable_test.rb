@@ -25,6 +25,9 @@ class UserTest < Test::Unit::TestCase
       @test
     end
     cache :cached_method, :ttl => 3
+    def cached_method2
+    end
+    cache :cached_method2, :ttl => 3
   end
   
   def test_refresh
@@ -37,6 +40,13 @@ class UserTest < Test::Unit::TestCase
       assert_equal i, cached.cached_method
       sleep 1
     end
+  end
+  
+  def test_cached
+    cached = TestCache.new
+    cached.cached_method
+    assert cached.cached?(:cached_method)
+    assert !cached.cached?(:cached_method2)
   end
   
 end

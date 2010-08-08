@@ -160,4 +160,9 @@ module Cacheable
     end
   end
   
+  def cached?(name, *args)
+    cache = Cacheable.cache[self][name.to_sym]
+    cache.key?(args)
+  end
+  
 end
