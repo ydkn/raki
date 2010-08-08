@@ -240,15 +240,18 @@ class GitProvider < Raki::AbstractProvider
   def revisions(obj)
     check_obj(obj)
     revs = []
-    @repo.gblob(normalize(obj)).log.each do |commit|
-      revs << Revision.new(
-          commit.sha,
-          commit.sha[0..7].upcase,
-          commit.size,
-          Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
-          commit.date,
-          (commit.message == '-' ? '' : commit.message)
-        )
+    begin
+      @repo.gblob(normalize(obj)).log.each do |commit|
+        revs << Revision.new(
+            commit.sha,
+            commit.sha[0..7].upcase,
+            commit.size,
+            Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
+            commit.date,
+            (commit.message == '-' ? '' : commit.message)
+          )
+      end
+    rescue => e
     end
     revs
   end

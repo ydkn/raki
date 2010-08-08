@@ -109,10 +109,17 @@ class PageController < ApplicationController
   end
 
   def delete
-    return if render_forbidden_if_not_authorized :delete
-    return if redirect_if_page_not_exists
-    page_delete @type, @page
-    redirect_to :controller => 'page', :action => 'info', :id => Raki.frontpage
+    if @attachment.nil?
+      return if render_forbidden_if_not_authorized :delete
+      return if redirect_if_page_not_exists
+      page_delete @type, @page
+      redirect_to :controller => 'page', :action => 'info', :id => Raki.frontpage
+    else
+      return if render_forbidden_if_not_authorized :delete
+      return if redirect_if_attachment_not_exists
+      attachment_delete @type, @page, @attachment
+      redirect_to :controller => 'page', :action => 'attachments', :type => @type, :id => @page
+    end
   end
 
   def attachments

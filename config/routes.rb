@@ -38,6 +38,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect ':type/:id/delete', :controller => 'page', :action => 'delete'
   map.connect ':type/:id/attachment/:attachment', :controller => 'page', :action => 'attachment', :requirements => { :attachment => /[^\/]+/ }
   map.connect ':type/:id/attachment/:attachment/info', :controller => 'page', :action => 'attachment_info', :requirements => { :attachment => /[^\/]+/ }
+  map.connect ':type/:id/attachment/:attachment/delete', :controller => 'page', :action => 'delete', :requirements => { :attachment => /[^\/]+/ }
   map.connect ':type/:id/attachment/:attachment/:revision', :controller => 'page', :action => 'attachment', :requirements => { :attachment => /[^\/]+/ }
   map.connect ':type/:id/attachments', :controller => 'page', :action => 'attachments'
   map.connect ':type/:id/attachment_upload', :controller => 'page', :action => 'attachment_upload'
