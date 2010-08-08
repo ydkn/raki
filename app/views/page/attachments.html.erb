@@ -15,7 +15,7 @@
     <% @attachments.each do |attachment| %>
       <tr class="<%=((cnt+=1)%2==0) ? 'even' : 'odd' %>">
         <td><%=link_to h(attachment[:name]), :controller => 'page', :action => 'attachment', :type => h(@type), :id => h(@page), :attachment => h(attachment[:name]) %></td>
-        <td><%=h format_size(attachment[:revision].size) %></td>
+        <td><%=h format_filesize(attachment[:revision].size) %></td>
         <td class="version"><%=link_to attachment[:revision].version, :controller => 'page', :action => 'attachment_info', :type => h(@type), :id => h(@page), :attachment => h(attachment[:name]) %></td>
         <td><%=l attachment[:revision].date, :format => :full %></td>
         <td><%=link_to h(attachment[:revision].user.username), :controller => 'page', :action => 'view', :type => Raki.userpage_type, :id => h(attachment[:revision].user.username) %></td>

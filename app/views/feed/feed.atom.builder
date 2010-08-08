@@ -18,7 +18,7 @@ atom_feed do |feed|
           <h1>#{h change.type}/#{h change.page}</h1>
           <h2>#{h change.revision.version}: #{h change.revision.message}</h2>
           <div><b>Author: </b>#{h change.revision.user.display_name}</div>
-          <div><b>Size: </b>#{h format_size(change.revision.size)}</div>
+          <div><b>Size: </b>#{h format_filesize(change.revision.size)}</div>
           <br />
           <div>#{diff.join('<br/>')}</div>
           <br />
@@ -37,7 +37,7 @@ atom_feed do |feed|
           <h1>#{h change.type}/#{h change.page}/#{h change.attachment}</h1>
           <h2>#{h change.revision.version}: #{h change.revision.message}</h2>
           <div><b>Author: </b>#{h change.revision.user.display_name}</div>
-          <div><b>Size: </b>#{h format_size(change.revision.size)}</div>
+          <div><b>Size: </b>#{h format_filesize(change.revision.size)}</div>
         }, :type => 'html'
         entry.author do |author|
           author.name h change.revision.user.display_name

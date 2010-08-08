@@ -14,16 +14,33 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module ApplicationHelper
-  
-  include Raki::Helpers::FormatHelper
+module Raki
+  module Helpers
+    
+    module FormatHelper
+      
+      FORMAT_KILOBYTE_SIZE = 1024.0
+      FORMAT_MEGABYTE_SIZE = 1048576.0
+      FORMAT_GIGABYTE_SIZE = 1073741824.0
 
-  def plugin_stylesheets
-    stylesheets = []
-    Raki::Plugin.stylesheets.each do |stylesheet|
-      stylesheets << stylesheet_link_tag(stylesheet[:url], stylesheet[:options])
+      def format_filesize(size)
+        size = size.to_i
+        case
+          when size == 1
+            out = "1 Byte"
+          when size < FORMAT_KILOBYTE_SIZE
+            out = "#{size} Bytes"
+          when size < FORMAT_MEGABYTE_SIZE
+            out = "%.2f KB" % (size.to_f/FORMAT_KILOBYTE_SIZE)
+          when size < FORMAT_GIGABYTE_SIZE
+            out = "%.2f MB" % (size.to_f/FORMAT_MEGABYTE_SIZE)
+          else
+            out = "%.2f GB" % (size.to_f/FORMAT_GIGABYTE_SIZE)
+        end
+        out
+      end
+      
     end
-    stylesheets.join ""
+    
   end
-
 end

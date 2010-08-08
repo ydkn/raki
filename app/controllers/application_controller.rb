@@ -20,7 +20,6 @@ class ApplicationController < ActionController::Base
   # Scrub sensitive parameters from your log
   filter_parameter_logging :password
 
-  helper PageHelper
   helper AuthenticationHelper
 
   before_filter :init_url_helper, :try_to_authenticate_user, :set_locale, :init_context
@@ -66,7 +65,6 @@ class ApplicationController < ActionController::Base
         end
       end
     rescue => e
-      # ignore
     end
   end
 

@@ -24,9 +24,17 @@ module Raki
       def parser(type)
         Raki::Parser[type]
       end
+      
+      def parser_by_name(name)
+        Raki::Parser.all[name]
+      end
 
       def parse(type, content, context=context)
         parser(type).parse(content, context)
+      end
+      
+      def parse_with(parser, content, context=context)
+        parser_by_name(parser).parse(content, context)
       end
 
       def parsed_page(type, page, revision=nil, context=context)

@@ -20,7 +20,7 @@
 		  <td class="diff"><%=radio_button_tag 'revision_from', revision.id, (cnt==1) %></td>
 		  <td class="diff"><%=radio_button_tag 'revision_to', revision.id, (cnt==2) %></td>
           <td><%=l revision.date, :format => :full %></td>
-          <td><%=h format_size(revision.size) %></td>
+          <td><%=h format_filesize(revision.size) %></td>
           <td><%=link_to h(revision.user.username), :controller => 'page', :action => 'view', :type => Raki.userpage_type, :id => h(revision.user.username) %></td>
           <td><%=h revision.message %></td>
         </tr>

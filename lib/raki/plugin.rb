@@ -124,6 +124,7 @@ module Raki
     include Raki::Helpers::ParserHelper
     include Raki::Helpers::URLHelper
     include Raki::Helpers::I18nHelper
+    include Raki::Helpers::FormatHelper
     include ERB::Util
 
     def_field :name, :description, :url, :author, :version

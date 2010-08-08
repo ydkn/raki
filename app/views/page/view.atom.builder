@@ -14,7 +14,7 @@ atom_feed do |feed|
       entry.content %Q{
         <h1>#{h revision.version}: #{h revision.message}</h1>
         <div><b>Author: </b>#{h revision.user.display_name}</div>
-        <div><b>Size: </b>#{h format_size(revision.size)}</div>
+        <div><b>Size: </b>#{h format_filesize(revision.size)}</div>
         <br />
         <div>#{diff.join('<br/>')}</div>
         <br />
