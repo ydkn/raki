@@ -40,19 +40,29 @@ module Raki
       requested_config
     end
     
-    def frontpage
-      return config(:frontpage) unless config(:frontpage).nil?
-      'Main'
-    end
-    
     def app_name
       return config(:app_name) unless config(:frontpage).nil?
       'Raki'
     end
     
+    def frontpage
+      return {:type => 'page', :page => 'Main'} if config(:frontpage).nil?
+      parts = config(:frontpage).split('/', 2)
+      if parts.length == 2
+        {:type => parts[0], :page => parts[1]}
+      else
+        {:type => 'page', :page => parts[0]}
+      end
+    end
+    
     def userpage_type
       return config(:userpage_type) unless config(:userpage_type).nil?
       'user'
+    end
+    
+    def index_page
+      return config(:index_page) unless config(:index_page).nil?
+      'Main'
     end
     
     def version

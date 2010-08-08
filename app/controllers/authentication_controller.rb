@@ -19,7 +19,7 @@ class AuthenticationController < ApplicationController
   include AuthenticationHelper
 
   def login
-    redirect_to :controller => 'page', :action => 'view', :type => 'page', :id => Raki.frontpage if authenticated?
+    redirect_to :controller => 'page', :action => 'view', :type => Raki.frontpage[:type], :id => Raki.frontpage[:page] if authenticated?
     begin
       Raki::Authenticator.login_hook params, session, cookies
     rescue
@@ -80,7 +80,7 @@ class AuthenticationController < ApplicationController
   private
   
   def redirect(default=nil)
-    redirect_to :controller => 'page', :action => 'view', :type => 'page', :id => Raki.frontpage
+    redirect_to :controller => 'page', :action => 'view', :type => Raki.frontpage[:type], :id => Raki.frontpage[:page]
   end
 
 end

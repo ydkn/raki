@@ -18,14 +18,19 @@ class PageController < ApplicationController
   
   include Raki::Helpers::PermissionHelper
   include Raki::Helpers::ProviderHelper
+  include ERB::Util
   
   helper PageHelper
   helper ParseHelper
   
-  before_filter :common_init, :except => :redirect_to_frontpage
+  before_filter :common_init, :except => [:redirect_to_frontpage, :redirect_to_indexpage]
 
   def redirect_to_frontpage
-    redirect_to :controller => 'page', :action => 'view', :type => :page, :id => Raki.frontpage
+    redirect_to :controller => 'page', :action => 'view', :type => h(Raki.frontpage[:type]), :id => h(Raki.frontpage[:page])
+  end
+  
+  def redirect_to_indexpage
+    redirect_to :controller => 'page', :action => 'view', :type => h(params[:type]), :id => h(Raki.index_page)
   end
 
   def view
@@ -80,7 +85,7 @@ class PageController < ApplicationController
       return
     end
     page_save @type, @page, params[:content], params[:message]
-    redirect_to :controller => 'page', :action => 'view', :id => @page
+    redirect_to :controller => 'page', :action => 'view', :type => h(@type), :id => h(@page)
   end
 
   def rename
@@ -96,15 +101,15 @@ class PageController < ApplicationController
     end
     unless authorized? new_type, new_page, :create
       flash[:notice] = t 'page.edit.no_permission_to_create'
-      redirect_to :controller => 'page', :action => 'edit', :type => @type, :id => @page
+      redirect_to :controller => 'page', :action => 'edit', :type => h(@type), :id => h(@page)
       return
     end
     unless page_exists? new_type, new_page
       page_rename @type, @page, new_type, new_page
-      redirect_to :controller => 'page', :action => 'view', :type => new_type, :id => new_page
+      redirect_to :controller => 'page', :action => 'view', :type => h(new_type), :id => h(new_page)
     else
       flash[:notice] = t 'page.edit.page_already_exists'
-      redirect_to :controller => 'page', :action => 'edit', :type => @type, :id => @page
+      redirect_to :controller => 'page', :action => 'edit', :type => h(@type), :id => h(@page)
     end
   end
 
@@ -113,12 +118,12 @@ class PageController < ApplicationController
       return if render_forbidden_if_not_authorized :delete
       return if redirect_if_page_not_exists
       page_delete @type, @page
-      redirect_to :controller => 'page', :action => 'info', :id => Raki.frontpage
+      redirect_to :controller => 'page', :action => 'info', :type => h(Raki.frontpage[:type]), :id => h(Raki.frontpage[:page])
     else
       return if render_forbidden_if_not_authorized :delete
       return if redirect_if_attachment_not_exists
       attachment_delete @type, @page, @attachment
-      redirect_to :controller => 'page', :action => 'attachments', :type => @type, :id => @page
+      redirect_to :controller => 'page', :action => 'attachments', :type => h(@type), :id => h(@page)
     end
   end
 
@@ -145,7 +150,7 @@ class PageController < ApplicationController
       params[:attachment_upload].read,
       params[:message]
     )
-    redirect_to :controller => 'page', :action => 'attachments', :type => @type, :id => @page
+    redirect_to :controller => 'page', :action => 'attachments', :type => h(@type), :id => h(@page)
   end
 
   def attachment
@@ -202,7 +207,7 @@ class PageController < ApplicationController
 
   def redirect_if_not_authorized action
     unless authorized? @type, @page, action
-      redirect_to :controller => 'page', :action => 'view', :type => @type, :id => @page
+      redirect_to :controller => 'page', :action => 'view', :type => h(@type), :id => h(@page)
       return true
     end
     false
@@ -210,7 +215,7 @@ class PageController < ApplicationController
 
   def redirect_if_page_not_exists
     unless page_exists? @type, @page, @revision
-      redirect_to :controller => 'page', :action => 'view', :type => @type, :id => @page
+      redirect_to :controller => 'page', :action => 'view', :type => h(@type), :id => h(@page)
       return true
     end
     false
@@ -218,7 +223,7 @@ class PageController < ApplicationController
 
   def redirect_if_attachment_not_exists
     unless attachment_exists? @type, @page, @attachment
-      redirect_to :controller => 'page', :action => 'attachments', :type => @type, :id => @page
+      redirect_to :controller => 'page', :action => 'attachments', :type => h(@type), :id => h(@page)
       return true
     end
     false
