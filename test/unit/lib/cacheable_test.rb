@@ -20,45 +20,67 @@ class UserTest < Test::Unit::TestCase
   
   class TestCache
     include Cacheable
+    def initialize
+      @m1 = @m2 = -1
+      @m3 = Hash.new{|h,k| h[k] = -1}
+    end
     def m1
-      @test.nil? ? @test = 0 : @test += 1
-      @test
+      @m1 += 1
+      @m1
     end
     cache :m1, :ttl => 3
     def m2
+      @m2 += 1
+      @m2
     end
-    cache :m2, :ttl => 3
-    def m3
+    cache :m2, :ttl => 3, :force => true
+    def m3(p1)
+      @m3[p1] += 1
+      @m3[p1]
     end
-    cache :m3, :ttl => 2, :force => true
+    cache :m3, :ttl => 3
   end
   
+  # Test if method is cached
   def test_refresh
     cached = TestCache.new
     5.times do |i|
       assert_equal i, cached.m1
+      assert_equal i, cached.m2
+      assert_equal i, cached.m3(1)
+      assert_equal i, cached.m3(2)
       sleep 1
       assert_equal i, cached.m1
+      assert_equal i, cached.m2
+      assert_equal i, cached.m3(1)
+      assert_equal i, cached.m3(2)
       sleep 2
       assert_equal i, cached.m1
+      assert_equal (i+1), cached.m2
+      assert_equal i, cached.m3(1)
+      assert_equal i, cached.m3(2)
       sleep 1
     end
   end
   
+  # Test if cached? returns correct state
   def test_cached
     cached = TestCache.new
+    
+    # force = false
     assert !cached.cached?(:m1)
     cached.m1
     assert cached.cached?(:m1)
     sleep 4
     assert cached.cached?(:m1)
+    
+    # force = true
     assert !cached.cached?(:m2)
-    assert !cached.cached?(:m3)
-    cached.m3
+    cached.m2
     sleep 1
-    assert cached.cached?(:m3)
-    sleep 2
-    assert !cached.cached?(:m3)
+    assert cached.cached?(:m2)
+    sleep 3
+    assert !cached.cached?(:m2)
   end
   
 end

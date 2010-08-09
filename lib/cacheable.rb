@@ -25,11 +25,10 @@ module Cacheable
       begin
         op = @queue.pop
         $stdout.flush
-        @cache[op[:object]][op[:method]][op[:args]] = {
-          :data => op[:object].send("__uncached_#{op[:method].to_s}", *op[:args]),
-          :time => Time.new,
-          :enqueued => false
-        }
+        cache = @cache[op[:object]][op[:method]][op[:args]]
+        cache[:data] = op[:object].send("__uncached_#{op[:method].to_s}", *op[:args])
+        cache[:time] = Time.new
+        cache[:enqueued] = false
         op = nil
       rescue => e
         @queue << op unless op.nil?
@@ -137,7 +136,7 @@ module Cacheable
           params[:time] = time
         end
       end
-    elsif args.empty?
+    elsif args.nil? || args.empty?
       cache[name].values do |params|
         params[:time] = time
       end
@@ -153,7 +152,7 @@ module Cacheable
       cache.each do |method, params|
         params.clear
       end
-    elsif args.empty?
+    elsif args.nil? || args.empty?
       cache[name].clear
     else
       cache[name].delete(args)
