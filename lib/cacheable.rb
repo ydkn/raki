@@ -160,7 +160,7 @@ module Cacheable
     end
   end
   
-  # Removes value(s) from the cache
+  # Removes value(s) from the cache.
   def flush(name=nil, *args)
     name = name.to_sym
     cache = Cacheable.cache[self]
@@ -175,7 +175,7 @@ module Cacheable
     end
   end
   
-  # Check if value is cached
+  # Check if value is cached.
   def cached?(name, *args)
     cache = Cacheable.cache[self][name.to_sym]
     return false unless cache.key?(args)
