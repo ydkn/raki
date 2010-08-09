@@ -52,7 +52,15 @@ end
 class WikiLinkNode < RakiSyntaxNode
   
   def to_html context
-    pagelink = url_for :controller => 'page', :action => 'view', :type => :page, :id => href.text_value
+    parts = href.text_value.split '/'
+    if parts.length == 2
+      type = parts[0]
+      page = parts[1]
+    else
+      type = context[:type]
+      page = parts[0]
+    end
+    pagelink = url_for_page h(type), h(page)
     return '<a href="' + pagelink + '">' +
       (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip) + '</a>'
   end

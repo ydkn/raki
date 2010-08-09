@@ -41,6 +41,14 @@ module Raki
         end
         
       end
+      
+      def url_for_page(type, page, revision=nil)
+        if revision.nil?
+          url_for(:controller => 'page', :action => 'view', :type => h(type), :id => h(page))
+        else
+          url_for(:controller => 'page', :action => 'view', :type => h(type), :id => h(page), :revision => h(revision))
+        end
+      end
 
     end
     
