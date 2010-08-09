@@ -19,6 +19,7 @@ module Cacheable
   @cache = Hash.new{|h,k| h[k] = Hash.new{|h,k| h[k] = Hash.new{|h,k| h[k] = {}}}}
   @queue = Queue.new
   
+  # Refresh enqueued values.
   Thread.new do
     while true do
       op = nil
@@ -36,13 +37,14 @@ module Cacheable
     end
   end
   
+  # Remove unused values from cache and reduce cache size.
   Thread.new do
     while true do
       begin
         @cache.each do |clazz, methods|
           methods.each do |method, method_args|
             method_args.delete_if do |args, params|
-              params[:time] < (Time.new - params[:ttl]*10)
+              params[:last_access] < (Time.new - params[:ttl]*10)
             end
           end
           methods.delete_if do |method, method_args|
@@ -64,6 +66,15 @@ module Cacheable
   
   module ClassMethods
     
+    # Cache method with options.
+    # 
+    # Available options:
+    # * :ttl => TTL for cached value in seconds.
+    # * :force => Don't return cached value if value has exceed TTL.
+    # 
+    #    def foobar; end
+    #    cache :foobar, :ttl => 10, :force => true
+    # 
     def cache(name, options={})
       name = name.to_s
       name_uncached = "__uncached_#{name.to_s}"
@@ -89,6 +100,7 @@ module Cacheable
               end
             end
           end
+          cache[args][:last_access] = Time.new
           cache[args][:data]
         end
       end
@@ -106,6 +118,7 @@ module Cacheable
     @queue
   end
   
+  # Mark all values as expired.
   def self.expire
     time = Time.parse('1900-01-01')
     @cache.values.each do |clazz|
@@ -117,6 +130,7 @@ module Cacheable
     end
   end
   
+  # Remove all values from cache.
   def self.flush
     @cache.values.each do |clazz|
       clazz.values.each do |cached|
@@ -126,6 +140,7 @@ module Cacheable
     end
   end
   
+  # Mark value(s) as expired.
   def expire(name=nil, *args)
     name = name.to_sym
     cache = Cacheable.cache[self]
@@ -145,6 +160,7 @@ module Cacheable
     end
   end
   
+  # Removes value(s) from the cache
   def flush(name=nil, *args)
     name = name.to_sym
     cache = Cacheable.cache[self]
@@ -159,6 +175,7 @@ module Cacheable
     end
   end
   
+  # Check if value is cached
   def cached?(name, *args)
     cache = Cacheable.cache[self][name.to_sym]
     return false unless cache.key?(args)
