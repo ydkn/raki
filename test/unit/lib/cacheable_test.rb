@@ -41,7 +41,7 @@ class UserTest < Test::Unit::TestCase
     cache :m3, :ttl => 3
   end
   
-  # Test if method is cached
+  # Test if method is cached.
   def test_refresh
     cached = TestCache.new
     5.times do |i|
@@ -63,7 +63,7 @@ class UserTest < Test::Unit::TestCase
     end
   end
   
-  # Test if cached? returns correct state
+  # Test if cached? returns correct state.
   def test_cached
     cached = TestCache.new
     

@@ -72,7 +72,7 @@ module Cacheable
     # * :ttl => TTL for cached value in seconds.
     # * :force => Don't return cached value if value has exceed TTL.
     # 
-    #    def foobar; end
+    #    def foobar(p1,p2); end
     #    cache :foobar, :ttl => 10, :force => true
     # 
     def cache(name, options={})
