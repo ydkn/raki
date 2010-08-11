@@ -60,9 +60,9 @@ class WikiLinkNode < RakiSyntaxNode
       type = context[:type]
       page = parts[0]
     end
-    pagelink = url_for_page h(type), h(page)
+    pagelink = url_for_page h(type.strip), h(page.strip)
     return '<a href="' + pagelink + '">' +
-      (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip) + '</a>'
+      (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip).strip + '</a>'
   end
   
 end

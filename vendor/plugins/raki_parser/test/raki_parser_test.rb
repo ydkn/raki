@@ -21,6 +21,7 @@ class RakiParserTest < Test::Unit::TestCase
   # Initializes the parser
   def setup
     @parser = RakiParser.new
+    @context = {:type => 'test', :page => 'unit'}
   end
 
   def test_text
@@ -34,9 +35,12 @@ class RakiParserTest < Test::Unit::TestCase
 
   # Test links for wikipages
   def test_link_to_page
-    assert_equal '<a href="/wiki/WikiPageName">WikiPageName</a>', parse("[WikiPageName]")
-    assert_equal '<a href="/wiki/WikiPageName">WikiPageName</a>', parse("[ WikiPageName  ]")
-    assert_equal '<a href="/wiki/WikiPageName">title for link</a>', parse("[WikiPageName|title for link]")
+    assert_equal '<a href="/test/WikiPageName">WikiPageName</a>', parse("[WikiPageName]")
+    assert_equal '<a href="/test/WikiPageName">WikiPageName</a>', parse("[ WikiPageName  ]")
+    assert_equal '<a href="/test/WikiPageName">title for link</a>', parse("[WikiPageName|title for link]")
+    assert_equal '<a href="/wiki/WikiPageName">wiki/WikiPageName</a>', parse("[wiki/WikiPageName]")
+    assert_equal '<a href="/wiki/WikiPageName">wiki/WikiPageName</a>', parse("[ wiki/WikiPageName  ]")
+    assert_equal '<a href="/wiki/WikiPageName">title for link</a>', parse("[wiki/WikiPageName|title for link]")
   end
 
   # Test links for urls
@@ -48,26 +52,26 @@ class RakiParserTest < Test::Unit::TestCase
 
   # Test for bold text
   def test_bold_text
-    assert_equal "<b>some text</b><br/>\n<b>some other text</b>", parse("**some text**\n**some other text**")
-    assert_equal '<b>some text <a href="/wiki/WikiPageName">WikiPageName</a> some other</b> text', parse("**some text [WikiPageName] some other** text")
+    assert_equal "<b>some text</b><br/>\n<b>some other text</b>", parse("*some text*\n*some other text*")
+    assert_equal '<b>some text <a href="/test/WikiPageName">WikiPageName</a> some other</b> text', parse("*some text [WikiPageName] some other* text")
   end
 
   # Test for bold text
   def test_strikedthrough_text
-    assert_equal "<del>some text</del><br/>\n<del>some other text</del>", parse("--some text--\n--some other text--")
-    assert_equal '<del>some text <a href="/wiki/WikiPageName">WikiPageName</a> some other</del> text', parse("--some text [WikiPageName] some other-- text")
+    assert_equal "<del>some text</del><br/>\n<del>some other text</del>", parse("-some text-\n-some other text-")
+    assert_equal '<del>some text <a href="/test/WikiPageName">WikiPageName</a> some other</del> text', parse("-some text [WikiPageName] some other- text")
   end
 
   # Test for italic text
   def test_italic_text
-    assert_equal "<i>some text</i><br/>\n<i>some other text</i>", parse("''some text''\n''some other text''")
-    assert_equal '<i>some text <a href="/wiki/WikiPageName">WikiPageName</a> some other text</i>', parse("''some text [WikiPageName] some other text''")
+    assert_equal "<i>some text</i><br/>\n<i>some other text</i>", parse("´some text´\n´some other text´")
+    assert_equal '<i>some text <a href="/test/WikiPageName">WikiPageName</a> some other text</i>', parse("´some text [WikiPageName] some other text´")
   end
 
   # Test for bold text
   def test_underlined_text
-    assert_equal '<span class="underline">some text</span>', parse("__some text__")
-    assert_equal '<span class="underline">some text <a href="/wiki/WikiPageName">WikiPageName</a> some other</span> text', parse("__some text [WikiPageName] some other__ text")
+    assert_equal '<span class="underline">some text</span>', parse("_some text_")
+    assert_equal '<span class="underline">some text <a href="/test/WikiPageName">WikiPageName</a> some other</span> text', parse("_some text [WikiPageName] some other_ text")
   end
 
   # Test for headings
@@ -91,53 +95,53 @@ class RakiParserTest < Test::Unit::TestCase
   # Test for unordered lists
   def test_unordered_lists
     assert_equal "<ul>\n<li>test</li>\n</ul>\n", parse("* test")
-    assert_equal "<ul>\n<li>test</li>\n<li>test</li>\n</ul>\n", @parser.parse("*test\n*test")
-    assert_equal "<ul>\n<li>abc</li>\n<li>def</li>\n<li>ghi</li>\n<li>jkl</li>\n</ul>\n", parse("\n*abc\n* def\n*ghi\n* jkl")
-    assert_equal "<ul>\n<li><a href=\"/wiki/WikiPageName\">WikiPageName</a></li>\n</ul>\n", parse("\n*[WikiPageName]")
+    assert_equal "<ul>\n<li>test</li>\n<li>test</li>\n</ul>\n", @parser.parse("* test\n* test")
+    assert_equal "<ul>\n<li>abc</li>\n<li>def</li>\n<li>ghi</li>\n<li>jkl</li>\n</ul>\n", parse("\n* abc\n* def\n* ghi\n* jkl")
+    assert_equal "<ul>\n<li><a href=\"/test/WikiPageName\">WikiPageName</a></li>\n</ul>\n", parse("\n* [WikiPageName]")
   end
 
   # Test for ordered lists
   def test_ordered_lists
-    assert_equal "<ol>\n<li>abc</li>\n<li>def</li>\n<li>ghi</li>\n<li>jkl</li>\n</ol>\n", parse("\n#abc\n# def\n#ghi\n# jkl")
-    assert_equal "<ol>\n<li><a href=\"/wiki/WikiPageName\">WikiPageName</a></li>\n</ol>\n", parse("\n#[WikiPageName]")
+    assert_equal "<ol>\n<li>abc</li>\n<li>def</li>\n<li>ghi</li>\n<li>jkl</li>\n</ol>\n", parse("\n# abc\n# def\n# ghi\n# jkl")
+    assert_equal "<ol>\n<li><a href=\"/test/WikiPageName\">WikiPageName</a></li>\n</ol>\n", parse("\n# [WikiPageName]")
   end
 
   def test_mixed_lists
-    assert_equal "<ul>\n<li>item1</li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("*item1\n#item2")
-    assert_equal "<ul>\n<li>item1\n<ol>\n<li>item2</li>\n</ol>\n</li>\n</ul>\n", parse("*item1\n #item2")
-    assert_equal "<ul>\n<li>item1\n<ol>\n<li>item2</li>\n</ol>\n</li>\n<li>item3</li>\n</ul>\n", parse("*item1\n #item2\n*item3")
+    assert_equal "<ul>\n<li>item1</li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("* item1\n# item2")
+    assert_equal "<ul>\n<li>item1\n<ol>\n<li>item2</li>\n</ol>\n</li>\n</ul>\n", parse("* item1\n # item2")
+    assert_equal "<ul>\n<li>item1\n<ol>\n<li>item2</li>\n</ol>\n</li>\n<li>item3</li>\n</ul>\n", parse("* item1\n # item2\n* item3")
     assert_equal "<ol>\n<li>hello</li>\n<li>world\n<ul>\n<li>sub</li>\n<li>bla</li>\n</ul>\n<ol>\n<li>test\n<ul>\n<li>foo</li>\n</ul>\n</li>\n</ol>\n</li>\n<li>bar</li>\n</ol>\n",
-        parse("#hello\n#world\n *sub\n * bla\n #test\n  * foo\n#bar")
+        parse("# hello\n# world\n * sub\n * bla\n # test\n  * foo\n# bar")
   end
 
   def test_pages
-    assert_equal "<a href=\"/wiki/link\">link</a><br/>\n<ul>\n<li>item1</li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("[link]\n\n*item1\n#item2")
-    assert_equal "<h1>Testseite</h1>\n<a href=\"/wiki/link\">link</a><br/>\n<ul>\n<li><b>item1</b></li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("!Testseite\n\n[link]\n\n* **item1**\n#item2")
+    assert_equal "<a href=\"/test/link\">link</a><br/>\n<ul>\n<li>item1</li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("[link]\n\n* item1\n# item2")
+    assert_equal "<h1>Testseite</h1>\n<a href=\"/test/link\">link</a><br/>\n<ul>\n<li><b>item1</b></li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("!Testseite\n\n[link]\n\n* *item1*\n# item2")
   end
 
   def test_plugin
     Raki::Plugin.register :testexample do
-      execute do |params, body, context|
+      execute do
         body.reverse
       end
     end
-    assert_equal "fdsa", parse("[{testexample asdf}]")
-    assert_equal "tset \nfdsa", parse("[{testexample asdf\n test}]")
-    assert_equal "", parse("[{testexample}]")
+    assert_equal "fdsa", parse("\\testexample asdf\\")
+    assert_equal "tset \nfdsa", parse("\\testexample asdf\n test\\")
+    assert_equal "", parse("\\testexample\\")
 
     Raki::Plugin.register :testparams do
       execute do |params, body, context|
         params[:name] + params[:id]
       end
     end
-    assert_equal 'hello world', parse('[{testparams id=world name="hello " }]')
+    assert_equal 'hello world', parse('\\testparams id=world name="hello "\\')
   end
 
   private
 
   # Shortener for the parse method
   def parse(text)
-    @parser.parse(text)
+    @parser.parse(text, @context)
   end
 
 end
