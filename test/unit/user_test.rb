@@ -16,5 +16,5 @@
 
 require 'test_helper'
 
-class UserTest < ActiveSupport::TestCase
+class UserTest < Test::Unit::TestCase
 end
