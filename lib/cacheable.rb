@@ -152,7 +152,7 @@ module Cacheable
         end
       end
     elsif args.nil? || args.empty?
-      cache[name].values do |params|
+      cache[name].values.each do |params|
         params[:time] = time
       end
     else

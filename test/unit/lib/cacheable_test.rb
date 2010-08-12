@@ -83,4 +83,39 @@ class UserTest < Test::Unit::TestCase
     assert !cached.cached?(:m2)
   end
   
+  # Test if cache can be flushed.
+  def test_flush
+    cached = TestCache.new
+    
+    cached.m1
+    assert cached.cached?(:m1)
+    cached.flush(:m1)
+    assert !cached.cached?(:m1)
+    
+    cached.m3('test')
+    assert cached.cached?(:m3, 'test')
+    cached.flush(:m3, 'test')
+    assert !cached.cached?(:m3, 'test')
+  end
+  
+  # Test if cache can be expired.
+  def test_expire
+    cached = TestCache.new
+    
+    cached.m1
+    assert cached.cached?(:m1)
+    cached.expire(:m1)
+    assert cached.cached?(:m1)
+    
+    cached.m2
+    assert cached.cached?(:m2)
+    cached.expire(:m2)
+    assert !cached.cached?(:m2)
+    
+    cached.m3('test')
+    assert cached.cached?(:m3, 'test')
+    cached.expire(:m3, 'test')
+    assert cached.cached?(:m3, 'test')
+  end
+  
 end
