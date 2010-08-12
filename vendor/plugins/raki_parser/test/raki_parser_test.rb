@@ -48,6 +48,8 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal '<a href="http://github.com/ydkn/raki">http://github.com/ydkn/raki</a>', parse("[http://github.com/ydkn/raki]")
     assert_equal '<a href="http://github.com/ydkn/raki">Raki on github</a>', parse("[http://github.com/ydkn/raki|Raki on github]")
     assert_equal '<a href="http://github.com/ydkn/raki">http://github.com/ydkn/raki</a>', parse("http://github.com/ydkn/raki")
+    assert_equal '<a target="_blank" href="javascript:alert(\'document.cockie\')">xss</a>', parse("[javascript:alert('document.cockie')|xss]")
+    assert_equal '<a href="mailto:rakitest@spam.f0i.de">mail</a>', parse("[mailto:rakitest@spam.f0i.de|mail]")
   end
 
   # Test for bold text
@@ -64,8 +66,9 @@ class RakiParserTest < Test::Unit::TestCase
 
   # Test for italic text
   def test_italic_text
-    assert_equal "<i>some text</i><br/>\n<i>some other text</i>", parse("´some text´\n´some other text´")
-    assert_equal '<i>some text <a href="/test/WikiPageName">WikiPageName</a> some other text</i>', parse("´some text [WikiPageName] some other text´")
+    assert_equal "<i>test</i>", parse("~test~")
+    assert_equal "<i>some text</i><br/>\n<i>some other text</i>", parse("~some text~\n~some other text~")
+    assert_equal '<i>some text <a href="/test/WikiPageName">WikiPageName</a> some other text</i>', parse("~some text [WikiPageName] some other text~")
   end
 
   # Test for bold text
@@ -126,11 +129,11 @@ class RakiParserTest < Test::Unit::TestCase
       end
     end
     assert_equal "fdsa", parse("\\testexample asdf\\")
-    assert_equal "tset \nfdsa", parse("\\testexample asdf\n test\\")
+    assert_equal "tset \nfdsa", parse("\\testexample asdf\n test\\end")
     assert_equal "", parse("\\testexample\\")
 
     Raki::Plugin.register :testparams do
-      execute do |params, body, context|
+      execute do
         params[:name] + params[:id]
       end
     end
