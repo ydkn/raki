@@ -75,7 +75,7 @@ class WikiLinkNode < RakiSyntaxNode
       type = parts[0]
       page = parts[1]
     else
-      type = context[:type]
+      type = context[:type].to_s
       page = parts[0]
     end
     pagelink = url_for_page h(type.strip), h(page.strip)

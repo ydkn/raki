@@ -33,7 +33,8 @@ class ApplicationController < ActionController::Base
 
   def init_context
     @context = {
-      :params => params
+      :params => params,
+      :subcontext => {}
     }
   end
 

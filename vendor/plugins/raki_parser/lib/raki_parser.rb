@@ -26,8 +26,8 @@ class RakiParser < Raki::AbstractParser
   def initialize params={}
     Treetop.load "#{File.dirname(__FILE__)}/raki_syntax"
     RakiSyntaxParser.send(:include, Cacheable)
+    RakiSyntaxParser.cache :parse
     @parser = RakiSyntaxParser.new
-    @parser.cache :parse
   end
 
   def parse text, context={}
