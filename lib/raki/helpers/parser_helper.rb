@@ -44,6 +44,9 @@ module Raki
       end
 
       def parsed_page(type, page, revision=nil, context=nil)
+        if context.nil? && !@context.nil?
+          context = @context
+        end
         parse(
           type,
           page_contents(type, page, revision),
@@ -52,6 +55,9 @@ module Raki
       end
 
       def parsed_page!(type, page, revision=nil, context=nil, user=User.current)
+        if context.nil? && !@context.nil?
+          context = @context
+        end
         parse(
           type,
           page_contents!(type, page, revision, user),
