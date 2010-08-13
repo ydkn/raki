@@ -30,14 +30,14 @@ module Raki
       end
 
       def parse(type, content, context=nil)
-        unless @context.nil?
+        if context.nil? && !@context.nil?
           context = @context
         end
         parser(type).parse(content, context)
       end
       
-      def parse_with(parser, content, context=context)
-        unless @context.nil?
+      def parse_with(parser, content, context=nil)
+        if context.nil? && !@context.nil?
           context = @context
         end
         parser_by_name(parser).parse(content, context)
