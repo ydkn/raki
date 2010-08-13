@@ -71,6 +71,9 @@ de:
     date: Datum
     user: Autor
     message: Kommentar
+    actions: Aktionen
+    
+    delete: Löschen
 
     upload:
       file: Datei

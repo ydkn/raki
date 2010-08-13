@@ -20,16 +20,23 @@ class ApplicationController < ActionController::Base
   # Scrub sensitive parameters from your log
   filter_parameter_logging :password
 
-  helper PageHelper
   helper AuthenticationHelper
+  helper PageHelper
+  helper ParseHelper
 
-  before_filter :try_to_authenticate_user, :set_locale, :init_context
+  before_filter :init_url_helper, :try_to_authenticate_user, :set_locale, :init_context
 
   private
+  
+  def init_url_helper
+    Raki::Helpers::URLHelper.host = request.host
+    Raki::Helpers::URLHelper.port = request.port
+  end
 
   def init_context
     @context = {
-      :params => params
+      :params => params,
+      :subcontext => {}
     }
   end
 
@@ -61,7 +68,6 @@ class ApplicationController < ActionController::Base
         end
       end
     rescue => e
-      # ignore
     end
   end
 

@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,10 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-one:
-  username: user1
-  email: user1@user1.dom
-
-two:
-  username: user2
-  email: user2@user2.dom
+module ParseHelper
+  
+  include Raki::Helpers::ParserHelper
+  
+end

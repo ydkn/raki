@@ -54,6 +54,7 @@ module Raki
 
       def page_save(type, name, contents, message, user=User.current)
         provider(type).page_save(type, name, contents, message, user)
+        nil
       end
 
       def page_save!(type, name, contents, message, user=User.current)
@@ -63,25 +64,36 @@ module Raki
           authorized!(type, name, :create, user)
         end
         page_save(type, name, contents, message, user)
+        nil
       end
 
       def page_rename(old_type, old_name, new_type, new_name, user=User.current)
-        provider(type).page_rename(old_type, old_name, new_type, new_name, user)
+        if provider(old_type) == provider(new_type)
+          provider(old_type).page_rename(old_type, old_name, new_type, new_name, user)
+        else
+          contents = page_contents(old_type, old_name)
+          page_delete(old_type, old_name, user)
+          page_save(new_type, new_name, contents, "#{old_type.to_s}/#{old_name.to_s} ==> #{new_type.to_s}/#{new_name.to_s}", user)
+        end
+        nil
       end
 
       def page_rename!(old_type, old_name, new_type, new_name, user=User.current)
         authorized!(old_type, old_name, :rename, user)
         authorized!(new_type, new_name, :create, user)
         page_rename(old_type, old_name, new_type, new_name, user)
+        nil
       end
 
       def page_delete(type, name, user=User.current)
         provider(type).page_delete(type, name, user)
+        nil
       end
 
       def page_delete!(type, name, user=User.current)
         authorized!(type, name, :delete, user)
         page_delete(type, name, user)
+        nil
       end
 
       def page_all(type)
@@ -144,20 +156,28 @@ module Raki
 
       def attachment_save(type, page, name, contents, message, user=User.current)
         provider(type).attachment_save(type, page, name, contents, message, user)
+        nil
       end
 
       def attachment_save!(type, page, name, contents, message, user=User.current)
-        authorized!(type, page, :edit, user)
+        if attachment_exists?(type, page, name)
+          authorized!(type, page, :edit, user)
+        else
+          authorized!(type, page, :create, user)
+        end
         attachment_save(type, page, name, contents, message, user)
+        nil
       end
 
       def attachment_delete(type, page, name, user=User.current)
         provider(type).attachment_delete(type, page, name, user)
+        nil
       end
 
       def attachment_delete!(type, page, name, user=User.current)
-        authorized!(type, page, :edit, user)
+        authorized!(type, page, :delete, user)
         attachment_delete(type, page, name, user)
+        nil
       end
 
       def attachment_all(type, page)

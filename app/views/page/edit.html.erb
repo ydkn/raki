@@ -31,7 +31,7 @@
   <% unless @preview.nil? %>
     <h2><%=t 'page.edit.preview' %></h2>
     <div id="preview">
-      <%=format @preview %>
+      <%=parse @type, @preview %>
     </div>
   <% end %>
 <% end %>

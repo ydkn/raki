@@ -5,6 +5,7 @@ config/permissions.yml
 public/plugin_assets/
 
 .bundle
+doc/app
 db/*.sqlite3
 log/*.log
 tmp/**/*

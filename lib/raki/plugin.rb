@@ -30,9 +30,6 @@ module Raki
   #     end
   #   end
   class Plugin
-    
-    TMPL_INGORE_VARS = ['stylesheets', 'execute']
-    TMPL_LOCAL_VARS = ['callname', 'version', 'description', 'name', 'context', 'body', 'id', 'author', 'params', 'url']
 
     class PluginError < StandardError
     end
@@ -124,6 +121,7 @@ module Raki
     include Raki::Helpers::ParserHelper
     include Raki::Helpers::URLHelper
     include Raki::Helpers::I18nHelper
+    include Raki::Helpers::FormatHelper
     include ERB::Util
 
     def_field :name, :description, :url, :author, :version
@@ -156,8 +154,12 @@ module Raki
       @callname = id
       @params = params
       @body = body
+      old_subcontext = context[:subcontext]
+      context[:subcontext] = context[:subcontext].clone
       @context = context
-      @execute.call
+      result = @execute.call
+      context[:subcontext] = context[:subcontext]
+      result
     end
 
     def executable?

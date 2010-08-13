@@ -29,6 +29,13 @@ class IgnoreNode < RakiSyntaxNode
   
 end
 
+class EscapedNode < RakiSyntaxNode
+  
+  def to_html context
+    h text_value[1..-1]
+  end
+  
+end
 
 class LinebreakNode < RakiSyntaxNode
   
@@ -41,9 +48,20 @@ end
 
 class LinkNode < RakiSyntaxNode
   
+  @@dangerous_protocols = ['about', 'wysiwyg', 'data', 'view-source', 'ms-its',
+    'mhtml', 'shell', 'lynxexec',  'lynxcgi', 'hcp', 'ms-help', 'help', 'disk',
+    'vnd.ms.radio', 'opera', 'res', 'resource',  'chrome', 'mocha',
+    'livescript', 'javascript', 'vbscript']
+
   def to_html context
-    return '<a href="' + href.to_html(context).strip + '">' +
+    if @@dangerous_protocols.include? href.protocol.to_html(context).strip
+      #TODO: no attribute "target" in XHTML 1.1
+      '<a target="_blank" href="' + href.to_html(context).strip + '">' +
       (desc.to_html(context).empty? ? href : desc).to_html(context).strip + '</a>'
+    else
+      '<a href="' + href.to_html(context).strip + '">' +
+      (desc.to_html(context).empty? ? href : desc).to_html(context).strip + '</a>'
+    end
   end
   
 end
@@ -52,11 +70,19 @@ end
 class WikiLinkNode < RakiSyntaxNode
   
   def to_html context
-    pagelink = url_for :controller => 'page', :action => 'view', :type => :page, :id => href.text_value
+    parts = href.text_value.split '/'
+    if parts.length == 2
+      type = parts[0]
+      page = parts[1]
+    else
+      type = context[:type].to_s
+      page = parts[0]
+    end
+    pagelink = url_for_page h(type.strip), h(page.strip)
     return '<a href="' + pagelink + '">' +
-      (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip) + '</a>'
+      (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip).strip + '</a>'
   end
-  
+
 end
 
 

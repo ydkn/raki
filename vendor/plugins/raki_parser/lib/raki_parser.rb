@@ -25,15 +25,15 @@ class RakiParser < Raki::AbstractParser
 
   def initialize params={}
     Treetop.load "#{File.dirname(__FILE__)}/raki_syntax"
-    RakiSyntaxParser.send(:include, Cacheable)
+    RakiSyntaxParser.send :include, Cacheable
+    RakiSyntaxParser.send :cache, :parse
     @parser = RakiSyntaxParser.new
-    @parser.cache :parse
   end
 
   def parse text, context={}
     output = @parser.parse text
     return nil if output.nil?
-    output.to_html(context).gsub(/<br\/>\n<br\/>\n/ ,"<br\/>\n")
+    output.to_html(context)
   end
 
 end

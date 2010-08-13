@@ -22,12 +22,13 @@ grammar RakiSyntax
 
   rule line
     table  / heading ignore_whitespace* / list !(!linebreak .) / infobox
-    / in_line+ !(!linebreak .) / linebreak (space linebreak)? ignore_whitespace*
+    / in_line+ !(!linebreak .) / linebreak linebreak? ignore_whitespace*
   end
 
   rule in_line
     infobox / plugin / formating / link / text
   end
+
 
   # Sections
 
@@ -36,14 +37,14 @@ grammar RakiSyntax
   end
 
   rule empty_plugin
-    '\\' name:(!'\\' non_whitespace)+
+    '\\' name:(!'\\' non_whitespace)+ whitespace?
     param:(parameter whitespace?)*
     body:(!'\\' text)*
     ("\\end" / "\\") <PluginNode>
   end
 
   rule text_plugin
-    '\\' name:(!'\\' !whitespace text)+
+    '\\' name:(!'\\' !whitespace text)+ whitespace?
     param:(parameter whitespace?)*
     body:(!'\\end' (text / linebreak))* '\\end' <PluginNode>
   end
@@ -56,6 +57,7 @@ grammar RakiSyntax
     '%%' type:([\w]+) text:(!'%%' (in_line / linebreak))* '%%' <InfoboxNode>
   end
 
+
   # Lists
 
   rule list
@@ -63,11 +65,11 @@ grammar RakiSyntax
   end
 
   rule listitem
-    level:space* type:('-' / '*' / '#') space text:(!linebreak in_line)+
+    level:space* type:('-' / '*' / '#') space text:(!(linebreak (listitem / (!space .))) line)+
   end
 
 
-  #Tables
+  # Tables
 
   rule table
     first_row:table_row other_rows:(linebreak row:table_row)* <TableNode>
@@ -91,50 +93,62 @@ grammar RakiSyntax
 
   rule underlined
     '_' !whitespace text:(unprotected_formating # nested formating
-	# in_line* without whitespace at the end
-    / ((!underlined_end (!'_' in_line ('_' !(whitespace / '´' / '*' / '-'))?))* underlined_end)+
-	) '_' <UnderlineNode>
+    # in_line* without whitespace at the end
+    / ((!underlined_end (!'_' in_line ('_' !(whitespace / '~' / '*' / '-'))?))* underlined_end)+
+    ) '_' <UnderlineNode>
   end
 
   rule underlined_end
-	!(whitespace / '_') in_line
+    !(whitespace / '_') in_line
   end
 
   rule italic
-    '´' !whitespace text:(unprotected_formating
-    / ((!italic_end (!'´' in_line ('´' !(whitespace / '_' / '*' / '-'))?))* italic_end)+
-	) '´' <ItalicNode>
+    '~' !whitespace text:(unprotected_formating
+    / ((!italic_end (!'~' in_line ('~' !(whitespace / '_' / '*' / '-'))?))* italic_end)+
+    ) '~' <ItalicNode>
   end
 
   rule italic_end
-	!(whitespace / '´') in_line
+    !(whitespace / '~') in_line
   end
 
   rule bold
     '*' !whitespace text:(unprotected_formating
-    / ((!bold_end (!'*' in_line ('*' !(whitespace / '_' / '´' / '-'))?))* bold_end)+
-	) '*' <BoldNode>
+    / ((!bold_end (!'*' in_line ('*' !(whitespace / '_' / '~' / '-'))?))* bold_end)+
+    ) '*' <BoldNode>
   end
 
   rule bold_end
-	!(whitespace / '*') in_line
+    !(whitespace / '*') in_line
   end
 
   rule strikethrough
     '-' !whitespace text:(unprotected_formating
-    / ((!strikethrough_end (!'-' in_line ('-' !(whitespace / '_' / '´' / '*'))?))* strikethrough_end)+
-	) '-' <StrikethroughNode>
+    / ((!strikethrough_end (!'-' in_line ('-' !(whitespace / '_' / '~' / '*'))?))* strikethrough_end)+
+    ) '-' <StrikethroughNode>
   end
 
   rule strikethrough_end
-	!(whitespace / '-') in_line
+    !(whitespace / '-') in_line
   end
 
 
   # Links
 
   rule link
-    wikilink_title / wikilink_no_title / link_title / link_no_title / auto_link
+    link_title / link_no_title / auto_link / wikilink_title / wikilink_no_title
+  end
+
+  rule link_title
+    '[' href:uri '|' desc:(!']' text)+ ']' <LinkNode>
+  end
+
+  rule link_no_title
+    '[' href:uri desc:('') ']' <LinkNode>
+  end
+
+  rule auto_link
+    href:(protocol non_whitespace+) desc:'' <LinkNode>
   end
 
   rule wikilink_title
@@ -145,23 +159,14 @@ grammar RakiSyntax
     '[' href:pagename desc:('') ']' <WikiLinkNode>
   end
 
-  rule link_title
-    '[' href:(!'|' !']' text)+ '|' desc:(!']' text)+ ']' <LinkNode>
+  rule pagename
+    ((!'|' !']' text) / '\\|' / '\\]')+
   end
-
-  rule link_no_title
-    '[' href:(!']' text)+ desc:('') ']' <LinkNode>
-  end
-
-  rule auto_link
-    href:(protocol non_whitespace+) desc:'' <LinkNode>
-  end
-
 
   # Strings
 
   rule parameter
-    ignore_whitespace* key:(!('=' / whitespace) text)+ '=' value:parameter_value <ParameterNode>
+    key:(!('=' / whitespace) text)+ '=' value:parameter_value <ParameterNode>
   end
 
   rule parameter_key
@@ -178,8 +183,16 @@ grammar RakiSyntax
     "'" ("\\'" / "\\\\" / (!"'" !"\\" text))* "'"
   end
 
+  rule uri
+    protocol:maybe_a_protokol ('://' / ':') pagename
+  end
+
   rule protocol
     (data_protocol '://') / (app_protocol ':')
+  end
+
+  rule maybe_a_protokol
+    [\w]+ ''
   end
 
   rule data_protocol
@@ -190,19 +203,19 @@ grammar RakiSyntax
     'mailto' / 'sip' / 'skype'
   end
 
-  rule pagename
-    [ \wäüöÄÜÖß_+-]+
-  end
-
 
   # Single characters
 
   rule text
-    !linebreak .
+    escaped / (!linebreak .)
+  end
+
+  rule escaped
+    ('\\\\' / '\\]' / '\\|' / '\\"' / '\\\'' / ('\\' linebreak)) '' <EscapedNode>
   end
 
   rule linebreak
-    [\n] '' <LinebreakNode>
+    [\r]? [\n] ([\r]? [\n])? <LinebreakNode>
   end
 
   rule space

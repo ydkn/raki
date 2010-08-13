@@ -24,12 +24,29 @@ module Raki
       def parser(type)
         Raki::Parser[type]
       end
-
-      def parse(type, content, context=context)
-        parser(type).parse(content, context)
+      
+      def parser_by_name(name)
+        Raki::Parser.all[name]
       end
 
-      def parsed_page(type, page, revision=nil, context=context)
+      def parse(type, content, context=nil)
+        if context.nil? && !@context.nil?
+          context = @context
+        end
+        parser(type).parse(content, context)
+      end
+      
+      def parse_with(parser, content, context=nil)
+        if context.nil? && !@context.nil?
+          context = @context
+        end
+        parser_by_name(parser).parse(content, context)
+      end
+
+      def parsed_page(type, page, revision=nil, context=nil)
+        if context.nil? && !@context.nil?
+          context = @context
+        end
         parse(
           type,
           page_contents(type, page, revision),
@@ -37,7 +54,10 @@ module Raki
         )
       end
 
-      def parsed_page!(type, page, revision=nil, context=context, user=User.current)
+      def parsed_page!(type, page, revision=nil, context=nil, user=User.current)
+        if context.nil? && !@context.nil?
+          context = @context
+        end
         parse(
           type,
           page_contents!(type, page, revision, user),

@@ -28,7 +28,9 @@ module Raki
   
   class << self
     
-    VERSION = '0.1pre'
+    VERSION_MAJOR = 0
+    VERSION_MINOR = 1
+    VERSION_TINY  = '0a'
     
     def config(*keys)
       @config = YAML.load(File.read("#{Rails.root}/config/raki.yml")) if @config.nil?
@@ -41,14 +43,19 @@ module Raki
       requested_config
     end
     
-    def frontpage
-      return config(:frontpage) unless config(:frontpage).nil?
-      'Main'
-    end
-    
     def app_name
       return config(:app_name) unless config(:frontpage).nil?
       'Raki'
+    end
+    
+    def frontpage
+      return {:type => 'page', :page => 'Main'} if config(:frontpage).nil?
+      parts = config(:frontpage).split('/', 2)
+      if parts.length == 2
+        {:type => parts[0], :page => parts[1]}
+      else
+        {:type => 'page', :page => parts[0]}
+      end
     end
     
     def userpage_type
@@ -56,9 +63,35 @@ module Raki
       'user'
     end
     
-    def version
-      VERSION
+    def index_page
+      return config(:index_page) unless config(:index_page).nil?
+      'Main'
     end
+    
+    def version
+      version = [VERSION_MAJOR, VERSION_MINOR, VERSION_TINY].compact.join('.')
+      "#{version}@#{REVISION}" unless REVISION.nil?
+    end
+    
+    def self.revision
+      revision = nil
+      begin
+        if File.readable?("#{Rails.root}/.git/HEAD")
+          f = File.open("#{Rails.root}/.git/HEAD", 'r')
+          head = f.read.split(':')[1].strip
+          f.close
+          if File.readable?("#{Rails.root}/.git/#{head}")
+            f = File.open("#{Rails.root}/.git/#{head}", 'r')
+            revision = f.read[0..7].upcase
+            f.close
+          end
+        end
+      rescue
+      end
+      revision
+    end
+    
+    REVISION = self.revision
 
   end
 end
