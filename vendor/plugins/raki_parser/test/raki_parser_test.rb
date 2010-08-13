@@ -20,7 +20,7 @@ class RakiParserTest < Test::Unit::TestCase
 
   # Initializes the parser
   def setup
-    @parser = RakiParser.new
+    @parser = RakiParser.new if @parser.nil?
     @context = {:type => 'test', :page => 'unit'}
   end
 
