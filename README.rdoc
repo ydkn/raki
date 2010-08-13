@@ -19,7 +19,6 @@ different namespaces. It can also have a namespace-specific syntax.
   $ gem install -v=2.3.8 rails
 
 === GIT provider
-  $ gem install git
   $ gem install unicode
 
 === Raki parser
