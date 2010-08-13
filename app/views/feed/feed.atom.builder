@@ -11,7 +11,7 @@ atom_feed do |feed|
         entry.title h "#{change.type}/#{change.page}"
         entry.updated change.revision.date.xmlschema
         diff = []
-        Raki::Provider[change.type].page_diff(change.type, change.page, change.revision.id).lines.each do |line|
+        page_diff(change.type, change.page, change.revision.id).lines.each do |line|
           diff << h(line)
         end
         entry.content %Q{

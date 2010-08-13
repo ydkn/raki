@@ -20,9 +20,6 @@ class PageController < ApplicationController
   include Raki::Helpers::ProviderHelper
   include ERB::Util
   
-  helper PageHelper
-  helper ParseHelper
-  
   before_filter :common_init, :except => [:redirect_to_frontpage, :redirect_to_indexpage]
 
   def redirect_to_frontpage

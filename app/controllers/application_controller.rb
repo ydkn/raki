@@ -21,6 +21,8 @@ class ApplicationController < ActionController::Base
   filter_parameter_logging :password
 
   helper AuthenticationHelper
+  helper PageHelper
+  helper ParseHelper
 
   before_filter :init_url_helper, :try_to_authenticate_user, :set_locale, :init_context
 

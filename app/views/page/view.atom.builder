@@ -8,7 +8,7 @@ atom_feed do |feed|
       entry.title h revision.message
       entry.updated revision.date.xmlschema
       diff = []
-      @provider.page_diff(@type, @page, revision.id).lines.each do |line|
+      page_diff(@type, @page, revision.id).lines.each do |line|
         diff << h(line)
       end
       entry.content %Q{
