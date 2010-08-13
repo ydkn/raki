@@ -33,7 +33,7 @@ class RakiParser < Raki::AbstractParser
   def parse text, context={}
     output = @parser.parse text
     return nil if output.nil?
-    output.to_html(context).gsub(/<br\/>\n<br\/>\n/ ,"<br\/>\n")
+    output.to_html(context)
   end
 
 end

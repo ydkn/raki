@@ -31,6 +31,9 @@ class RakiParserTest < Test::Unit::TestCase
   # Test linebreaks
   def test_linebreaks
     assert_equal "test<br/>\ntext<br/>\nhallo", parse("test\ntext\n\nhallo")
+    assert_equal "test<br/>\ntext<br/>\nhallo", parse("test\r\ntext\r\n\r\nhallo")
+    assert_equal "test<br/>\ntext<br/>\n<br/>\nhallo", parse("test\ntext\n\n\nhallo")
+    assert_equal "test\ntext<br/>\nhallo", parse("test\\\ntext\n\nhallo")
   end
 
   # Test links for wikipages
@@ -47,6 +50,7 @@ class RakiParserTest < Test::Unit::TestCase
   def test_link
     assert_equal '<a href="http://github.com/ydkn/raki">http://github.com/ydkn/raki</a>', parse("[http://github.com/ydkn/raki]")
     assert_equal '<a href="http://github.com/ydkn/raki">Raki on github</a>', parse("[http://github.com/ydkn/raki|Raki on github]")
+    assert_equal '<a href="http://raki.ydkn.de/page/raki]|test">foo]bar</a>', parse("[http://raki.ydkn.de/page/raki\\]\\|test | foo\\]bar]")
     assert_equal '<a href="http://github.com/ydkn/raki">http://github.com/ydkn/raki</a>', parse("http://github.com/ydkn/raki")
     assert_equal '<a target="_blank" href="javascript:alert(\'document.cockie\')">xss</a>', parse("[javascript:alert('document.cockie')|xss]")
     assert_equal '<a href="mailto:rakitest@spam.f0i.de">mail</a>', parse("[mailto:rakitest@spam.f0i.de|mail]")
@@ -98,14 +102,17 @@ class RakiParserTest < Test::Unit::TestCase
   # Test for unordered lists
   def test_unordered_lists
     assert_equal "<ul>\n<li>test</li>\n</ul>\n", parse("* test")
+    assert_equal "<ul>\n<li>foo<br/>\nbar</li>\n</ul>\n", parse("* foo\r\n bar")
     assert_equal "<ul>\n<li>test</li>\n<li>test</li>\n</ul>\n", @parser.parse("* test\n* test")
     assert_equal "<ul>\n<li>abc</li>\n<li>def</li>\n<li>ghi</li>\n<li>jkl</li>\n</ul>\n", parse("\n* abc\n* def\n* ghi\n* jkl")
     assert_equal "<ul>\n<li><a href=\"/test/WikiPageName\">WikiPageName</a></li>\n</ul>\n", parse("\n* [WikiPageName]")
+    assert_equal "<ul>\n<li>asdf<br/>\nasdf\n<ul>\n<li>asdf<br/>\nasdf</li>\n<li>asdf<br/>\nasdf</li>\n</ul>\n</li>\n<li>asdf</li>\n</ul>\n", parse("* asdf\n asdf\n * asdf\n asdf\n * asdf\n asdf\n* asdf")
   end
 
   # Test for ordered lists
   def test_ordered_lists
     assert_equal "<ol>\n<li>abc</li>\n<li>def</li>\n<li>ghi</li>\n<li>jkl</li>\n</ol>\n", parse("\n# abc\n# def\n# ghi\n# jkl")
+    assert_equal "<ol>\n<li>abc</li>\n<li>def</li>\n<li>ghi<br/>\ntest</li>\n<li>jkl</li>\n</ol>\n", parse("\n# abc\n# def\n# ghi\n test\n# jkl")
     assert_equal "<ol>\n<li><a href=\"/test/WikiPageName\">WikiPageName</a></li>\n</ol>\n", parse("\n# [WikiPageName]")
   end
 
@@ -129,6 +136,7 @@ class RakiParserTest < Test::Unit::TestCase
       end
     end
     assert_equal "fdsa", parse("\\testexample asdf\\")
+    assert_equal "fdsa<br/>\nfoo\\ bar", parse("\\testexample asdf\\\r\nfoo\\ bar")
     assert_equal "tset \nfdsa", parse("\\testexample asdf\n test\\end")
     assert_equal "", parse("\\testexample\\")
 
