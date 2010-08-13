@@ -29,6 +29,13 @@ class IgnoreNode < RakiSyntaxNode
   
 end
 
+class EscapedNode < RakiSyntaxNode
+  
+  def to_html context
+    h text_value[1..-1]
+  end
+  
+end
 
 class LinebreakNode < RakiSyntaxNode
   
@@ -41,10 +48,14 @@ end
 
 class LinkNode < RakiSyntaxNode
   
-  @@dangerous_protocols = ['about', 'wysiwyg', 'data', 'view-source', 'ms-its', 'mhtml', 'shell', 'lynxexec',  'lynxcgi', 'hcp', 'ms-help', 'help', 'disk', 'vnd.ms.radio', 'opera', 'res', 'resource',  'chrome', 'mocha', 'livescript', 'javascript', 'vbscript']
+  @@dangerous_protocols = ['about', 'wysiwyg', 'data', 'view-source', 'ms-its',
+    'mhtml', 'shell', 'lynxexec',  'lynxcgi', 'hcp', 'ms-help', 'help', 'disk',
+    'vnd.ms.radio', 'opera', 'res', 'resource',  'chrome', 'mocha',
+    'livescript', 'javascript', 'vbscript']
 
   def to_html context
     if @@dangerous_protocols.include? href.protocol.to_html(context).strip
+      #TODO: no attribute "target" in XHTML 1.1
       '<a target="_blank" href="' + href.to_html(context).strip + '">' +
       (desc.to_html(context).empty? ? href : desc).to_html(context).strip + '</a>'
     else
