@@ -10,9 +10,17 @@
 	<% changes.each do |change| %>
 	  <tr>
 		<% if change.attachment.nil? %>
-		  <td><%=link_to h(types.length == 1 ? change.page : "#{change.type}/#{change.page}"), {:controller => 'page', :action => 'view', :type => change.type, :id => h(change.page), :revision => h(change.revision.id)} %></td>
+		  <% if change.revision.deleted? %>
+		    <td><%=h(types.length == 1 ? change.page : "#{change.type}/#{change.page}") %></td>
+		  <% else %>
+		    <td><%=link_to h(types.length == 1 ? change.page : "#{change.type}/#{change.page}"), {:controller => 'page', :action => 'view', :type => change.type, :id => h(change.page), :revision => h(change.revision.id)} %></td>
+		  <% end %>
 		<% else %>
-		  <td><%=link_to h(types.length == 1 ? "#{change.page}/#{change.attachment}" : "#{change.type}/#{change.page}/#{change.attachment}"), {:controller => 'page', :action => 'attachment', :type => change.type, :id => h(change.page), :attachment => h(change.attachment), :revision => h(change.revision.id)} %></td>
+		  <% if change.revision.deleted? %>
+		    <td><%=h(types.length == 1 ? "#{change.page}/#{change.attachment}" : "#{change.type}/#{change.page}/#{change.attachment}") %></td>
+		  <% else %>
+		    <td><%=link_to h(types.length == 1 ? "#{change.page}/#{change.attachment}" : "#{change.type}/#{change.page}/#{change.attachment}"), {:controller => 'page', :action => 'attachment', :type => change.type, :id => h(change.page), :attachment => h(change.attachment), :revision => h(change.revision.id)} %></td>
+		  <% end %>
 		<% end %>
 		<td><%=l change.revision.date, :format => :time %></td>
 		<td><%=link_to h(change.revision.user.username), {:controller => 'page', :action => 'view', :type => Raki.userpage_type, :id => h(change.revision.user.username)} %></td>

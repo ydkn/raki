@@ -95,13 +95,18 @@ module Raki
     class Revision
       attr_reader :id, :version, :size, :user, :date, :message
 
-      def initialize(id, version, size, user, date, message)
+      def initialize(id, version, size, user, date, message, deleted=false)
         @id = id
         @version = version
         @size = size
         @user = user
         @date = date
         @message = message
+        @deleted = deleted
+      end
+      
+      def deleted?
+        @deleted
       end
     end
 

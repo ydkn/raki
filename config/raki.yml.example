@@ -27,6 +27,7 @@ providers:
     provider: git
     path: /path/to/git/repo
     branch: master
+    refresh: 600
 
 parsers:
   default:
