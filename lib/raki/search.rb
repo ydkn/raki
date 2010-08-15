@@ -19,16 +19,30 @@ require 'ferret'
 module Raki
   class Search
     
-    @index = Ferret::Index::Index.new(:path => "#{Rails.root}/tmp/search.idx")
+    begin
+      @index = Ferret::Index::Index.new(:path => "#{Rails.root}/tmp/search.idx")
+      @index.field_infos.add_field(:type, :store => :yes, :boost => 5.0)
+      @index.field_infos.add_field(:page, :store => :yes, :boost => 5.0)
+      @index.field_infos.add_field(:content, :store => :yes, :boost => 2.0)
+    rescue => e
+    end
     
     class << self
       
       include Raki::Helpers::ProviderHelper
       
       def search(querystring)
+        query = Ferret::Search::MultiTermQuery.new(:content)
+        querystring.downcase.split(/\s+/).each do |term|
+          query.add_term(term) 
+        end
+        
+        
+        
+        
+        
         results = []
-        # TODO build query
-        @index.search_each(querystring) do |id, score|
+        @index.search_each(query) do |id, score|
           doc = @index[id]
           results << {
               :type => doc[:type],
@@ -56,10 +70,17 @@ module Raki
         @index << doc
       end
       
+      def indexed?(type, page, revision)
+        doc_id = nil
+        @index.search_each("(type:\"#{type}\" AND page:\"#{page}\" AND revision:\"#{revision}\")") {|id, score| doc_id = id}
+        !doc_id.nil?
+      end
+      
       def refresh
         types.each do |type|
           page_all(type).each do |page|
             page_revisions(type, page).reverse_each do |revision|
+              next if indexed?(type, page, revision.id)
               begin
                 self.<< type, page, revision.id, page_contents(type, page, revision.id), nil
               rescue => e
@@ -78,10 +99,6 @@ module Raki
         nil
       end
       
-    end
-    
-    Thread.new do
-      refresh
     end
     
   end
