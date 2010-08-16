@@ -179,8 +179,11 @@ class GitProvider < Raki::AbstractProvider
     obj = normalize(obj)
     revision = 'HEAD' if revision.nil?
     path, file = split_object(obj)
-    @repo.tree(revision, path).blobs.each do |blob|
-      return blob.data if blob.name == obj
+    begin
+      @repo.tree(revision, path).blobs.each do |blob|
+        return blob.data if blob.name == obj
+      end
+    rescue => e
     end
     raise ProviderError.new("Object '#{obj}@#{revision}' does not exist!")
   end
@@ -215,6 +218,7 @@ class GitProvider < Raki::AbstractProvider
     check_user(user)
     old_obj = normalize(old_obj)
     new_obj = normalize(new_obj)
+    raise ProviderError.new('Target exists') if exists?(new_obj)
     message = '-' if message.nil? || message.empty?
     FileUtils.mkdir_p(path("#{@repo.working_dir}/#{new_obj}"))
     File.open("#{@repo.working_dir}/#{new_obj}", 'w') do |f|
@@ -241,6 +245,7 @@ class GitProvider < Raki::AbstractProvider
     check_obj(obj)
     check_user(user)
     obj = normalize(obj)
+    raise ProviderError.new('Object don\'t exists') unless exists?(obj)
     message = '-' if message.nil? || message.empty?
     @repo.remove(obj)
     @repo.commit_index(
