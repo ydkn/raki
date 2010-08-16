@@ -27,7 +27,16 @@ Raki::Plugin.register :example do
       raise Raki::Plugin::PluginError.new "ERROR: #{params[:error]}"
     end
     
-    "<div class=\"information\">*Example Plugin*\n\nContext: #{context.inspect.gsub /\\/, ''}\nParameters: #{params.inspect.gsub /\\/, ''}\nBody: #{body}</div>"
+    context_out = context.inspect.gsub /\\/, ''
+    params_out = params.inspect.gsub /\\/, ''
+    body_out = body.inspect.gsub(/^"(.*)"$/, '\1').gsub /\\/, ''
+    
+    "<div class=\"information\">
+      <b>Example Plugin</b><br/><br/>
+      Context: #{h context_out}<br/>
+      Parameters: #{h params_out}<br/>
+      Body: #{h body_out}
+      </div>"
   end
 
 end
