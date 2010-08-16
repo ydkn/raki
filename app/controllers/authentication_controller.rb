@@ -42,7 +42,7 @@ class AuthenticationController < ApplicationController
         elsif res.is_a?(User)
           session[:user] = res
         else
-          session[:user] = anonymous_user
+          session[:user] = AnonymousUser.new request.remote_ip
           flash[:notice] = t 'auth.invalid_credentials'
         end
       end
@@ -52,7 +52,7 @@ class AuthenticationController < ApplicationController
   end
 
   def logout
-    User.current = anonymous_user
+    User.current = AnonymousUser.new request.remote_ip
     reset_session
     flash[:notice] = t 'auth.logged_out'
     redirect
