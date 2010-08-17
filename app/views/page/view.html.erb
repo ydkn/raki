@@ -3,7 +3,7 @@
 <% else %>
   <div class="information">
     <%=t 'page.not_exists.msg' %>
-    <% if authenticated? %>
+    <% if authorized?(@type, @page, :create) %>
       <%=t 'page.not_exists.edit_msg', :edit_link => link_to(t('page.not_exists.edit_link'), {:controller => 'page', :action => 'edit', :type => h(@type), :id => h(@page)}) %>
     <% end %>
   </div>
