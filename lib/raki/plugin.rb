@@ -145,6 +145,10 @@ module Raki
     def add_stylesheet(url, options={})
       @stylesheets << {:url => url, :options => options}
     end
+    
+    def override_permission(type, page='*', rights='!all')
+      Raki::Permission.add_override(type, page, rights)
+    end
 
     def execute(&block)
       @execute = block

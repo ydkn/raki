@@ -21,8 +21,8 @@ module Raki
       
       def load_permissions
         @permissions = YAML.load(File.read("#{Rails.root}/config/permissions.yml"))
-        unless @permissions.key?(:OVERWRITE)
-          @permissions[:OVERWRITE] = []
+        unless @permissions.key?(:OVERRIDE)
+          @permissions[:OVERRIDE] = []
         end
         Rails.logger.info "Permissions loaded."
       end
@@ -31,17 +31,18 @@ module Raki
       def to?(type, page, action, user)
         perms = @permissions[:ALL]
         if user.is_a?(AnonymousUser)
-          perms = perms + @permissions[:ANONYMOUS]
+          perms += @permissions[:ANONYMOUS]
         elsif user.is_a?(User)
-          perms = perms + @permissions[:AUTHENTICATED]
+          perms += @permissions[:AUTHENTICATED]
         end
-        perms = perms + @permissions[:OVERWRITE]
 
         @permissions.each do |u_key, rights|
           next if u_key.is_a?(Symbol)
           next if user.id.match("^#{u_key}$").nil?
           perms += rights
         end
+        
+        perms += @permissions[:OVERRIDE]
 
         perm = false
         perms.each do |right|
@@ -58,10 +59,10 @@ module Raki
         perm
       end
 
-      def add_overwrite(type, page, rights)
+      def add_override(type, page, rights)
         rights = [rights] unless rights.is_a?(Array)
         rights.map {|r| r.to_s.strip}
-        @permissions[:OVERWRITE] << {"#{type.to_s}/#{page.to_s}" => rights.join(',')}
+        @permissions[:OVERRIDE] << {"#{type.to_s}/#{page.to_s}" => rights.join(',')}
       end
       
     end
