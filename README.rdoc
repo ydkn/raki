@@ -37,8 +37,9 @@ change the permissions if you need to.
 
 === Example with GIT as storage and OpenID for authentication
 Create a GIT repository with <tt>git init --bare /path/to/git-repo</tt>. Now change in
-<tt>config/raki.yml</tt> the path parameter to match the GIT repository you just created.
-The final step is to change the <tt>authenticator</tt> to <tt>openid</tt>.
+<tt>config/raki.yml</tt> the path parameter to match the GIT repository you just created. Next step is
+to change the <tt>authenticator</tt> to <tt>openid</tt>. The last step is to initialize and fetch the
+grit submodule with <tt>git submodule init</tt> and <tt>git submodule update</tt>.
 
 
 == Run it
