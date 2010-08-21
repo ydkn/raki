@@ -29,9 +29,13 @@ module Raki
         Raki::Parser.all[name]
       end
 
-      def parse(type, content, context=nil)
+      def parse(type, content=nil, context=nil)
         if context.nil? && !@context.nil?
           context = @context
+        end
+        if content.nil?
+          content = type
+          type = :default
         end
         parser(type).parse(content, context)
       end
