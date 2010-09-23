@@ -15,18 +15,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class FeedController < ApplicationController
+  LIMIT = 15
   
   include Raki::Helpers::ProviderHelper
   
   def feed
     days = {}
     types.each do |type|
-      page_changes(type).each do |change|
+      page_changes(type, LIMIT).each do |change|
         day = change.revision.date.strftime("%Y-%m-%d")
         days[day] = [] unless days.key?(day)
         days[day] << change
       end
-      attachment_changes(type).each do |change|
+      attachment_changes(type, LIMIT).each do |change|
         day = change.revision.date.strftime("%Y-%m-%d")
         days[day] = [] unless days.key?(day)
         days[day] << change
@@ -41,6 +42,7 @@ class FeedController < ApplicationController
         @changes << change
       end
     end
+    @changes = @changes[0..LIMIT]
     respond_to do |format|
       format.atom
     end

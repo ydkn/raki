@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class PageController < ApplicationController
+  FEED_LIMIT = 15
   
   include Raki::Helpers::PermissionHelper
   include Raki::Helpers::ProviderHelper
@@ -43,7 +44,7 @@ class PageController < ApplicationController
       } unless current_revision.nil?
       respond_to do |format|
         format.html
-        format.atom { @revisions = page_revisions(@type, @page) }
+        format.atom { @revisions = page_revisions(@type, @page)[0..FEED_LIMIT] }
         format.src { render :inline => page_contents(@type, @page, @revision), :content_type => 'text/plain' }
       end
     end
