@@ -23,16 +23,16 @@ module Raki
     def user_for(options)
       raise AuthenticatorError.new 'not implemented'
     end
+    
+    #def callback(params, session, cookies)
+    #  raise AuthenticatorError.new 'not implemented'
+    #end
 
     #def login(params, session, cookies)
     #  raise AuthenticatorError.new 'not implemented'
     #end
     
-    #def try_to_authenticate(params, session, cookies)
-    #  raise AuthenticatorError.new 'not implemented'
-    #end
-    
-    #def login_hook(params, session, cookies)
+    #def validate_session(params, session, cookies)
     #  raise AuthenticatorError.new 'not implemented'
     #end
     

@@ -20,15 +20,11 @@ class AuthenticationController < ApplicationController
 
   def login
     redirect_to :controller => 'page', :action => 'view', :type => Raki.frontpage[:type], :id => Raki.frontpage[:page] if authenticated?
-    begin
-      Raki::Authenticator.login_hook params, session, cookies
-    rescue
-      # ignore
-    end
     @title = t 'auth.login'
-    begin
+    
+    if Raki::Authenticator.respond_to? :form_fields
       @form_fields = Raki::Authenticator.form_fields
-    rescue
+    else
       @form_fields = []
     end
     @context[:login] = true
@@ -62,7 +58,7 @@ class AuthenticationController < ApplicationController
     begin
       params.delete(:controller)
       params.delete(:action)
-      resp = Raki::Authenticator.callback(params, session, cookies)
+      resp = Raki::Authenticator.callback params, session, cookies
       if resp.is_a?(User)
         session[:user] = resp
         User.current= resp
