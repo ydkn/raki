@@ -43,7 +43,12 @@ class ApplicationController < ActionController::Base
   def try_to_authenticate_user
     User.current = nil
     if Raki::Authenticator.respond_to? :validate_session
-      User.current = Raki::Authenticator.validate_session params, session, cookies
+      res = Raki::Authenticator.validate_session params, session, cookies
+      if res.is_a?(String)
+        redirect_to res
+      elsif res.is_a?(User)
+        User.current = res
+      end
     elsif session[:user] && session[:user].is_a?(User)
       User.current = session[:user]
     end

@@ -32,6 +32,10 @@ module Raki
     #  raise AuthenticatorError.new 'not implemented'
     #end
     
+    #def logout(params, session, cookies)
+    #  raise AuthenticatorError.new 'not implemented'
+    #end
+    
     #def validate_session(params, session, cookies)
     #  raise AuthenticatorError.new 'not implemented'
     #end

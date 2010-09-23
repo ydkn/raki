@@ -30,8 +30,6 @@ class AuthenticationController < ApplicationController
     @context[:login] = true
     begin
       unless params[:loginsubmit].nil?
-        params.delete(:controller)
-        params.delete(:action)
         res = Raki::Authenticator.login(params, session, cookies)
         if res.is_a?(String)
           redirect_to res
@@ -48,10 +46,16 @@ class AuthenticationController < ApplicationController
   end
 
   def logout
-    User.current = AnonymousUser.new request.remote_ip
-    reset_session
-    flash[:notice] = t 'auth.logged_out'
-    redirect
+    if Raki::Authenticator.respond_to? :logout
+      res = Raki::Authenticator.logout params, session, cookies
+      if res.is_a?(String)
+        redirect_to res
+      else
+        session_reset
+      end
+    else
+      session_reset
+    end
   end
 
   def callback
@@ -77,6 +81,13 @@ class AuthenticationController < ApplicationController
   
   def redirect(default=nil)
     redirect_to :controller => 'page', :action => 'view', :type => Raki.frontpage[:type], :id => Raki.frontpage[:page]
+  end
+  
+  def session_reset
+    User.current = AnonymousUser.new request.remote_ip
+    reset_session
+    flash[:notice] = t 'auth.logged_out'
+    redirect
   end
 
 end
