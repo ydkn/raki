@@ -380,11 +380,11 @@ class GitProvider < Raki::AbstractProvider
   end
   
   def push
-    @repo.push('origin')
+    @repo.push('origin', @branch)
   end
   
   def pull
-    @repo.pull('origin')
+    @repo.pull('origin', @branch)
   end
 
   def logger
