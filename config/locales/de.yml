@@ -24,6 +24,8 @@ de:
   forbidden: Keine Berechtigung
 
   feed: Newsfeed für %{app_name}
+  
+  visited_pages: Bisher besucht
 
   page:
 

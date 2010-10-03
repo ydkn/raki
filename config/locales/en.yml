@@ -24,6 +24,8 @@ en:
   forbidden: Permission denied
 
   feed: Feed for %{app_name}
+  
+  visited_pages: Your trail
 
   page:
 

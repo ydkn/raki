@@ -24,9 +24,13 @@ class ApplicationController < ActionController::Base
   helper PageHelper
   helper ParseHelper
 
-  before_filter :init_url_helper, :try_to_authenticate_user, :set_locale, :init_context
+  before_filter :init_url_helper, :init_visited_pages, :try_to_authenticate_user, :set_locale, :init_context
 
   private
+  
+  def init_visited_pages
+    session[:visited_pages] = [] if session[:visited_pages].nil?
+  end
   
   def init_url_helper
     Raki::Helpers::URLHelper.host = request.host

@@ -16,6 +16,7 @@
 
 class PageController < ApplicationController
   FEED_LIMIT = 15
+  VISITED_LIMIT = 8
   
   include Raki::Helpers::PermissionHelper
   include Raki::Helpers::ProviderHelper
@@ -34,6 +35,9 @@ class PageController < ApplicationController
   def view
     return if render_forbidden_if_not_authorized :view
     if page_exists? @type, @page, @revision
+      session[:visited_pages].unshift({:type => @type, :page => @page})
+      session[:visited_pages].uniq!
+      session[:visited_pages].slice! 0, VISITED_LIMIT if session[:visited_pages].size > 10
       current_revision = page_revisions(@type, @page).first
       @page_info = {
         :date => current_revision.date,

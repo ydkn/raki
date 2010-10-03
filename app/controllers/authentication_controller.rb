@@ -85,6 +85,7 @@ class AuthenticationController < ApplicationController
   
   def session_reset
     User.current = AnonymousUser.new request.remote_ip
+    session[:visited_pages] = []
     reset_session
     flash[:notice] = t 'auth.logged_out'
     redirect
