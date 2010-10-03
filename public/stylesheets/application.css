@@ -61,19 +61,28 @@ a, a:visited {
 #page_title {
     font-weight: bold;
     font-size: 1.6em;
-    margin-bottom: 1em;
+    margin-bottom: 0.75em;
     margin-left: 1em;
     height: 1.8em;
 }
 
+#visted_pages {
+	margin-left: 1.5em;
+	font-size: 0.9em;
+}
+
 #global_feed {
 	margin-left: -0.75em;
-	float: left;
+	text-align: center;
+	margin-left: 1em;
 }
 
 #application_info {
     margin-top: 1.5em;
     text-align: center;
+	font-size: 0.8em;
+	margin-top: 1.6em;
+	margin-left: 1em;
 }
 
 .clear {
@@ -84,7 +93,7 @@ a, a:visited {
 }
 
 #content_container {
-    margin-top: 2.5em;
+    margin-top: 1.5em;
 }
 
 #controls_left {

@@ -28,17 +28,20 @@ class RakiPluginGenerator < Rails::Generator::NamedBase
   
   def manifest
     record do |m|
-      m.directory "#{plugin_path}/app/"
+      m.directory "#{plugin_path}/app"
       m.directory "#{plugin_path}/assets"
       m.directory "#{plugin_path}/assets/images"
       m.directory "#{plugin_path}/assets/stylesheets"
       m.directory "#{plugin_path}/config/locales"
+      m.directory "#{plugin_path}/templates"
       m.directory "#{plugin_path}/test"
       
-      m.template 'README.rdoc', "#{plugin_path}/README.rdoc"
+      m.template 'README.rdoc.erb', "#{plugin_path}/README.rdoc"
       m.template 'init.rb.erb', "#{plugin_path}/init.rb"
       m.template 'en.yml.erb', "#{plugin_path}/config/locales/en.yml"
       m.template 'test_helper.rb.erb', "#{plugin_path}/test/test_helper.rb"
+      m.template 'template.erb', "#{plugin_path}/templates/#{@plugin_name}.erb"
+      m.template 'gitkeep', "#{plugin_path}/app/.gitkeep"
     end
   end
   

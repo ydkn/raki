@@ -24,9 +24,13 @@ class ApplicationController < ActionController::Base
   helper PageHelper
   helper ParseHelper
 
-  before_filter :init_url_helper, :try_to_authenticate_user, :set_locale, :init_context
+  before_filter :init_url_helper, :init_visited_pages, :try_to_authenticate_user, :set_locale, :init_context
 
   private
+  
+  def init_visited_pages
+    session[:visited_pages] = [] if session[:visited_pages].nil?
+  end
   
   def init_url_helper
     Raki::Helpers::URLHelper.host = request.host
@@ -41,13 +45,19 @@ class ApplicationController < ActionController::Base
   end
 
   def try_to_authenticate_user
-    User.current = AnonymousUser.new request.remote_ip
-    if Raki::Authenticator.respond_to? :try_to_authenticate
-      Raki::Authenticator.try_to_authenticate params, session, cookies
+    User.current = nil
+    if Raki::Authenticator.respond_to? :validate_session
+      res = Raki::Authenticator.validate_session params, session, cookies
+      if res.is_a?(String)
+        redirect_to res
+      elsif res.is_a?(User)
+        User.current = res
+      end
+    elsif session[:user] && session[:user].is_a?(User)
+      User.current = session[:user]
     end
-    unless session[:user].nil?
-      User.current = session[:user] if session[:user].is_a?(User)
-    end
+    User.current = AnonymousUser.new request.remote_ip unless User.current
+    session[:user] = User.current
   end
   
   def set_locale

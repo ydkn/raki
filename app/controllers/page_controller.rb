@@ -15,6 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class PageController < ApplicationController
+  FEED_LIMIT = 15
+  VISITED_LIMIT = 8
   
   include Raki::Helpers::PermissionHelper
   include Raki::Helpers::ProviderHelper
@@ -33,6 +35,9 @@ class PageController < ApplicationController
   def view
     return if render_forbidden_if_not_authorized :view
     if page_exists? @type, @page, @revision
+      session[:visited_pages].unshift({:type => @type, :page => @page})
+      session[:visited_pages].uniq!
+      session[:visited_pages].slice! 0, VISITED_LIMIT if session[:visited_pages].size > 10
       current_revision = page_revisions(@type, @page).first
       @page_info = {
         :date => current_revision.date,
@@ -43,7 +48,7 @@ class PageController < ApplicationController
       } unless current_revision.nil?
       respond_to do |format|
         format.html
-        format.atom { @revisions = page_revisions(@type, @page) }
+        format.atom { @revisions = page_revisions(@type, @page)[0..FEED_LIMIT] }
         format.src { render :inline => page_contents(@type, @page, @revision), :content_type => 'text/plain' }
       end
     end
@@ -115,7 +120,7 @@ class PageController < ApplicationController
       return if render_forbidden_if_not_authorized :delete
       return if redirect_if_page_not_exists
       page_delete @type, @page
-      redirect_to :controller => 'page', :action => 'info', :type => h(Raki.frontpage[:type]), :id => h(Raki.frontpage[:page])
+      redirect_to :controller => 'page', :type => h(Raki.frontpage[:type]), :id => h(Raki.frontpage[:page])
     else
       return if render_forbidden_if_not_authorized :delete
       return if redirect_if_attachment_not_exists

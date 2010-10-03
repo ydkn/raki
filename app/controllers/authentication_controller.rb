@@ -20,29 +20,23 @@ class AuthenticationController < ApplicationController
 
   def login
     redirect_to :controller => 'page', :action => 'view', :type => Raki.frontpage[:type], :id => Raki.frontpage[:page] if authenticated?
-    begin
-      Raki::Authenticator.login_hook params, session, cookies
-    rescue
-      # ignore
-    end
     @title = t 'auth.login'
-    begin
+    
+    if Raki::Authenticator.respond_to? :form_fields
       @form_fields = Raki::Authenticator.form_fields
-    rescue
+    else
       @form_fields = []
     end
     @context[:login] = true
     begin
       unless params[:loginsubmit].nil?
-        params.delete(:controller)
-        params.delete(:action)
         res = Raki::Authenticator.login(params, session, cookies)
         if res.is_a?(String)
           redirect_to res
         elsif res.is_a?(User)
           session[:user] = res
         else
-          session[:user] = anonymous_user
+          session[:user] = AnonymousUser.new request.remote_ip
           flash[:notice] = t 'auth.invalid_credentials'
         end
       end
@@ -52,17 +46,23 @@ class AuthenticationController < ApplicationController
   end
 
   def logout
-    User.current = anonymous_user
-    reset_session
-    flash[:notice] = t 'auth.logged_out'
-    redirect
+    if Raki::Authenticator.respond_to? :logout
+      res = Raki::Authenticator.logout params, session, cookies
+      if res.is_a?(String)
+        redirect_to res
+      else
+        session_reset
+      end
+    else
+      session_reset
+    end
   end
 
   def callback
     begin
       params.delete(:controller)
       params.delete(:action)
-      resp = Raki::Authenticator.callback(params, session, cookies)
+      resp = Raki::Authenticator.callback params, session, cookies
       if resp.is_a?(User)
         session[:user] = resp
         User.current= resp
@@ -81,6 +81,14 @@ class AuthenticationController < ApplicationController
   
   def redirect(default=nil)
     redirect_to :controller => 'page', :action => 'view', :type => Raki.frontpage[:type], :id => Raki.frontpage[:page]
+  end
+  
+  def session_reset
+    User.current = AnonymousUser.new request.remote_ip
+    session[:visited_pages] = []
+    reset_session
+    flash[:notice] = t 'auth.logged_out'
+    redirect
   end
 
 end

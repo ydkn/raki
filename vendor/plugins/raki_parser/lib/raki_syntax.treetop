@@ -21,8 +21,8 @@ grammar RakiSyntax
   end
 
   rule line
-    table  / heading ignore_whitespace* / list !(!linebreak .) / infobox
-    / in_line+ !(!linebreak .) / linebreak linebreak? ignore_whitespace*
+    table  / heading ignore_linebreak? / list !non_linebreak / infobox
+    / in_line+ !non_linebreak / linebreak space*
   end
 
   rule in_line
@@ -50,11 +50,17 @@ grammar RakiSyntax
   end
 
   rule heading
-    level:'!'+ text:(!linebreak text)+ <HeadingNode>
+    level:'!'+ text:(!linebreak in_line)+ <HeadingNode>
+  end
+
+  rule heading_infobox
+    level:'!'+ text:(!linebreak !'%%' in_line)+ <HeadingNode>
   end
 
   rule infobox
-    '%%' type:([\w]+) text:(!'%%' (in_line / linebreak))* '%%' <InfoboxNode>
+    '%%' type:([\w]+) whitespace* text:((heading_infobox ignore_whitespace*)?
+	((!'%%' (table / (list !non_linebreak) / in_line)) / infobox / linebreak 
+	(heading_infobox ignore_whitespace*)?)*) '%%' <InfoboxNode> #
   end
 
 
@@ -72,7 +78,7 @@ grammar RakiSyntax
   # Tables
 
   rule table
-    first_row:table_row other_rows:(linebreak row:table_row)* <TableNode>
+    first_row:table_row other_rows:(ignore_linebreak row:table_row)* <TableNode>
   end
 
   rule table_row
@@ -92,9 +98,9 @@ grammar RakiSyntax
   end
 
   rule underlined
-    '_' !whitespace text:(unprotected_formating # nested formating
+    '_' !whitespace text:(unprotected_formating !(!'_' .)
     # in_line* without whitespace at the end
-    / ((!underlined_end (!'_' in_line ('_' !(whitespace / '~' / '*' / '-'))?))* underlined_end)+
+    / (formating? ((!underlined_end (!'_' in_line ('_' !(whitespace / '~' / '*' / '-'))?))* underlined_end (whitespace* unprotected_formating !(!'_' .))?)+)
     ) '_' <UnderlineNode>
   end
 
@@ -103,8 +109,8 @@ grammar RakiSyntax
   end
 
   rule italic
-    '~' !whitespace text:(unprotected_formating
-    / ((!italic_end (!'~' in_line ('~' !(whitespace / '_' / '*' / '-'))?))* italic_end)+
+    '~' !whitespace text:(unprotected_formating !(!'~' .)
+    / (formating? ((!italic_end (!'~' in_line ('~' !(whitespace / '_' / '*' / '-'))?))* italic_end (whitespace* unprotected_formating !(!'~' .))?)+)
     ) '~' <ItalicNode>
   end
 
@@ -113,8 +119,8 @@ grammar RakiSyntax
   end
 
   rule bold
-    '*' !whitespace text:(unprotected_formating
-    / ((!bold_end (!'*' in_line ('*' !(whitespace / '_' / '~' / '-'))?))* bold_end)+
+    '*' !whitespace text:(unprotected_formating !(!'*' .)
+    / (formating? ((!bold_end (!'*' in_line ('*' !(whitespace / '_' / '~' / '-'))?))* bold_end (whitespace* unprotected_formating !(!'*' .))?)+)
     ) '*' <BoldNode>
   end
 
@@ -123,8 +129,8 @@ grammar RakiSyntax
   end
 
   rule strikethrough
-    '-' !whitespace text:(unprotected_formating
-    / ((!strikethrough_end (!'-' in_line ('-' !(whitespace / '_' / '~' / '*'))?))* strikethrough_end)+
+    '-' !whitespace text:(unprotected_formating !(!'-' .)
+    / (formating? ((!strikethrough_end (!'-' in_line ('-' !(whitespace / '_' / '~' / '*'))?))* strikethrough_end (whitespace* unprotected_formating !(!'-' .))?)+)
     ) '-' <StrikethroughNode>
   end
 
@@ -224,6 +230,10 @@ grammar RakiSyntax
 
   rule whitespace
     [\s]
+  end
+
+  rule non_linebreak
+    !linebreak .
   end
 
   rule non_whitespace

@@ -11,8 +11,8 @@ Raki::Plugin.register :<%=plugin_name %> do
     params # Parameters given to plugin
     context # Execution context
     
-    # Reverse plugin body
-    body.reverse
+    # Use template
+    render :<%=plugin_name %>
   end
   
 end

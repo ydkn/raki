@@ -30,20 +30,10 @@ class GitProviderTest < Test::Unit::TestCase
     FileUtils.remove_dir("#{Rails.root}/tmp/test-git-repo", true)
   end
 
-  # Try to access an invalid repository
+  # Try to create with an invalid repository
   def test_invalid_repository
-    teardown
     assert_raise(Raki::AbstractProvider::ProviderError) do
-      page_exists?(:page, 'SomePage')
-    end
-    assert_raise(Raki::AbstractProvider::ProviderError) do
-      page_contents(:page, 'SomePage')
-    end
-    assert_raise(Raki::AbstractProvider::ProviderError) do
-      page_revisions(:page, 'SomePage')
-    end
-    assert_raise(Raki::AbstractProvider::ProviderError) do
-      page_save(:page, 'SomePage', 'some content', 'test', default_user)
+      GitProvider.new({'path' => "#{Rails.root}/tmp/test-git-repo-not-exists"})
     end
   end
 
@@ -57,15 +47,18 @@ class GitProviderTest < Test::Unit::TestCase
 
   # Create a new page
   def test_create_page
-    page_names = ['TestPage','Page with spaces']
-    page_names.each do |page_name|
-      content = "test content 123"
-      page_save :page, page_name, content, 'changed', default_user
-      assert page_exists?(:page, page_name)
-      assert_equal content, page_contents(:page, page_name)
-      revisions = page_revisions :page, page_name
-      assert_equal 1, revisions.length
-      assert_equal default_user.username, revisions[0].user
+    type_names = [:page, :test]
+    page_names = ['TestPage', 'Page with spaces', ',.-_#+*', '¥≈ç√∫~µ∞å∂ƒ©ª∆@æ«∑€®†Ω¨⁄øπ•±']
+    type_names.each do |type_name|
+      page_names.each do |page_name|
+        content = "test content 123"
+        page_save type_name, page_name, content, 'changed', default_user
+        assert page_exists?(type_name, page_name)
+        assert_equal content, page_contents(type_name, page_name)
+        revisions = page_revisions type_name, page_name
+        assert_equal 1, revisions.length
+        assert_same_user default_user, revisions[0].user
+      end
     end
   end
 
@@ -81,24 +74,46 @@ class GitProviderTest < Test::Unit::TestCase
     assert_equal new_content, page_contents(:page, page_name)
     revisions = page_revisions :page, page_name
     assert_equal 2, revisions.length
-    assert_equal default_user.username, revisions[0].user
-    assert_equal update_user.username, revisions[1].user
+    assert_same_user default_user, revisions[1].user
+    assert_same_user update_user, revisions[0].user
   end
 
   # Rename page
   def test_rename_page
-    old_page = 'TestPage'
-    new_page = 'TestPageRenamed'
-    page_save :page, old_page, "some content", 'create', default_user
-    content = page_contents :page, old_page
+    old_page = {:type => :page, :page => 'TestPage'}
+    new_page = {:type => :page, :page => 'TestPageRenamed'}
+    new_page2 = {:type => :test, :page => 'TestPageRenamedInOtherType'}
+    
+    # same namespace
+    page_save old_page[:type], old_page[:page], "some content", 'create', default_user
+    content = page_contents old_page[:type], old_page[:page]
     rename_user = user 'renamer', 'renamer@dom.org'
-    page_rename :page, old_page, new_page, rename_user
-    assert !page_exists?(:page, old_page)
-    assert page_exists?(:page, new_page)
-    assert_equal content, page_contents(:page, new_page)
-    revisions = page_revisions :page, new_page
+    page_rename old_page[:type], old_page[:page], new_page[:type], new_page[:page], rename_user
+    assert !page_exists?(old_page[:type], old_page[:page])
+    assert page_exists?(new_page[:type], new_page[:page])
+    assert_equal content, page_contents(new_page[:type], new_page[:page])
+    revisions = page_revisions new_page[:type], new_page[:page]
     assert_equal 1, revisions.length
-    assert_equal rename_user.username, revisions[0].user
+    assert_same_user rename_user, revisions[0].user
+    
+    # other namespace
+    rename_user2 = user 'renamer2', 'renamer2@other-dom.net'
+    page_rename new_page[:type], new_page[:page], new_page2[:type], new_page2[:page], rename_user2
+    assert !page_exists?(new_page[:type], new_page[:page])
+    assert page_exists?(new_page2[:type], new_page2[:page])
+    assert_equal content, page_contents(new_page2[:type], new_page2[:page])
+    revisions = page_revisions new_page2[:type], new_page2[:page]
+    assert_equal 1, revisions.length
+    assert_same_user rename_user2, revisions[0].user
+    
+    # target page already exists
+    page = {:type => :page, :page => 'TestPage2'}
+    page2 = {:type => :test, :page => 'TestPage3'}
+    page_save page[:type], page[:page], 'foo bar', 'create', default_user
+    page_save page2[:type], page2[:page], 'bar foo', 'create2', default_user
+    assert_raise(Raki::AbstractProvider::ProviderError) do
+      page_rename page2[:type], page2[:page], page[:type], page[:page], rename_user
+    end
   end
 
   # Delete a existing page
@@ -108,13 +123,32 @@ class GitProviderTest < Test::Unit::TestCase
     delete_user = user 'deleter', 'deleter@dom.org'
     page_delete :page, page_name, delete_user
     assert !page_exists?(:page, page_name)
+    
+    # delete page which don't exists
+    assert_raise(Raki::AbstractProvider::ProviderError) do
+      page_delete :page, 'NotExistingPage', default_user
+    end
   end
 
-  # Check for index of all pages
+  # Check index for pages
   def test_page_index
-    page_names = ['TestPage','TestPage2',"TestPage3","TestPage"]
-    page_names.each do |page_name|
-      page_save :page, page_name, "Content for page: #{page_name}", 'create', default_user
+    pages = {
+      'page' => ['TestPage', 'TestPage2', 'TestPage3', 'TestPage4'],
+      'foo' => ['TestPage', 'TestPage2', 'TestPage3', 'TestPage4'],
+      'bar' => ['TestPageA', 'TestPageB', 'TestPageC', 'TestPageD']
+    }
+    pages.keys.each do |type|
+      pages[type].each do |page_name|
+        page_save type, page_name, "Content for page: #{page_name}", 'create', default_user
+      end
+    end
+    types.each do |type|
+      assert pages.keys.include?(type)
+    end
+    pages.keys.each do |type|
+      page_all(type).each do |page|
+        assert pages[type].include?(page)
+      end
     end
   end
 
@@ -127,25 +161,25 @@ class GitProviderTest < Test::Unit::TestCase
     page_save :page, page_name, "test content", 'create', user1
     revisions = page_revisions :page, page_name
     assert_equal 1, revisions.length
-    assert_equal user1.username, revisions[0].user
+    assert_same_user user1, revisions[0].user
     assert_equal 'create', revisions[0].message
     page_save :page, page_name, "updated content", 'update', user2
     revisions = page_revisions :page, page_name
     assert_equal 2, revisions.length
-    assert_equal user2.username, revisions[1].user
-    assert_equal user1.username, revisions[0].user
+    assert_same_user user2, revisions[0].user
+    assert_same_user user1, revisions[1].user
     assert_not_equal revisions[0].version, revisions[1].version
-    assert_equal 'update', revisions[1].message
-    assert_equal 'create', revisions[0].message
+    assert_equal 'update', revisions[0].message
+    assert_equal 'create', revisions[1].message
     page_save :page, page_name, "new updated content", 'update2', user3
     revisions = page_revisions :page, page_name
     assert_equal 3, revisions.length
-    assert_equal user3.username, revisions[2].user
-    assert_equal user1.username, revisions[0].user
+    assert_same_user user3, revisions[0].user
+    assert_same_user user1, revisions[2].user
     assert_not_equal revisions[0].version, revisions[2].version
     assert_not_equal revisions[1].version, revisions[2].version
     assert_not_equal revisions[0].version, revisions[1].version
-    assert_equal 'update2', revisions[2].message
+    assert_equal 'update2', revisions[0].message
     assert_equal 'update', revisions[1].message
   end
 
@@ -157,15 +191,71 @@ class GitProviderTest < Test::Unit::TestCase
     attachment_save(:page, page, attachment, data, "test message", default_user)
     assert attachment_exists?(:page, page, attachment)
   end
+  
+  # Create a new attachment
+  def test_create_attachment
+    types_names = [:page, :test]
+    page_names = ['TestPage', 'TestPage2']
+    attachment_names = ['foo.jpg', 'bar.png']
+    types_names.each do |type_name|
+      page_names.each do |page_name|
+        attachment_names.each do |attachment_name|
+          data = generate_binary_data
+          assert !attachment_exists?(type_name, page_name, attachment_name)
+          attachment_save type_name, page_name, attachment_name, data, 'created', default_user
+          assert attachment_exists?(type_name, page_name, attachment_name)
+          assert_equal data, attachment_contents(type_name, page_name, attachment_name)
+          revisions = attachment_revisions type_name, page_name, attachment_name
+          assert_equal 1, revisions.length
+          assert_same_user default_user, revisions[0].user
+        end
+      end
+    end
+  end
+  
+  # Update attachment
+  def test_update_attachment
+    page_name = 'TestUpdateAttachmentPage'
+    attachment_name = 'foo.bar'
+    old_data = generate_binary_data
+    attachment_save(:page, page_name, attachment_name, old_data, 'create', default_user)
+    assert_equal old_data, attachment_contents(:page, page_name, attachment_name)
+    new_data = generate_binary_data
+    update_user = user 'updater', 'updater@dom.org'
+    attachment_save :page, page_name, attachment_name, new_data, 'update', update_user
+    assert_equal new_data, attachment_contents(:page, page_name, attachment_name)
+    revisions = attachment_revisions :page, page_name, attachment_name
+    assert_equal 2, revisions.length
+    assert_same_user default_user, revisions[1].user
+    assert_same_user update_user, revisions[0].user
+  end
+  
+  # Delete an existing attachment
+  def test_delete_attachment
+    page_name = 'TestPageToDeleteWithAttachment'
+    attachment_name = 'foo.bar'
+    attachment_save :page, page_name, attachment_name, generate_binary_data, 'update', default_user
+    delete_user = user 'deleter', 'deleter@dom.org'
+    attachment_delete :page, page_name, attachment_name, delete_user
+    assert !attachment_exists?(:page, page_name, attachment_name)
+    
+    # delete page which don't exists
+    assert_raise(Raki::AbstractProvider::ProviderError) do
+      attachment_delete :page, page_name, 'exists.not', delete_user
+    end
+  end
 
   private
+  
+  # Compare two users
+  def assert_same_user(expected, actual)
+    assert_equal expected.username, actual.username
+    assert_equal expected.email, actual.email
+  end
 
   # Creates a user
   def user(username, email)
-    u = User.new
-    u.username = username
-    u.email = email
-    u
+    User.new(Time.new.to_s, :username => username, :email => email)
   end
 
   # Default user
@@ -174,12 +264,16 @@ class GitProviderTest < Test::Unit::TestCase
     @default_user
   end
 
-  def page_exists?(type, name)
-    @provider.page_exists? type, name
+  def types
+    @provider.types
   end
 
-  def page_contents(type, name)
-    @provider.page_contents type, name
+  def page_exists?(type, name, revision=nil)
+    @provider.page_exists? type, name, revision
+  end
+
+  def page_contents(type, name, revision=nil)
+    @provider.page_contents type, name, revision
   end
 
   def page_revisions(type, name)
@@ -190,31 +284,43 @@ class GitProviderTest < Test::Unit::TestCase
     @provider.page_save type, name, content, message, user
   end
 
-  def page_rename(type, old_name, new_name, user)
-    @provider.page_rename type, old_name, new_name, user
+  def page_rename(old_type, old_name, new_type, new_name, user)
+    @provider.page_rename old_type, old_name, new_type, new_name, user
   end
 
   def page_delete(type, name, user)
     @provider.page_delete type, name, user
   end
 
-  def page_all(type=nil)
+  def page_all(type)
     @provider.page_all type
   end
 
-  def attachment_exists?(type, page, name)
-    @provider.attachment_exists? type, page, name
+  def attachment_exists?(type, page, name, revision=nil)
+    @provider.attachment_exists? type, page, name, revision
   end
 
   def attachment_save(type, page, name, contents, message, user)
     @provider.attachment_save type, page, name, contents, message, user
+  end
+  
+  def attachment_contents(type, page, name, revision=nil)
+    @provider.attachment_contents type, page, name, revision
+  end
+  
+  def attachment_revisions(type, page, name)
+    @provider.attachment_revisions type, page, name
+  end
+  
+  def attachment_delete(type, page, name, user)
+    @provider.attachment_delete type, page, name, user
   end
 
   def generate_binary_data(length=nil)
     length = 1024 + rand(4096) if length.nil?
     data = ""
     file = File.new("/dev/random", "r")
-    length.times do
+    (length/10).times do
       data += file.gets
     end
     file.close

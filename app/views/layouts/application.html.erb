@@ -22,13 +22,11 @@
         <div id="left_menu_footer">
           <%=insert_page :page, 'LeftMenuFooter' %>
         </div>
-        <div id="application_info">
-          <div id="global_feed">
-            <%=link_to image_tag('feed.png', :alt => 'Feed'), { :controller => 'feed', :action => 'feed'}, {:title => t('feed', :app_name => Raki.app_name), :class => 'feed'} %>
-            <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'feed'}, :title => t('feed', :app_name => Raki.app_name)) %>
-          </div>
-          Raki v<%=Raki.version %>
+		<div id="global_feed">
+          <%=link_to image_tag('feed.png', :alt => 'Feed'), {:controller => 'feed', :action => 'feed'}, {:title => t('feed', :app_name => Raki.app_name), :class => 'feed'} %>
+          <%=auto_discovery_link_tag :rss, {:controller => 'feed', :action => 'feed'}, :title => t('feed', :app_name => Raki.app_name) %>
         </div>
+        <div id="application_info">Raki v<%=Raki.version %></div>
       </div>
       <div id="main">
 	    <div id="top_right">
@@ -40,6 +38,10 @@
 		  </div>
 		</div>
         <div id="page_title"><%=h @title %></div>
+        <div id="visted_pages">
+	      <%=t 'visited_pages' %>:
+          <%=session[:visited_pages].collect{|p| link_to "#{p[:type]}/#{p[:page]}", url_for_page(h(p[:type]), h(p[:page]))}.join(', ') %>
+        </div>
         <div id="content_container">
           <div id="controls">
             <%=render :partial => "#{controller_name}/tabs" %>

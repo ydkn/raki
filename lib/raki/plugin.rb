@@ -145,6 +145,10 @@ module Raki
     def add_stylesheet(url, options={})
       @stylesheets << {:url => url, :options => options}
     end
+    
+    def override_permission(type, page='*', rights='!all')
+      Raki::Permission.add_override(type, page, rights)
+    end
 
     def execute(&block)
       @execute = block
@@ -158,7 +162,7 @@ module Raki
       context[:subcontext] = context[:subcontext].clone
       @context = context
       result = @execute.call
-      context[:subcontext] = context[:subcontext]
+      context[:subcontext] = old_subcontext
       result
     end
 
