@@ -116,7 +116,7 @@ class PageController < ApplicationController
       return if render_forbidden_if_not_authorized :delete
       return if redirect_if_page_not_exists
       page_delete @type, @page
-      redirect_to :controller => 'page', :action => 'info', :type => h(Raki.frontpage[:type]), :id => h(Raki.frontpage[:page])
+      redirect_to :controller => 'page', :type => h(Raki.frontpage[:type]), :id => h(Raki.frontpage[:page])
     else
       return if render_forbidden_if_not_authorized :delete
       return if redirect_if_attachment_not_exists

@@ -45,8 +45,9 @@ en:
       preview: Preview
       abort: Abort
       message: Comment
-      rename: Rename Page
-      delete: Remove entire Page
+      rename: Rename page
+      delete: Remove entire page
+      delete_question: Remove entire page?
       page_already_exists: Page already exists
       no_permission_to_create: No Permission to create page
 

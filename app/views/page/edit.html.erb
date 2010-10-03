@@ -10,7 +10,7 @@
   <% end %>
 <% end %>
 <% if authorized?(@type, @page, :delete) && page_exists?(@type, @page) %>
-  <input type="button" value="<%=t 'page.edit.delete' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :type => h(@type), :id => h(@page), :action => 'delete' %>';" />
+  <input type="button" value="<%=t 'page.edit.delete' %>" onclick="javascript:if(confirm('<%=t 'page.edit.delete_question'%>')) location.href='<%=url_for :controller => 'page', :type => h(@type), :id => h(@page), :action => 'delete' %>';" />
   <br/>
 <% end %>
 <% if authorized?(@type, @page, :edit) && page_exists?(@type, @page) || authorized?(@type, @page, :create) && !page_exists?(@type, @page) %>

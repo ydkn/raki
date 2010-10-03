@@ -47,6 +47,7 @@ de:
       message: Kommentar
       rename: Seite umbenennen
       delete: Komplette Seite löschen
+      delete_question: Komplette Seite löschen?
       page_already_exists: Seite existiert bereits.
       no_permission_to_create: Keine Berechtigung um Seite anzulegen
 
