@@ -21,8 +21,8 @@ grammar RakiSyntax
   end
 
   rule line
-    table  / heading ignore_whitespace* / list !non_linebreak / infobox
-    / in_line+ !non_linebreak / linebreak linebreak? ignore_whitespace*
+    table  / heading ignore_linebreak? / list !non_linebreak / infobox
+    / in_line+ !non_linebreak / linebreak space*
   end
 
   rule in_line
@@ -98,9 +98,9 @@ grammar RakiSyntax
   end
 
   rule underlined
-    '_' !whitespace text:(unprotected_formating
+    '_' !whitespace text:(unprotected_formating !(!'_' .)
     # in_line* without whitespace at the end
-    / ((!underlined_end (!'_' in_line ('_' !(whitespace / '~' / '*' / '-'))?))* underlined_end (whitespace* unprotected_formating)?)+
+    / (formating? ((!underlined_end (!'_' in_line ('_' !(whitespace / '~' / '*' / '-'))?))* underlined_end (whitespace* unprotected_formating !(!'_' .))?)+)
     ) '_' <UnderlineNode>
   end
 
@@ -109,8 +109,8 @@ grammar RakiSyntax
   end
 
   rule italic
-    '~' !whitespace text:(unprotected_formating
-    / ((!italic_end (!'~' in_line ('~' !(whitespace / '_' / '*' / '-'))?))* italic_end)+
+    '~' !whitespace text:(unprotected_formating !(!'~' .)
+    / (formating? ((!italic_end (!'~' in_line ('~' !(whitespace / '_' / '*' / '-'))?))* italic_end (whitespace* unprotected_formating !(!'~' .))?)+)
     ) '~' <ItalicNode>
   end
 
@@ -119,8 +119,8 @@ grammar RakiSyntax
   end
 
   rule bold
-    '*' !whitespace text:(unprotected_formating
-    / ((!bold_end (!'*' in_line ('*' !(whitespace / '_' / '~' / '-'))?))* bold_end)+
+    '*' !whitespace text:(unprotected_formating !(!'*' .)
+    / (formating? ((!bold_end (!'*' in_line ('*' !(whitespace / '_' / '~' / '-'))?))* bold_end (whitespace* unprotected_formating !(!'*' .))?)+)
     ) '*' <BoldNode>
   end
 
@@ -129,8 +129,8 @@ grammar RakiSyntax
   end
 
   rule strikethrough
-    '-' !whitespace text:(unprotected_formating
-    / ((!strikethrough_end (!'-' in_line ('-' !(whitespace / '_' / '~' / '*'))?))* strikethrough_end)+
+    '-' !whitespace text:(unprotected_formating !(!'-' .)
+    / (formating? ((!strikethrough_end (!'-' in_line ('-' !(whitespace / '_' / '~' / '*'))?))* strikethrough_end (whitespace* unprotected_formating !(!'-' .))?)+)
     ) '-' <StrikethroughNode>
   end
 

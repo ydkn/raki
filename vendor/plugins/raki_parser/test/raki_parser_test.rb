@@ -90,12 +90,15 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal '<span class="underline">test<b>some text</b></span>', parse("_test*some text*_")
     assert_equal '<span class="underline">test <i>some text</i></span>', parse("_test ~some text~_")
     assert_equal '<i>test <b><span class="underline">some text</span></b></i>', parse("~test *_some text_*~")
+    assert_equal '<i><b>test</b> some text</i>', parse("~*test* some text~")
+    assert_equal '<i><b>test</b> some <span class="underline">text</span></i>', parse("~*test* some _text_~")
     assert_equal '<span class="underline"><b>some</b> text <a href="/test/WikiPageName">WikiPageName</a> some <i>other</i></span> text', parse("_*some* text [WikiPageName] some ~other~_ text")
   end
 
   # Test for headings
   def test_headings
     assert_equal "<h1>Heading first order</h1>\n", parse("!Heading first order")
+    assert_equal "<h1>Heading first order</h1>\n<br/>\n", parse("!Heading first order\r\n\r\n\r\n")
     assert_equal "<h2>Heading second order</h2>\n", parse("!!Heading second order\n")
     assert_equal "<h3>Heading third order</h3>\n", parse("!!!Heading third order")
     assert_equal "<h6>Heading sixth order</h6>\n", parse("!!!!!!Heading sixth order\n")
@@ -126,17 +129,17 @@ class RakiParserTest < Test::Unit::TestCase
   # Test for unordered lists
   def test_unordered_lists
     assert_equal "<ul>\n<li>test</li>\n</ul>\n", parse("* test")
-    assert_equal "<ul>\n<li>foo<br/>\nbar</li>\n</ul>\n", parse("* foo\r\n bar")
-    assert_equal "<ul>\n<li>test</li>\n<li>test</li>\n</ul>\n", @parser.parse("* test\n* test")
+    assert_equal "<ul>\n<li>foo<br/>\n bar</li>\n</ul>\n", parse("* foo\r\n bar")
+    assert_equal "<ul>\n<li>test</li>\n<li>test</li>\n</ul>\n", parse("* test\n* test")
     assert_equal "<ul>\n<li>abc</li>\n<li>def</li>\n<li>ghi</li>\n<li>jkl</li>\n</ul>\n", parse("\n* abc\n* def\n* ghi\n* jkl")
     assert_equal "<ul>\n<li><a href=\"/test/WikiPageName\">WikiPageName</a></li>\n</ul>\n", parse("\n* [WikiPageName]")
-    assert_equal "<ul>\n<li>asdf<br/>\nasdf\n<ul>\n<li>asdf<br/>\nasdf</li>\n<li>asdf<br/>\nasdf</li>\n</ul>\n</li>\n<li>asdf</li>\n</ul>\n", parse("* asdf\n asdf\n * asdf\n asdf\n * asdf\n asdf\n* asdf")
+    assert_equal "<ul>\n<li>asdf<br/>\n asdf\n<ul>\n<li>asdf<br/>\n asdf</li>\n<li>asdf<br/>\n asdf</li>\n</ul>\n</li>\n<li>asdf</li>\n</ul>\n", parse("* asdf\n asdf\n * asdf\n asdf\n * asdf\n asdf\n* asdf")
   end
 
   # Test for ordered lists
   def test_ordered_lists
     assert_equal "<ol>\n<li>abc</li>\n<li>def</li>\n<li>ghi</li>\n<li>jkl</li>\n</ol>\n", parse("\n# abc\n# def\n# ghi\n# jkl")
-    assert_equal "<ol>\n<li>abc</li>\n<li>def</li>\n<li>ghi<br/>\ntest</li>\n<li>jkl</li>\n</ol>\n", parse("\n# abc\n# def\n# ghi\n test\n# jkl")
+    assert_equal "<ol>\n<li>abc</li>\n<li>def</li>\n<li>ghi<br/>\n test</li>\n<li>jkl</li>\n</ol>\n", parse("\n# abc\n# def\n# ghi\n test\n# jkl")
     assert_equal "<ol>\n<li><a href=\"/test/WikiPageName\">WikiPageName</a></li>\n</ol>\n", parse("\n# [WikiPageName]")
   end
 
