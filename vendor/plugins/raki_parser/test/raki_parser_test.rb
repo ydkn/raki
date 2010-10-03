@@ -25,6 +25,7 @@ class RakiParserTest < Test::Unit::TestCase
   end
 
   def test_text
+    assert_equal '', parse('')
     assert_equal "\x60abcdefghijklmnopqrstuvwxyz \tABCDEFGHIJKLMNOPQRSTUVWXYZ", parse("\x60abcdefghijklmnopqrstuvwxyz \tABCDEFGHIJKLMNOPQRSTUVWXYZ")
   end
 
@@ -79,6 +80,17 @@ class RakiParserTest < Test::Unit::TestCase
   def test_underlined_text
     assert_equal '<span class="underline">some text</span>', parse("_some text_")
     assert_equal '<span class="underline">some text <a href="/test/WikiPageName">WikiPageName</a> some other</span> text', parse("_some text [WikiPageName] some other_ text")
+    assert_equal '<span class="underline">some text <a href="/test/WikiPageName">WikiPageName</a></span> text', parse("_some text [WikiPageName]_ text")
+  end
+
+  # Test for mixed formating
+  def test_mixed_formating
+    assert_equal '<span class="underline"><b>some text</b></span>', parse("_*some text*_")
+    assert_equal '<span class="underline">test <b>some text</b></span>', parse("_test *some text*_")
+    assert_equal '<span class="underline">test<b>some text</b></span>', parse("_test*some text*_")
+    assert_equal '<span class="underline">test <i>some text</i></span>', parse("_test ~some text~_")
+    assert_equal '<i>test <b><span class="underline">some text</span></b></i>', parse("~test *_some text_*~")
+    assert_equal '<span class="underline"><b>some</b> text <a href="/test/WikiPageName">WikiPageName</a> some <i>other</i></span> text', parse("_*some* text [WikiPageName] some ~other~_ text")
   end
 
   # Test for headings
@@ -89,6 +101,9 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal "<h6>Heading sixth order</h6>\n", parse("!!!!!!Heading sixth order\n")
     assert_equal "<h6>!!Heading sixth order with extra exlamation marks</h6>\n", parse("!!!!!! !!Heading sixth order with extra exlamation marks\n")
     assert_equal "<h1>Heading first order</h1>\ntest", parse("!Heading first order\ntest")
+    assert_equal "<h1><i>Heading first</i> <span class=\"underline\">order</span></h1>\ntest", parse("!~Heading first~ _order_\ntest")
+    assert_equal "<h1>Heading first <a href=\"/test/Link\">Link</a> order</h1>\ntest", parse("!Heading first [Link] order\ntest")
+    # assert_equal "<h1>Heading first <span class=notbold>order</span></h1>\ntest", parse("!Heading first *order*\ntest")
   end
 
   # Test for message boxes
@@ -97,6 +112,15 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal '<div class="error">content of error-box</div>', parse("%%error content of error-box%%")
     assert_equal '<div class="warning">content of warning-box</div>', parse("%%warning content of warning-box%%")
     assert_equal '<div class="confirmation">content of confirmation-box</div>', parse("%%confirmation content of confirmation-box%%")
+    assert_equal '<div class="confirmation"><a href="/test/content">content</a> of confirmation-box</div>', parse("%%confirmation [content] of confirmation-box%%")
+    assert_equal '<div class="error"><div class="warning">some warning</div></div>', parse("%%error %%warning some warning%%%%")
+    assert_equal '<div class="error">error<div class="warning">some warning</div></div>', parse("%%error error%%warning some warning%%%%")
+    assert_equal '<div class="error"><div class="warning">some warning</div> test</div>', parse("%%error %%warning some warning%% test%%")
+    assert_equal '<div class="error">error! <div class="warning">some warning</div> test</div>', parse("%%error error! %%warning some warning%% test%%")
+    assert_equal '<div class="warning"><b>content</b> of confirmation-box</div>', parse("%%warning *content* of confirmation-box%%")
+    assert_equal "<div class=\"warning\"><b>content</b><br/>\n<ul>\n<li>of</li>\n<li>confirmation-box</li>\n</ul>\n<br/></div>", parse("%%warning *content*\n* of\n* confirmation-box\n%%")
+    assert_equal "<div class=\"warning\"><h1>content</h1>\nof confirmation-box</div>", parse("%%warning !content\nof confirmation-box%%")
+    assert_equal "<div class=\"warning\"><h1>content</h1></div>", parse("%%warning !content%%")
   end
 
   # Test for unordered lists
@@ -122,6 +146,11 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal "<ul>\n<li>item1\n<ol>\n<li>item2</li>\n</ol>\n</li>\n<li>item3</li>\n</ul>\n", parse("* item1\n # item2\n* item3")
     assert_equal "<ol>\n<li>hello</li>\n<li>world\n<ul>\n<li>sub</li>\n<li>bla</li>\n</ul>\n<ol>\n<li>test\n<ul>\n<li>foo</li>\n</ul>\n</li>\n</ol>\n</li>\n<li>bar</li>\n</ol>\n",
         parse("# hello\n# world\n * sub\n * bla\n # test\n  * foo\n# bar")
+  end
+
+  def test_table
+    assert_equal "<table class=\"wikitable\">\n<tr><td>test</td>\n<td>asdf</td>\n</tr>\n<tr><td>foo</td>\n<td>bar</td>\n</tr>\n</table>\n", parse("|test|asdf|\n|foo|bar|")
+    assert_equal "<table class=\"wikitable\">\n<tr><th>test</th>\n<th>asdf</th>\n</tr>\n<tr><td>foo</td>\n<td>bar</td>\n</tr>\n</table>\n", parse("!|test|asdf|\n|foo|bar|")
   end
 
   def test_pages
