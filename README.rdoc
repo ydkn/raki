@@ -1,7 +1,7 @@
 == Raki
 Raki is a extensible wiki written using the Ruby on Rails framework.
 It can use different backends to store pages and attachments or multiple backends for
-different namespaces. It can also have a namespace-specific syntax.
+different namespaces. It also supports a namespace-specific syntax.
 
 
 *Authors*
