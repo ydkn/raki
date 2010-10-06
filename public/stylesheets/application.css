@@ -221,6 +221,10 @@ a.feed img {
 	list-style-type: none;
 }
 
+.search_results li {
+	margin-bottom: 0.5em;
+}
+
 .information, .warning, .error, .confirmation {
     display: block;
     margin: 1em .5em;

@@ -3,7 +3,7 @@
     <% @results.each do |result| %>
       <li>
         <%=link_to h("#{result[:type]}/#{result[:page]}"), url_for_page(result[:type], result[:page], result[:revision]) %><br/>
-        <%=result[:excerpt].join('<br/>') %>
+        <%=result[:excerpt].join('<br/>') unless result[:excerpt].nil? %>
       </li>
     <% end %>
   <% end %>

@@ -19,28 +19,25 @@ require 'ferret'
 module Raki
   class Search
     
-    begin
-      @index = Ferret::Index::Index.new(:path => "#{Rails.root}/tmp/search.idx")
-      @index.field_infos.add_field(:type, :store => :yes, :boost => 5.0)
-      @index.field_infos.add_field(:page, :store => :yes, :boost => 5.0)
-      @index.field_infos.add_field(:content, :store => :yes, :boost => 2.0)
-    rescue => e
-    end
+    SEARCH_FIELDS = [:page, :content, :attachment]
     
     class << self
       
       include Raki::Helpers::ProviderHelper
       
       def search(querystring)
-        query = Ferret::Search::MultiTermQuery.new(:content)
+        results = []
+        SEARCH_FIELDS.each do |field|
+          results += field_search field, querystring
+        end
+        results.sort {|a,b| a[:score] <=> b[:score]}
+      end
+      
+      def field_search(field, querystring)
+        query = Ferret::Search::MultiTermQuery.new(field.to_sym)
         querystring.downcase.split(/\s+/).each do |term|
           query.add_term(term) 
         end
-        
-        
-        
-        
-        
         results = []
         @index.search_each(query) do |id, score|
           doc = @index[id]
@@ -48,12 +45,18 @@ module Raki
               :type => doc[:type],
               :page => doc[:page],
               :revision => doc[:revision],
+              :attachment => doc[:attachment],
               :score => score,
               :excerpt => @index.highlight(querystring, id, :field => :content, :pre_tag => '<b>', :post_tag => '</b>')
             }
         end
         results.sort {|a,b| a[:score] <=> b[:score]}
+        results.each do |r|
+          p r
+        end
+        results
       end
+      private :field_search
       
       def <<(type, page, revision, content=nil, attachment=nil)
         type = type.to_s
@@ -61,13 +64,14 @@ module Raki
         revision = revision.to_s
         doc_id = nil
         @index.search_each("(type:\"#{type}\" AND page:\"#{page}\" AND revision:\"#{revision}\")") {|id, score| doc_id = id}
-        @index.delete doc_id unless doc_id.nil?
+        return false unless doc_id.nil?
         if attachment.nil?
           doc = {:type => type, :page => page, :revision => revision, :content => content}
         else
           doc = {:type => type, :page => page, :revision => revision, :attachment => attachment}
         end
         @index << doc
+        true
       end
       
       def indexed?(type, page, revision)
@@ -99,6 +103,30 @@ module Raki
         nil
       end
       
+      def rebuild_index
+        require 'fileutils'
+        FileUtils.rm_rf "#{Rails.root}/tmp/search.idx"
+        create_index
+        refresh
+      end
+      
+      def create_index
+        @index = Ferret::Index::Index.new(:path => "#{Rails.root}/tmp/search.idx")
+        @index.field_infos.add_field(:type, :store => :yes, :boost => 5.0)
+        @index.field_infos.add_field(:page, :store => :yes, :boost => 5.0)
+        @index.field_infos.add_field(:content, :store => :yes, :boost => 2.0)
+      end
+      private :create_index
+      
+      def optimize_index
+        @index.optimize
+      end
+      
+    end
+    
+    begin
+      create_index
+    rescue => e
     end
     
   end

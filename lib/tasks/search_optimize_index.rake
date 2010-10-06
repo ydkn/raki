@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab & Martin Sigloch
+# Copyright (C) 2010 Florian Schwab
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,6 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Thread.new do
-  Raki::Search.refresh
+namespace :raki do
+  namespace :search do
+    
+    desc 'Optimizes the search index.'
+    task :optimize_index => :environment do
+      require 'raki/search'
+      Raki::Search.optimize_index
+    end
+    
+  end
 end
