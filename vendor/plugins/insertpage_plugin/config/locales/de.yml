@@ -1,0 +1,5 @@
+de:
+
+  insertpage:
+    already_included: Seite '%{name}' wurde bereits eingebunden
+    no_page: Keine Seite spezifiziert
