@@ -318,11 +318,11 @@ class GitProvider < Raki::AbstractProvider
             changes << Change.new(type, normalize(File.basename(diff.a_path)), Revision.new(
                   commit.sha,
                   commit.id_abbrev.upcase,
-                  (deleted ? -1 : size(diff.a_path, commit.sha)),
+                  (diff.deleted_file ? -1 : size(diff.a_path, commit.sha)),
                   Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
                   commit.authored_date,
                   commit.message,
-                  deleted
+                  diff.deleted_file
                 ),
                 normalize(File.basename(diff.a_path))
               )
