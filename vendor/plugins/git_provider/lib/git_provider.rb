@@ -20,11 +20,16 @@ require 'unicode'
 
 class GitProvider < Raki::AbstractProvider
   
+  class LimitReached < StandardError
+  end
+  
   include Cacheable
 
   def initialize(params)
     raise ProviderError.new("Parameter 'path' not specified") unless params.key?('path')
     begin
+      Grit::Git.git_timeout = 10
+      Grit::Git.git_max_size = 26214400
       @branch = params.key?('branch') ? params['branch'] : 'master'
       refresh = params.key?('refresh') ? params['refresh'].to_i : 600
       
@@ -35,7 +40,10 @@ class GitProvider < Raki::AbstractProvider
       Thread.new do
         while true do
           sleep refresh
-          pull
+          begin
+            pull
+          rescue => e
+          end
         end
       end
     rescue => e
@@ -79,9 +87,9 @@ class GitProvider < Raki::AbstractProvider
     all(type.to_s)
   end
 
-  def page_changes(type, amount=nil)
-    logger.debug("Fetching all page changes: #{{:type => type, :limit => amount}.inspect}")
-    changes(type.to_s, type.to_s, amount)
+  def page_changes(type, options={})
+    logger.debug("Fetching all page changes: #{{:type => type, :options => options}.inspect}")
+    changes(type.to_s, type.to_s, options)
   end
   
   def page_diff(type, page, revision_from=nil, revision_to=nil)
@@ -119,16 +127,16 @@ class GitProvider < Raki::AbstractProvider
     all("#{type.to_s}/#{page.to_s}_att")
   end
 
-  def attachment_changes(type, page=nil, amount=nil)
-    logger.debug("Fetching all page attachment changes: #{{:type => type, :page => page, :limit => amount}.inspect}")
+  def attachment_changes(type, page=nil, options={})
+    logger.debug("Fetching all page attachment changes: #{{:type => type, :page => page, :options => options}.inspect}")
     if page.nil?
       changes = []
       page_all(type).each do |page|
-        changes += changes(type, "#{type.to_s}/#{page.to_s}_att", amount, page)
+        changes += changes(type, "#{type.to_s}/#{page.to_s}_att", options, page)
       end
       changes.sort { |a,b| a.revision.date <=> b.revision.date }
     else
-      changes(type, "#{type.to_s}/#{page.to_s}_att", amount, page)
+      changes(type, "#{type.to_s}/#{page.to_s}_att", options, page)
     end
   end
   
@@ -297,25 +305,46 @@ class GitProvider < Raki::AbstractProvider
     files.sort { |a,b| a <=> b }
   end
   cache :all
+  private :all
 
-  def changes(type, dir, amount=0, page=nil)
+  def changes(type, dir, options={}, page=nil)
     check_obj(dir)
     changes = []
-    all(dir).each do |obj|
-      revisions("#{dir}/#{obj}").each do |revision|
-        if page.nil?
-          changes << Change.new(type, normalize(obj), revision)
-        else
-          changes << Change.new(type, normalize(page), revision, normalize(obj))
+    begin
+      @repo.log(@branch, dir).each do |commit|
+        break if options[:since] && options[:since] >= commit.authored_date
+        commit.diffs.each do |diff|
+          if page && diff.a_path =~ /^#{type}\/#{page}\//
+            changes << Change.new(type, normalize(File.basename(diff.a_path)), Revision.new(
+                  commit.sha,
+                  commit.id_abbrev.upcase,
+                  (deleted ? -1 : size(diff.a_path, commit.sha)),
+                  Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
+                  commit.authored_date,
+                  commit.message,
+                  deleted
+                ),
+                normalize(File.basename(diff.a_path))
+              )
+          else
+            changes << Change.new(type, normalize(File.basename(diff.a_path)), Revision.new(
+                  commit.sha,
+                  commit.id_abbrev.upcase,
+                  (diff.deleted_file ? -1 : size(diff.a_path, commit.sha)),
+                  Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
+                  commit.authored_date,
+                  commit.message,
+                  diff.deleted_file
+                )
+              )
+          end
+          raise LimitReached if options[:limit] && changes.length >= options[:limit]
         end
       end
+    rescue LimitReached
     end
     changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
-    if amount.nil?
-      changes
-    else
-      changes[0..(amount-1)]
-    end
+    changes
   end
   cache :changes
   

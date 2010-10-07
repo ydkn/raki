@@ -106,16 +106,19 @@ module Raki
         end
       end
 
-      def page_changes(type, amount=0)
-        provider(type).page_changes(type, amount)
+      def page_changes(type, options={})
+        if options.is_a?(Fixnum)
+          options = {:limit => options}
+        elsif options.is_a?(Date)
+          options = {:since => options}
+        end
+        provider(type).page_changes(type, options)
       end
 
-      def page_changes!(type, amount=0, user=User.current)
-        changes = page_changes(type).select do |change|
+      def page_changes!(type, options={}, user=User.current)
+        page_changes(type, options).select do |change|
           authorized?(change.type, change.page, :view, user)
         end
-        changes = changes[0, amount] if amount > 0
-        changes
       end
 
       def page_diff(type, page, revision_from=nil, revision_to=nil)
@@ -189,16 +192,19 @@ module Raki
         attachment_all(type, page)
       end
 
-      def attachment_changes(type, page=nil, amount=nil)
-        provider(type).attachment_changes(type, page, amount)
+      def attachment_changes(type, page=nil, options={})
+        if options.is_a?(Fixnum)
+          options = {:limit => options}
+        elsif options.is_a?(Date)
+          options = {:since => options}
+        end
+        provider(type).attachment_changes(type, page, options)
       end
 
-      def attachment_changes!(type, page=nil, amount=nil, user=User.current)
-        changes = attachment_changes(type, page).select do |change|
+      def attachment_changes!(type, page=nil, options={}, user=User.current)
+        attachment_changes(type, page, options).select do |change|
           authorized?(change.type, change.page, :view, user)
         end
-        changes = changes[0, amount] if amount > 0
-        changes
       end
 
       def types

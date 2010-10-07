@@ -50,7 +50,7 @@ module Raki
       raise ProviderError.new 'not implemented'
     end
 
-    def page_changes(type, amount=0)
+    def page_changes(type, options={})
       raise ProviderError.new 'not implemented'
     end
     
