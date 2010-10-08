@@ -37,6 +37,11 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal "test\ntext<br/>\nhallo", parse("test\\\ntext\n\nhallo")
   end
 
+  def test_hline
+    assert_equal "\n<hr/>\n", parse("----")
+    assert_equal "test\n<hr/>\ntext", parse("test\n----\ntext")
+  end
+
   # Test links for wikipages
   def test_link_to_page
     assert_equal '<a href="/test/WikiPageName">WikiPageName</a>', parse("[WikiPageName]")

@@ -21,8 +21,8 @@ grammar RakiSyntax
   end
 
   rule line
-    table  / heading ignore_linebreak? / list !non_linebreak / infobox
-    / in_line+ !non_linebreak / linebreak space*
+    hline ignore_linebreak? / table  / heading ignore_linebreak? / list !non_linebreak / infobox
+    / in_line+ !non_linebreak / ignore_linebreak !(!hline) / linebreak space*
   end
 
   rule in_line
@@ -47,6 +47,10 @@ grammar RakiSyntax
     '\\' name:(!'\\' !whitespace text)+ whitespace?
     param:(parameter whitespace?)*
     body:(!'\\end' (text / linebreak))* '\\end' <PluginNode>
+  end
+
+  rule hline
+    '--' '--' !non_linebreak <HLineNode>
   end
 
   rule heading
@@ -168,6 +172,7 @@ grammar RakiSyntax
   rule pagename
     ((!'|' !']' text) / '\\|' / '\\]')+
   end
+
 
   # Strings
 
