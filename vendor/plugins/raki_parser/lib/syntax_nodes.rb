@@ -48,13 +48,13 @@ end
 
 class LinkNode < RakiSyntaxNode
   
-  @@dangerous_protocols = ['about', 'wysiwyg', 'data', 'view-source', 'ms-its',
+  DANGEROUS_PROTOCOLS = ['about', 'wysiwyg', 'data', 'view-source', 'ms-its',
     'mhtml', 'shell', 'lynxexec',  'lynxcgi', 'hcp', 'ms-help', 'help', 'disk',
     'vnd.ms.radio', 'opera', 'res', 'resource',  'chrome', 'mocha',
     'livescript', 'javascript', 'vbscript']
 
   def to_html context
-    if @@dangerous_protocols.include? href.protocol.to_html(context).strip
+    if DANGEROUS_PROTOCOLS.include? href.protocol.to_html(context).strip
       #TODO: no attribute "target" in XHTML 1.1
       '<a target="_blank" href="' + href.to_html(context).strip + '">' +
       (desc.to_html(context).empty? ? href : desc).to_html(context).strip + '</a>'
@@ -127,6 +127,10 @@ class HeadingNode < RakiSyntaxNode
     l = level.text_value.length
     l = 6 if l > 6
     return "<h#{l}>" + text.to_html(context).strip + "</h#{l}>\n"
+  end
+  
+  def rename_link(o, n)
+    children.select{|c| c.respond_to? :rename_link }.each{|c| c.rename_link(o,n)}
   end
   
 end
