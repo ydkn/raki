@@ -121,6 +121,15 @@ class StrikethroughNode < RakiSyntaxNode
 end
 
 
+class HLineNode < RakiSyntaxNode
+
+  def to_html context
+    "\n<hr/>\n"
+  end
+
+end
+
+
 class HeadingNode < RakiSyntaxNode
   
   def to_html context
