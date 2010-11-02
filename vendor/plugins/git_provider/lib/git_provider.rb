@@ -365,6 +365,8 @@ class GitProvider < Raki::AbstractProvider
       diff_lines += diff.diff.split("\n")
     end
     Diff.new(diff_lines)
+  rescue
+    raise ProviderError.new('Invalid revisions')
   end
   cache :diff
   
