@@ -1,6 +1,4 @@
-config/database.yml
-config/raki.yml
-config/permissions.yml
+config/*.yml
 
 public/plugin_assets/
 
