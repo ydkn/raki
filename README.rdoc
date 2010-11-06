@@ -16,7 +16,7 @@ different namespaces. It can also have a namespace-specific syntax.
 == Dependencies
 
 === Raki core
-  $ gem install -v=2.3.8 rails
+  $ gem install -v=2.3.10 rails
 
 === GIT provider
   $ gem install unicode mime-types diff-lcs
