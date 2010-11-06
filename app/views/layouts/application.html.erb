@@ -6,6 +6,7 @@
     <title><%=h "#{Raki.app_name} :: #{@title}" %></title>
     <%=stylesheet_link_tag 'application', :media => 'all' %>
     <%=plugin_stylesheets %>
+    <%=javascript_include_tag 'application' %>
     <link rel="shortcut icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
     <link rel="icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
   </head>
@@ -46,7 +47,9 @@
             <%=yield %>
           </div>
           <%=render :partial => "layouts/page_footer" %>
-          </div>
+          <div id="footer">
+		    Icons by Yusuke Kamiyamane <a href="http://p.yusukekamiyamane.com/">http://p.yusukekamiyamane.com/</a>.
+		  </div>
         </div>
         <br class="clear" />
       </div>

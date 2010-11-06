@@ -108,6 +108,13 @@ a, a:visited {
 
 #page_footer {
     float: right;
+	text-align: right;
+}
+
+#footer {
+	font-size: 0.8em;
+	text-align: center;
+	margin-top: 3em;
 }
 
 #controls {

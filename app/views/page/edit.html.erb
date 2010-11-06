@@ -24,8 +24,9 @@
       <label for="page-message"><%=t 'page.edit.message' %></label>
       <input type="text" id="page-message" name="message" />
     </div>
+    <%=render :partial => 'toolbar' %>
     <div>
-      <textarea name="content" cols="100" rows="25"><%=@content %></textarea>
+      <textarea id="content" name="content" cols="100" rows="25"><%=h @content %></textarea>
     </div>
   <% end %>
   <% unless @preview.nil? %>
