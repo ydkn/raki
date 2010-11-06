@@ -69,7 +69,7 @@ module Raki
     
     def version
       version = [VERSION_MAJOR, VERSION_MINOR, VERSION_TINY].compact.join('.')
-      "#{version}@#{REVISION}" unless REVISION.nil?
+      REVISION.nil? ? version : "#{version}@#{REVISION}"
     end
     
     def self.revision

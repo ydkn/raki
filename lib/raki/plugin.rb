@@ -159,7 +159,7 @@ module Raki
       @params = params
       @body = body
       old_subcontext = context[:subcontext]
-      context[:subcontext] = context[:subcontext].clone
+      context[:subcontext] = context[:subcontext].clone if context[:subcontext]
       @context = context
       result = @execute.call
       context[:subcontext] = old_subcontext
