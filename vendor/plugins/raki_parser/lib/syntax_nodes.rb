@@ -52,14 +52,15 @@ class LinkNode < RakiSyntaxNode
     'mhtml', 'shell', 'lynxexec',  'lynxcgi', 'hcp', 'ms-help', 'help', 'disk',
     'vnd.ms.radio', 'opera', 'res', 'resource',  'chrome', 'mocha',
     'livescript', 'javascript', 'vbscript']
+  SAFE_PROTOCOLS = ['http', 'https', 'ftp', 'mailto', 'sip', 'skype']
 
   def to_html context
-    if DANGEROUS_PROTOCOLS.include? href.protocol.to_html(context).strip
-      #TODO: no attribute "target" in XHTML 1.1
-      '<a target="_blank" href="' + href.to_html(context).strip + '">' +
+    if SAFE_PROTOCOLS.include? href.protocol.to_html(context).strip.downcase
+      '<a href="' + href.to_html(context).strip + '">' +
       (desc.to_html(context).empty? ? href : desc).to_html(context).strip + '</a>'
     else
-      '<a href="' + href.to_html(context).strip + '">' +
+      #TODO: no attribute "target" in XHTML 1.1
+      '<a target="_blank" href="' + href.to_html(context).strip + '">' +
       (desc.to_html(context).empty? ? href : desc).to_html(context).strip + '</a>'
     end
   end
@@ -81,6 +82,17 @@ class WikiLinkNode < RakiSyntaxNode
     pagelink = url_for_page h(type.strip), h(page.strip)
     return '<a href="' + pagelink + '">' +
       (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip).strip + '</a>'
+  end
+
+  def link_update from, to, context
+    def href.set_href href
+      @href = href
+    end
+    href.set_href to
+
+    def href.to_src context={}
+      @href
+    end
   end
 
 end
@@ -256,13 +268,7 @@ end
 class ParameterNode < RakiSyntaxNode
   
   def keyval
-    val = value.text_value
-    if val[0] == '"' && val[-1] == '"';
-      val = val[1..-2].gsub(/\\"/, '"')
-    elsif val[0] == "'" && val[-1] == "'";
-      val = val[1..-2].gsub(/\\'/, "'")
-    end
-    Hash[key.text_value.to_sym, val]
+    Hash[key.text_value.to_sym, value.text.text_value]
   end
   
 end

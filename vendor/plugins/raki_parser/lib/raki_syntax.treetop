@@ -177,21 +177,22 @@ grammar RakiSyntax
   # Strings
 
   rule parameter
-    key:(!('=' / whitespace) text)+ '=' value:parameter_value <ParameterNode>
+    key:(!('=' / whitespace) text)+ '='
+    value:(quoted_value / unquoted_value) <ParameterNode>
   end
 
   rule parameter_key
     (!"\\" !"\\end" !'=' non_whitespace)+
   end
 
-  rule parameter_value
-    quoted_text / (!"\\" !'\\end' non_whitespace)*
+  rule unquoted_value
+    text:(!"\\" !'\\end' non_whitespace)*
   end
 
-  rule quoted_text
-    '"' ("\\\"" / "\\\\" / (!'"' !"\\" text))* '"'
+  rule quoted_value
+    '"' text:("\\\"" / "\\\\" / (!'"' !"\\" text))* '"'
     /
-    "'" ("\\'" / "\\\\" / (!"'" !"\\" text))* "'"
+    "'" text:("\\'" / "\\\\" / (!"'" !"\\" text))* "'"
   end
 
   rule uri
@@ -199,7 +200,7 @@ grammar RakiSyntax
   end
 
   rule protocol
-    (data_protocol '://') / (app_protocol ':')
+    (data_protocol !(!'://' .)) / (app_protocol !(!':' .))
   end
 
   rule maybe_a_protokol
