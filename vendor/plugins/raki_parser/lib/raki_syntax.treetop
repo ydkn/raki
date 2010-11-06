@@ -87,7 +87,7 @@ grammar RakiSyntax
 
   rule table_row
     head_row:'!'? '|'
-    cells:(head:'!'? data:(!'|' !linebreak in_line)* '|')+ space* <TableRowNode>
+    cells:(head:'!'? data:((!'|' !linebreak in_line)* unprotected_formating?) '|')+ space* <TableRowNode>
   end
 
 
@@ -186,7 +186,7 @@ grammar RakiSyntax
   end
 
   rule unquoted_value
-    text:(!"\\" !'\\end' non_whitespace)*
+    text:(!"\\" !'\\end' non_whitespace)* '' 
   end
 
   rule quoted_value
