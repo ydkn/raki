@@ -87,9 +87,12 @@ grammar RakiSyntax
 
   rule table_row
     head_row:'!'? '|'
-    cells:(head:'!'? data:((!'|' !linebreak in_line)* unprotected_formating?) '|')+ space* <TableRowNode>
+    cells:(head:'!'? data:cell_data '|')+ space* <TableRowNode>
   end
 
+  rule cell_data
+    (!'|' !linebreak (unprotected_formating !(!'|' .) / in_line))*
+  end
 
   # Formating
 
