@@ -14,10 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'raki/permission'
 require 'raki/provider'
 require 'raki/parser'
 require 'raki/authenticator'
+require 'raki/authorizer'
 require 'raki/plugin'
 
 module Raki

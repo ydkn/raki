@@ -34,3 +34,4 @@ parsers:
     parser: raki
 
 authenticator: openid
+authorizer: file

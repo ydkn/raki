@@ -19,7 +19,7 @@ module Raki
     
     module ProviderHelper
       
-      include PermissionHelper
+      include AuthorizationHelper
       
       def provider(type)
         Raki::Provider[type]

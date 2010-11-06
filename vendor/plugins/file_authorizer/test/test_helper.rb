@@ -14,45 +14,5 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class User
-  
-  include Raki::Helpers::AuthorizationHelper
-  
-  attr_reader :id
-  
-  def initialize(id, options={})
-    @id = id
-    @username = options[:username]
-    @email = options[:email]
-    @display_name = options[:display_name]
-  end
-  
-  def username
-    @username.nil? ? @id : @username
-  end
-  
-  def email
-    @email
-  end
-  
-  def display_name
-    @display_name.nil? ? username : @display_name
-  end
-  
-  def authorized_to?(type, page, action)
-    authorized?(type, page, action, self)
-  end
-  
-  def authorized_to!(type, page, action)
-    authorized!(type, page, action, self)
-  end
-  
-  def self.current
-    @current
-  end
-
-  def self.current=(user)
-    @current = user
-  end
-  
-end
+require 'rubygems'
+require 'test/unit'
