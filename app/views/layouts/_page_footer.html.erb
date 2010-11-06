@@ -8,6 +8,5 @@
   <% end %>
   <% if !@type.nil? && !@page.nil? && authorized?(@type, @page, :view) %>
     <%=link_to image_tag('feed.png', :alt => 'Feed'), { :controller => 'page', :action => 'view', :format => 'atom', :type => h(@type), :id => h(@page) }, {:title => t('page.feed', :type => h(@type), :page => h(@page)), :class => 'feed'} %>
-    <%=auto_discovery_link_tag(:rss, {:controller => 'page', :action => 'view', :format => 'atom', :type => h(@type), :id => h(@page)}, :title => t('page.feed', :type => h(@type), :page => h(@page))) %>
   <% end %>
 </div>
