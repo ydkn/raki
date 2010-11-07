@@ -1,8 +1,23 @@
 <div id="toolbar">
   <div id="toolbar-items">
 	<div class="toolbar-items-group">
+	  <%=link_to image_tag('toolbar/link.png'), '#', :class => 'item', :id => 'toolbar-link', :title => t('toolbar.link'), :'data-prefix' => '[', :'data-suffix' => ']' %>
+	  <%=link_to image_tag('toolbar/heading1.png'), '#', :class => 'item', :id => 'toolbar-heading1', :title => t('toolbar.heading1'), :'data-line-start' => '!' %>
+	  <%=link_to image_tag('toolbar/heading2.png'), '#', :class => 'item', :id => 'toolbar-heading2', :title => t('toolbar.heading2'), :'data-line-start' => '!!' %>
+	  <%=link_to image_tag('toolbar/heading3.png'), '#', :class => 'item', :id => 'toolbar-heading3', :title => t('toolbar.heading3'), :'data-line-start' => '!!!' %>
+	</div>
+	<div class="toolbar-items-group">
 	  <%=link_to image_tag('toolbar/bold.png'), '#', :class => 'item', :id => 'toolbar-bold', :title => t('toolbar.bold'), :'data-enclosed' => '*' %>
 	  <%=link_to image_tag('toolbar/italic.png'), '#', :class => 'item', :id => 'toolbar-italic', :title => t('toolbar.italic'), :'data-enclosed' => '~' %>
+	  <%=link_to image_tag('toolbar/underline.png'), '#', :class => 'item', :id => 'toolbar-underline', :title => t('toolbar.underline'), :'data-enclosed' => '_' %>
+	  <%=link_to image_tag('toolbar/strike.png'), '#', :class => 'item', :id => 'toolbar-strike', :title => t('toolbar.strike'), :'data-enclosed' => '-' %>
+	</div>
+	<div class="toolbar-items-group">
+	  <%=link_to image_tag('toolbar/hline.png'), '#', :class => 'item', :id => 'toolbar-hline', :title => t('toolbar.hline'), :'data-line' => '----' %>
+	</div>
+	<div class="toolbar-items-group">
+	  <%=link_to image_tag('toolbar/orderedlist.png'), '#', :class => 'item', :id => 'toolbar-ol', :title => t('toolbar.ol'), :'data-multiline-start' => '# ' %>
+	  <%=link_to image_tag('toolbar/list.png'), '#', :class => 'item', :id => 'toolbar-ul', :title => t('toolbar.ul'), :'data-multiline-start' => '* ' %>
 	</div>
 	<br class="clear" />
   </div>

@@ -210,17 +210,19 @@ a, a:visited {
 }
 
 #toolbar {
+	display: none;
 	margin: 1em 0 0.25em 0;
 }
 
 #toolbar-items {
-	height: 24px;
+	height: 32px;
 	font-size: 1px;
 }
 
 #toolbar-items a {
 	border: 0;
 	margin: 0;
+	padding: 0 4px;
 }
 
 #toolbar-items img {
@@ -230,7 +232,9 @@ a, a:visited {
 
 .toolbar-items-group {
 	float: left;
-	border: 1px solid #cccccc;;
+	border: 1px solid #cccccc;
+	margin-right: 15px;
+	padding: 4px 0;
 }
 
 a.feed {
