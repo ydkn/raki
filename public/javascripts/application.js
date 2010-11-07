@@ -83,6 +83,10 @@ function toolbarClickEvent(e) {
 			newSelectionStart++;
 			newSelectionEnd += params['multiline-start'];
 		}
+		if(selectionStart == 0) {
+			pre += params['multiline-start'];
+			newSelectionEnd += params['multiline-start'];
+		}
 		for(i = 0; i < newContent.length; i++) {
 			if(newContent.charAt(i) == "\n") {
 				newContentPre = newContent.substring(0, i+1);
