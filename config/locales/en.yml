@@ -92,3 +92,7 @@ en:
   plugin:
     error: Plugin '%{name}' caused error
     missing_parameter: Missing parameter
+    
+  toolbar:
+      bold: Bold
+      italic: Italic
