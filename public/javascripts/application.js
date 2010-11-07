@@ -3,8 +3,13 @@
  * Copyright (C) 2010 Florian Schwab & Martin Sigloch
  */
 
-function toolbarClickEvent(event) {
-	toolbarItem = event.srcElement.parentNode;
+function toolbarClickEvent(e) {
+	toolbarItem = (e.srcElement ? e.srcElement : e.target).parentNode;
+	
+	if (toolbarItem.tagName != "A") {
+		return;
+	}
+	
 	itemAttributes = toolbarItem.attributes;
 	
 	var content = document.getElementById('content');
