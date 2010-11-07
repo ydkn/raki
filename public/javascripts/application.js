@@ -13,6 +13,8 @@ function toolbarClickEvent(e) {
 	itemAttributes = toolbarItem.attributes;
 	
 	var content = document.getElementById('content');
+	var selectionStart = content.selectionStart;
+	var selectionEnd = content.selectionEnd;
 	var selectedText = content.value.substring(content.selectionStart, content.selectionEnd);
 
 	var params = new Object();
@@ -30,8 +32,10 @@ function toolbarClickEvent(e) {
 		newSelectedText = params['enclosed'] + selectedText + params['enclosed'];
 	}
 
-	content.value = content.value.substring(0, content.selectionStart) + newSelectedText + content.value.substring(content.selectionEnd, content.value.length);
-	
+	content.value = content.value.substring(0, selectionStart) + newSelectedText + content.value.substring(selectionEnd, content.value.length);
+	content.selectionStart = selectionStart;
+	content.selectionEnd = selectionStart + newSelectedText.length;
+	content.focus();
 }
 
 function initToolbar() {
