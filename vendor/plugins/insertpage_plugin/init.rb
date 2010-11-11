@@ -39,7 +39,7 @@ Raki::Plugin.register :insertpage do
       raise Raki::Plugin::PluginError.new(t 'page.not_exists.msg') unless page_exists? type, page
 
       context[:subcontext][:insertpage] ||= []
-      raise Raki::Plugin::PluginError.new(t 'insertpage.already_included', :name => params[:name]) if context[:subcontext][:insertpage].include? key
+      raise Raki::Plugin::PluginError.new(t 'insertpage.already_included', :name => page) if context[:subcontext][:insertpage].include? key
       context[:subcontext][:insertpage] << key
 
       context[:type] = type
