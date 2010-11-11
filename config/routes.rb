@@ -29,21 +29,25 @@ ActionController::Routing::Routes.draw do |map|
 
   # Routes for wiki pages
   map.connect ':type', :controller => 'page', :action => 'redirect_to_indexpage'
-  map.connect ':type/:id/info', :controller => 'page', :action => 'info'
-  map.connect ':type/:id/diff/:revision_from/:revision_to', :controller => 'page', :action => 'diff'
-  map.connect ':type/:id/diff', :controller => 'page', :action => 'diff'
-  map.connect ':type/:id/edit', :controller => 'page', :action => 'edit'
-  map.connect ':type/:id/update', :controller => 'page', :action => 'update', :conditions => { :method => :post }
-  map.connect ':type/:id/rename', :controller => 'page', :action => 'rename', :conditions => { :method => :post }
-  map.connect ':type/:id/delete', :controller => 'page', :action => 'delete'
-  map.connect ':type/:id/attachment/:attachment', :controller => 'page', :action => 'attachment', :requirements => { :attachment => /[^\/]+/ }
-  map.connect ':type/:id/attachment/:attachment/info', :controller => 'page', :action => 'attachment_info', :requirements => { :attachment => /[^\/]+/ }
-  map.connect ':type/:id/attachment/:attachment/delete', :controller => 'page', :action => 'delete', :requirements => { :attachment => /[^\/]+/ }
-  map.connect ':type/:id/attachment/:attachment/:revision', :controller => 'page', :action => 'attachment', :requirements => { :attachment => /[^\/]+/ }
-  map.connect ':type/:id/attachments', :controller => 'page', :action => 'attachments'
-  map.connect ':type/:id/attachment_upload', :controller => 'page', :action => 'attachment_upload', :conditions => { :method => :post }
-  map.connect ':type/:id/:revision', :controller => 'page', :action => 'view'
-  map.connect ':type/:id.:format', :controller => 'page', :action => 'view'
-  map.connect ':type/:id', :controller => 'page', :action => 'view'
+  map.with_options :controller => 'page', :requirements => {:id => /[^\/\.]+|\d+\.\d+\.\d+\.\d+/} do |page|
+    page.connect ':type/:id/info', :action => 'info'
+    page.connect ':type/:id/diff/:revision_from/:revision_to', :action => 'diff'
+    page.connect ':type/:id/diff', :action => 'diff'
+    page.connect ':type/:id/edit', :action => 'edit'
+    page.connect ':type/:id/update', :action => 'update', :conditions => { :method => :post }
+    page.connect ':type/:id/rename', :action => 'rename', :conditions => { :method => :post }
+    page.connect ':type/:id/delete', :action => 'delete'
+    page.with_options :requirements => {:attachment => /[^\/]+/} do |attachment|
+      attachment.connect ':type/:id/attachment/:attachment', :action => 'attachment'
+      attachment.connect ':type/:id/attachment/:attachment/info', :action => 'attachment_info'
+      attachment.connect ':type/:id/attachment/:attachment/delete', :action => 'delete'
+      attachment.connect ':type/:id/attachment/:attachment/:revision', :action => 'attachment'
+    end
+    page.connect ':type/:id/attachments', :action => 'attachments'
+    page.connect ':type/:id/attachment_upload', :action => 'attachment_upload', :conditions => { :method => :post }
+    page.connect ':type/:id/:revision', :action => 'view'
+    page.connect ':type/:id.:format', :action => 'view'
+    page.connect ':type/:id', :action => 'view'
+  end
 
 end
