@@ -73,6 +73,7 @@ class DBProvider < Raki::AbstractProvider
   end
 
   def page_rename(old_namespace, old_name, new_namespace, new_name, user)
+    raise ProviderError.new 'Target page already exists' if page_exists?(new_namespace, new_name)
     page = DBPage.find_by_namespace_and_name(old_namespace.to_s, old_name.to_s)
     page.namespace = new_namespace.to_s
     page.name = new_name.to_s
@@ -80,14 +81,17 @@ class DBProvider < Raki::AbstractProvider
   end
 
   def page_delete(namespace, name, user)
-    DBPageRevision.find_all_by_namespace_and_name(namespace.to_s, name.to_s).each do |revision|
-      revision.destroy!
+    raise ProviderError.new 'Page doesn\'t exist' unless page_exists?(namespace, name)
+    begin
+      DBPageRevision.all(:joins => "INNER JOIN #{DBPage.table_name} ON #{DBPage.table_name}.id = #{DBPageRevision.table_name}.page_id", :conditions => ["namespace = ? AND name = ?", namespace.to_s, name.to_s]).each do |revision|
+        revision.destroy
+      end
+      DBPage.find_by_namespace_and_name(namespace.to_s, name.to_s).destroy
+      true
+    rescue => e
+      logger.error(e)
+      false
     end
-    DBPage.find_by_namespace_and_name(namespace.to_s, name.to_s).destroy!
-    true
-  rescue => e
-    logger.error(e)
-    false
   end
 
   def page_all(namespace)
@@ -183,14 +187,17 @@ class DBProvider < Raki::AbstractProvider
   end
 
   def attachment_delete(namespace, page, name, user)
-    DBAttachmentRevision.find_all_by_namespace_and_page_and_name(namespace.to_s, page.to_s, name.to_s).each do |revision|
-      revision.destroy!
+    raise ProviderError.new 'Attachment doesn\'t exist' unless attachment_exists?(namespace, page, name)
+    begin
+      DBAttachmentRevision.all(:joins => "INNER JOIN #{DBAttachment.table_name} ON #{DBAttachment.table_name}.id = #{DBAttachmentRevision.table_name}.attachment_id", :conditions => ["namespace = ? AND page = ? AND name = ?", namespace.to_s, page.to_s, name.to_s]).each do |revision|
+        revision.destroy
+      end
+      DBAttachment.find_by_namespace_and_page_and_name(namespace.to_s, page.to_s, name.to_s).destroy
+      true
+    rescue => e
+      logger.error(e)
+      false
     end
-    DBAttachment.find_by_namespace_and_page_and_name(namespace.to_s, page.to_s, name.to_s).destroy!
-    true
-  rescue => e
-    logger.error(e)
-    false
   end
 
   def attachment_all(namespace, page)

@@ -18,9 +18,13 @@ require 'test_helper'
 
 class DBProviderTest < Test::Unit::TestCase
 
-  # Initialize Provider for testing
+  # Initialize Provider for testing and truncate all tables
   def setup
     @provider = DBProvider.new({})
+    clear_table DBAttachmentRevision
+    clear_table DBAttachment
+    clear_table DBPageRevision
+    clear_table DBPage
   end
 
   # Create a new page and test if it exists
@@ -80,7 +84,7 @@ class DBProviderTest < Test::Unit::TestCase
     assert_equal content, page_contents(new_page[:type], new_page[:page])
     revisions = page_revisions new_page[:type], new_page[:page]
     assert_equal 1, revisions.length
-    assert_same_user rename_user, revisions[0].user
+    assert_same_user default_user, revisions[0].user
     
     # other namespace
     rename_user2 = user 'renamer2', 'renamer2@other-dom.net'
@@ -90,7 +94,7 @@ class DBProviderTest < Test::Unit::TestCase
     assert_equal content, page_contents(new_page2[:type], new_page2[:page])
     revisions = page_revisions new_page2[:type], new_page2[:page]
     assert_equal 1, revisions.length
-    assert_same_user rename_user2, revisions[0].user
+    assert_same_user default_user, revisions[0].user
     
     # target page already exists
     page = {:type => :page, :page => 'RenameTestPage2'}
@@ -233,10 +237,13 @@ class DBProviderTest < Test::Unit::TestCase
 
   private
   
+  def clear_table(clazz)
+    clazz.all.each{|obj| obj.destroy}
+  end
+  
   # Compare two users
   def assert_same_user(expected, actual)
     assert_equal expected.username, actual.username
-    assert_equal expected.email, actual.email
   end
 
   # Creates a user
