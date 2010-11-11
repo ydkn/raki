@@ -17,5 +17,5 @@
 class DBAttachment < ActiveRecord::Base
   set_table_name 'attachments'
   
-  has_many :db_attachment_revisions, :foreign_key => :attachment_id
+  has_many :revisions, :class_name => 'DBAttachmentRevision', :foreign_key => :attachment_id
 end

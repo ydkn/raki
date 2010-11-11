@@ -96,7 +96,9 @@ class DBProvider < Raki::AbstractProvider
 
   def page_changes(namespace, options={})
     changes = []
-    DBPageRevision.find_all_by_namespace(namespace.to_s).each do |revision|
+    limit = options.key?(:limit) ? options[:limit].to_i : 10000
+    DBPageRevision.all(:joins => "INNER JOIN #{DBPage.table_name} ON #{DBPage.table_name}.id = #{DBPageRevision.table_name}.page_id", :conditions => ["namespace = ?", namespace.to_s], :order => 'date DESC', :limit => limit).each do |revision|
+      break if options[:since] && options[:since] <= revision.date
       changes << Change.new(namespace.to_s, revision.page.name, Revision.new(
             revision.revision,
             revision.revision,
@@ -197,13 +199,15 @@ class DBProvider < Raki::AbstractProvider
 
   def attachment_changes(namespace, page=nil, options={})
     changes = []
+    limit = options.key?(:limit) ? options[:limit].to_i : 10000
     if page
-      revisions = DBAttachmentRevision.find_all_by_namespace_and_page(namespace.to_s, page.to_s)
+      revisions = DBAttachmentRevision.all(:joins => "INNER JOIN #{DBAttachment.table_name} ON #{DBAttachment.table_name}.id = #{DBAttachmentRevision.table_name}.attachment_id", :conditions => ["namespace = ? AND page = ?", namespace.to_s, page.to_s], :order => 'date DESC', :limit => limit)
     else
-      revisions = DBAttachmentRevision.find_all_by_namespace(namespace.to_s)
+      revisions = DBAttachmentRevision.all(:joins => "INNER JOIN #{DBAttachment.table_name} ON #{DBAttachment.table_name}.id = #{DBAttachmentRevision.table_name}.attachment_id", :conditions => ["namespace = ?", namespace.to_s], :order => 'date DESC', :limit => limit)
     end
     revisions.each do |revision|
-      changes << Change.new(namespace.to_s, revision.page.name, Revision.new(
+      break if options[:since] && options[:since] <= revision.date
+      changes << Change.new(namespace.to_s, revision.attachment.name, Revision.new(
             revision.revision,
             revision.revision,
             revision.content.size,
@@ -212,7 +216,7 @@ class DBProvider < Raki::AbstractProvider
             revision.message,
             false
           ),
-          revision.page.name
+          revision.attachment.page
         )
     end
     changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }

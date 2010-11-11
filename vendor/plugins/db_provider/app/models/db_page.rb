@@ -17,5 +17,5 @@
 class DBPage < ActiveRecord::Base
   set_table_name 'pages'
   
-  has_many :db_page_revisions, :foreign_key => :page_id
+  has_many :revisions, :class_name => 'DBPageRevision', :foreign_key => :page_id
 end
