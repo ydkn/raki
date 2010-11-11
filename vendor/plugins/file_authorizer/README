@@ -1,0 +1,7 @@
+FileAuthorizer
+===========
+
+Authorizer which uses a YAML file as backend.
+
+
+Copyright (c) 2010 Florian Schwab, released under the GPLv3 license

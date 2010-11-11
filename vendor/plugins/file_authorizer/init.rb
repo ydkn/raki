@@ -14,11 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-:ALL:
-  - */*: view
+require 'file_authorizer'
 
-:ANONYMOUS:
-  - */*: view
-
-:AUTHENTICATED:
-  - */*: view,edit,create,upload,delete,rename
+Raki::Authorizer.register(:file, FileAuthorizer)

@@ -15,34 +15,32 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 module Raki
-  class AbstractAuthenticator
+  module Helpers
+    
+    module AuthorizationHelper
+      
+      class NotAuthorizedError < StandardError
+      end
+      
+      def authorized?(type, name, action, user=User.current)
+        if action.is_a?(Array)
+          action.each do |a|
+            return true if Raki::Authorizer.authorized_to?(type, name, a, user)
+          end
+          false
+        else
+          Raki::Authorizer.authorized_to?(type, name, action, user)
+        end
+      end
 
-    class AuthenticatorError < StandardError
+      def authorized!(type, name, action, user=User.current)
+        unless authorized?(type, name, action, user)
+          raise NotAuthorizedError.new "#{user.id.to_s} has no permission to #{action.to_s} #{type.to_s}/#{name.to_s}"
+        end
+        true
+      end
+
     end
     
-    def user_for(options)
-      raise AuthenticatorError.new 'not implemented'
-    end
-    
-    #def callback(params, session, cookies)
-    #  raise AuthenticatorError.new 'not implemented'
-    #end
-
-    #def login(params, session, cookies)
-    #  raise AuthenticatorError.new 'not implemented'
-    #end
-    
-    #def logout(params, session, cookies)
-    #  raise AuthenticatorError.new 'not implemented'
-    #end
-    
-    #def validate_session(params, session, cookies)
-    #  raise AuthenticatorError.new 'not implemented'
-    #end
-    
-    #def form_fields
-    #  raise AuthenticatorError.new 'not implemented'
-    #end
-
   end
 end

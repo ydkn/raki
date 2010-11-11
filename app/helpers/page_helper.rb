@@ -16,7 +16,7 @@
 
 module PageHelper
   
-  include Raki::Helpers::PermissionHelper
+  include Raki::Helpers::AuthorizationHelper
   include Raki::Helpers::ProviderHelper
   include Raki::Helpers::ParserHelper
   

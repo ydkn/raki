@@ -18,7 +18,7 @@ class PageController < ApplicationController
   FEED_LIMIT = 15
   VISITED_LIMIT = 8
   
-  include Raki::Helpers::PermissionHelper
+  include Raki::Helpers::AuthorizationHelper
   include Raki::Helpers::ProviderHelper
   include ERB::Util
   
