@@ -38,7 +38,7 @@ module RecentchangesPluginHelper
         days[day] << change
       end
       
-      attachment_changes(type, options).each do |change|
+      attachment_changes(type, nil, options).each do |change|
         next unless authorized? change.type, change.page, RIGHTS
         day = change.revision.date.strftime("%Y-%m-%d")
         days[day] = [] unless days.key?(day)
