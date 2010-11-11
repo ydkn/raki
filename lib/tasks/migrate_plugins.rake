@@ -19,10 +19,10 @@ namespace :db do
 
     desc 'Migrate plugins to current status.'
     task :plugins => :environment do
-      Dir["#{Rails.root}/vendor/plugins"].each do |dir|
+      Dir["#{Rails.root}/vendor/plugins/*"].each do |dir|
         if File.directory?(dir) && File.exists?("#{dir}/db/migrate")
           ActiveRecord::Migrator.migrate(
-            "#{Rails.root}/vendor/plugins/#{plugin_id}/db/migrate/",
+            "#{dir}/db/migrate/",
             ENV["VERSION"] ? ENV["VERSION"].to_i : nil
           )
         end
