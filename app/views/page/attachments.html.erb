@@ -28,7 +28,7 @@
 </table>
 <% if authorized?(@type, @page, :upload) %>
   <br/>
-  <% form_tag({:controller => 'page', :type => h(@type), :id => h(@page), :action => 'attachment_upload'}, {:enctype => 'multipart/form-data'}) do |f| %>
+  <% form_tag({:controller => 'page', :type => h(@type), :id => h(@page), :action => 'attachment_upload'}, {:enctype => 'multipart/form-data'}) do %>
     <div>
       <label for="attachment-file"><%=t 'attachment.upload.file' %></label>
       <input id="attachment-file" name="attachment_upload" size="30" type="file" />

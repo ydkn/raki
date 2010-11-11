@@ -41,7 +41,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect ':type/:id/attachment/:attachment/delete', :controller => 'page', :action => 'delete', :requirements => { :attachment => /[^\/]+/ }
   map.connect ':type/:id/attachment/:attachment/:revision', :controller => 'page', :action => 'attachment', :requirements => { :attachment => /[^\/]+/ }
   map.connect ':type/:id/attachments', :controller => 'page', :action => 'attachments'
-  map.connect ':type/:id/attachment_upload', :controller => 'page', :action => 'attachment_upload'
+  map.connect ':type/:id/attachment_upload', :controller => 'page', :action => 'attachment_upload', :conditions => { :method => :post }
   map.connect ':type/:id/:revision', :controller => 'page', :action => 'view'
   map.connect ':type/:id.:format', :controller => 'page', :action => 'view'
   map.connect ':type/:id', :controller => 'page', :action => 'view'
