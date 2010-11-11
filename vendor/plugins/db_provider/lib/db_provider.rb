@@ -16,7 +16,7 @@
 
 class DBProvider < Raki::AbstractProvider
 
-  def initialize(params)
+  def initialize(namespace, params)
   end
 
   def page_exists?(namespace, name, revision=nil)

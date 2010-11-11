@@ -25,7 +25,7 @@ class GitProvider < Raki::AbstractProvider
   
   include Cacheable
 
-  def initialize(params)
+  def initialize(namespace, params)
     raise ProviderError.new("Parameter 'path' not specified") unless params.key?('path')
     begin
       Grit::Git.git_timeout = 10
@@ -33,8 +33,8 @@ class GitProvider < Raki::AbstractProvider
       @branch = params.key?('branch') ? params['branch'] : 'master'
       refresh = params.key?('refresh') ? params['refresh'].to_i : 600
       
-      FileUtils.rm_rf("#{Rails.root}/tmp/git-repo")
-      @repo = Grit::Repo.clone(params['path'], "#{Rails.root}/tmp/git-repo")
+      FileUtils.rm_rf("#{Rails.root}/tmp/git-repo_#{namespace}")
+      @repo = Grit::Repo.clone(params['path'], "#{Rails.root}/tmp/git-repo_#{namespace}")
       @repo.checkout(@branch)
       
       Thread.new do

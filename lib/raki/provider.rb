@@ -26,7 +26,7 @@ module Raki
         @providers[id.to_sym] = clazz
         Raki.config('providers').each do |type, settings|
           if settings['provider'] == id.to_s
-            @initialized[type.to_sym] = clazz.new(settings)
+            @initialized[type.to_sym] = clazz.new(type, settings)
           end
         end
       end
