@@ -31,15 +31,15 @@ different namespaces. It can also have a namespace-specific syntax.
 == Installation & Configration (core)
 Rename/copy the file <tt>config/database.yml.example</tt> to <tt>config/database.yml</tt> and edit the
 credentials for the database if necessary. Now rename/copy the file
-<tt>config/raki.yml.example</tt> to <tt>config/raki.yml</tt> and edit it to fit your needs. Then
-rename/copy the file <tt>config/permissions.yml.example</tt> to <tt>config/permissions.yml</tt> and
-change the permissions if you need to.
+<tt>config/raki.yml.example</tt> to <tt>config/raki.yml</tt> and edit it to fit your needs.
 
-=== Example with GIT as storage and OpenID for authentication
+=== Example with GIT as storage, OpenID for authentication and file-based authorization
 Create a GIT repository with <tt>git init --bare /path/to/git-repo</tt>. Now change in
 <tt>config/raki.yml</tt> the path parameter to match the GIT repository you just created. Next step is
-to change the <tt>authenticator</tt> to <tt>openid</tt>. The last step is to initialize and fetch the
-grit submodule with <tt>git submodule init</tt> and <tt>git submodule update</tt>.
+to change the <tt>authenticator</tt> to <tt>openid</tt>. Then initialize and fetch the
+grit submodule with <tt>git submodule init</tt> and <tt>git submodule update</tt>. The last step is to
+rename/copy the file <tt>config/permissions.yml.example</tt> to <tt>config/permissions.yml</tt> and
+change the permissions if you need to.
 
 
 == Run it
