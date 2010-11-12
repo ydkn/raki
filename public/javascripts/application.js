@@ -50,9 +50,9 @@ function toolbarClickEvent(e) {
 	}
 	if(params['line-start']) {
 		for(i = selectionStart; i >= 0; i--) {
-			if((content.value.charAt(i) == "\n") || (i == 0)) {
-				pre = content.value.substring(0, i+1);
-				post = content.value.substring(i+1, content.value.length);
+			if((content.value.charAt(i-1) == "\n") || (i == 0)) {
+				pre = content.value.substring(0, i);
+				post = content.value.substring(i, content.value.length);
 				newContent = pre + params['line-start'] + post;
 				newSelectionStart = selectionStart + params['line-start'].length;
 				newSelectionEnd = selectionEnd + params['line-start'].length;
