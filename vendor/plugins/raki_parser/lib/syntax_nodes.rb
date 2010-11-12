@@ -73,13 +73,13 @@ class WikiLinkNode < RakiSyntaxNode
   def to_html context
     parts = href.text_value.split '/'
     if parts.length == 2
-      type = parts[0]
+      namespace = parts[0]
       page = parts[1]
     else
-      type = context[:type].nil? ? Raki.frontpage[:type] : context[:type].to_s
+      namespace = context[:namespace].nil? ? Raki.frontpage[:namespace] : context[:namespace].to_s
       page = parts[0]
     end
-    pagelink = url_for_page h(type.strip), h(page.strip)
+    pagelink = url_for_page h(namespace.strip), h(page.strip)
     return '<a href="' + pagelink + '">' +
       (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip).strip + '</a>'
   end

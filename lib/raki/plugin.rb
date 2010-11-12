@@ -146,8 +146,8 @@ module Raki
       @stylesheets << {:url => url, :options => options}
     end
     
-    def block_page(type, page='*')
-      Raki::Authorizer.block(type, page)
+    def block_page(namespace, page='*')
+      Raki::Authorizer.block(namespace, page)
     end
 
     def execute(&block)

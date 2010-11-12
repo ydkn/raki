@@ -1,5 +1,5 @@
-<% if authorized?(@type, @page, :rename) && page_exists?(@type, @page) %>
-  <% form_tag({:controller => 'page', :type => h(@type), :id => h(@page), :action => 'rename'}) do %>
+<% if authorized?(@namespace, @page, :rename) && page_exists?(@namespace, @page) %>
+  <% form_tag({:controller => 'page', :namespace => h(@namespace), :id => h(@page), :action => 'rename'}) do %>
     <div>
       <% unless flash[:notice].nil? %>
         <div class="error"><%=flash[:notice] %></div>
@@ -9,16 +9,16 @@
     </div>
   <% end %>
 <% end %>
-<% if authorized?(@type, @page, :delete) && page_exists?(@type, @page) %>
-  <input type="button" value="<%=t 'page.edit.delete' %>" onclick="javascript:if(confirm('<%=t 'page.edit.delete_question'%>')) location.href='<%=url_for :controller => 'page', :type => h(@type), :id => h(@page), :action => 'delete' %>';" />
+<% if authorized?(@namespace, @page, :delete) && page_exists?(@namespace, @page) %>
+  <input type="button" value="<%=t 'page.edit.delete' %>" onclick="javascript:if(confirm('<%=t 'page.edit.delete_question'%>')) location.href='<%=url_for :controller => 'page', :namespace => h(@namespace), :id => h(@page), :action => 'delete' %>';" />
   <br/>
 <% end %>
-<% if authorized?(@type, @page, :edit) && page_exists?(@type, @page) || authorized?(@type, @page, :create) && !page_exists?(@type, @page) %>
-  <% form_tag({:controller => 'page', :type => h(@type), :id => h(@page), :action => 'update'}, {:id => 'edit-form'}) do %>
+<% if authorized?(@namespace, @page, :edit) && page_exists?(@namespace, @page) || authorized?(@namespace, @page, :create) && !page_exists?(@namespace, @page) %>
+  <% form_tag({:controller => 'page', :namespace => h(@namespace), :id => h(@page), :action => 'update'}, {:id => 'edit-form'}) do %>
     <div>
       <input type="submit" value="<%=t 'page.edit.save' %>" />
-      <input type="button" value="<%=t 'page.edit.preview' %>" onclick="javascript:document.getElementById('edit-form').action='<%=url_for :controller => 'page', :action => 'edit', :type => h(@type), :id => h(@page) %>'; document.getElementById('edit-form').submit();" />
-      <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :action => 'view', :type => h(@type), :id => h(@page) %>';" />
+      <input type="button" value="<%=t 'page.edit.preview' %>" onclick="javascript:document.getElementById('edit-form').action='<%=url_for :controller => 'page', :action => 'edit', :namespace => h(@namespace), :id => h(@page) %>'; document.getElementById('edit-form').submit();" />
+      <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :action => 'view', :namespace => h(@namespace), :id => h(@page) %>';" />
     </div>
     <div>
       <label for="page-message"><%=t 'page.edit.message' %></label>
@@ -31,7 +31,7 @@
   <% unless @preview.nil? %>
     <h2><%=t 'page.edit.preview' %></h2>
     <div id="preview">
-      <%=parse @type, @preview %>
+      <%=parse @namespace, @preview %>
     </div>
   <% end %>
 <% end %>

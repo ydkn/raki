@@ -32,15 +32,15 @@ module Raki
         @authorizers
       end
       
-      def block(type, page)
-        @block << {:type => type, :page => page}
+      def block(namespace, page)
+        @block << {:namespace => namespace, :page => page}
       end
 
-      def authorized_to?(type, page, action, user)
+      def authorized_to?(namespace, page, action, user)
         @block.each do |block|
-          return false if "#{type.to_s}/#{page.to_s}".match("#{(block[:type]+'/'+block[:page]).gsub('*', '.*')}$")
+          return false if "#{namespace.to_s}/#{page.to_s}".match("#{(block[:namespace]+'/'+block[:page]).gsub('*', '.*')}$")
         end
-        @authorizer.authorized_to?(type, page, action, user)
+        @authorizer.authorized_to?(namespace, page, action, user)
       end
       
       alias :self_respond_to? :respond_to?

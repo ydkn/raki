@@ -27,18 +27,18 @@ Raki::Plugin.register :index do
   include IndexPluginHelper
 
   execute do
-    p_types = params[:type].nil? ? [context[:type]] : params[:type].split(',')
-    p_types = types if params[:type] == 'all'
+    p_namespaces = params[:namespace].nil? ? [context[:namespace]] : params[:namespace].split(',')
+    p_namespaces = namespaces if params[:namespace] == 'all'
     
     chars = {}
     
-    p_types.each do |type|
-      type = type.to_sym
+    p_namespaces.each do |namespace|
+      namespace = namespace.to_sym
       
-      page_all!(type).each do |page|
+      page_all!(namespace).each do |page|
         letter = page[0].chr.upcase
         chars[letter] = [] unless chars.key?(letter)
-        chars[letter] << {:type => type, :page => page}
+        chars[letter] << {:namespace => namespace, :page => page}
       end
       
     end

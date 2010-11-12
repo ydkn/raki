@@ -22,20 +22,20 @@ module Raki
       class NotAuthorizedError < StandardError
       end
       
-      def authorized?(type, name, action, user=User.current)
+      def authorized?(namespace, name, action, user=User.current)
         if action.is_a?(Array)
           action.each do |a|
-            return true if Raki::Authorizer.authorized_to?(type, name, a, user)
+            return true if Raki::Authorizer.authorized_to?(namespace, name, a, user)
           end
           false
         else
-          Raki::Authorizer.authorized_to?(type, name, action, user)
+          Raki::Authorizer.authorized_to?(namespace, name, action, user)
         end
       end
 
-      def authorized!(type, name, action, user=User.current)
-        unless authorized?(type, name, action, user)
-          raise NotAuthorizedError.new "#{user.id.to_s} has no permission to #{action.to_s} #{type.to_s}/#{name.to_s}"
+      def authorized!(namespace, name, action, user=User.current)
+        unless authorized?(namespace, name, action, user)
+          raise NotAuthorizedError.new "#{user.id.to_s} has no permission to #{action.to_s} #{namespace.to_s}/#{name.to_s}"
         end
         true
       end

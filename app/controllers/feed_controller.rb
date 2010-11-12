@@ -21,13 +21,13 @@ class FeedController < ApplicationController
   
   def feed
     days = {}
-    types.each do |type|
-      page_changes(type, LIMIT).each do |change|
+    namespaces.each do |namespace|
+      page_changes(namespace, LIMIT).each do |change|
         day = change.revision.date.strftime("%Y-%m-%d")
         days[day] = [] unless days.key?(day)
         days[day] << change
       end
-      attachment_changes(type, LIMIT).each do |change|
+      attachment_changes(namespace, LIMIT).each do |change|
         day = change.revision.date.strftime("%Y-%m-%d")
         days[day] = [] unless days.key?(day)
         days[day] << change

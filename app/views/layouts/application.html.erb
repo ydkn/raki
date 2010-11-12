@@ -9,8 +9,8 @@
     <link rel="shortcut icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
     <link rel="icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
     <%=auto_discovery_link_tag :rss, {:controller => 'feed', :action => 'feed'}, :title => t('feed', :app_name => Raki.app_name) %>
-    <% if !@type.nil? && !@page.nil? && authorized?(@type, @page, :view) %>
-	  <%=auto_discovery_link_tag(:rss, {:controller => 'page', :action => 'view', :format => 'atom', :type => h(@type), :id => h(@page)}, :title => t('page.feed', :type => h(@type), :page => h(@page))) %>
+    <% if !@namespace.nil? && !@page.nil? && authorized?(@namespace, @page, :view) %>
+	  <%=auto_discovery_link_tag(:rss, {:controller => 'page', :action => 'view', :format => 'atom', :namespace => h(@namespace), :id => h(@page)}, :title => t('page.feed', :namespace => h(@namespace), :page => h(@page))) %>
 	<% end %>
   </head>
   <body>
@@ -38,7 +38,7 @@
         <div id="visted_pages">
 	      <% unless session[:visited_pages].empty? %>
 	        <%=t 'visited_pages' %>:
-            <%=session[:visited_pages].collect{|p| link_to "#{p[:type]}/#{p[:page]}", url_for_page(h(p[:type]), h(p[:page]))}.join(', ') %>
+            <%=session[:visited_pages].collect{|p| link_to "#{p[:namespace]}/#{p[:page]}", url_for_page(h(p[:namespace]), h(p[:page]))}.join(', ') %>
           <% end %>
         </div>
         <div id="content_container">

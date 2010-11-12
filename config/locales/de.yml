@@ -63,7 +63,7 @@ de:
         message: Kommentar
       diff: Unterschiede
 
-    feed: Newsfeed für %{type}/%{page}
+    feed: Newsfeed für %{namespace}/%{page}
 
   attachment:
     list: Anhänge

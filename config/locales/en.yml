@@ -63,7 +63,7 @@ en:
         message: Comment
       diff: Diff
 
-    feed: Feed for %{type}/%{page}
+    feed: Feed for %{namespace}/%{page}
 
   attachment:
     list: Attachments

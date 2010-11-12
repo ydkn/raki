@@ -48,17 +48,17 @@ module Raki
     end
     
     def frontpage
-      return {:type => 'page', :page => 'Main'} if config(:frontpage).nil?
+      return {:namespace => 'page', :page => 'Main'} if config(:frontpage).nil?
       parts = config(:frontpage).split('/', 2)
       if parts.length == 2
-        {:type => parts[0], :page => parts[1]}
+        {:namespace => parts[0], :page => parts[1]}
       else
-        {:type => 'page', :page => parts[0]}
+        {:namespace => 'page', :page => parts[0]}
       end
     end
     
-    def userpage_type
-      return config(:userpage_type) unless config(:userpage_type).nil?
+    def userpage_namespace
+      return config(:userpage_namespace) unless config(:userpage_namespace).nil?
       'user'
     end
     

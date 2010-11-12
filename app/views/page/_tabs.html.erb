@@ -1,12 +1,12 @@
 <div id="controls_left">
-  <%=link_to t('page.tab.view'), {:controller => 'page', :action => 'view', :type => h(@type), :id => h(@page)}, :class => (action_name=='view' ? 'active' : 'inactive') %>
-  <% if authorized?(@type, @page, :view) && page_exists?(@type, @page) %>
-    <%=link_to t('page.tab.attachments'), {:controller => 'page', :action => 'attachments', :type => h(@type), :id => h(@page)}, :class => (action_name=~/^attachment/ ? 'active' : 'inactive') %>
-    <%=link_to t('page.tab.info'), {:controller => 'page', :action => 'info', :type => h(@type), :id => h(@page)}, :class => (action_name=~/^(info|diff)$/ ? 'active' : 'inactive') %>
+  <%=link_to t('page.tab.view'), {:controller => 'page', :action => 'view', :namespace => h(@namespace), :id => h(@page)}, :class => (action_name=='view' ? 'active' : 'inactive') %>
+  <% if authorized?(@namespace, @page, :view) && page_exists?(@namespace, @page) %>
+    <%=link_to t('page.tab.attachments'), {:controller => 'page', :action => 'attachments', :namespace => h(@namespace), :id => h(@page)}, :class => (action_name=~/^attachment/ ? 'active' : 'inactive') %>
+    <%=link_to t('page.tab.info'), {:controller => 'page', :action => 'info', :namespace => h(@namespace), :id => h(@page)}, :class => (action_name=~/^(info|diff)$/ ? 'active' : 'inactive') %>
   <% end %>
 </div>
 <div id="controls_right">
-  <% if page_exists?(@type, @page) && authorized?(@type, @page, :edit) || !page_exists?(@type, @page) && authorized?(@type, @page, :create) || authorized?(@type, @page, :rename) || authorized?(@type, @page, :delete) %>
-    <%=link_to t('page.tab.edit'), {:controller => 'page', :action => 'edit', :type => h(@type), :id => h(@page)}, :class => (action_name=~/^(edit|update|delete|rename)$/ ? 'active' : 'inactive') %>
+  <% if page_exists?(@namespace, @page) && authorized?(@namespace, @page, :edit) || !page_exists?(@namespace, @page) && authorized?(@namespace, @page, :create) || authorized?(@namespace, @page, :rename) || authorized?(@namespace, @page, :delete) %>
+    <%=link_to t('page.tab.edit'), {:controller => 'page', :action => 'edit', :namespace => h(@namespace), :id => h(@page)}, :class => (action_name=~/^(edit|update|delete|rename)$/ ? 'active' : 'inactive') %>
   <% end %>
 </div>

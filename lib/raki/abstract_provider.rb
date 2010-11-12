@@ -22,71 +22,71 @@ module Raki
     
     attr_reader :id
 
-    def page_exists?(type, name, revision=nil)
+    def page_exists?(namespace, name, revision=nil)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_contents(type, name, revision=nil)
+    def page_contents(namespace, name, revision=nil)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_revisions(type, name)
+    def page_revisions(namespace, name)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_save(type, name, contents, message, user)
+    def page_save(namespace, name, contents, message, user)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_rename(old_type, old_name, new_type, new_name, user)
+    def page_rename(old_namespace, old_name, new_namespace, new_name, user)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_delete(type, name, user)
+    def page_delete(namespace, name, user)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_all(type)
+    def page_all(namespace)
       raise ProviderError.new 'not implemented'
     end
 
-    def page_changes(type, options={})
+    def page_changes(namespace, options={})
       raise ProviderError.new 'not implemented'
     end
     
-    def page_diff(type, page, revision_from=nil, revision_to=nil)
+    def page_diff(namespace, page, revision_from=nil, revision_to=nil)
       raise ProviderError.new 'not implemented'
     end
 
-    def attachment_exists?(type, page, name, revision=nil)
+    def attachment_exists?(namespace, page, name, revision=nil)
       raise ProviderError.new 'not implemented'
     end
 
-    def attachment_contents(type, page, name, revision=nil)
+    def attachment_contents(namespace, page, name, revision=nil)
       raise ProviderError.new 'not implemented'
     end
 
-    def attachment_revisions(type, page, name)
+    def attachment_revisions(namespace, page, name)
       raise ProviderError.new 'not implemented'
     end
 
-    def attachment_save(type, page, name, contents, message, user)
+    def attachment_save(namespace, page, name, contents, message, user)
       raise ProviderError.new 'not implemented'
     end
 
-    def attachment_delete(type, page, name, user)
+    def attachment_delete(namespace, page, name, user)
       raise ProviderError.new 'not implemented'
     end
 
-    def attachment_all(type, page)
+    def attachment_all(namespace, page)
       raise ProviderError.new 'not implemented'
     end
 
-    def attachment_changes(type, page=nil, amount=nil)
+    def attachment_changes(namespace, page=nil, amount=nil)
       raise ProviderError.new 'not implemented'
     end
     
-    def types
+    def namespaces
       raise ProviderError.new 'not implemented'
     end
 
@@ -111,10 +111,10 @@ module Raki
     end
 
     class Change
-      attr_reader :type, :page, :revision, :attachment
+      attr_reader :namespace, :page, :revision, :attachment
 
-      def initialize(type, page, revision, attachment=nil)
-        @type = type
+      def initialize(namespace, page, revision, attachment=nil)
+        @namespace = namespace
         @page = page
         @revision = revision
         @attachment = attachment
@@ -141,7 +141,7 @@ module Raki
       end
       
       class DiffLine
-        attr_reader :type, :line, :line_number1, :line_number2
+        attr_reader :namespace, :line, :line_number1, :line_number2
         
         def initialize(line_num_1, line_num_2, line)
           @line_number1 = line_num_1

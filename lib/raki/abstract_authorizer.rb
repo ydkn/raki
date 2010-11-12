@@ -20,7 +20,7 @@ module Raki
     class AuthorizerError < StandardError
     end
     
-    def authorized_to?(type, page, action, user)
+    def authorized_to?(namespace, page, action, user)
       raise AuthorizerError.new 'not implemented'
     end
 

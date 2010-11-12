@@ -21,7 +21,7 @@ class FileAuthorizer < Raki::AbstractAuthorizer
     Rails.logger.info "Permissions loaded."
   end
   
-  def authorized_to?(type, page, action, user)
+  def authorized_to?(namespace, page, action, user)
     perms = @permissions[:ALL]
     if user.is_a?(AnonymousUser)
       perms += @permissions[:ANONYMOUS]
@@ -38,7 +38,7 @@ class FileAuthorizer < Raki::AbstractAuthorizer
     perm = false
     perms.each do |right|
       right = right.first
-      next if "#{type.to_s}/#{page.to_s}".match("^#{right[0].gsub('*', '.*')}$").nil?
+      next if "#{namespace.to_s}/#{page.to_s}".match("^#{right[0].gsub('*', '.*')}$").nil?
       rights = right[1].split(',')
       rights.map {|r| r.to_s.strip}
       perm = true if rights.include?('all')

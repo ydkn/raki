@@ -20,22 +20,22 @@ module PageHelper
   include Raki::Helpers::ProviderHelper
   include Raki::Helpers::ParserHelper
   
-  def url_for_page type, page, revision=nil
+  def url_for_page namespace, page, revision=nil
     if revision.nil?
-      url_for :controller => 'page', :action => 'view', :type => h(type), :id => h(page)
+      url_for :controller => 'page', :action => 'view', :namespace => h(namespace), :id => h(page)
     else
-      url_for :controller => 'page', :action => 'view', :type => h(type), :id => h(page), :revision => h(revision)
+      url_for :controller => 'page', :action => 'view', :namespace => h(namespace), :id => h(page), :revision => h(revision)
     end
   end
 
-  def insert_page type, page, revision=nil
-    if authorized?(type, page, :view) && page_exists?(type, page, revision)
+  def insert_page namespace, page, revision=nil
+    if authorized?(namespace, page, :view) && page_exists?(namespace, page, revision)
       context = @context.clone
-      context[:type] = type
+      context[:namespace] = namespace
       context[:page] = page
       begin
-        contents = page_contents type, page, revision
-        parsed = parse type, contents, context
+        contents = page_contents namespace, page, revision
+        parsed = parse namespace, contents, context
       rescue => e
         Rails.logger.error e
         "<div class=\"error\">#{t 'parser.parsing_error'}</div>"

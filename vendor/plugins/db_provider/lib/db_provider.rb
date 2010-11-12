@@ -230,7 +230,7 @@ class DBProvider < Raki::AbstractProvider
     changes
   end
   
-  def types
+  def namespaces
     DBPage.all.collect{|page| page.namespace}.uniq
   end
   

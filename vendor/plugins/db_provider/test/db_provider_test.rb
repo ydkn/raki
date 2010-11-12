@@ -37,15 +37,15 @@ class DBProviderTest < Test::Unit::TestCase
 
   # Create a new page
   def test_create_page
-    type_names = [:page, :test]
+    namespace_names = [:page, :test]
     page_names = ['TestPage', 'Page with spaces', ',.-_#+*', '¥≈ç√∫~µ∞å∂ƒ©ª∆@æ«∑€®†Ω¨⁄øπ•±']
-    type_names.each do |type_name|
+    namespace_names.each do |namespace_name|
       page_names.each do |page_name|
         content = "test content 123"
-        page_save type_name, page_name, content, 'changed', default_user
-        assert page_exists?(type_name, page_name)
-        assert_equal content, page_contents(type_name, page_name)
-        revisions = page_revisions type_name, page_name
+        page_save namespace_name, page_name, content, 'changed', default_user
+        assert page_exists?(namespace_name, page_name)
+        assert_equal content, page_contents(namespace_name, page_name)
+        revisions = page_revisions namespace_name, page_name
         assert_equal 1, revisions.length
         assert_same_user default_user, revisions[0].user
       end
@@ -70,39 +70,39 @@ class DBProviderTest < Test::Unit::TestCase
 
   # Rename page
   def test_rename_page
-    old_page = {:type => :page, :page => 'RenameTestPage'}
-    new_page = {:type => :page, :page => 'RenameTestPageRenamed'}
-    new_page2 = {:type => :test, :page => 'RenameTestPageRenamedInOtherType'}
+    old_page = {:namespace => :page, :page => 'RenameTestPage'}
+    new_page = {:namespace => :page, :page => 'RenameTestPageRenamed'}
+    new_page2 = {:namespace => :test, :page => 'RenameTestPageRenamedInOthernamespace'}
     
     # same namespace
-    page_save old_page[:type], old_page[:page], "some content", 'create', default_user
-    content = page_contents old_page[:type], old_page[:page]
+    page_save old_page[:namespace], old_page[:page], "some content", 'create', default_user
+    content = page_contents old_page[:namespace], old_page[:page]
     rename_user = user 'renamer', 'renamer@dom.org'
-    page_rename old_page[:type], old_page[:page], new_page[:type], new_page[:page], rename_user
-    assert !page_exists?(old_page[:type], old_page[:page])
-    assert page_exists?(new_page[:type], new_page[:page])
-    assert_equal content, page_contents(new_page[:type], new_page[:page])
-    revisions = page_revisions new_page[:type], new_page[:page]
+    page_rename old_page[:namespace], old_page[:page], new_page[:namespace], new_page[:page], rename_user
+    assert !page_exists?(old_page[:namespace], old_page[:page])
+    assert page_exists?(new_page[:namespace], new_page[:page])
+    assert_equal content, page_contents(new_page[:namespace], new_page[:page])
+    revisions = page_revisions new_page[:namespace], new_page[:page]
     assert_equal 1, revisions.length
     assert_same_user default_user, revisions[0].user
     
     # other namespace
     rename_user2 = user 'renamer2', 'renamer2@other-dom.net'
-    page_rename new_page[:type], new_page[:page], new_page2[:type], new_page2[:page], rename_user2
-    assert !page_exists?(new_page[:type], new_page[:page])
-    assert page_exists?(new_page2[:type], new_page2[:page])
-    assert_equal content, page_contents(new_page2[:type], new_page2[:page])
-    revisions = page_revisions new_page2[:type], new_page2[:page]
+    page_rename new_page[:namespace], new_page[:page], new_page2[:namespace], new_page2[:page], rename_user2
+    assert !page_exists?(new_page[:namespace], new_page[:page])
+    assert page_exists?(new_page2[:namespace], new_page2[:page])
+    assert_equal content, page_contents(new_page2[:namespace], new_page2[:page])
+    revisions = page_revisions new_page2[:namespace], new_page2[:page]
     assert_equal 1, revisions.length
     assert_same_user default_user, revisions[0].user
     
     # target page already exists
-    page = {:type => :page, :page => 'RenameTestPage2'}
-    page2 = {:type => :test, :page => 'RenameTestPage3'}
-    page_save page[:type], page[:page], 'foo bar', 'create', default_user
-    page_save page2[:type], page2[:page], 'bar foo', 'create2', default_user
+    page = {:namespace => :page, :page => 'RenameTestPage2'}
+    page2 = {:namespace => :test, :page => 'RenameTestPage3'}
+    page_save page[:namespace], page[:page], 'foo bar', 'create', default_user
+    page_save page2[:namespace], page2[:page], 'bar foo', 'create2', default_user
     assert_raise(Raki::AbstractProvider::ProviderError) do
-      page_rename page2[:type], page2[:page], page[:type], page[:page], rename_user
+      page_rename page2[:namespace], page2[:page], page[:namespace], page[:page], rename_user
     end
   end
 
@@ -127,17 +127,17 @@ class DBProviderTest < Test::Unit::TestCase
       'foo' => ['IndexTestPage', 'IndexTestPage2', 'IndexTestPage3', 'IndexTestPage4'],
       'bar' => ['IndexTestPageA', 'IndexTestPageB', 'IndexTestPageC', 'IndexTestPageD']
     }
-    pages.keys.each do |type|
-      pages[type].each do |page_name|
-        page_save type, page_name, "Content for page: #{page_name}", 'create', default_user
+    pages.keys.each do |namespace|
+      pages[namespace].each do |page_name|
+        page_save namespace, page_name, "Content for page: #{page_name}", 'create', default_user
       end
     end
-    types.each do |type|
-      assert pages.keys.include?(type)
+    namespaces.each do |namespace|
+      assert pages.keys.include?(namespace)
     end
-    pages.keys.each do |type|
-      page_all(type).each do |page|
-        assert pages[type].include?(page)
+    pages.keys.each do |namespace|
+      page_all(namespace).each do |page|
+        assert pages[namespace].include?(page)
       end
     end
   end
@@ -184,18 +184,18 @@ class DBProviderTest < Test::Unit::TestCase
   
   # Create a new attachment
   def test_create_attachment
-    types_names = [:page, :test]
+    namespaces_names = [:page, :test]
     page_names = ['AttachmentCreateTestPage', 'AttachmentCreateTestPage2']
     attachment_names = ['foo.jpg', 'bar.png']
-    types_names.each do |type_name|
+    namespaces_names.each do |namespace_name|
       page_names.each do |page_name|
         attachment_names.each do |attachment_name|
           data = generate_binary_data
-          assert !attachment_exists?(type_name, page_name, attachment_name)
-          attachment_save type_name, page_name, attachment_name, data, 'created', default_user
-          assert attachment_exists?(type_name, page_name, attachment_name)
-          assert_equal data, attachment_contents(type_name, page_name, attachment_name)
-          revisions = attachment_revisions type_name, page_name, attachment_name
+          assert !attachment_exists?(namespace_name, page_name, attachment_name)
+          attachment_save namespace_name, page_name, attachment_name, data, 'created', default_user
+          assert attachment_exists?(namespace_name, page_name, attachment_name)
+          assert_equal data, attachment_contents(namespace_name, page_name, attachment_name)
+          revisions = attachment_revisions namespace_name, page_name, attachment_name
           assert_equal 1, revisions.length
           assert_same_user default_user, revisions[0].user
         end
@@ -257,56 +257,56 @@ class DBProviderTest < Test::Unit::TestCase
     @default_user
   end
 
-  def types
-    @provider.types
+  def namespaces
+    @provider.namespaces
   end
 
-  def page_exists?(type, name, revision=nil)
-    @provider.page_exists? type, name, revision
+  def page_exists?(namespace, name, revision=nil)
+    @provider.page_exists? namespace, name, revision
   end
 
-  def page_contents(type, name, revision=nil)
-    @provider.page_contents type, name, revision
+  def page_contents(namespace, name, revision=nil)
+    @provider.page_contents namespace, name, revision
   end
 
-  def page_revisions(type, name)
-    @provider.page_revisions type, name
+  def page_revisions(namespace, name)
+    @provider.page_revisions namespace, name
   end
 
-  def page_save(type, name, content, message, user)
-    @provider.page_save type, name, content, message, user
+  def page_save(namespace, name, content, message, user)
+    @provider.page_save namespace, name, content, message, user
   end
 
-  def page_rename(old_type, old_name, new_type, new_name, user)
-    @provider.page_rename old_type, old_name, new_type, new_name, user
+  def page_rename(old_namespace, old_name, new_namespace, new_name, user)
+    @provider.page_rename old_namespace, old_name, new_namespace, new_name, user
   end
 
-  def page_delete(type, name, user)
-    @provider.page_delete type, name, user
+  def page_delete(namespace, name, user)
+    @provider.page_delete namespace, name, user
   end
 
-  def page_all(type)
-    @provider.page_all type
+  def page_all(namespace)
+    @provider.page_all namespace
   end
 
-  def attachment_exists?(type, page, name, revision=nil)
-    @provider.attachment_exists? type, page, name, revision
+  def attachment_exists?(namespace, page, name, revision=nil)
+    @provider.attachment_exists? namespace, page, name, revision
   end
 
-  def attachment_save(type, page, name, contents, message, user)
-    @provider.attachment_save type, page, name, contents, message, user
+  def attachment_save(namespace, page, name, contents, message, user)
+    @provider.attachment_save namespace, page, name, contents, message, user
   end
   
-  def attachment_contents(type, page, name, revision=nil)
-    @provider.attachment_contents type, page, name, revision
+  def attachment_contents(namespace, page, name, revision=nil)
+    @provider.attachment_contents namespace, page, name, revision
   end
   
-  def attachment_revisions(type, page, name)
-    @provider.attachment_revisions type, page, name
+  def attachment_revisions(namespace, page, name)
+    @provider.attachment_revisions namespace, page, name
   end
   
-  def attachment_delete(type, page, name, user)
-    @provider.attachment_delete type, page, name, user
+  def attachment_delete(namespace, page, name, user)
+    @provider.attachment_delete namespace, page, name, user
   end
 
   def generate_binary_data(length=nil)
