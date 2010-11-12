@@ -19,7 +19,7 @@
 app_name: Raki
 
 frontpage: page/Main
-userpage_type: user
+userpage_namespace: user
 index_page: Main
 
 providers:
