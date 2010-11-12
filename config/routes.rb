@@ -25,10 +25,11 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'login_callback', :controller => 'authentication', :action => 'callback'
   
   # Route for atom feed
-  map.connect 'feed.atom', :controller => 'feed', :action => 'feed'
+  map.connect 'feed.atom', :controller => 'feed', :action => 'global'
 
   # Routes for wiki pages
   map.connect ':namespace', :controller => 'page', :action => 'redirect_to_indexpage'
+  map.connect ':namespace.atom', :controller => 'feed', :action => 'namespace'
   map.with_options :controller => 'page', :requirements => {:id => /[^\/\.]+|\d+\.\d+\.\d+\.\d+/} do |page|
     page.connect ':namespace/:id/info', :action => 'info'
     page.connect ':namespace/:id/diff/:revision_from/:revision_to', :action => 'diff'
@@ -45,8 +46,10 @@ ActionController::Routing::Routes.draw do |map|
     end
     page.connect ':namespace/:id/attachments', :action => 'attachments'
     page.connect ':namespace/:id/attachment_upload', :action => 'attachment_upload', :conditions => { :method => :post }
+    page.connect ':namespace/:id/:revision.:format', :action => 'view', :requirements => {:format => /src/}
     page.connect ':namespace/:id/:revision', :action => 'view'
-    page.connect ':namespace/:id.:format', :action => 'view'
+    page.connect ':namespace/:id.atom', :controller => 'feed', :action => 'page'
+    page.connect ':namespace/:id.:format', :action => 'view', :requirements => {:format => /src/}
     page.connect ':namespace/:id', :action => 'view'
   end
 

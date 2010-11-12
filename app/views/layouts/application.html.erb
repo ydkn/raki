@@ -8,9 +8,10 @@
     <%=plugin_stylesheets %>
     <link rel="shortcut icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
     <link rel="icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
-    <%=auto_discovery_link_tag :rss, {:controller => 'feed', :action => 'feed'}, :title => t('feed', :app_name => Raki.app_name) %>
-    <% if !@namespace.nil? && !@page.nil? && authorized?(@namespace, @page, :view) %>
-	  <%=auto_discovery_link_tag(:rss, {:controller => 'page', :action => 'view', :format => 'atom', :namespace => h(@namespace), :id => h(@page)}, :title => t('page.feed', :namespace => h(@namespace), :page => h(@page))) %>
+    <%=auto_discovery_link_tag :rss, {:controller => 'feed', :action => 'global'}, :title => t('feed.global', :app_name => Raki.app_name) %>
+	<%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'namespace', :namespace => h(@namespace), :format => 'atom'}, :title => t('feed.namespace', :namespace => h(@namespace))) %>
+    <% if @namespace && @page && authorized?(@namespace, @page, :view) %>
+	  <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'page', :namespace => h(@namespace), :id => h(@page), :format => 'atom'}, :title => t('feed.page', :namespace => h(@namespace), :page => h(@page))) %>
 	<% end %>
   </head>
   <body>
@@ -26,7 +27,7 @@
           <%=insert_page :page, 'LeftMenuFooter' %>
         </div>
 		<div id="global_feed">
-          <%=link_to image_tag('feed.png', :alt => 'Feed'), {:controller => 'feed', :action => 'feed'}, {:title => t('feed', :app_name => Raki.app_name), :class => 'feed'} %>
+          <%=link_to image_tag('feed.png', :alt => 'Feed'), {:controller => 'feed', :action => 'global'}, {:title => t('feed.global', :app_name => Raki.app_name), :class => 'feed'} %>
         </div>
         <div id="application_info">Raki v<%=Raki.version %></div>
       </div>

@@ -19,30 +19,39 @@ class FeedController < ApplicationController
   
   include Raki::Helpers::ProviderHelper
   
-  def feed
-    days = {}
-    namespaces.each do |namespace|
-      page_changes(namespace, LIMIT).each do |change|
-        day = change.revision.date.strftime("%Y-%m-%d")
-        days[day] = [] unless days.key?(day)
-        days[day] << change
-      end
-      attachment_changes(namespace, LIMIT).each do |change|
-        day = change.revision.date.strftime("%Y-%m-%d")
-        days[day] = [] unless days.key?(day)
-        days[day] << change
-      end
-    end
-    days = days.sort { |a,b| b <=> a }
-    out = ""
+  def global
     @changes = []
-    days.each do |day,changes|
-      changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
-      changes.each do |change|
-        @changes << change
-      end
+    namespaces.each do |namespace|
+      @changes += page_changes(namespace, LIMIT)
+      @changes += attachment_changes(namespace, LIMIT)
     end
+    @changes = @changes.sort {|a,b| b.revision.date <=> a.revision.date}
     @changes = @changes[0..LIMIT]
+    respond_to do |format|
+      format.atom
+    end
+  end
+  
+  def namespace
+    @namespace = params[:namespace]
+    @changes = page_changes(@namespace, LIMIT)
+    @changes += attachment_changes(@namespace, LIMIT)
+    @changes = @changes.sort {|a,b| b.revision.date <=> a.revision.date}
+    @changes = @changes[0..LIMIT]
+    respond_to do |format|
+      format.atom
+    end
+  end
+  
+  def page
+    @namespace = params[:namespace]
+    @page = params[:id]
+    @revisions = page_revisions(@namespace, @page)[0..LIMIT]
+    attachment_all(@namespace, @page).each do |attachment|
+      @revisions += attachment_revisions(@namespace, @page, attachment)
+    end
+    @revisions = @revisions.sort {|a,b| b.date <=> a.date}
+    @revisions = @revisions[0..LIMIT]
     respond_to do |format|
       format.atom
     end

@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class PageController < ApplicationController
-  FEED_LIMIT = 15
   VISITED_LIMIT = 8
   
   include Raki::Helpers::AuthorizationHelper
@@ -40,7 +39,6 @@ class PageController < ApplicationController
       session[:visited_pages].slice! 0, VISITED_LIMIT if session[:visited_pages].size > 10
       respond_to do |format|
         format.html
-        format.atom { @revisions = page_revisions(@namespace, @page)[0..FEED_LIMIT] }
         format.src { render :inline => page_contents(@namespace, @page, @revision), :content_type => 'text/plain' }
       end
     end

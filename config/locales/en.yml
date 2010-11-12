@@ -23,7 +23,10 @@ en:
     
   forbidden: Permission denied
 
-  feed: Feed for %{app_name}
+  feed:
+    global: Feed for %{app_name}
+    namespace: Feed for %{namespace}
+    page: Feed for %{namespace}/%{page}
   
   visited_pages: Your trail
 
@@ -62,8 +65,6 @@ en:
         user: Author
         message: Comment
       diff: Diff
-
-    feed: Feed for %{namespace}/%{page}
 
   attachment:
     list: Attachments
