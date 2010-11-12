@@ -16,7 +16,7 @@
         <td class="version"><%=link_to revision.version, :controller => 'page', :action => 'attachment', :namespace => h(@namespace), :page => h(@page), :attachment => h(@attachment), :revision => h(revision.id) %></td>
         <td><%=l revision.date, :format => :full %></td>
         <td><%=h format_filesize(revision.size) %></td>
-        <td><%=link_to h(revision.user.username), :controller => 'page', :action => 'view', :namespace => Raki.userpage_namespace, :page => h(revision.user.username) %></td>
+        <td><%=link_to h(revision.user.username), revision.user.page_url %></td>
         <td><%=h revision.message %></td>
       </tr>
     <%  end %>

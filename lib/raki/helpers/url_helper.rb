@@ -19,6 +19,8 @@ module Raki
     
     module URLHelper
       
+      include ERB::Util
+      
       class << self
         attr_accessor :host, :port
       end

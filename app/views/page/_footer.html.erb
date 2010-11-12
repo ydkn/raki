@@ -2,7 +2,7 @@
   <% current_revision = page_revisions(@namespace, @page).first %>
   <%=t 'page.footer',
     :date => l(current_revision.date, :format => :full),
-    :user => link_to((h current_revision.user.display_name), :controller => 'page', :action => 'view', :namespace => h(Raki.userpage_namespace), :page => h(current_revision.user.username)),
+    :user => link_to((h current_revision.user.display_name), current_revision.user.page_url),
     :version => h(current_revision.version)
   %>
 <% end %>

@@ -17,6 +17,7 @@
 class User
   
   include Raki::Helpers::AuthorizationHelper
+  include Raki::Helpers::URLHelper
   
   attr_reader :id
   
@@ -45,6 +46,10 @@ class User
   
   def authorized_to!(type, page, action)
     authorized!(type, page, action, self)
+  end
+  
+  def page_url
+    url_for_page(Raki.userpage_namespace, username)
   end
   
   def self.current
