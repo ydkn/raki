@@ -1,5 +1,5 @@
 <% if authenticated? %>
-  <%= link_to((h User.current.display_name), {:controller => 'page', :action => 'view', :namespace => h(Raki.userpage_namespace), :id => h(User.current.username)}, :id => 'auth_username') %>
+  <%= link_to((h User.current.display_name), {:controller => 'page', :action => 'view', :namespace => h(Raki.userpage_namespace), :page => h(User.current.username)}, :id => 'auth_username') %>
   <%=link_to((t 'authinfo.logout'), {:controller => 'authentication', :action => 'logout'}) %>
 <% else %>
   <%=link_to((t 'authinfo.login'), {:controller => 'authentication', :action => 'login'}) %>

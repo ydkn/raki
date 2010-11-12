@@ -10,7 +10,7 @@
 	  <div class="index_letter" id="INDEX-<%=h("#{index[:letter]}-#{rnd}") %>"><%=h index[:letter] %></div>
 	  <div class="index_pages">
 		<% i = 0; index[:pages].each do |page| %>
-		  <%=link_to h(namespaces.length == 1 ? page[:page] : "#{page[:namespace]}/#{page[:page]}"), {:controller => 'page', :action => 'view', :namespace => h(page[:namespace]), :id => h(page[:page])} %>
+		  <%=link_to h(namespaces.length == 1 ? page[:page] : "#{page[:namespace]}/#{page[:page]}"), {:controller => 'page', :action => 'view', :namespace => h(page[:namespace]), :page => h(page[:page])} %>
 		  <%=h ", " if (i += 1) < index[:pages].size %>
 	  	<% end %>
 	  </div>

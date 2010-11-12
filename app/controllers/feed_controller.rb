@@ -45,7 +45,7 @@ class FeedController < ApplicationController
   
   def page
     @namespace = params[:namespace]
-    @page = params[:id]
+    @page = params[:page]
     @revisions = page_revisions(@namespace, @page)[0..LIMIT]
     attachment_all(@namespace, @page).each do |attachment|
       @revisions += attachment_revisions(@namespace, @page, attachment)

@@ -11,7 +11,7 @@
     <%=auto_discovery_link_tag :rss, {:controller => 'feed', :action => 'global'}, :title => t('feed.global', :app_name => Raki.app_name) %>
 	<%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'namespace', :namespace => h(@namespace)}, :title => t('feed.namespace', :namespace => h(@namespace))) %>
     <% if @namespace && @page && authorized?(@namespace, @page, :view) %>
-	  <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'page', :namespace => h(@namespace), :id => h(@page)}, :title => t('feed.page', :namespace => h(@namespace), :page => h(@page))) %>
+	  <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'page', :namespace => h(@namespace), :page => h(@page)}, :title => t('feed.page', :namespace => h(@namespace), :page => h(@page))) %>
 	<% end %>
   </head>
   <body>

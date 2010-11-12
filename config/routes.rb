@@ -30,27 +30,27 @@ ActionController::Routing::Routes.draw do |map|
   # Routes for wiki pages
   map.connect ':namespace', :controller => 'page', :action => 'redirect_to_indexpage'
   map.connect ':namespace.atom', :controller => 'feed', :action => 'namespace'
-  map.with_options :controller => 'page', :requirements => {:id => /[^\/\.]+|\d+\.\d+\.\d+\.\d+/} do |page|
-    page.connect ':namespace/:id/info', :action => 'info'
-    page.connect ':namespace/:id/diff/:revision_from/:revision_to', :action => 'diff'
-    page.connect ':namespace/:id/diff', :action => 'diff'
-    page.connect ':namespace/:id/edit', :action => 'edit'
-    page.connect ':namespace/:id/update', :action => 'update', :conditions => { :method => :post }
-    page.connect ':namespace/:id/rename', :action => 'rename', :conditions => { :method => :post }
-    page.connect ':namespace/:id/delete', :action => 'delete'
+  map.with_options :controller => 'page', :requirements => {:page => /[^\/\.]+|\d+\.\d+\.\d+\.\d+/} do |page|
+    page.connect ':namespace/:page/info', :action => 'info'
+    page.connect ':namespace/:page/diff/:revision_from/:revision_to', :action => 'diff'
+    page.connect ':namespace/:page/diff', :action => 'diff'
+    page.connect ':namespace/:page/edit', :action => 'edit'
+    page.connect ':namespace/:page/update', :action => 'update', :conditions => { :method => :post }
+    page.connect ':namespace/:page/rename', :action => 'rename', :conditions => { :method => :post }
+    page.connect ':namespace/:page/delete', :action => 'delete'
     page.with_options :requirements => {:attachment => /[^\/]+/} do |attachment|
-      attachment.connect ':namespace/:id/attachment/:attachment', :action => 'attachment'
-      attachment.connect ':namespace/:id/attachment/:attachment/info', :action => 'attachment_info'
-      attachment.connect ':namespace/:id/attachment/:attachment/delete', :action => 'delete'
-      attachment.connect ':namespace/:id/attachment/:attachment/:revision', :action => 'attachment'
+      attachment.connect ':namespace/:page/attachment/:attachment', :action => 'attachment'
+      attachment.connect ':namespace/:page/attachment/:attachment/info', :action => 'attachment_info'
+      attachment.connect ':namespace/:page/attachment/:attachment/delete', :action => 'delete'
+      attachment.connect ':namespace/:page/attachment/:attachment/:revision', :action => 'attachment'
     end
-    page.connect ':namespace/:id/attachments', :action => 'attachments'
-    page.connect ':namespace/:id/attachment_upload', :action => 'attachment_upload', :conditions => { :method => :post }
-    page.connect ':namespace/:id/:revision.:format', :action => 'view', :requirements => {:format => /src/}
-    page.connect ':namespace/:id/:revision', :action => 'view'
-    page.connect ':namespace/:id.atom', :controller => 'feed', :action => 'page'
-    page.connect ':namespace/:id.:format', :action => 'view', :requirements => {:format => /src/}
-    page.connect ':namespace/:id', :action => 'view'
+    page.connect ':namespace/:page/attachments', :action => 'attachments'
+    page.connect ':namespace/:page/attachment_upload', :action => 'attachment_upload', :conditions => { :method => :post }
+    page.connect ':namespace/:page/:revision.:format', :action => 'view', :requirements => {:format => /src/}
+    page.connect ':namespace/:page/:revision', :action => 'view'
+    page.connect ':namespace/:page.atom', :controller => 'feed', :action => 'page'
+    page.connect ':namespace/:page.:format', :action => 'view', :requirements => {:format => /src/}
+    page.connect ':namespace/:page', :action => 'view'
   end
 
 end

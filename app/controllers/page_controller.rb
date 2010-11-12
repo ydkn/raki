@@ -24,11 +24,11 @@ class PageController < ApplicationController
   before_filter :common_init, :except => [:redirect_to_frontpage, :redirect_to_indexpage]
 
   def redirect_to_frontpage
-    redirect_to :controller => 'page', :action => 'view', :namespace => h(Raki.frontpage[:namespace]), :id => h(Raki.frontpage[:page])
+    redirect_to :controller => 'page', :action => 'view', :namespace => h(Raki.frontpage[:namespace]), :page => h(Raki.frontpage[:page])
   end
   
   def redirect_to_indexpage
-    redirect_to :controller => 'page', :action => 'view', :namespace => h(params[:namespace]), :id => h(Raki.index_page)
+    redirect_to :controller => 'page', :action => 'view', :namespace => h(params[:namespace]), :page => h(Raki.index_page)
   end
 
   def view
@@ -77,7 +77,7 @@ class PageController < ApplicationController
       return
     end
     page_save @namespace, @page, params[:content], params[:message]
-    redirect_to :controller => 'page', :action => 'view', :namespace => h(@namespace), :id => h(@page)
+    redirect_to :controller => 'page', :action => 'view', :namespace => h(@namespace), :page => h(@page)
   end
 
   def rename
@@ -93,15 +93,15 @@ class PageController < ApplicationController
     end
     unless authorized? new_namespace, new_page, :create
       flash[:notice] = t 'page.edit.no_permission_to_create'
-      redirect_to :controller => 'page', :action => 'edit', :namespace => h(@namespace), :id => h(@page)
+      redirect_to :controller => 'page', :action => 'edit', :namespace => h(@namespace), :page => h(@page)
       return
     end
     unless page_exists? new_namespace, new_page
       page_rename @namespace, @page, new_namespace, new_page
-      redirect_to :controller => 'page', :action => 'view', :namespace => h(new_namespace), :id => h(new_page)
+      redirect_to :controller => 'page', :action => 'view', :namespace => h(new_namespace), :page => h(new_page)
     else
       flash[:notice] = t 'page.edit.page_already_exists'
-      redirect_to :controller => 'page', :action => 'edit', :namespace => h(@namespace), :id => h(@page)
+      redirect_to :controller => 'page', :action => 'edit', :namespace => h(@namespace), :page => h(@page)
     end
   end
 
@@ -110,12 +110,12 @@ class PageController < ApplicationController
       return if render_forbidden_if_not_authorized :delete
       return if redirect_if_page_not_exists
       page_delete @namespace, @page
-      redirect_to :controller => 'page', :namespace => h(Raki.frontpage[:namespace]), :id => h(Raki.frontpage[:page])
+      redirect_to :controller => 'page', :namespace => h(Raki.frontpage[:namespace]), :page => h(Raki.frontpage[:page])
     else
       return if render_forbidden_if_not_authorized :delete
       return if redirect_if_attachment_not_exists
       attachment_delete @namespace, @page, @attachment
-      redirect_to :controller => 'page', :action => 'attachments', :namespace => h(@namespace), :id => h(@page)
+      redirect_to :controller => 'page', :action => 'attachments', :namespace => h(@namespace), :page => h(@page)
     end
   end
 
@@ -142,7 +142,7 @@ class PageController < ApplicationController
       params[:attachment_upload].read,
       params[:message]
     )
-    redirect_to :controller => 'page', :action => 'attachments', :namespace => h(@namespace), :id => h(@page)
+    redirect_to :controller => 'page', :action => 'attachments', :namespace => h(@namespace), :page => h(@page)
   end
 
   def attachment
@@ -176,7 +176,7 @@ class PageController < ApplicationController
 
   def common_init
     @namespace = params[:namespace].to_sym
-    @page = params[:id]
+    @page = params[:page]
     @revision = params[:revision]
     @revision_from = params[:revision_from]
     @revision_to = params[:revision_to]
@@ -199,7 +199,7 @@ class PageController < ApplicationController
 
   def redirect_if_not_authorized action
     unless authorized? @namespace, @page, action
-      redirect_to :controller => 'page', :action => 'view', :namespace => h(@namespace), :id => h(@page)
+      redirect_to :controller => 'page', :action => 'view', :namespace => h(@namespace), :page => h(@page)
       return true
     end
     false
@@ -207,7 +207,7 @@ class PageController < ApplicationController
 
   def redirect_if_page_not_exists
     unless page_exists? @namespace, @page, @revision
-      redirect_to :controller => 'page', :action => 'view', :namespace => h(@namespace), :id => h(@page)
+      redirect_to :controller => 'page', :action => 'view', :namespace => h(@namespace), :page => h(@page)
       return true
     end
     false
@@ -215,7 +215,7 @@ class PageController < ApplicationController
 
   def redirect_if_attachment_not_exists
     unless attachment_exists? @namespace, @page, @attachment
-      redirect_to :controller => 'page', :action => 'attachments', :namespace => h(@namespace), :id => h(@page)
+      redirect_to :controller => 'page', :action => 'attachments', :namespace => h(@namespace), :page => h(@page)
       return true
     end
     false

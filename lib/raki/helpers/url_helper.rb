@@ -44,9 +44,9 @@ module Raki
       
       def url_for_page(namespace, page, revision=nil)
         if revision.nil?
-          url_for(:controller => 'page', :action => 'view', :namespace => h(namespace), :id => h(page))
+          url_for(:controller => 'page', :action => 'view', :namespace => h(namespace), :page => h(page))
         else
-          url_for(:controller => 'page', :action => 'view', :namespace => h(namespace), :id => h(page), :revision => h(revision))
+          url_for(:controller => 'page', :action => 'view', :namespace => h(namespace), :page => h(page), :revision => h(revision))
         end
       end
 

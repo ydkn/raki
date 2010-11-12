@@ -7,7 +7,7 @@ atom_feed do |feed|
     next unless authorized?(change.namespace, change.page, :view)
     updated = change.revision.date if updated.nil?    
     if change.attachment.nil?
-      feed.entry change.revision, :url => url_for(:controller => 'page', :action => 'view', :namespace => h(change.namespace), :id => h(change.page), :revision => h(change.revision.id)) do |entry|
+      feed.entry change.revision, :url => url_for(:controller => 'page', :action => 'view', :namespace => h(change.namespace), :page => h(change.page), :revision => h(change.revision.id)) do |entry|
         entry.title h "#{change.namespace}/#{change.page}"
         entry.updated change.revision.date.xmlschema
         diff = []
@@ -34,7 +34,7 @@ atom_feed do |feed|
         end
       end
     else
-      feed.entry change.revision, :url => url_for(:controller => 'page', :action => 'attachment', :namespace => h(change.namespace), :id => h(change.page), :attachment => h(change.attachment), :revision => h(change.revision.id)) do |entry|
+      feed.entry change.revision, :url => url_for(:controller => 'page', :action => 'attachment', :namespace => h(change.namespace), :page => h(change.page), :attachment => h(change.attachment), :revision => h(change.revision.id)) do |entry|
         entry.title h "#{change.namespace}/#{change.page}/#{change.attachment}"
         entry.updated change.revision.date.xmlschema
         entry.content %Q{

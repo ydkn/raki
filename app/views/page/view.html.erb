@@ -4,7 +4,7 @@
   <div class="information">
     <%=t 'page.not_exists.msg' %>
     <% if authorized?(@namespace, @page, :create) %>
-      <%=t 'page.not_exists.edit_msg', :edit_link => link_to(t('page.not_exists.edit_link'), {:controller => 'page', :action => 'edit', :namespace => h(@namespace), :id => h(@page)}) %>
+      <%=t 'page.not_exists.edit_msg', :edit_link => link_to(t('page.not_exists.edit_link'), {:controller => 'page', :action => 'edit', :namespace => h(@namespace), :page => h(@page)}) %>
     <% end %>
   </div>
 <% end %>

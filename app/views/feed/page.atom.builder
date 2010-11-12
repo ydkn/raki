@@ -4,7 +4,7 @@ atom_feed do |feed|
   feed.updated @revisions.first.date
 
   @revisions.each do |revision|
-    feed.entry revision, :url => url_for(:controller => 'page', :action => 'view', :namespace => h(@namespace), :id => h(@page), :revision => h(revision.id)) do |entry|
+    feed.entry revision, :url => url_for(:controller => 'page', :action => 'view', :namespace => h(@namespace), :page => h(@page), :revision => h(revision.id)) do |entry|
       entry.title h revision.message
       entry.updated revision.date.xmlschema
       diff = []
