@@ -48,7 +48,9 @@
           <div id="page">
             <%=yield %>
           </div>
-          <%=render :partial => "layouts/page_footer" %>
+		  <div id="page_footer">
+			<%=render :partial => "#{controller_name}/footer" rescue '' %>
+		  </div>
           </div>
         </div>
         <br class="clear" />

@@ -1,0 +1,11 @@
+<% if authorized?(@namespace, @page, :view) %>
+  <% current_revision = page_revisions(@namespace, @page).first %>
+  <%=t 'page.footer',
+    :date => l(current_revision.date, :format => :full),
+    :user => link_to((h current_revision.user.display_name), :controller => 'page', :action => 'view', :namespace => h(Raki.userpage_namespace), :id => h(current_revision.user.username)),
+    :version => h(current_revision.version)
+  %>
+<% end %>
+<% if @namespace && @page && authorized?(@namespace, @page, :view) %>
+  <%=link_to image_tag('feed.png', :alt => 'Feed'), { :controller => 'page', :action => 'view', :format => 'atom', :namespace => h(@namespace), :id => h(@page) }, {:title => t('page.feed', :namespace => h(@namespace), :page => h(@page)), :class => 'feed'} %>
+<% end %>

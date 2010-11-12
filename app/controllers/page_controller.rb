@@ -38,14 +38,6 @@ class PageController < ApplicationController
       session[:visited_pages].unshift({:namespace => @namespace, :page => @page})
       session[:visited_pages].uniq!
       session[:visited_pages].slice! 0, VISITED_LIMIT if session[:visited_pages].size > 10
-      current_revision = page_revisions(@namespace, @page).first
-      @page_info = {
-        :date => current_revision.date,
-        :user => current_revision.user,
-        :version => current_revision.version,
-        :namespace => @namespace,
-        :id => @page
-      } unless current_revision.nil?
       respond_to do |format|
         format.html
         format.atom { @revisions = page_revisions(@namespace, @page)[0..FEED_LIMIT] }
