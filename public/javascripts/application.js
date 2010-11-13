@@ -136,4 +136,117 @@ function initToolbar() {
 	}
 	document.getElementById("toolbar").style.display = 'block';
 }
-window.onload = initToolbar;
+
+var previewLoading = false;
+var previewRefresh = false;
+
+function refreshPreview() {
+	if(previewLoading) {
+		previewRefresh = true;
+		return;
+	}
+	if(!document.getElementById("preview") || !document.getElementById("content")) {
+		return;
+	}
+	
+	livePreviewSwitch = document.getElementById("live-preview-switch");
+	
+	if(livePreviewSwitch.checked !== true) {
+		return;
+	}
+	
+	previewLoading = true;
+	
+	content = document.getElementById("content");
+	previewContent = document.getElementById("preview-content");
+	livePreviewLoader = document.getElementById("live-preview-loader");
+	
+	var httpRequest;
+	if(window.XMLHttpRequest) {
+		httpRequest = new XMLHttpRequest();
+	} else if(window.ActiveXObject) {
+		httpRequest = new ActiveXObject('Microsoft.XMLHTTP');
+	} else {
+		return;
+	}
+	httpRequest.onreadystatechange = function() {
+		if(httpRequest.readyState == 4 && httpRequest.status == 200) {
+			previewContent.innerHTML = httpRequest.responseText;
+			if(previewContent.innerHTML == "") {
+				previewContent.style.display = 'none';
+			} else {
+				previewContent.style.display = 'block';
+			}
+			previewLoading = false;
+			if(previewRefresh) {
+				previewRefresh = false;
+				refreshPreview();
+			}
+		}
+		livePreviewLoader.style.display = 'none';
+	}
+	
+	var csrfParam;
+	var csrfTocken;
+	metaTags = document.getElementsByTagName("meta");
+	for(i = 0; i < metaTags.length; i++) {
+		name = metaTags[i].getAttribute('name');
+		value = metaTags[i].getAttribute('content');
+		if(name == 'csrf-param') {
+			csrfParam = value
+		} else if(name == 'csrf-token') {
+			csrfTocken = value;
+		}
+	}
+	data = csrfParam + "=" + csrfTocken.replace(/\+/g, '%2B');
+	
+	data += "&content=" + encodeURI(content.value) + "&parser=" + encodeURI("page");
+	httpRequest.open('POST', '/preview', true);
+	httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	httpRequest.setRequestHeader("Content-Length", data.length);
+	httpRequest.setRequestHeader("Connection", "close");
+	httpRequest.send(data);
+	livePreviewLoader.style.display = 'inline';
+}
+
+function initLivePreview() {
+	if(!document.getElementById("preview") || !document.getElementById("content")) {
+		return;
+	}
+	document.getElementById("preview").style.display = 'block';
+	
+	if(!window.XMLHttpRequest && !window.ActiveXObject) {
+		document.getElementById("preview").style.display = 'none';
+		return;
+	}
+	
+	content = document.getElementById("content");
+	previewContent = document.getElementById("preview-content");
+	livePreviewSwitch = document.getElementById("live-preview-switch");
+	
+	previewContent.style.display = 'none';
+	if(livePreviewSwitch.checked === true) {
+		refreshPreview();
+	}
+	
+	livePreviewSwitch.onchange = function(e) {
+		previewContent.innerHTML = '';
+		previewContent.style.display = 'none';
+		if(livePreviewSwitch.checked === true) {
+			refreshPreview();
+		}
+		return false;
+	}
+	
+	content.onkeyup = function(e) {
+		refreshPreview();
+		return false;
+	}
+}
+
+function startup() {
+	initToolbar();
+	initLivePreview();
+}
+
+window.onload = startup;

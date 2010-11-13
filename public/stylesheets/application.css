@@ -150,8 +150,32 @@ a, a:visited {
 
 #preview {
     border: 1px solid #cccccc;
-    margin: 0 0.5em;
-    padding: 1em 1em;
+    margin: 1em 0;
+	display: none;
+}
+
+#preview h3 {
+	background-color: #dddddd;
+	margin: 0;
+	padding: 0.25em;
+	height: 1.5em;
+}
+
+#preview h3 #live-preview-switch {
+	margin-right: 1em;
+}
+
+#preview h3 #live-preview-loader {
+	height: 16px;
+	width: 16px;
+	border: 0;
+	display: none;
+	float: right;
+}
+
+#preview #preview-content {
+	padding: 1em;
+	display: none;
 }
 
 #revisions {
