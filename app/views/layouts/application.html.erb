@@ -6,6 +6,7 @@
     <title><%=h "#{Raki.app_name} :: #{@title}" %></title>
     <%=stylesheet_link_tag 'application', :media => 'all' %>
     <%=plugin_stylesheets %>
+    <%=javascript_include_tag 'application' %>
     <link rel="shortcut icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
     <link rel="icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
     <%=auto_discovery_link_tag :rss, {:controller => 'feed', :action => 'global'}, :title => t('feed.global', :app_name => Raki.app_name) %>
@@ -49,12 +50,15 @@
           <div id="page">
             <%=yield %>
           </div>
-		  <div id="page_footer">
+          <div id="page_footer">
 			<%=render :partial => "#{controller_name}/footer" %>
 		  </div>
-          </div>
+          <div id="footer">
+		    Icons by Yusuke Kamiyamane <a href="http://p.yusukekamiyamane.com/">http://p.yusukekamiyamane.com/</a>.
+		  </div>
         </div>
         <br class="clear" />
       </div>
-    </body>
-  </html>
+    </div>
+  </body>
+</html>

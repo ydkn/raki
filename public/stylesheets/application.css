@@ -108,6 +108,13 @@ a, a:visited {
 
 #page_footer {
     float: right;
+	text-align: right;
+}
+
+#footer {
+	font-size: 0.8em;
+	text-align: center;
+	margin-top: 3em;
 }
 
 #controls {
@@ -200,6 +207,34 @@ a, a:visited {
 
 #login input[type=submit] {
     margin-left: 13.5em;
+}
+
+#toolbar {
+	display: none;
+	margin: 1em 0 0.25em 0;
+}
+
+#toolbar-items {
+	height: 32px;
+	font-size: 1px;
+}
+
+#toolbar-items a {
+	border: 0;
+	margin: 0;
+	padding: 0 4px;
+}
+
+#toolbar-items img {
+	border: 0;
+	margin: 0;
+}
+
+.toolbar-items-group {
+	float: left;
+	border: 1px solid #cccccc;
+	margin-right: 15px;
+	padding: 4px 0;
 }
 
 a.feed {
