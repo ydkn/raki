@@ -197,7 +197,7 @@ class PageController < ApplicationController
   private
 
   def common_init
-    @page = Page.find(params[:namespace], params[:page], params[:revision])
+    @page = Page.find(params[:namespace], params[:page], params[:revision]) || Page.new(:namespace => params[:namespace], :name => params[:page])
     @attachment = Attachment.find(params[:namespace], params[:page], params[:attachment], params[:revision]) if params[:attachment]
     
     @title = "#{@page.namespace}/#{@page.name}"

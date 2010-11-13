@@ -1,5 +1,4 @@
-<% if @page.authorized?(User.current, :view) %>
-  <% current_revision = page_revisions(@page.namespace, @page.name).first %>
+<% if @page.exists? && @page.authorized?(User.current, :view) %>
   <%=t 'page.footer',
     :date => l(@page.revision.date, :format => :full),
     :user => link_to((h @page.revision.user.display_name), @page.revision.user.page_url),

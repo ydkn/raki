@@ -49,11 +49,11 @@ class Page
   end
   
   def exists?
-    @exists ||= page_exists?(namespace, name, revision.id)
+    @exists ||= page_exists?(namespace, name, (revision ? revision.id : nil))
   end
   
   def content
-    @content ||= page_contents(namespace, name, revision.id)
+    @content ||= page_contents(namespace, name, (revision ? revision.id : nil)) rescue ''
   end
   
   def content=(content)
@@ -75,8 +75,10 @@ class Page
   end
   
   def url(action='view')
-    unless revision.id == head.id
+    if revision && revision.id != head.id
       rev = action.to_sym == :view ? revision.id : nil
+    else
+      rev = nil
     end
     url_for_page(namespace, name, rev, action)
   end
