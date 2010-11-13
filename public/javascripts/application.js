@@ -121,6 +121,7 @@ function toolbarClickEvent(e) {
 	content.selectionStart = newSelectionStart;
 	content.selectionEnd = newSelectionEnd;
 	content.focus();
+	return false;
 }
 
 function initToolbar() {
