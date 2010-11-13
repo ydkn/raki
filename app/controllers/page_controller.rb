@@ -20,6 +20,7 @@ class PageController < ApplicationController
   
   include Raki::Helpers::PermissionHelper
   include Raki::Helpers::ProviderHelper
+  include Raki::Helpers::ParserHelper
   include ERB::Util
   
   before_filter :common_init, :except => [:redirect_to_frontpage, :redirect_to_indexpage]
@@ -78,6 +79,7 @@ class PageController < ApplicationController
       @content = params[:content]
       @preview = @content
     end
+    @parser = parser @type
   end
 
   def update

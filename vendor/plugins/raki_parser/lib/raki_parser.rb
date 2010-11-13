@@ -37,5 +37,29 @@ class RakiParser < Raki::AbstractParser
     return nil if output.nil?
     output.to_html(context)
   end
+  
+  def toolbar_items
+    [
+      [
+        {:id => 'link', :prefix => '[', :suffix => ']'},
+        {:id => 'heading1', :'line-start' => '!'},
+        {:id => 'heading2', :'line-start' => '!!'},
+        {:id => 'heading3', :'line-start' => '!!!'}
+      ],
+      [
+        {:id => 'bold', :enclosed => '*'},
+        {:id => 'italic', :enclosed => '~'},
+        {:id => 'underline', :enclosed => '_'},
+        {:id => 'strike', :enclosed => '-'}
+      ],
+      [
+        {:id => 'hline', :line => '----'}
+      ],
+      [
+        {:id => 'orderedlist', :'multiline-start' => '# '},
+        {:id => 'list', :'multiline-start' => '* '},
+      ]
+    ]
+  end
 
 end
