@@ -1,7 +1,7 @@
-<% if @parser.respond_to?(:toolbar_items) %>
+<% if parser(@type).respond_to?(:toolbar_items) %>
   <div id="toolbar">
     <div id="toolbar-items">
-	  <% @parser.toolbar_items.each do |group| %>
+	  <% parser(@type).toolbar_items.each do |group| %>
 	    <div class="toolbar-items-group">
 		  <% group.each do |item| %>
 	        <%=toolbar_item item %>
