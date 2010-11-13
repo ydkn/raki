@@ -19,9 +19,10 @@ class PageController < ApplicationController
   
   include Raki::Helpers::AuthorizationHelper
   include Raki::Helpers::ProviderHelper
+  include Raki::Helpers::ParserHelper
   include ERB::Util
   
-  before_filter :common_init, :except => [:redirect_to_frontpage, :redirect_to_indexpage]
+  before_filter :common_init, :except => [:redirect_to_frontpage, :redirect_to_indexpage, :live_preview]
 
   def redirect_to_frontpage
     redirect_to :controller => 'page', :action => 'view', :namespace => h(Raki.frontpage[:namespace]), :page => h(Raki.frontpage[:page])
@@ -170,6 +171,13 @@ class PageController < ApplicationController
     return if redirect_if_not_authorized :view
     return if redirect_if_page_not_exists
     @diff = page_diff @namespace, @page, @revision_from, @revision_to
+  end
+  
+  def preview
+  end
+  
+  def live_preview
+    render :inline => parse(params[:parser], params[:content], @context), :content_type => 'text/html'
   end
 
   private

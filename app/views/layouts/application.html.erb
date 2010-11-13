@@ -14,6 +14,8 @@
     <% if @namespace && @page && authorized?(@namespace, @page, :view) %>
 	  <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'page', :namespace => h(@namespace), :page => h(@page)}, :title => t('feed.page', :namespace => h(@namespace), :page => h(@page))) %>
 	<% end %>
+	<meta name="csrf-param" content="authenticity_token"/>
+	<meta name="csrf-token" content="<%=form_authenticity_token %>"/>
   </head>
   <body>
     <div id="container">
@@ -50,7 +52,7 @@
           <div id="page">
             <%=yield %>
           </div>
-		  <div id="page_footer">
+          <div id="page_footer">
 			<%=render :partial => "#{controller_name}/footer" %>
 		  </div>
           <div id="footer">
