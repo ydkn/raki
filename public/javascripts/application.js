@@ -215,6 +215,7 @@ function initLivePreview() {
 	}
 	document.getElementById("preview").style.display = 'block';
 	
+	// Check if browser supports AJAX
 	if(!window.XMLHttpRequest && !window.ActiveXObject) {
 		document.getElementById("preview").style.display = 'none';
 		return;
@@ -223,6 +224,15 @@ function initLivePreview() {
 	content = document.getElementById("content");
 	previewContent = document.getElementById("preview-content");
 	livePreviewSwitch = document.getElementById("live-preview-switch");
+	
+	showLivePreview = false;
+	cookies = document.cookie.split(';');
+	for(i = 0; i < cookies.length; i++) {
+		cookie = cookies[i].split(';')[0].split('=', 2);
+		if(cookie[0].match('\s*live-preview\s*') && cookie[1].match('\s*true\s*')) {
+			livePreviewSwitch.checked = true;
+		}
+	}
 	
 	previewContent.style.display = 'none';
 	if(livePreviewSwitch.checked === true) {
@@ -235,6 +245,8 @@ function initLivePreview() {
 		if(livePreviewSwitch.checked === true) {
 			refreshPreview();
 		}
+		expires = new Date((new Date()).getTime() + 31536000000); // 1 year
+		document.cookie = 'live-preview=' + livePreviewSwitch.checked + ';expires=' + expires.toGMTString() + ';';
 		return false;
 	}
 	
