@@ -1,11 +1,11 @@
-<% if authorized?(@namespace, @page, :view) %>
-  <% current_revision = page_revisions(@namespace, @page).first %>
+<% if @page.authorized?(User.current, :view) %>
+  <% current_revision = page_revisions(@page.namespace, @page.name).first %>
   <%=t 'page.footer',
-    :date => l(current_revision.date, :format => :full),
-    :user => link_to((h current_revision.user.display_name), current_revision.user.page_url),
-    :version => h(current_revision.version)
+    :date => l(@page.revision.date, :format => :full),
+    :user => link_to((h @page.revision.user.display_name), @page.revision.user.page_url),
+    :version => h(@page.revision.version)
   %>
 <% end %>
-<% if @namespace && @page && authorized?(@namespace, @page, :view) %>
-  <%=link_to image_tag('feed.png', :alt => 'Feed'), { :controller => 'feed', :action => 'page', :namespace => h(@namespace), :page => h(@page)}, {:title => t('feed.page', :namespace => h(@namespace), :page => h(@page)), :class => 'feed'} %>
+<% if @page.authorized?(User.current, :view) %>
+  <%=link_to image_tag('feed.png', :alt => 'Feed'), { :controller => 'feed', :action => 'page', :namespace => h(@page.namespace), :page => h(@page.name)}, {:title => t('feed.page', :namespace => h(@page.namespace), :page => h(@page.name)), :class => 'feed'} %>
 <% end %>

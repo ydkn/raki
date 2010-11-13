@@ -44,11 +44,11 @@ module Raki
         
       end
       
-      def url_for_page(namespace, page, revision=nil)
+      def url_for_page(namespace, page, revision=nil, action='view')
         if revision.nil?
-          url_for(:controller => 'page', :action => 'view', :namespace => h(namespace), :page => h(page))
+          url_for(:controller => 'page', :action => action.to_s, :namespace => h(namespace.to_s), :page => h(page.to_s))
         else
-          url_for(:controller => 'page', :action => 'view', :namespace => h(namespace), :page => h(page), :revision => h(revision))
+          url_for(:controller => 'page', :action => action.to_s, :namespace => h(namespace.to_s), :page => h(page.to_s), :revision => h(revision.to_s))
         end
       end
 

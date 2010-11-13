@@ -1,10 +1,10 @@
-<% if page_exists? @namespace, @page %>
-  <%=insert_page @namespace, @page, @revision %>
+<% if @page %>
+  <%=insert_page @page.namespace, @page.name, @page.revision.id %>
 <% else %>
   <div class="information">
     <%=t 'page.not_exists.msg' %>
-    <% if authorized?(@namespace, @page, :create) %>
-      <%=t 'page.not_exists.edit_msg', :edit_link => link_to(t('page.not_exists.edit_link'), {:controller => 'page', :action => 'edit', :namespace => h(@namespace), :page => h(@page)}) %>
+    <% if @page.authorized?(User.current, :create) %>
+      <%=t 'page.not_exists.edit_msg', :edit_link => link_to(t('page.not_exists.edit_link'), @page.url(:edit)) %>
     <% end %>
   </div>
 <% end %>

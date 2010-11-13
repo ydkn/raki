@@ -40,12 +40,12 @@ class User
     @display_name.nil? ? username : @display_name
   end
   
-  def authorized_to?(type, page, action)
-    authorized?(type, page, action, self)
+  def authorized_to?(namespace, page, action)
+    authorized?(namespace, page, action, self)
   end
   
-  def authorized_to!(type, page, action)
-    authorized!(type, page, action, self)
+  def authorized_to!(namespace, page, action)
+    authorized!(namespace, page, action, self)
   end
   
   def page_url
