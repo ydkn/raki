@@ -19,7 +19,7 @@
 	      <% if revision.deleted? %>
 	        <td class="version"><%=h revision.version %></td>
 	      <% else %>
-	        <td class="version"><%=link_to h(revision.version), :controller => 'page', :action => 'view', :namespace => h(@page.namespace), :page => h(@page.name), :revision => h(revision.id) %></td>
+	        <td class="version"><%=link_to h(revision.version), @page.url(:revision => revision.id) %></td>
 	      <% end %>
 		  <td class="diff"><%=radio_button_tag 'revision_from', revision.id, (cnt==1) %></td>
 		  <td class="diff"><%=radio_button_tag 'revision_to', revision.id, (cnt==2) %></td>

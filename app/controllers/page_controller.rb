@@ -152,13 +152,13 @@ class PageController < ApplicationController
     end
     
     # ugly fix for ruby1.9 and rails2.5
-    unless File.exists? "#{Rails.root}/tmp/attachments/#{@attachment.page.namespace}/#{@attachment.page.name}/#{@attachment.name}/#{@attachment.revision}"
+    unless File.exists? "#{Rails.root}/tmp/attachments/#{@attachment.page.namespace}/#{@attachment.page.name}/#{@attachment.name}/#{@attachment.revision.id}"
       FileUtils.mkdir_p "#{Rails.root}/tmp/attachments/#{@attachment.page.namespace}/#{@attachment.page.name}/#{@attachment.name}"
-      File.open "#{Rails.root}/tmp/attachments/#{@attachment.page.namespace}/#{@attachment.page.name}/#{@attachment.name}/#{@attachment.revision}", 'w' do |f|
+      File.open "#{Rails.root}/tmp/attachments/#{@attachment.page.namespace}/#{@attachment.page.name}/#{@attachment.name}/#{@attachment.revision.id}", 'w' do |f|
         f.write(@attachment.content)
       end
     end
-    send_file "#{Rails.root}/tmp/attachments/#{@namespace}/#{@page}/#{revision}/#{@attachment}"
+    send_file "#{Rails.root}/tmp/attachments/#{@attachment.page.namespace}/#{@attachment.page.name}/#{@attachment.name}/#{@attachment.revision.id}", :filename => @attachment.name
   end
   
   def attachment_info

@@ -17,7 +17,7 @@
       <tr class="<%=((cnt+=1)%2==0) ? 'even' : 'odd' %>">
         <td><%=link_to h(attachment.name), attachment.url %></td>
         <td><%=h format_filesize(attachment.revision.size) %></td>
-        <td class="version"><%=link_to attachment.revision.version, attachment.url(:info) %></td>
+        <td class="version"><%=link_to attachment.revision.version, attachment.url(:attachment_info) %></td>
         <td><%=l attachment.revision.date, :format => :full %></td>
         <td><%=link_to h(attachment.revision.user.username), attachment.revision.user.page_url %></td>
         <td><%=h attachment.revision.message %></td>

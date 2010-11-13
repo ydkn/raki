@@ -76,10 +76,10 @@ class WikiLinkNode < RakiSyntaxNode
       namespace = parts[0]
       page = parts[1]
     else
-      namespace = context[:namespace].nil? ? Raki.frontpage[:namespace] : context[:namespace].to_s
+      namespace = context[:page] ? context[:page].namespace : Raki.frontpage[:namespace]
       page = parts[0]
     end
-    pagelink = url_for_page h(namespace.strip), h(page.strip)
+    pagelink = url_for_page h(namespace.to_s.strip), h(page.to_s.strip)
     return '<a href="' + pagelink + '">' +
       (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip).strip + '</a>'
   end

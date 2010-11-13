@@ -1,5 +1,5 @@
-<% if @page.exists? %>
-  <%=insert_page @page.namespace, @page.name, (@page.revision ? @page.revision.id : nil) %>
+<% if @page.exists? && @page.authorized?(User.current, :view) %>
+  <%=@page.render context %>
 <% else %>
   <div class="information">
     <%=t 'page.not_exists.msg' %>

@@ -91,35 +91,6 @@ module Raki
     end
 
     private
-
-    class Revision
-      attr_reader :id, :version, :size, :user, :date, :message
-
-      def initialize(id, version, size, user, date, message, deleted=false)
-        @id = id
-        @version = version
-        @size = size
-        @user = user
-        @date = date
-        @message = message
-        @deleted = deleted
-      end
-      
-      def deleted?
-        @deleted
-      end
-    end
-
-    class Change
-      attr_reader :namespace, :page, :revision, :attachment
-
-      def initialize(namespace, page, revision, attachment=nil)
-        @namespace = namespace
-        @page = page
-        @revision = revision
-        @attachment = attachment
-      end
-    end
     
     class Diff < Array
       attr_reader :lines

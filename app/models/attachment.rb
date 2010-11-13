@@ -62,18 +62,23 @@ class Attachment
     attachment_revisions(page.namespace, page.name, name)
   end
   
-  def head
+  def head_revision
     attachment_revisions(page.namespace, page.name, name).first
   end
   
-  def url(action='attachment')
-    if action.to_sym != :attachment
-      action = "attachment_#{action}"
+  def url(options={})
+    if options.is_a?(Symbol)
+      options = {:action => options}
+    else
+      options = options.symbolize_keys
     end
-    unless revision.id == head.id
-      rev = action.to_sym == :attachment ? revision.id : nil
-    end
-    url_for(:controller => 'page', :action => action.to_s, :namespace => h(page.namespace.to_s), :page => h(page.name.to_s), :attachment => h(name), :revision => rev)
+    options = {:controller => 'page', :action => 'attachment', :namespace => page.namespace, :page => page.name, :attachment => name, :revision => (revision ? revision.id : nil)}.merge options
+    options.delete :revision if head_revision && options[:revision] == head_revision.id
+    
+    opts = {}
+    options.each{|k,v| opts[k] = h(v.to_s)}
+    
+    url_for opts
   end
   
   def save(user, msg=nil)

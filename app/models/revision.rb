@@ -14,29 +14,35 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module PageHelper
+class Revision
   
-  include Raki::Helpers::AuthorizationHelper
-  include Raki::Helpers::ProviderHelper
-  include Raki::Helpers::ParserHelper
-  
-  def url_for_page namespace, page, revision=nil
-    if revision.nil?
-      url_for :controller => 'page', :action => 'view', :namespace => h(namespace), :page => h(page)
-    else
-      url_for :controller => 'page', :action => 'view', :namespace => h(namespace), :page => h(page), :revision => h(revision)
-    end
-  end
-  
-  def context
-    @context
-  end
+  attr_reader :page, :attachment, :id, :version, :size, :user, :date, :message, :mode
 
-  def insert_page page
-    return unless page
-    if page.authorized?(User.current, :view) && page.exists?
-      page.render context
+  def initialize(obj, id, version, size, user, date, message, mode=nil)
+    if obj.is_a?(Page)
+      @page = obj
+    elsif obj.is_a?(Attachment)
+      @attachment = obj
     end
+    @id = id
+    @version = version
+    @size = size
+    @user = user
+    @date = date
+    @message = message
+    @mode = mode ? mode.to_sym : :none
   end
-
+  
+  def type
+    @page ? :page : :attachment
+  end
+  
+  def deleted?
+    @mode == :deleted
+  end
+  
+  def renamed?
+    @mode == :renamed
+  end
+  
 end

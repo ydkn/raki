@@ -13,7 +13,7 @@
     <% cnt = 0 %>
     <% @attachment.revisions.reverse_each do |revision| %>
       <tr class="<%=((cnt+=1)%2==0) ? 'even' : 'odd' %>">
-        <td class="version"><%=link_to revision.version, :controller => 'page', :action => 'attachment', :namespace => h(@page.namespace), :page => h(@page.name), :attachment => h(@attachment.name), :revision => h(revision.id) %></td>
+        <td class="version"><%=link_to revision.version, @attachment.url(:revision =>  revision.id) %></td>
         <td><%=l revision.date, :format => :full %></td>
         <td><%=h format_filesize(revision.size) %></td>
         <td><%=link_to h(revision.user.username), revision.user.page_url %></td>

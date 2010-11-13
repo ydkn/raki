@@ -20,6 +20,7 @@ class Page
   
   include Raki::Helpers::AuthorizationHelper
   include Raki::Helpers::ProviderHelper
+  include Raki::Helpers::ParserHelper
   include Raki::Helpers::URLHelper
   
   attr_reader :errors
@@ -55,7 +56,7 @@ class Page
   end
   
   def exists?
-    @exists ||= page_exists?(namespace, name, (revision ? revision.id : nil))
+    @exists ||= page_exists?(namespace, name, (@revision ? @revision.id : nil))
   end
   
   def content
@@ -88,9 +89,19 @@ class Page
     else
       options = options.symbolize_keys
     end
-    options = {:controller => 'page', :action => 'view', :namespace => h(namespace.to_s), :page => h(name.to_s), :revision => (revision ? revision.id : nil)}.merge options
+    options = {:controller => 'page', :action => 'view', :namespace => namespace, :page => name, :revision => (revision ? revision.id : nil)}.merge options
     options.delete :revision if head_revision && options[:revision] == head_revision.id
-    url_for options
+    
+    opts = {}
+    options.each{|k,v| opts[k] = h(v.to_s)}
+    
+    url_for opts
+  end
+  
+  def render(context={})
+    context = context.clone
+    context[:page] = self
+    parse namespace, content, context
   end
   
   def authorized?(user, action='view')

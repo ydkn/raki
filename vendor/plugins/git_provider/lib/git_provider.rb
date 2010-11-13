@@ -279,13 +279,14 @@ class GitProvider < Raki::AbstractProvider
         deleted = diff.deleted_file
       end
       revs << Revision.new(
+          nil,
           commit.sha,
           commit.id_abbrev.upcase,
           (deleted ? -1 : size(obj, commit.sha)),
           Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
           commit.authored_date,
           commit.message,
-          deleted
+          deleted ? :deleted : nil
         )
     end
     revs
@@ -316,25 +317,27 @@ class GitProvider < Raki::AbstractProvider
         commit.diffs.each do |diff|
           if page && diff.a_path =~ /^#{namespace}\/#{page}\//
             changes << Change.new(namespace, normalize(File.basename(diff.a_path)), Revision.new(
+                  nil,
                   commit.sha,
                   commit.id_abbrev.upcase,
                   (diff.deleted_file ? -1 : size(diff.a_path, commit.sha)),
                   Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
                   commit.authored_date,
                   commit.message,
-                  diff.deleted_file
+                  diff.deleted_file ? :deleted : nil
                 ),
                 normalize(File.basename(diff.a_path))
               )
           else
             changes << Change.new(namespace, normalize(File.basename(diff.a_path)), Revision.new(
+                  nil,
                   commit.sha,
                   commit.id_abbrev.upcase,
                   (diff.deleted_file ? -1 : size(diff.a_path, commit.sha)),
                   Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
                   commit.authored_date,
                   commit.message,
-                  diff.deleted_file
+                  diff.deleted_file ? :deleted : nil
                 )
               )
           end
