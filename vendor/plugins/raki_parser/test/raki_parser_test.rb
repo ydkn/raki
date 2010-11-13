@@ -21,7 +21,7 @@ class RakiParserTest < Test::Unit::TestCase
   # Initializes the parser
   def setup
     @parser = RakiParser.new if @parser.nil?
-    @context = {:type => 'test', :page => 'unit'}
+    @context = {:namespace => 'test', :page => 'unit'}
   end
 
   def test_text
@@ -159,11 +159,20 @@ class RakiParserTest < Test::Unit::TestCase
   def test_table
     assert_equal "<table class=\"wikitable\">\n<tr><td>test</td>\n<td>asdf</td>\n</tr>\n<tr><td>foo</td>\n<td>bar</td>\n</tr>\n</table>\n", parse("|test|asdf|\n|foo|bar|")
     assert_equal "<table class=\"wikitable\">\n<tr><th>test</th>\n<th>asdf</th>\n</tr>\n<tr><td>foo</td>\n<td>bar</td>\n</tr>\n</table>\n", parse("!|test|asdf|\n|foo|bar|")
+    assert_equal "<table class=\"wikitable\">\n<tr><th>test</th>\n<th>asdf</th>\n</tr>\n<tr><td><b>foo</b></td>\n<td><i>bar</i></td>\n</tr>\n</table>\n", parse("!|test|asdf|\n|*foo*|~bar~|")
+    assert_equal "<table class=\"wikitable\">\n<tr><th>test</th>\n<th>asdf</th>\n</tr>\n<tr><td>*foo*asdf</td>\n<td><i>bar</i></td>\n</tr>\n</table>\n", parse("!|test|asdf|\n|*foo*asdf|~bar~|")
+    assert_equal "<table class=\"wikitable\">\n<tr><th>test</th>\n<th>asdf</th>\n</tr>\n<tr><td>*foo*asdf</td>\n<td><i>bar</i> asdf</td>\n</tr>\n</table>\n", parse("!|test|asdf|\n|*foo*asdf|~bar~ asdf|")
   end
 
   def test_pages
     assert_equal "<a href=\"/test/link\">link</a><br/>\n<ul>\n<li>item1</li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("[link]\n\n* item1\n# item2")
     assert_equal "<h1>Testseite</h1>\n<a href=\"/test/link\">link</a><br/>\n<ul>\n<li><b>item1</b></li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("!Testseite\n\n[link]\n\n* *item1*\n# item2")
+  end
+
+  # Test for convertions
+  def test_convert
+    assert_equal '[NewPageName]', link_update("[OldPage]", "OldPage", 'NewPageName')
+    #assert_equal "\\signature user=raki date=10-11-04 time=11:41:28\\", convert('~~~')
   end
 
   def test_plugin
@@ -183,13 +192,18 @@ class RakiParserTest < Test::Unit::TestCase
       end
     end
     assert_equal 'hello world', parse('\\testparams id=world name="hello "\\')
+    assert_equal 'helloworld', parse('\\testparams id=world name="hello"\\')
   end
 
   private
 
   # Shortener for the parse method
-  def parse(text)
+  def parse text
     @parser.parse(text, @context)
+  end
+  
+  def link_update text, from, to
+    @parser.link_update(text, from, to, @context)
   end
 
 end

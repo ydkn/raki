@@ -25,25 +25,32 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'login_callback', :controller => 'authentication', :action => 'callback'
   
   # Route for atom feed
-  map.connect 'feed.atom', :controller => 'feed', :action => 'feed'
+  map.connect 'feed.atom', :controller => 'feed', :action => 'global'
 
   # Routes for wiki pages
-  map.connect ':type', :controller => 'page', :action => 'redirect_to_indexpage'
-  map.connect ':type/:id/info', :controller => 'page', :action => 'info'
-  map.connect ':type/:id/diff/:revision_from/:revision_to', :controller => 'page', :action => 'diff'
-  map.connect ':type/:id/diff', :controller => 'page', :action => 'diff'
-  map.connect ':type/:id/edit', :controller => 'page', :action => 'edit'
-  map.connect ':type/:id/update', :controller => 'page', :action => 'update', :conditions => { :method => :post }
-  map.connect ':type/:id/rename', :controller => 'page', :action => 'rename', :conditions => { :method => :post }
-  map.connect ':type/:id/delete', :controller => 'page', :action => 'delete'
-  map.connect ':type/:id/attachment/:attachment', :controller => 'page', :action => 'attachment', :requirements => { :attachment => /[^\/]+/ }
-  map.connect ':type/:id/attachment/:attachment/info', :controller => 'page', :action => 'attachment_info', :requirements => { :attachment => /[^\/]+/ }
-  map.connect ':type/:id/attachment/:attachment/delete', :controller => 'page', :action => 'delete', :requirements => { :attachment => /[^\/]+/ }
-  map.connect ':type/:id/attachment/:attachment/:revision', :controller => 'page', :action => 'attachment', :requirements => { :attachment => /[^\/]+/ }
-  map.connect ':type/:id/attachments', :controller => 'page', :action => 'attachments'
-  map.connect ':type/:id/attachment_upload', :controller => 'page', :action => 'attachment_upload'
-  map.connect ':type/:id/:revision', :controller => 'page', :action => 'view'
-  map.connect ':type/:id.:format', :controller => 'page', :action => 'view'
-  map.connect ':type/:id', :controller => 'page', :action => 'view'
+  map.connect ':namespace', :controller => 'page', :action => 'redirect_to_indexpage'
+  map.connect ':namespace.atom', :controller => 'feed', :action => 'namespace'
+  map.with_options :controller => 'page', :requirements => {:page => /[^\/\.]+|\d+\.\d+\.\d+\.\d+/} do |page|
+    page.connect ':namespace/:page/info', :action => 'info'
+    page.connect ':namespace/:page/diff/:revision_from/:revision_to', :action => 'diff'
+    page.connect ':namespace/:page/diff', :action => 'diff'
+    page.connect ':namespace/:page/edit', :action => 'edit'
+    page.connect ':namespace/:page/update', :action => 'update', :conditions => { :method => :post }
+    page.connect ':namespace/:page/rename', :action => 'rename', :conditions => { :method => :post }
+    page.connect ':namespace/:page/delete', :action => 'delete'
+    page.with_options :requirements => {:attachment => /[^\/]+/} do |attachment|
+      attachment.connect ':namespace/:page/attachment/:attachment', :action => 'attachment'
+      attachment.connect ':namespace/:page/attachment/:attachment/info', :action => 'attachment_info'
+      attachment.connect ':namespace/:page/attachment/:attachment/delete', :action => 'delete'
+      attachment.connect ':namespace/:page/attachment/:attachment/:revision', :action => 'attachment'
+    end
+    page.connect ':namespace/:page/attachments', :action => 'attachments'
+    page.connect ':namespace/:page/attachment_upload', :action => 'attachment_upload', :conditions => { :method => :post }
+    page.connect ':namespace/:page/:revision.:format', :action => 'view', :requirements => {:format => /src/}
+    page.connect ':namespace/:page/:revision', :action => 'view'
+    page.connect ':namespace/:page.atom', :controller => 'feed', :action => 'page'
+    page.connect ':namespace/:page.:format', :action => 'view', :requirements => {:format => /src/}
+    page.connect ':namespace/:page', :action => 'view'
+  end
 
 end

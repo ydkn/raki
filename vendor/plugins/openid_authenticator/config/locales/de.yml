@@ -1,0 +1,12 @@
+de:
+
+  auth:
+
+    openid:
+      label: OpenID
+      unable_to_authenticate: Authentifizierung fehlgeschlagen (%{openid})
+      verification_failed: Verifikation fehlgeschlagen
+      invalid_response: Ungültige Antwort vom OpenID-Anbieter
+      nickname_missing: Benötigte Information fehlt
+      setup_needed: Installation erforderlich
+      transaction_cancelled: OpenID-Anbieter hat die Transaktion abgebrochen

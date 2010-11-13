@@ -19,202 +19,202 @@ module Raki
     
     module ProviderHelper
       
-      include PermissionHelper
+      include AuthorizationHelper
       
-      def provider(type)
-        Raki::Provider[type]
+      def provider(namespace)
+        Raki::Provider[namespace]
       end
 
-      def page_exists?(type, name, revision=nil)
-        provider(type).page_exists?(type, name, revision)
+      def page_exists?(namespace, name, revision=nil)
+        provider(namespace).page_exists?(namespace, name, revision)
       end
 
-      def page_exists!(type, name, revision, user=User.current)
-        authorized!(type, name, :view, user)
-        page_exists?(type, name, revision)
+      def page_exists!(namespace, name, revision, user=User.current)
+        authorized!(namespace, name, :view, user)
+        page_exists?(namespace, name, revision)
       end
 
-      def page_contents(type, name, revision=nil)
-        provider(type).page_contents(type, name, revision)
+      def page_contents(namespace, name, revision=nil)
+        provider(namespace).page_contents(namespace, name, revision)
       end
 
-      def page_contents!(type, name, revision=nil, user=User.current)
-        authorized!(type, name, :view, user)
-        page_contents(type, name, revision)
+      def page_contents!(namespace, name, revision=nil, user=User.current)
+        authorized!(namespace, name, :view, user)
+        page_contents(namespace, name, revision)
       end
 
-      def page_revisions(type, name)
-        provider(type).page_revisions(type, name)
+      def page_revisions(namespace, name)
+        provider(namespace).page_revisions(namespace, name)
       end
 
-      def page_revisions!(type, name, user=User.current)
-        authorized!(type, name, :view, user)
-        page_revisions(type, name)
+      def page_revisions!(namespace, name, user=User.current)
+        authorized!(namespace, name, :view, user)
+        page_revisions(namespace, name)
       end
 
-      def page_save(type, name, contents, message, user=User.current)
-        provider(type).page_save(type, name, contents, message, user)
+      def page_save(namespace, name, contents, message, user=User.current)
+        provider(namespace).page_save(namespace, name, contents, message, user)
         nil
       end
 
-      def page_save!(type, name, contents, message, user=User.current)
-        if page_exists?(type, name)
-          authorized!(type, name, :edit, user)
+      def page_save!(namespace, name, contents, message, user=User.current)
+        if page_exists?(namespace, name)
+          authorized!(namespace, name, :edit, user)
         else
-          authorized!(type, name, :create, user)
+          authorized!(namespace, name, :create, user)
         end
-        page_save(type, name, contents, message, user)
+        page_save(namespace, name, contents, message, user)
         nil
       end
 
-      def page_rename(old_type, old_name, new_type, new_name, user=User.current)
-        if provider(old_type) == provider(new_type)
-          provider(old_type).page_rename(old_type, old_name, new_type, new_name, user)
+      def page_rename(old_namespace, old_name, new_namespace, new_name, user=User.current)
+        if provider(old_namespace) == provider(new_namespace)
+          provider(old_namespace).page_rename(old_namespace, old_name, new_namespace, new_name, user)
         else
-          contents = page_contents(old_type, old_name)
-          page_delete(old_type, old_name, user)
-          page_save(new_type, new_name, contents, "#{old_type.to_s}/#{old_name.to_s} ==> #{new_type.to_s}/#{new_name.to_s}", user)
+          contents = page_contents(old_namespace, old_name)
+          page_delete(old_namespace, old_name, user)
+          page_save(new_namespace, new_name, contents, "#{old_namespace.to_s}/#{old_name.to_s} ==> #{new_namespace.to_s}/#{new_name.to_s}", user)
         end
         nil
       end
 
-      def page_rename!(old_type, old_name, new_type, new_name, user=User.current)
-        authorized!(old_type, old_name, :rename, user)
-        authorized!(new_type, new_name, :create, user)
-        page_rename(old_type, old_name, new_type, new_name, user)
+      def page_rename!(old_namespace, old_name, new_namespace, new_name, user=User.current)
+        authorized!(old_namespace, old_name, :rename, user)
+        authorized!(new_namespace, new_name, :create, user)
+        page_rename(old_namespace, old_name, new_namespace, new_name, user)
         nil
       end
 
-      def page_delete(type, name, user=User.current)
-        provider(type).page_delete(type, name, user)
+      def page_delete(namespace, name, user=User.current)
+        provider(namespace).page_delete(namespace, name, user)
         nil
       end
 
-      def page_delete!(type, name, user=User.current)
-        authorized!(type, name, :delete, user)
-        page_delete(type, name, user)
+      def page_delete!(namespace, name, user=User.current)
+        authorized!(namespace, name, :delete, user)
+        page_delete(namespace, name, user)
         nil
       end
 
-      def page_all(type)
-        provider(type).page_all(type)
+      def page_all(namespace)
+        provider(namespace).page_all(namespace)
       end
 
-      def page_all!(type, user=User.current)
-        page_all(type).select do |page|
-          authorized?(type, page, :view, user)
+      def page_all!(namespace, user=User.current)
+        page_all(namespace).select do |page|
+          authorized?(namespace, page, :view, user)
         end
       end
 
-      def page_changes(type, options={})
+      def page_changes(namespace, options={})
         if options.is_a?(Fixnum)
           options = {:limit => options}
         elsif options.is_a?(Date)
           options = {:since => options}
         end
-        provider(type).page_changes(type, options)
+        provider(namespace).page_changes(namespace, options)
       end
 
-      def page_changes!(type, options={}, user=User.current)
-        page_changes(type, options).select do |change|
-          authorized?(change.type, change.page, :view, user)
+      def page_changes!(namespace, options={}, user=User.current)
+        page_changes(namespace, options).select do |change|
+          authorized?(change.namespace, change.page, :view, user)
         end
       end
 
-      def page_diff(type, page, revision_from=nil, revision_to=nil)
-        provider(type).page_diff(type, page, revision_from, revision_to)
+      def page_diff(namespace, page, revision_from=nil, revision_to=nil)
+        provider(namespace).page_diff(namespace, page, revision_from, revision_to)
       end
 
-      def page_diff!(type, page, revision_from=nil, revision_to=nil, user=User.current)
-        authorized!(type, page, :view, user)
-        page_diff(type, page, revision_from, revision_to)
+      def page_diff!(namespace, page, revision_from=nil, revision_to=nil, user=User.current)
+        authorized!(namespace, page, :view, user)
+        page_diff(namespace, page, revision_from, revision_to)
       end
 
-      def attachment_exists?(type, page, name, revision=nil)
-        provider(type).attachment_exists?(type, page, name, revision)
+      def attachment_exists?(namespace, page, name, revision=nil)
+        provider(namespace).attachment_exists?(namespace, page, name, revision)
       end
 
-      def attachment_exists!(type, page, name, revision=nil, user=User.current)
-        authorized!(type, page, :view, user)
-        attachment_exists?(type, page, name, revision)
+      def attachment_exists!(namespace, page, name, revision=nil, user=User.current)
+        authorized!(namespace, page, :view, user)
+        attachment_exists?(namespace, page, name, revision)
       end
 
-      def attachment_contents(type, page, name, revision=nil)
-        provider(type).attachment_contents(type, page, name, revision)
+      def attachment_contents(namespace, page, name, revision=nil)
+        provider(namespace).attachment_contents(namespace, page, name, revision)
       end
 
-      def attachment_contents!(type, page, name, revision=nil, user=User.current)
-        authorized!(type, page, :view, user)
-        attachment_contents(type, page, name, revision)
+      def attachment_contents!(namespace, page, name, revision=nil, user=User.current)
+        authorized!(namespace, page, :view, user)
+        attachment_contents(namespace, page, name, revision)
       end
 
-      def attachment_revisions(type, page, name)
-        provider(type).attachment_revisions(type, page, name)
+      def attachment_revisions(namespace, page, name)
+        provider(namespace).attachment_revisions(namespace, page, name)
       end
 
-      def attachment_revisions!(type, page, name, user=User.current)
-        authorized!(type, page, :view, user)
-        attachment_revisions(type, page, name)
+      def attachment_revisions!(namespace, page, name, user=User.current)
+        authorized!(namespace, page, :view, user)
+        attachment_revisions(namespace, page, name)
       end
 
-      def attachment_save(type, page, name, contents, message, user=User.current)
-        provider(type).attachment_save(type, page, name, contents, message, user)
+      def attachment_save(namespace, page, name, contents, message, user=User.current)
+        provider(namespace).attachment_save(namespace, page, name, contents, message, user)
         nil
       end
 
-      def attachment_save!(type, page, name, contents, message, user=User.current)
-        if attachment_exists?(type, page, name)
-          authorized!(type, page, :edit, user)
+      def attachment_save!(namespace, page, name, contents, message, user=User.current)
+        if attachment_exists?(namespace, page, name)
+          authorized!(namespace, page, :edit, user)
         else
-          authorized!(type, page, :create, user)
+          authorized!(namespace, page, :create, user)
         end
-        attachment_save(type, page, name, contents, message, user)
+        attachment_save(namespace, page, name, contents, message, user)
         nil
       end
 
-      def attachment_delete(type, page, name, user=User.current)
-        provider(type).attachment_delete(type, page, name, user)
+      def attachment_delete(namespace, page, name, user=User.current)
+        provider(namespace).attachment_delete(namespace, page, name, user)
         nil
       end
 
-      def attachment_delete!(type, page, name, user=User.current)
-        authorized!(type, page, :delete, user)
-        attachment_delete(type, page, name, user)
+      def attachment_delete!(namespace, page, name, user=User.current)
+        authorized!(namespace, page, :delete, user)
+        attachment_delete(namespace, page, name, user)
         nil
       end
 
-      def attachment_all(type, page)
-        provider(type).attachment_all(type, page)
+      def attachment_all(namespace, page)
+        provider(namespace).attachment_all(namespace, page)
       end
 
-      def attachment_all!(type, page, user=User.current)
-        authorized!(type, page, :view, user)
-        attachment_all(type, page)
+      def attachment_all!(namespace, page, user=User.current)
+        authorized!(namespace, page, :view, user)
+        attachment_all(namespace, page)
       end
 
-      def attachment_changes(type, page=nil, options={})
+      def attachment_changes(namespace, page=nil, options={})
         if options.is_a?(Fixnum)
           options = {:limit => options}
         elsif options.is_a?(Date)
           options = {:since => options}
         end
-        provider(type).attachment_changes(type, page, options)
+        provider(namespace).attachment_changes(namespace, page, options)
       end
 
-      def attachment_changes!(type, page=nil, options={}, user=User.current)
-        attachment_changes(type, page, options).select do |change|
-          authorized?(change.type, change.page, :view, user)
+      def attachment_changes!(namespace, page=nil, options={}, user=User.current)
+        attachment_changes(namespace, page, options).select do |change|
+          authorized?(change.namespace, change.page, :view, user)
         end
       end
 
-      def types
-        types = []
+      def namespaces
+        namespaces = []
         Raki::Provider.used.values.each do |provider|
-          provider.types.each do |type|
-            types << type if provider(type) == provider
+          provider.namespaces.each do |namespace|
+            namespaces << namespace if provider(namespace) == provider
           end
         end
-        types
+        namespaces
       end
 
     end

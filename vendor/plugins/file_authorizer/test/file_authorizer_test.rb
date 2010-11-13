@@ -14,33 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module Raki
-  module Helpers
-    
-    module PermissionHelper
-      
-      class NotAuthorizedError < StandardError
-      end
-      
-      def authorized?(type, name, action, user=User.current)
-        if action.is_a?(Array)
-          action.each do |a|
-            return true if Raki::Permission.to?(type, name, a, user)
-          end
-          false
-        else
-          Raki::Permission.to?(type, name, action, user)
-        end
-      end
+require 'test_helper'
 
-      def authorized!(type, name, action, user=User.current)
-        unless authorized?(type, name, action, user)
-          raise NotAuthorizedError.new "#{user.id.to_s} has no permission to #{action.to_s} #{type.to_s}/#{name.to_s}"
-        end
-        true
-      end
-
-    end
-    
+class FileAuthorizerTest < ActiveSupport::TestCase
+  # Replace this with your real tests.
+  test "the truth" do
+    assert true
   end
 end

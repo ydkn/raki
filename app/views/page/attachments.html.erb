@@ -15,20 +15,20 @@
     <% cnt = 0 %>
     <% @attachments.each do |attachment| %>
       <tr class="<%=((cnt+=1)%2==0) ? 'even' : 'odd' %>">
-        <td><%=link_to h(attachment[:name]), :controller => 'page', :action => 'attachment', :type => h(@type), :id => h(@page), :attachment => h(attachment[:name]) %></td>
+        <td><%=link_to h(attachment[:name]), :controller => 'page', :action => 'attachment', :namespace => h(@namespace), :page => h(@page), :attachment => h(attachment[:name]) %></td>
         <td><%=h format_filesize(attachment[:revision].size) %></td>
-        <td class="version"><%=link_to attachment[:revision].version, :controller => 'page', :action => 'attachment_info', :type => h(@type), :id => h(@page), :attachment => h(attachment[:name]) %></td>
+        <td class="version"><%=link_to attachment[:revision].version, :controller => 'page', :action => 'attachment_info', :namespace => h(@namespace), :page => h(@page), :attachment => h(attachment[:name]) %></td>
         <td><%=l attachment[:revision].date, :format => :full %></td>
-        <td><%=link_to h(attachment[:revision].user.username), :controller => 'page', :action => 'view', :type => Raki.userpage_type, :id => h(attachment[:revision].user.username) %></td>
+        <td><%=link_to h(attachment[:revision].user.username), attachment[:revision].user.page_url %></td>
         <td><%=h attachment[:revision].message %></td>
-        <td><input type="button" value="<%=t 'attachment.delete' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :action => 'delete', :type => h(@type), :id => h(@page), :attachment => h(attachment[:name]) %>';" /></td>
+        <td><input type="button" value="<%=t 'attachment.delete' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :action => 'delete', :namespace => h(@namespace), :page => h(@page), :attachment => h(attachment[:name]) %>';" /></td>
       </tr>
     <%  end %>
   </tbody>
 </table>
-<% if authorized?(@type, @page, :upload) %>
+<% if authorized?(@namespace, @page, :upload) %>
   <br/>
-  <% form_tag({:controller => 'page', :type => h(@type), :id => h(@page), :action => 'attachment_upload'}, {:enctype => 'multipart/form-data'}) do |f| %>
+  <% form_tag({:controller => 'page', :namespace => h(@namespace), :page => h(@page), :action => 'attachment_upload'}, {:enctype => 'multipart/form-data'}) do %>
     <div>
       <label for="attachment-file"><%=t 'attachment.upload.file' %></label>
       <input id="attachment-file" name="attachment_upload" size="30" type="file" />
