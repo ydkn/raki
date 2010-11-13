@@ -22,29 +22,35 @@ class Page
   include Raki::Helpers::ProviderHelper
   include Raki::Helpers::URLHelper
   
+  attr_reader :errors
+  
   def initialize(params={})
     @namespace = params[:namespace]
     @name = params[:name]
     if params[:revision]
       @revision = page_revisions(namespace, name).select{|r| r.id.to_s == params[:revision].to_s}.first
     end
+    @errors = []
   end
   
   def namespace
-    @namespace
+    @new_namespace || @namespace
   end
   
   def namespace=(namespace)
+    @new_namespace = namespace
   end
   
   def name
-    @name
+    @new_name || @name
   end
   
   def name=(name)
+    @new_name = name
   end
   
   def revision
+    return nil unless exists?
     @revision ||= page_revisions(namespace, name).first
   end
   
@@ -53,7 +59,8 @@ class Page
   end
   
   def content
-    @content ||= page_contents(namespace, name, (revision ? revision.id : nil)) rescue ''
+    return @content unless exists?
+    @content ||= page_contents(namespace, name, (revision ? revision.id : nil))
   end
   
   def content=(content)
@@ -61,11 +68,12 @@ class Page
   end
   
   def revisions
-    page_revisions(namespace, name)
+    return [] unless exists?
+    @revisions ||= page_revisions(namespace, name)
   end
   
-  def head
-    page_revisions(namespace, name).first
+  def head_revision
+    @head_revision ||= page_revisions(namespace, name).first
   end
   
   def attachments
@@ -74,26 +82,29 @@ class Page
     end
   end
   
-  def url(action='view')
-    if revision && revision.id != head.id
-      rev = action.to_sym == :view ? revision.id : nil
+  def url(options={})
+    if options.is_a?(Symbol)
+      options = {:action => options}
     else
-      rev = nil
+      options = options.symbolize_keys
     end
-    url_for_page(namespace, name, rev, action)
+    options = {:controller => 'page', :action => 'view', :namespace => h(namespace.to_s), :page => h(name.to_s), :revision => (revision ? revision.id : nil)}.merge options
+    options.delete :revision if head_revision && options[:revision] == head_revision.id
+    url_for options
   end
   
   def authorized?(user, action='view')
     super(namespace, name, action, user)
   end
   
-  def authorized!(user, action='view')
-    super(namespace, name, action, user)
+  def changed?
+    @namespace != @new_namespace || @name != @new_name
   end
   
   def save(user, msg=nil)
     page_save(namespace, name, content, msg, user)
-    @revision = head
+    @head_revision = page_revisions(namespace, name).first
+    @revision = @head_revision
     @exists = true
   end
   
