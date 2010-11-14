@@ -23,7 +23,10 @@ de:
     
   forbidden: Keine Berechtigung
 
-  feed: Newsfeed für %{app_name}
+  feed:
+    global: Newsfeed für %{app_name}
+    namespace: Newsfeed für %{namespace}
+    page: Newsfeed für %{namespace}/%{page}
   
   visited_pages: Bisher besucht
 
@@ -62,8 +65,6 @@ de:
         user: Autor
         message: Kommentar
       diff: Unterschiede
-
-    feed: Newsfeed für %{type}/%{page}
 
   attachment:
     list: Anhänge

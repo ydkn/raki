@@ -24,20 +24,20 @@ module Raki
       
       def register(id, clazz)
         @providers[id.to_sym] = clazz
-        Raki.config('providers').each do |type, settings|
+        Raki.config('providers').each do |namespace, settings|
           if settings['provider'] == id.to_s
-            @initialized[type.to_sym] = clazz.new(settings)
+            @initialized[namespace.to_sym] = clazz.new(namespace, settings)
           end
         end
       end
 
-      def [](type)
-        type = type.to_sym
-        unless @initialized.key?(type)
+      def [](namespace)
+        namespace = namespace.to_sym
+        unless @initialized.key?(namespace)
           return @initialized[:default] if @initialized.key?(:default)
           raise RakiError.new("No Provider")
         end
-        @initialized[type]
+        @initialized[namespace]
       end
 
       def all

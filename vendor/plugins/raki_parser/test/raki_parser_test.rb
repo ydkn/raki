@@ -22,7 +22,7 @@ class RakiParserTest < Test::Unit::TestCase
   # Initializes the parser
   def setup
     @parser = RakiParser.new unless @parser
-    @context = {:type => 'test', :page => 'unit'}
+    @context = {:namespace => 'test', :page => 'unit'}
     [[:test, :WikiPageName],[:test, :link]].each do |namespace, name|
       if !page_exists? namespace, name
         page_save namespace, name, "test", "raki_parser test page", default_user

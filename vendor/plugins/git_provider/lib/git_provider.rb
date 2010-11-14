@@ -25,7 +25,7 @@ class GitProvider < Raki::AbstractProvider
   
   include Cacheable
 
-  def initialize(params)
+  def initialize(namespace, params)
     raise ProviderError.new("Parameter 'path' not specified") unless params.key?('path')
     begin
       Grit::Git.git_timeout = 10
@@ -33,8 +33,8 @@ class GitProvider < Raki::AbstractProvider
       @branch = params.key?('branch') ? params['branch'] : 'master'
       refresh = params.key?('refresh') ? params['refresh'].to_i : 600
       
-      FileUtils.rm_rf("#{Rails.root}/tmp/git-repo")
-      @repo = Grit::Repo.clone(params['path'], "#{Rails.root}/tmp/git-repo")
+      FileUtils.rm_rf("#{Rails.root}/tmp/git-repo_#{namespace}")
+      @repo = Grit::Repo.clone(params['path'], "#{Rails.root}/tmp/git-repo_#{namespace}")
       @repo.checkout(@branch)
       
       Thread.new do
@@ -51,107 +51,107 @@ class GitProvider < Raki::AbstractProvider
     end
   end
 
-  def page_exists?(type, name, revision=nil)
-    logger.debug("Checking if page exists: #{{:type => type, :name => name, :revision => revision}.inspect}")
-    exists?("#{type.to_s}/#{name.to_s}", revision)
+  def page_exists?(namespace, name, revision=nil)
+    logger.debug("Checking if page exists: #{{:namespace => namespace, :name => name, :revision => revision}.inspect}")
+    exists?("#{namespace.to_s}/#{name.to_s}", revision)
   end
 
-  def page_contents(type, name, revision=nil)
-    logger.debug("Fetching contents of page: #{{:type => type, :name => name, :revision => revision}.inspect}")
-    contents("#{type.to_s}/#{name.to_s}", revision)
+  def page_contents(namespace, name, revision=nil)
+    logger.debug("Fetching contents of page: #{{:namespace => namespace, :name => name, :revision => revision}.inspect}")
+    contents("#{namespace.to_s}/#{name.to_s}", revision)
   end
 
-  def page_revisions(type, name)
-    logger.debug("Fetching revisions for page: #{{:type => type, :name => name}.inspect}")
-    revisions("#{type.to_s}/#{name.to_s}")
+  def page_revisions(namespace, name)
+    logger.debug("Fetching revisions for page: #{{:namespace => namespace, :name => name}.inspect}")
+    revisions("#{namespace.to_s}/#{name.to_s}")
   end
 
-  def page_save(type, name, contents, message, user)
-    logger.debug("Saving page: #{{:type => type, :name => name, :contents => contents, :message => message, :user => user}.inspect}")
-    save("#{type.to_s}/#{name.to_s}", contents, message, user)
+  def page_save(namespace, name, contents, message, user)
+    logger.debug("Saving page: #{{:namespace => namespace, :name => name, :contents => contents, :message => message, :user => user}.inspect}")
+    save("#{namespace.to_s}/#{name.to_s}", contents, message, user)
   end
 
-  def page_rename(old_type, old_name, new_type, new_name, user)
-    logger.debug("Renaming page: #{{:old_type => old_type, :old_page => old_name, :new_type => new_type, :new_page => new_name, :user => user}.inspect}")
-    msg = old_type.to_s == new_type.to_s ? "#{old_name.to_s} ==> #{new_name.to_s}" : "#{old_type.to_s}/#{old_name.to_s} ==> #{new_type.to_s}/#{new_name.to_s}"
-    rename("#{old_type.to_s}/#{old_name.to_s}", "#{new_type.to_s}/#{new_name.to_s}", msg, user)
+  def page_rename(old_namespace, old_name, new_namespace, new_name, user)
+    logger.debug("Renaming page: #{{:old_namespace => old_namespace, :old_page => old_name, :new_namespace => new_namespace, :new_page => new_name, :user => user}.inspect}")
+    msg = old_namespace.to_s == new_namespace.to_s ? "#{old_name.to_s} ==> #{new_name.to_s}" : "#{old_namespace.to_s}/#{old_name.to_s} ==> #{new_namespace.to_s}/#{new_name.to_s}"
+    rename("#{old_namespace.to_s}/#{old_name.to_s}", "#{new_namespace.to_s}/#{new_name.to_s}", msg, user)
   end
 
-  def page_delete(type, name, user)
-    logger.debug("Deleting page: #{{:type => type, :page => name, :user => user}.inspect}")
-    delete("#{type.to_s}/#{name.to_s}", "#{name.to_s} ==> /dev/null", user)
+  def page_delete(namespace, name, user)
+    logger.debug("Deleting page: #{{:namespace => namespace, :page => name, :user => user}.inspect}")
+    delete("#{namespace.to_s}/#{name.to_s}", "#{name.to_s} ==> /dev/null", user)
   end
 
-  def page_all(type)
+  def page_all(namespace)
     logger.debug("Fetching all pages")
-    all(type.to_s)
+    all(namespace.to_s)
   end
 
-  def page_changes(type, options={})
-    logger.debug("Fetching all page changes: #{{:type => type, :options => options}.inspect}")
-    changes(type.to_s, type.to_s, options)
+  def page_changes(namespace, options={})
+    logger.debug("Fetching all page changes: #{{:namespace => namespace, :options => options}.inspect}")
+    changes(namespace.to_s, namespace.to_s, options)
   end
   
-  def page_diff(type, page, revision_from=nil, revision_to=nil)
-    logger.debug("Fetching diff: #{{:type => type, :page => page, :revision_from => revision_from, :revision_to => revision_to}.inspect}")
-    diff("#{type.to_s}/#{page.to_s}", revision_from, revision_to)
+  def page_diff(namespace, page, revision_from=nil, revision_to=nil)
+    logger.debug("Fetching diff: #{{:namespace => namespace, :page => page, :revision_from => revision_from, :revision_to => revision_to}.inspect}")
+    diff("#{namespace.to_s}/#{page.to_s}", revision_from, revision_to)
   end
 
-  def attachment_exists?(type, page, name, revision=nil)
-    logger.debug("Checking if page attachment exists: #{{:type => type, :page => page, :name => name, :revision => revision}.inspect}")
-    exists?("#{type.to_s}/#{page.to_s}_att/#{name.to_s}", revision)
+  def attachment_exists?(namespace, page, name, revision=nil)
+    logger.debug("Checking if page attachment exists: #{{:namespace => namespace, :page => page, :name => name, :revision => revision}.inspect}")
+    exists?("#{namespace.to_s}/#{page.to_s}_att/#{name.to_s}", revision)
   end
 
-  def attachment_contents(type, page, name, revision=nil)
-    logger.debug("Fetching contents of page attachment: #{{:type => type, :page => page, :name => name, :revision => revision}.inspect}")
-    contents("#{type.to_s}/#{page.to_s}_att/#{name.to_s}", revision)
+  def attachment_contents(namespace, page, name, revision=nil)
+    logger.debug("Fetching contents of page attachment: #{{:namespace => namespace, :page => page, :name => name, :revision => revision}.inspect}")
+    contents("#{namespace.to_s}/#{page.to_s}_att/#{name.to_s}", revision)
   end
 
-  def attachment_revisions(type, page, name)
-    logger.debug("Fetching revisions for page attachment: #{{:type => type, :page => page, :name => name}.inspect}")
-    revisions("#{type.to_s}/#{page.to_s}_att/#{name.to_s}")
+  def attachment_revisions(namespace, page, name)
+    logger.debug("Fetching revisions for page attachment: #{{:namespace => namespace, :page => page, :name => name}.inspect}")
+    revisions("#{namespace.to_s}/#{page.to_s}_att/#{name.to_s}")
   end
 
-  def attachment_save(type, page, name, contents, message, user)
-    logger.debug("Saving page attachment: #{{:type => type, :page => page, :name => name, :contents => contents, :message => message, :user => user}.inspect}")
-    save("#{type.to_s}/#{page.to_s}_att/#{name.to_s}", contents, message, user)
+  def attachment_save(namespace, page, name, contents, message, user)
+    logger.debug("Saving page attachment: #{{:namespace => namespace, :page => page, :name => name, :contents => contents, :message => message, :user => user}.inspect}")
+    save("#{namespace.to_s}/#{page.to_s}_att/#{name.to_s}", contents, message, user)
   end
 
-  def attachment_delete(type, page, name, user)
-    logger.debug("Deleting page attachment: #{{:type => type, :page => page, :name => name, :user => user}.inspect}")
-    delete("#{type.to_s}/#{page.to_s}_att/#{name.to_s}", "#{page.to_s}/#{name.to_s} ==> /dev/null", user)
+  def attachment_delete(namespace, page, name, user)
+    logger.debug("Deleting page attachment: #{{:namespace => namespace, :page => page, :name => name, :user => user}.inspect}")
+    delete("#{namespace.to_s}/#{page.to_s}_att/#{name.to_s}", "#{page.to_s}/#{name.to_s} ==> /dev/null", user)
   end
 
-  def attachment_all(type, page)
-    logger.debug("Fetching all page attachments: #{{:type => type, :page => page}.inspect}")
-    all("#{type.to_s}/#{page.to_s}_att")
+  def attachment_all(namespace, page)
+    logger.debug("Fetching all page attachments: #{{:namespace => namespace, :page => page}.inspect}")
+    all("#{namespace.to_s}/#{page.to_s}_att")
   end
 
-  def attachment_changes(type, page=nil, options={})
-    logger.debug("Fetching all page attachment changes: #{{:type => type, :page => page, :options => options}.inspect}")
+  def attachment_changes(namespace, page=nil, options={})
+    logger.debug("Fetching all page attachment changes: #{{:namespace => namespace, :page => page, :options => options}.inspect}")
     if page.nil?
       changes = []
-      page_all(type).each do |page|
-        changes += changes(type, "#{type.to_s}/#{page.to_s}_att", options, page)
+      page_all(namespace).each do |page|
+        changes += changes(namespace, "#{namespace.to_s}/#{page.to_s}_att", options, page)
       end
       changes.sort { |a,b| a.revision.date <=> b.revision.date }
     else
-      changes(type, "#{type.to_s}/#{page.to_s}_att", options, page)
+      changes(namespace, "#{namespace.to_s}/#{page.to_s}_att", options, page)
     end
   end
   
-  def types
-    types = []
+  def namespaces
+    namespaces = []
     @repo.log.each do |commit|
       commit.tree.trees.each do |tree|
-        types << tree.name
+        namespaces << tree.name
       end
     end
-    types = types.uniq
-    types.delete(nil)
-    types
+    namespaces = namespaces.uniq
+    namespaces.delete(nil)
+    namespaces
   end
-  cache :types
+  cache :namespaces
 
   private
 
@@ -217,7 +217,7 @@ class GitProvider < Raki::AbstractProvider
     flush(:contents, obj, nil)
     flush(:revisions, obj)
     flush(:changes)
-    flush(:types)
+    flush(:namespaces)
   end
 
   def rename(old_obj, new_obj, message, user)
@@ -246,7 +246,7 @@ class GitProvider < Raki::AbstractProvider
     flush(:revisions, old_obj)
     flush(:revisions, new_obj)
     flush(:changes)
-    flush(:types)
+    flush(:namespaces)
   end
 
   def delete(obj, message, user)
@@ -265,7 +265,7 @@ class GitProvider < Raki::AbstractProvider
     flush(:contents, obj, nil)
     flush(:revisions, obj)
     flush(:changes)
-    flush(:types)
+    flush(:namespaces)
   end
 
   def revisions(obj)
@@ -307,15 +307,15 @@ class GitProvider < Raki::AbstractProvider
   cache :all
   private :all
 
-  def changes(type, dir, options={}, page=nil)
+  def changes(namespace, dir, options={}, page=nil)
     check_obj(dir)
     changes = []
     begin
       @repo.log(@branch, dir).each do |commit|
         break if options[:since] && options[:since] >= commit.authored_date
         commit.diffs.each do |diff|
-          if page && diff.a_path =~ /^#{type}\/#{page}\//
-            changes << Change.new(type, normalize(File.basename(diff.a_path)), Revision.new(
+          if page && diff.a_path =~ /^#{namespace}\/#{page}\//
+            changes << Change.new(namespace, normalize(File.basename(diff.a_path)), Revision.new(
                   commit.sha,
                   commit.id_abbrev.upcase,
                   (diff.deleted_file ? -1 : size(diff.a_path, commit.sha)),
@@ -327,7 +327,7 @@ class GitProvider < Raki::AbstractProvider
                 normalize(File.basename(diff.a_path))
               )
           else
-            changes << Change.new(type, normalize(File.basename(diff.a_path)), Revision.new(
+            changes << Change.new(namespace, normalize(File.basename(diff.a_path)), Revision.new(
                   commit.sha,
                   commit.id_abbrev.upcase,
                   (diff.deleted_file ? -1 : size(diff.a_path, commit.sha)),

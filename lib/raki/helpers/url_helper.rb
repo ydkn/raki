@@ -19,6 +19,8 @@ module Raki
     
     module URLHelper
       
+      include ERB::Util
+      
       class << self
         attr_accessor :host, :port
       end
@@ -42,11 +44,11 @@ module Raki
         
       end
       
-      def url_for_page(type, page, revision=nil)
+      def url_for_page(namespace, page, revision=nil)
         if revision.nil?
-          url_for(:controller => 'page', :action => 'view', :type => h(type), :id => h(page))
+          url_for(:controller => 'page', :action => 'view', :namespace => h(namespace), :page => h(page))
         else
-          url_for(:controller => 'page', :action => 'view', :type => h(type), :id => h(page), :revision => h(revision))
+          url_for(:controller => 'page', :action => 'view', :namespace => h(namespace), :page => h(page), :revision => h(revision))
         end
       end
 
