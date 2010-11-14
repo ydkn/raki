@@ -121,6 +121,9 @@ function toolbarClickEvent(e) {
 	content.selectionStart = newSelectionStart;
 	content.selectionEnd = newSelectionEnd;
 	content.focus();
+	
+	refreshPreview();
+	
 	return false;
 }
 
