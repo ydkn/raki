@@ -18,24 +18,21 @@ module RecentchangesPluginHelper
   
   RIGHTS = [:view, :edit, :upload, :delete, :rename]
   
-  def days_changes
-    p_types = params[:type].nil? ? [context[:type]] : params[:type].split(',')
-    p_types = types if params[:type] == 'all'
-    
+  def days_changes  
     days = {}
     
-    p_types.each do |type|
-      type = type.to_sym
+    @namespaces.each do |namespace|
+      namespace = namespace.to_sym
       
-      page_changes(type).each do |change|
-        next unless authorized? change.type, change.page, RIGHTS
+      page_changes(namespace, @options).each do |change|
+        next unless authorized? change.namespace, change.page, RIGHTS
         day = change.revision.date.strftime("%Y-%m-%d")
         days[day] = [] unless days.key?(day)
         days[day] << change
       end
       
-      attachment_changes(type).each do |change|
-        next unless authorized? change.type, change.page, RIGHTS
+      attachment_changes(namespace, nil, @options).each do |change|
+        next unless authorized? change.namespace, change.page, RIGHTS
         day = change.revision.date.strftime("%Y-%m-%d")
         days[day] = [] unless days.key?(day)
         days[day] << change

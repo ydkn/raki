@@ -21,8 +21,8 @@ grammar RakiSyntax
   end
 
   rule line
-    table  / heading ignore_linebreak? / list !non_linebreak / infobox
-    / in_line+ !non_linebreak / linebreak space*
+    hline ignore_linebreak? / table  / heading ignore_linebreak? / list !non_linebreak / infobox
+    / in_line+ !non_linebreak / ignore_linebreak !(!hline) / linebreak space*
   end
 
   rule in_line
@@ -47,6 +47,10 @@ grammar RakiSyntax
     '\\' name:(!'\\' !whitespace text)+ whitespace?
     param:(parameter whitespace?)*
     body:(!'\\end' (text / linebreak))* '\\end' <PluginNode>
+  end
+
+  rule hline
+    '--' '--' !non_linebreak <HLineNode>
   end
 
   rule heading
@@ -83,9 +87,12 @@ grammar RakiSyntax
 
   rule table_row
     head_row:'!'? '|'
-    cells:(head:'!'? data:(!'|' !linebreak in_line)* '|')+ space* <TableRowNode>
+    cells:(head:'!'? data:cell_data '|')+ space* <TableRowNode>
   end
 
+  rule cell_data
+    (!'|' !linebreak (unprotected_formating !(!'|' .) / in_line))*
+  end
 
   # Formating
 
@@ -169,24 +176,26 @@ grammar RakiSyntax
     ((!'|' !']' text) / '\\|' / '\\]')+
   end
 
+
   # Strings
 
   rule parameter
-    key:(!('=' / whitespace) text)+ '=' value:parameter_value <ParameterNode>
+    key:(!('=' / whitespace) text)+ '='
+    value:(quoted_value / unquoted_value) <ParameterNode>
   end
 
   rule parameter_key
     (!"\\" !"\\end" !'=' non_whitespace)+
   end
 
-  rule parameter_value
-    quoted_text / (!"\\" !'\\end' non_whitespace)*
+  rule unquoted_value
+    text:(!"\\" !'\\end' non_whitespace)* '' 
   end
 
-  rule quoted_text
-    '"' ("\\\"" / "\\\\" / (!'"' !"\\" text))* '"'
+  rule quoted_value
+    '"' text:("\\\"" / "\\\\" / (!'"' !"\\" text))* '"'
     /
-    "'" ("\\'" / "\\\\" / (!"'" !"\\" text))* "'"
+    "'" text:("\\'" / "\\\\" / (!"'" !"\\" text))* "'"
   end
 
   rule uri
@@ -194,7 +203,7 @@ grammar RakiSyntax
   end
 
   rule protocol
-    (data_protocol '://') / (app_protocol ':')
+    (data_protocol !(!'://' .)) / (app_protocol !(!':' .))
   end
 
   rule maybe_a_protokol

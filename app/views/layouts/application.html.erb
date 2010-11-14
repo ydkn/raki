@@ -9,6 +9,11 @@
     <%=plugin_stylesheets %>
     <link rel="shortcut icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
     <link rel="icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
+    <%=auto_discovery_link_tag :rss, {:controller => 'feed', :action => 'global'}, :title => t('feed.global', :app_name => Raki.app_name) %>
+	<%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'namespace', :namespace => h(@namespace)}, :title => t('feed.namespace', :namespace => h(@namespace))) %>
+    <% if @namespace && @page && authorized?(@namespace, @page, :view) %>
+	  <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'page', :namespace => h(@namespace), :page => h(@page)}, :title => t('feed.page', :namespace => h(@namespace), :page => h(@page))) %>
+	<% end %>
   </head>
   <body>
     <div id="container">
@@ -23,8 +28,7 @@
           <%=insert_page :page, 'LeftMenuFooter' %>
         </div>
 		<div id="global_feed">
-          <%=link_to image_tag('feed.png', :alt => 'Feed'), {:controller => 'feed', :action => 'feed'}, {:title => t('feed', :app_name => Raki.app_name), :class => 'feed'} %>
-          <%=auto_discovery_link_tag :rss, {:controller => 'feed', :action => 'feed'}, :title => t('feed', :app_name => Raki.app_name) %>
+          <%=link_to image_tag('feed.png', :alt => 'Feed'), {:controller => 'feed', :action => 'global'}, {:title => t('feed.global', :app_name => Raki.app_name), :class => 'feed'} %>
         </div>
         <div id="application_info">Raki v<%=Raki.version %></div>
       </div>
@@ -39,8 +43,10 @@
 		</div>
         <div id="page_title"><%=h @title %></div>
         <div id="visted_pages">
-	      <%=t 'visited_pages' %>:
-          <%=session[:visited_pages].collect{|p| link_to "#{p[:type]}/#{p[:page]}", url_for_page(h(p[:type]), h(p[:page]))}.join(', ') %>
+	      <% unless session[:visited_pages].empty? %>
+	        <%=t 'visited_pages' %>:
+            <%=session[:visited_pages].collect{|p| link_to "#{p[:namespace]}/#{p[:page]}", url_for_page(h(p[:namespace]), h(p[:page]))}.join(', ') %>
+          <% end %>
         </div>
         <div id="content_container">
           <div id="controls">
@@ -49,7 +55,9 @@
           <div id="page">
             <%=yield %>
           </div>
-          <%=render :partial => "layouts/page_footer" %>
+		  <div id="page_footer">
+			<%=render :partial => "#{controller_name}/footer" %>
+		  </div>
           </div>
         </div>
         <br class="clear" />

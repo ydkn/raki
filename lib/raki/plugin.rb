@@ -116,7 +116,7 @@ module Raki
     end
     
     include Raki::Helpers::PluginHelper
-    include Raki::Helpers::PermissionHelper
+    include Raki::Helpers::AuthorizationHelper
     include Raki::Helpers::ProviderHelper
     include Raki::Helpers::ParserHelper
     include Raki::Helpers::URLHelper
@@ -146,8 +146,8 @@ module Raki
       @stylesheets << {:url => url, :options => options}
     end
     
-    def override_permission(type, page='*', rights='!all')
-      Raki::Permission.add_override(type, page, rights)
+    def block_page(namespace, page='*')
+      Raki::Authorizer.block(namespace, page)
     end
 
     def execute(&block)
@@ -159,7 +159,7 @@ module Raki
       @params = params
       @body = body
       old_subcontext = context[:subcontext]
-      context[:subcontext] = context[:subcontext].clone
+      context[:subcontext] = context[:subcontext].clone if context[:subcontext]
       @context = context
       result = @execute.call
       context[:subcontext] = old_subcontext

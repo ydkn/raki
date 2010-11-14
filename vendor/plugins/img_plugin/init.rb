@@ -24,10 +24,10 @@ Raki::Plugin.register :img do
 
   execute do
     img = body.strip
-    type = params[:type].nil? ? context[:type].to_s : params[:type]
+    namespace = params[:namespace].nil? ? context[:namespace].to_s : params[:namespace]
     page = params[:page].nil? ? context[:page].to_s : params[:page]
     
-    url = url?(img) ? img : "/#{type}/#{page}/attachment/#{img}"
+    url = url?(img) ? img : "/#{namespace}/#{page}/attachment/#{img}"
     
     alt = params[:alt].nil? ? img : params[:alt]
     

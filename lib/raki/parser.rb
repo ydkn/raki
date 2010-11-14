@@ -24,20 +24,20 @@ module Raki
       
       def register(id, clazz)
         @parsers[id.to_sym] = clazz
-        Raki.config('parsers').each do |type, settings|
+        Raki.config('parsers').each do |namespace, settings|
           if settings['parser'] == id.to_s
-            @initialized[type.to_sym] = clazz.new(settings)
+            @initialized[namespace.to_sym] = clazz.new(settings)
           end
         end
       end
 
-      def [](type)
-        type = type.to_sym
-        unless @initialized.key?(type)
+      def [](namespace)
+        namespace = namespace.to_sym
+        unless @initialized.key?(namespace)
           return @initialized[:default] if @initialized.key?(:default)
           raise RakiError.new("No Parser")
         end
-        @initialized[type]
+        @initialized[namespace]
       end
 
       def all

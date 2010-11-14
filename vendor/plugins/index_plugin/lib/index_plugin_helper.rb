@@ -17,39 +17,10 @@
 module IndexPluginHelper
   
   def letters_pages
-    return @index unless @index.nil?
-    
-    p_types = params[:type].nil? ? [context[:type]] : params[:type].split(',')
-    p_types = types if params[:type] == 'all'
-    
-    chars = {}
-    
-    p_types.each do |type|
-      type = type.to_sym
-      
-      page_all!(type).each do |page|
-        letter = page[0].chr.upcase
-        chars[letter] = [] unless chars.key?(letter)
-        chars[letter] << {:type => type, :page => page}
-      end
-      
-    end
-    
-    index = []
-    keys = chars.keys.sort {|a,b| a <=> b}
-    keys.each do |key|
-      index << {
-          :letter => key,
-          :pages => sort_pages(chars[key])
-        }
-    end
-    @index = index
-    
     @index
   end
   
   def rnd
-    @rnd = rand(900)+100 if @rnd.nil?
     @rnd
   end
   

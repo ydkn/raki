@@ -16,6 +16,9 @@
 
 class User
   
+  include Raki::Helpers::AuthorizationHelper
+  include Raki::Helpers::URLHelper
+  
   attr_reader :id
   
   def initialize(id, options={})
@@ -35,6 +38,18 @@ class User
   
   def display_name
     @display_name.nil? ? username : @display_name
+  end
+  
+  def authorized_to?(type, page, action)
+    authorized?(type, page, action, self)
+  end
+  
+  def authorized_to!(type, page, action)
+    authorized!(type, page, action, self)
+  end
+  
+  def page_url
+    url_for_page(Raki.userpage_namespace, username)
   end
   
   def self.current

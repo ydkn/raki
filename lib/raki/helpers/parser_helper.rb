@@ -21,23 +21,23 @@ module Raki
       
       include ProviderHelper
       
-      def parser(type)
-        Raki::Parser[type]
+      def parser(namespace)
+        Raki::Parser[namespace]
       end
       
       def parser_by_name(name)
         Raki::Parser.all[name]
       end
 
-      def parse(type, content=nil, context=nil)
+      def parse(namespace, content=nil, context=nil)
         if context.nil? && !@context.nil?
           context = @context
         end
         if content.nil?
-          content = type
-          type = :default
+          content = namespace
+          namespace = :default
         end
-        parser(type).parse(content, context)
+        parser(namespace).parse(content, context)
       end
       
       def parse_with(parser, content, context=nil)
@@ -47,24 +47,24 @@ module Raki
         parser_by_name(parser).parse(content, context)
       end
 
-      def parsed_page(type, page, revision=nil, context=nil)
+      def parsed_page(namespace, page, revision=nil, context=nil)
         if context.nil? && !@context.nil?
           context = @context
         end
         parse(
-          type,
-          page_contents(type, page, revision),
+          namespace,
+          page_contents(namespace, page, revision),
           context
         )
       end
 
-      def parsed_page!(type, page, revision=nil, context=nil, user=User.current)
+      def parsed_page!(namespace, page, revision=nil, context=nil, user=User.current)
         if context.nil? && !@context.nil?
           context = @context
         end
         parse(
-          type,
-          page_contents!(type, page, revision, user),
+          namespace,
+          page_contents!(namespace, page, revision, user),
           context
         )
       end

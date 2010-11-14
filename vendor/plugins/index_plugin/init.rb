@@ -27,7 +27,37 @@ Raki::Plugin.register :index do
   include IndexPluginHelper
 
   execute do
-    render :index
+    p_namespaces = params[:namespace].nil? ? [context[:namespace]] : params[:namespace].split(',')
+    p_namespaces = namespaces if params[:namespace] == 'all'
+    
+    chars = {}
+    
+    p_namespaces.each do |namespace|
+      namespace = namespace.to_sym
+      
+      page_all!(namespace).each do |page|
+        letter = page[0].chr.upcase
+        chars[letter] = [] unless chars.key?(letter)
+        chars[letter] << {:namespace => namespace, :page => page}
+      end
+      
+    end
+    
+    @index = []
+    keys = chars.keys.sort {|a,b| a <=> b}
+    keys.each do |key|
+      @index << {
+          :letter => key,
+          :pages => sort_pages(chars[key])
+        }
+    end
+    @rnd = rand(900)+100
+    
+    if @index.empty?
+      "<b>#{t 'indexplugin.no_pages'}</b>"
+    else
+      render :index
+    end
   end
 
 end

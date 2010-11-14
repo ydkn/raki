@@ -48,18 +48,19 @@ end
 
 class LinkNode < RakiSyntaxNode
   
-  @@dangerous_protocols = ['about', 'wysiwyg', 'data', 'view-source', 'ms-its',
+  DANGEROUS_PROTOCOLS = ['about', 'wysiwyg', 'data', 'view-source', 'ms-its',
     'mhtml', 'shell', 'lynxexec',  'lynxcgi', 'hcp', 'ms-help', 'help', 'disk',
     'vnd.ms.radio', 'opera', 'res', 'resource',  'chrome', 'mocha',
     'livescript', 'javascript', 'vbscript']
+  SAFE_PROTOCOLS = ['http', 'https', 'ftp', 'mailto', 'sip', 'skype']
 
   def to_html context
-    if @@dangerous_protocols.include? href.protocol.to_html(context).strip
-      #TODO: no attribute "target" in XHTML 1.1
-      '<a target="_blank" href="' + href.to_html(context).strip + '">' +
+    if SAFE_PROTOCOLS.include? href.protocol.to_html(context).strip.downcase
+      '<a href="' + href.to_html(context).strip + '">' +
       (desc.to_html(context).empty? ? href : desc).to_html(context).strip + '</a>'
     else
-      '<a href="' + href.to_html(context).strip + '">' +
+      #TODO: no attribute "target" in XHTML 1.1
+      '<a target="_blank" href="' + href.to_html(context).strip + '">' +
       (desc.to_html(context).empty? ? href : desc).to_html(context).strip + '</a>'
     end
   end
@@ -72,15 +73,26 @@ class WikiLinkNode < RakiSyntaxNode
   def to_html context
     parts = href.text_value.split '/'
     if parts.length == 2
-      type = parts[0]
+      namespace = parts[0]
       page = parts[1]
     else
-      type = context[:type].nil? ? Raki.frontpage[:type] : context[:type].to_s
+      namespace = context[:namespace].nil? ? Raki.frontpage[:namespace] : context[:namespace].to_s
       page = parts[0]
     end
-    pagelink = url_for_page h(type.strip), h(page.strip)
+    pagelink = url_for_page h(namespace.strip), h(page.strip)
     return '<a href="' + pagelink + '">' +
       (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip).strip + '</a>'
+  end
+
+  def link_update from, to, context
+    def href.set_href href
+      @href = href
+    end
+    href.set_href to
+
+    def href.to_src context={}
+      @href
+    end
   end
 
 end
@@ -121,12 +133,25 @@ class StrikethroughNode < RakiSyntaxNode
 end
 
 
+class HLineNode < RakiSyntaxNode
+
+  def to_html context
+    "\n<hr/>\n"
+  end
+
+end
+
+
 class HeadingNode < RakiSyntaxNode
   
   def to_html context
     l = level.text_value.length
     l = 6 if l > 6
     return "<h#{l}>" + text.to_html(context).strip + "</h#{l}>\n"
+  end
+  
+  def rename_link(o, n)
+    children.select{|c| c.respond_to? :rename_link }.each{|c| c.rename_link(o,n)}
   end
   
 end
@@ -243,13 +268,7 @@ end
 class ParameterNode < RakiSyntaxNode
   
   def keyval
-    val = value.text_value
-    if val[0] == '"' && val[-1] == '"';
-      val = val[1..-2].gsub(/\\"/, '"')
-    elsif val[0] == "'" && val[-1] == "'";
-      val = val[1..-2].gsub(/\\'/, "'")
-    end
-    Hash[key.text_value.to_sym, val]
+    Hash[key.text_value.to_sym, value.text.text_value]
   end
   
 end

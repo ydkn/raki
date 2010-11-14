@@ -11,19 +11,19 @@
 	  <tr>
 		<% if change.attachment.nil? %>
 		  <% if change.revision.deleted? %>
-		    <td><%=h(types.length == 1 ? change.page : "#{change.type}/#{change.page}") %></td>
+		    <td><%=h(namespaces.length == 1 ? change.page : "#{change.namespace}/#{change.page}") %></td>
 		  <% else %>
-		    <td><%=link_to h(types.length == 1 ? change.page : "#{change.type}/#{change.page}"), {:controller => 'page', :action => 'view', :type => change.type, :id => h(change.page), :revision => h(change.revision.id)} %></td>
+		    <td><%=link_to h(namespaces.length == 1 ? change.page : "#{change.namespace}/#{change.page}"), {:controller => 'page', :action => 'view', :namespace => change.namespace, :page => h(change.page), :revision => h(change.revision.id)} %></td>
 		  <% end %>
 		<% else %>
 		  <% if change.revision.deleted? %>
-		    <td><%=h(types.length == 1 ? "#{change.page}/#{change.attachment}" : "#{change.type}/#{change.page}/#{change.attachment}") %></td>
+		    <td><%=h(namespaces.length == 1 ? "#{change.page}/#{change.attachment}" : "#{change.namespace}/#{change.page}/#{change.attachment}") %></td>
 		  <% else %>
-		    <td><%=link_to h(types.length == 1 ? "#{change.page}/#{change.attachment}" : "#{change.type}/#{change.page}/#{change.attachment}"), {:controller => 'page', :action => 'attachment', :type => change.type, :id => h(change.page), :attachment => h(change.attachment), :revision => h(change.revision.id)} %></td>
+		    <td><%=link_to h(namespaces.length == 1 ? "#{change.page}/#{change.attachment}" : "#{change.namespace}/#{change.page}/#{change.attachment}"), {:controller => 'page', :action => 'attachment', :namespace => change.namespace, :page => h(change.page), :attachment => h(change.attachment), :revision => h(change.revision.id)} %></td>
 		  <% end %>
 		<% end %>
 		<td><%=l change.revision.date, :format => :time %></td>
-		<td><%=link_to h(change.revision.user.username), {:controller => 'page', :action => 'view', :type => Raki.userpage_type, :id => h(change.revision.user.username)} %></td>
+		<td><%=link_to h(change.revision.user.username), change.revision.user.page_url %></td>
 		<td><%=h change.revision.message %></td>
 	  </tr>
 	<% end %>
