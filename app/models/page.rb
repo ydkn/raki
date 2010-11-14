@@ -122,7 +122,7 @@ class Page
   
   def locked_by
     return nil unless locked?
-    Raki::LockManager.locked?(self)
+    Raki::LockManager.locked_by(self)
   end
   
   def lock(user)

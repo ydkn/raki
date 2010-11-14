@@ -186,6 +186,10 @@ a, a:visited {
     background-color: #f5f5f5;
 }
 
+#lock_waring {
+	margin-top: -0.5em;
+}
+
 #login {
     margin: 0 auto;
     width: 25em;

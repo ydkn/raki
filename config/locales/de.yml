@@ -55,6 +55,7 @@ de:
       delete_question: Komplette Seite löschen?
       page_already_exists: Seite existiert bereits.
       no_permission_to_create: Keine Berechtigung um Seite anzulegen
+      locked: Der Benutzer %{user} ist gerade dabei diese Seite zu bearbeiten.
 
     info:
       versions: Versionen

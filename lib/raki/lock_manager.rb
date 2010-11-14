@@ -27,14 +27,14 @@ module Raki
     def self.locked?(page)
       key = [page.namespace, page.name]
       if @locks.key? key
-        @locks[key][:expires] <= Time.new
+        @locks[key][:expires] >= Time.new
       else
         false
       end
     end
     
     def self.locked_by(page)
-      @locks[[page.namespace, page.name]][:user]
+      @locks[[page.namespace, page.name]][:user] rescue nil
     end
     
     def self.unlock(page, user)
