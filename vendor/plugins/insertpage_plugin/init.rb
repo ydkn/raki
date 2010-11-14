@@ -45,9 +45,9 @@ Raki::Plugin.register :insertpage do
       context[:namespace] = namespace
       context[:page] = page
 
-      parsed_page!(namespace, page)
+      render :inline => parsed_page!(namespace, page)
     else
-      ""
+      render :nothing => true
     end
   end
 
