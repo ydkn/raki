@@ -26,15 +26,16 @@ class PluginTest < Test::Unit::TestCase
       end
     end
     
+    error = nil
     assert_raise(Raki::Plugin::PluginError) do
-      plugin.exec(:raise_test, {}, '', {})
+      begin
+        plugin.exec(:raise_test, {}, '', {})
+      rescue => e
+        error = e
+        raise e
+      end
     end
-    
-    begin
-      plugin.exec(:raise_test, {}, '', {})
-    rescue => e
-      assert_equal e.to_s, 'error-message'
-    end
+    assert_equal error.to_s, 'error-message'
   end
   
   private
