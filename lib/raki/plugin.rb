@@ -64,6 +64,7 @@ module Raki
           @plugins[id] = plugin
         end
         Rails.logger.info "Registered plugin: #{id}"
+        plugin
       end
 
       # Returns an array off all registred plugins
