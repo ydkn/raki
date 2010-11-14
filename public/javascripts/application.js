@@ -181,11 +181,11 @@ function refreshPreview() {
 			} else {
 				previewContent.style.display = 'block';
 			}
-			previewLoading = false;
 			if(previewRefresh) {
 				previewRefresh = false;
 				refreshPreview();
 			}
+			window.setTimeout('previewLoading = false;', 500);
 		}
 		livePreviewLoader.style.display = 'none';
 	}
@@ -211,6 +211,13 @@ function refreshPreview() {
 	httpRequest.setRequestHeader("Connection", "close");
 	httpRequest.send(data);
 	livePreviewLoader.style.display = 'inline';
+}
+
+function scheduleRefresh() {
+	if(!previewLoading && previewRefresh) {
+		refreshPreview();
+	}
+	window.setTimeout('scheduleRefresh()', 250);
 }
 
 function initLivePreview() {
@@ -258,6 +265,8 @@ function initLivePreview() {
 		refreshPreview();
 		return false;
 	}
+	
+	window.setTimeout('scheduleRefresh()', 250);
 }
 
 function startup() {
