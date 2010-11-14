@@ -154,18 +154,19 @@ a, a:visited {
 	display: none;
 }
 
-#preview h3 {
+#preview #preview-header {
+	font-weight: bold;
 	background-color: #dddddd;
 	margin: 0;
 	padding: 0.25em;
 	height: 1.5em;
 }
 
-#preview h3 #live-preview-switch {
+#preview #preview-header #live-preview-switch {
 	margin-right: 1em;
 }
 
-#preview h3 #live-preview-loader {
+#preview #preview-header #live-preview-loader {
 	height: 16px;
 	width: 16px;
 	border: 0;
