@@ -1,3 +1,5 @@
+<% if @page.locked? && @page.locked_by != User.current %>
+<% end %>
 <% if @page.authorized?(User.current, :rename) && @page.exists? %>
   <% form_tag(@page.url(:rename)) do %>
     <div>

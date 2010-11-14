@@ -59,6 +59,7 @@ class PageController < ApplicationController
       return
     end
     @page.content = params[:content] if params[:content]
+    @page.lock(User.current)
   end
 
   def update
@@ -69,6 +70,7 @@ class PageController < ApplicationController
     end
     @page.content = params[:content]
     if @page.save(User.current, params[:message])
+      @page.unlock(User.current)
       redirect_to @page.url
     else
       # show errors

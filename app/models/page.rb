@@ -116,6 +116,23 @@ class Page
     super(namespace, name, action, user)
   end
   
+  def locked?
+    Raki::LockManager.locked?(self)
+  end
+  
+  def locked_by
+    return nil unless locked?
+    Raki::LockManager.locked?(self)
+  end
+  
+  def lock(user)
+    Raki::LockManager.lock(self, user)
+  end
+  
+  def unlock(user)
+    Raki::LockManager.unlock(self, user)
+  end
+  
   def renamed?
     (@new_namespace && @namespace != @new_namespace) || (@new_name && @name != @new_name)
   end
