@@ -207,6 +207,10 @@ module Raki
         @render = args
       end
     end
+    
+    def raise(*args)
+      super(PluginError.new(*args))
+    end
 
   end
 end

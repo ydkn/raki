@@ -24,7 +24,7 @@ Raki::Plugin.register :example do
 
   execute do
     if params.key?(:error)
-      raise Raki::Plugin::PluginError.new "ERROR: #{params[:error]}"
+      raise "ERROR: #{params[:error]}"
     end
     
     context_out = context.inspect.gsub /\\/, ''
