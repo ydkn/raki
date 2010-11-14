@@ -65,6 +65,7 @@ class Page
   end
   
   def content=(content)
+    @content_changed = self.content != content
     @content = content
   end
   
@@ -74,20 +75,27 @@ class Page
   end
   
   def head_revision
+    return nil unless exists?
     @head_revision ||= page_revisions(namespace, name).first
   end
   
   def attachments
+    return [] unless exists?
     @attchments ||= attachment_all(namespace, name).collect do |attachment|
       Attachment.new(:namespace => namespace, :page => name, :name => attachment)
     end
   end
   
+  def diff(options={})
+    # TODO
+  end
+  
   def url(options={})
-    if options.is_a?(Symbol)
+    if options.is_a?(Symbol) || options.is_a?(String)
       options = {:action => options}
     else
       options = options.symbolize_keys
+      options[:revision] = options[:revision].id if options.key?(:revision) && options[:revision].is_a?(Revision)
     end
     options = {:controller => 'page', :action => 'view', :namespace => namespace, :page => name, :revision => (revision ? revision.id : nil)}.merge options
     options.delete :revision if head_revision && options[:revision] == head_revision.id
@@ -108,19 +116,82 @@ class Page
     super(namespace, name, action, user)
   end
   
+  def renamed?
+    (@new_namespace && @namespace != @new_namespace) || (@new_name && @name != @new_name)
+  end
+  
   def changed?
-    @namespace != @new_namespace || @name != @new_name
+    @content_changed ? true : false
+  end
+  
+  def deleted?
+    @deleted ? true : false
   end
   
   def save(user, msg=nil)
-    page_save(namespace, name, content, msg, user)
+    if renamed?
+      page_rename(@namespace, @name, namespace, name, user)
+      @namespace = @new_namespace
+      @name = @new_name
+      @new_namespace = nil
+      @new_name = nil
+      @revisions = nil
+    end
+    if changed?
+      page_save(namespace, name, content, msg, user)
+      @exists = true
+    end
     @head_revision = page_revisions(namespace, name).first
     @revision = @head_revision
-    @exists = true
+    @revisions.unshift @head_revision if @revisions
+    true
+  rescue
+    false
+  end
+  
+  def save!(user, msg=nil)
+    unless save(user, msg)
+      # TODO
+    end
+    true
   end
   
   def delete(user, msg=nil)
     page_delete(namespace, name, user)
+    @deleted = true
+  rescue
+    false
+  end
+  
+  def delete!(user, msg=nil)
+    unless delete(user, msg)
+      # TODO
+    end
+    true
+  end
+  
+  def to_s
+    "#{namespace}/#{name}@#{revision.version}"
+  end
+  
+  def <=> b
+    if namespace == b.namespace
+      if name == b.name
+        if revision && b.revision
+          revision.date <=> b.revision.date
+        elsif revision
+          1
+        elsif b.revision
+          -1
+        else
+          0
+        end
+      else
+        name <=> b.name
+      end
+    else
+      namespace <=> b.namespace
+    end
   end
   
   def self.exists?(namespace, name, revision=nil)
@@ -133,6 +204,70 @@ class Page
     else
       nil
     end
+  end
+  
+  def self.all(options={})
+    pages = []
+    
+    if options[:namespace].nil?
+      namespace = namespaces
+    elsif options[:namespace].is_a?(Array)
+      namespace = options[:namespace]
+    else
+      namespace = [options[:namespace]]
+    end
+    
+    if options[:page].nil?
+      page = nil
+    elsif options[:page].is_a?(Array)
+      page = options[:page]
+    else
+      page = [options[:page]]
+    end
+    
+    namespaces.select do |ns|
+      namespace ? !namespace.select{|nsf| nsf.is_a?(Regexp) ? (ns =~ nsf) : (nsf.to_s == ns.to_s)}.empty? : true
+    end.each do |ns|
+      pages += page_all(ns).select do |p|
+        page ? !page.select{|pf| pf.is_a?(Regexp) ? (p =~ pf) : (pf.to_s == p.to_s)}.empty? : true
+      end.collect{|p| Page.new(:namespace => ns, :name => p)}
+    end
+    
+    pages.sort{|a,b| a <=> b}
+  end
+  
+  def self.changes(options={})
+    revisions = []
+    
+    if options[:namespace].nil?
+      namespace = namespaces
+    elsif options[:namespace].is_a?(Array)
+      namespace = options[:namespace]
+    else
+      namespace = [options[:namespace]]
+    end
+    
+    if options[:page].nil?
+      page = nil
+    elsif options[:page].is_a?(Array)
+      page = options[:page]
+    else
+      page = [options[:page]]
+    end
+    
+    opts = options.clone
+    opts.delete :namespace
+    opts.delete :page
+    
+    namespaces.select do |ns|
+      namespace ? !namespace.select{|nsf| nsf.is_a?(Regexp) ? (ns =~ nsf) : (nsf.to_s == ns.to_s)}.empty? : true
+    end.each do |ns|
+      revisions += attachment_changes(ns, nil, opts).select do |r|
+        page ? !page.select{|pf| pf.is_a?(Regexp) ? (r.page =~ pf) : (pf.to_s == r.page.to_s)}.empty? : true
+      end
+    end
+    
+    revisions.sort{|a,b| a <=> b}
   end
   
 end

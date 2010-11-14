@@ -22,7 +22,7 @@ class GitProviderTest < Test::Unit::TestCase
   def setup
     FileUtils.remove_dir("#{Rails.root}/tmp/test-git-repo", true) if File.exists?("#{Rails.root}/tmp/test-git-repo")
     `git init #{Rails.root}/tmp/test-git-repo`
-    @provider = GitProvider.new({'path' => "#{Rails.root}/tmp/test-git-repo"})
+    @provider = GitProvider.new(:default, {'path' => "#{Rails.root}/tmp/test-git-repo"})
   end
 
   # Remove GIT repository after testing
@@ -33,7 +33,7 @@ class GitProviderTest < Test::Unit::TestCase
   # Try to create with an invalid repository
   def test_invalid_repository
     assert_raise(Raki::AbstractProvider::ProviderError) do
-      GitProvider.new({'path' => "#{Rails.root}/tmp/test-git-repo-not-exists"})
+      GitProvider.new(:invalid, {'path' => "#{Rails.root}/tmp/test-git-repo-not-exists"})
     end
   end
 
@@ -43,6 +43,21 @@ class GitProviderTest < Test::Unit::TestCase
     assert !page_exists?(:page, page_name)
     page_save :page, page_name, "some content", 'changed', default_user
     assert page_exists?(:page, page_name)
+  end
+  
+  # Test page content
+  def test_page_content
+    content = "some content"
+    page_save :page, 'ContentTestPage', content, 'changed', default_user
+    assert_equal content, page_contents(:page, 'ContentTestPage')
+    
+    assert_raise(Raki::AbstractProvider::PageNotExists) do
+      page_contents :page, 'ContentTestPage2'
+    end
+    
+    assert_raise(Raki::AbstractProvider::PageNotExists) do
+      page_contents :page, 'ContentTestPage', 'InvalidRevision'
+    end
   end
 
   # Create a new page
@@ -125,7 +140,7 @@ class GitProviderTest < Test::Unit::TestCase
     assert !page_exists?(:page, page_name)
     
     # delete page which don't exists
-    assert_raise(Raki::AbstractProvider::ProviderError) do
+    assert_raise(Raki::AbstractProvider::PageNotExists) do
       page_delete :page, 'NotExistingPage', default_user
     end
   end
@@ -240,7 +255,7 @@ class GitProviderTest < Test::Unit::TestCase
     assert !attachment_exists?(:page, page_name, attachment_name)
     
     # delete page which don't exists
-    assert_raise(Raki::AbstractProvider::ProviderError) do
+    assert_raise(Raki::AbstractProvider::PageNotExists) do
       attachment_delete :page, page_name, 'exists.not', delete_user
     end
   end

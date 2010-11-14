@@ -27,8 +27,8 @@ Raki::Plugin.register :recentchanges do
   include RecentchangesPluginHelper
 
   execute do
-    @namespaces = params[:namespace].nil? ? [context[:namespace]] : params[:namespace].split(',')
-    @namespaces = namespaces if params[:namespace] == 'all'
+    @namespaces = params[:namespace].nil? ? [context[:page].namespace] : params[:namespace].split(',')
+    @namespaces = nil if params[:namespace] == 'all'
     
     @options = {}
     @options[:limit] = params[:limit].to_i if params[:limit]

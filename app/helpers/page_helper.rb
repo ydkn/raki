@@ -16,16 +16,10 @@
 
 module PageHelper
   
-  include Raki::Helpers::AuthorizationHelper
-  include Raki::Helpers::ProviderHelper
-  include Raki::Helpers::ParserHelper
-  
   def url_for_page namespace, page, revision=nil
-    if revision.nil?
-      url_for :controller => 'page', :action => 'view', :namespace => h(namespace), :page => h(page)
-    else
-      url_for :controller => 'page', :action => 'view', :namespace => h(namespace), :page => h(page), :revision => h(revision)
-    end
+    options = {:controller => 'page', :action => 'view', :namespace => h(namespace), :page => h(page)}
+    options[:revision] = h(revision) if revision
+    url_for options
   end
   
   def context
@@ -37,6 +31,10 @@ module PageHelper
     if page.authorized?(User.current, :view) && page.exists?
       page.render context
     end
+  end
+  
+  def format_diff diff
+    ""
   end
 
 end

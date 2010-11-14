@@ -1,5 +1,5 @@
 en:
 
   insertpage:
-    already_included: Page '%{name}' already included
+    already_included: Page '%{namespace}/%{name}' already included
     no_page: No Page specified

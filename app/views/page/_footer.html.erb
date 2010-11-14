@@ -1,10 +1,8 @@
-<% if @page.exists? && @page.authorized?(User.current, :view) %>
+<% if @page.authorized?(User.current, :view) && @page.exists? %>
   <%=t 'page.footer',
     :date => l(@page.revision.date, :format => :full),
     :user => link_to((h @page.revision.user.display_name), @page.revision.user.page_url),
     :version => h(@page.revision.version)
   %>
-<% end %>
-<% if @page.authorized?(User.current, :view) %>
   <%=link_to image_tag('feed.png', :alt => 'Feed'), { :controller => 'feed', :action => 'page', :namespace => h(@page.namespace), :page => h(@page.name)}, {:title => t('feed.page', :namespace => h(@page.namespace), :page => h(@page.name)), :class => 'feed'} %>
 <% end %>

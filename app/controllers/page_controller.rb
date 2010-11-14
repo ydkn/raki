@@ -39,7 +39,7 @@ class PageController < ApplicationController
       session[:visited_pages].slice! 0, VISITED_LIMIT if session[:visited_pages].size > 10
       respond_to do |format|
         format.html
-        format.src { render :inline => @page.contents, :content_type => 'text/plain' }
+        format.src { render :inline => @page.content, :content_type => 'text/plain' }
       end
     else
       render_forbidden
@@ -58,7 +58,7 @@ class PageController < ApplicationController
       render_forbidden
       return
     end
-    @page.contents = params[:content] if params[:content]
+    @page.content = params[:content] if params[:content]
   end
 
   def update
@@ -72,6 +72,7 @@ class PageController < ApplicationController
       redirect_to @page.url
     else
       # show errors
+      render 'page/edit'
     end
   end
 

@@ -20,7 +20,7 @@ class DBProviderTest < Test::Unit::TestCase
 
   # Initialize Provider for testing and truncate all tables
   def setup
-    @provider = DBProvider.new({})
+    @provider = DBProvider.new(:default, {})
     clear_table DBAttachmentRevision
     clear_table DBAttachment
     clear_table DBPageRevision

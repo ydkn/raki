@@ -17,8 +17,10 @@
 module Raki
   class AbstractProvider
 
-    class ProviderError < StandardError
-    end
+    class ProviderError < StandardError; end
+    class PageNotExists < StandardError; end
+    class AttachmentNotExists < StandardError; end
+    class InvalidName < StandardError; end
     
     attr_reader :id
 

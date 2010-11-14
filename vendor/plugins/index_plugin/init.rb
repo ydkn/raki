@@ -24,23 +24,16 @@ Raki::Plugin.register :index do
 
   add_stylesheet '/plugin_assets/index_plugin/stylesheets/index.css'
 
-  include IndexPluginHelper
-
   execute do
-    p_namespaces = params[:namespace].nil? ? [context[:namespace]] : params[:namespace].split(',')
-    p_namespaces = namespaces if params[:namespace] == 'all'
+    @namespaces = params[:namespace].nil? ? [context[:page].namespace] : params[:namespace].split(',')
+    @namespaces = nil if params[:namespace] == 'all'
     
     chars = {}
     
-    p_namespaces.each do |namespace|
-      namespace = namespace.to_sym
-      
-      page_all!(namespace).each do |page|
-        letter = page[0].chr.upcase
-        chars[letter] = [] unless chars.key?(letter)
-        chars[letter] << {:namespace => namespace, :page => page}
-      end
-      
+    Page.all(:namespace => @namespaces).select{|p| p.authorized?(User.current, :view)}.each do |page|
+      letter = page.name[0].chr.upcase
+      chars[letter] = [] unless chars.key?(letter)
+      chars[letter] << page
     end
     
     @index = []
@@ -48,7 +41,7 @@ Raki::Plugin.register :index do
     keys.each do |key|
       @index << {
           :letter => key,
-          :pages => sort_pages(chars[key])
+          :pages => chars[key].sort
         }
     end
     @rnd = rand(900)+100

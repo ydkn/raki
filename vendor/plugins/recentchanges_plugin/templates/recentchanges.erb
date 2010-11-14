@@ -1,30 +1,29 @@
 <table cellpadding="0" cellspacing="0" class="recentchanges">
-  <% days_changes.each do |day, changes| %>
+  <% days_changes.each do |day, revisions| %>
     <tr>
 	  <th><%=l Time.parse(day), :format => :date %></th>
 	  <th></th>
 	  <th></th>
 	  <th></th>
 	</tr>
-	<% changes = changes.sort { |a,b| b.revision.date <=> a.revision.date } %>
-	<% changes.each do |change| %>
+	<% revisions.each do |revision| %>
 	  <tr>
-		<% if change.attachment.nil? %>
-		  <% if change.revision.deleted? %>
-		    <td><%=h(namespaces.length == 1 ? change.page : "#{change.namespace}/#{change.page}") %></td>
+		<% if revision.type == :page %>
+		  <% if revision.deleted? %>
+		    <td><%=h(short_title ? revision.page.name : "#{revision.page.namespace}/#{revision.page.name}") %></td>
 		  <% else %>
-		    <td><%=link_to h(namespaces.length == 1 ? change.page : "#{change.namespace}/#{change.page}"), {:controller => 'page', :action => 'view', :namespace => change.namespace, :page => h(change.page), :revision => h(change.revision.id)} %></td>
+		    <td><a href="<%=revision.page.url(:view) %>"><%=h(short_title ? change.page : "#{revision.page.namespace}/#{revision.page.name}") %></a></td>
 		  <% end %>
 		<% else %>
-		  <% if change.revision.deleted? %>
-		    <td><%=h(namespaces.length == 1 ? "#{change.page}/#{change.attachment}" : "#{change.namespace}/#{change.page}/#{change.attachment}") %></td>
+		  <% if revision.deleted? %>
+		    <td><%=h(short_title ? "#{revision.page.name}/#{revision.attachment.name}" : "#{revision.page.namespace}/#{revision.page.name}/#{revision.attachment.name}") %></td>
 		  <% else %>
-		    <td><%=link_to h(namespaces.length == 1 ? "#{change.page}/#{change.attachment}" : "#{change.namespace}/#{change.page}/#{change.attachment}"), {:controller => 'page', :action => 'attachment', :namespace => change.namespace, :page => h(change.page), :attachment => h(change.attachment), :revision => h(change.revision.id)} %></td>
+		    <td><a href="<%=revision.attachment.url(:attachment) %>"><%=h(short_title ? "#{revision.page.name}/#{revision.attachment.name}" : "#{revision.page.namespace}/#{revision.page.name}/#{revision.attachment.name}") %></a></td>
 		  <% end %>
 		<% end %>
-		<td><%=l change.revision.date, :format => :time %></td>
-		<td><%=link_to h(change.revision.user.username), change.revision.user.page_url %></td>
-		<td><%=h change.revision.message %></td>
+		<td><%=l revision.date, :format => :time %></td>
+		<td><a href="<%=revision.user.page_url %>"><%=h(revision.user.username) %></a></td>
+		<td><%=h revision.message %></td>
 	  </tr>
 	<% end %>
   <% end %>

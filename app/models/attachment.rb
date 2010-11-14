@@ -27,7 +27,7 @@ class Attachment
     end
     @name = params[:name]
     if params[:revision]
-      @revision = attachment_revisions(namespace, params[:page], params[:name]).select{|r| r.id.to_s == params[:revision].to_s}.first
+      @revision = attachment_revisions(@page.namespace, params[:page], params[:name]).select{|r| r.id.to_s == params[:revision].to_s}.first
     end
   end
   
@@ -101,6 +101,56 @@ class Attachment
     else
       nil
     end
+  end
+  
+  def self.changes(options={})
+    revisions = []
+    
+    if options[:namespace].nil?
+      namespace = namespaces
+    elsif options[:namespace].is_a?(Array)
+      namespace = options[:namespace]
+    else
+      namespace = [options[:namespace]]
+    end
+    
+    if options[:page].nil?
+      page = nil
+    elsif options[:page].is_a?(Array)
+      page = options[:page]
+    else
+      page = [options[:page]]
+    end
+    
+    if options[:name].nil?
+      name = nil
+    elsif options[:name].is_a?(Array)
+      name = options[:name]
+    else
+      name = [options[:name]]
+    end
+    
+    opts = options.clone
+    opts.delete :namespace
+    opts.delete :page
+    opts.delete :name
+    
+    namespaces.select do |ns|
+      namespace ? !namespace.select{|nsf| nsf.is_a?(Regexp) ? (ns =~ nsf) : (nsf.to_s == ns.to_s)}.empty? : true
+    end.each do |ns|
+      revisions += attachment_changes(ns, nil, opts).select do |r|
+        ret = true
+        if page
+          ret = !page.select{|pf| pf.is_a?(Regexp) ? (r.page =~ pf) : (pf.to_s == r.page.to_s)}.empty?
+        end
+        if name && ret
+          ret = !name.select{|nf| nf.is_a?(Regexp) ? (r.attachment.name =~ nf) : (nf.to_s == r.attachment.name.to_s)}.empty?
+        end
+        ret
+      end
+    end
+    
+    revisions.sort{|a,b| a <=> b}
   end
   
 end

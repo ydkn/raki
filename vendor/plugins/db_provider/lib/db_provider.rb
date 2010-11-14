@@ -29,6 +29,7 @@ class DBProvider < Raki::AbstractProvider
   end
 
   def page_contents(namespace, name, revision=nil)
+    raise PageNotExists unless page_exists?(namespace, name, revision)
     page_id = DBPage.find_by_namespace_and_name(namespace.to_s, name.to_s).id
     if revision
       return DBPageRevision.find_by_page_id_and_revision(page_id, revision.to_i).content
@@ -39,17 +40,19 @@ class DBProvider < Raki::AbstractProvider
   end
 
   def page_revisions(namespace, name)
+    raise PageNotExists unless page_exists?(namespace, name)
     page_id = DBPage.find_by_namespace_and_name(namespace.to_s, name.to_s).id
     revs = []
     DBPageRevision.find_all_by_page_id(page_id, :order => 'revision DESC').each do |revision|
       revs << Revision.new(
+          Page.new(:namespace => namespace, :name => name),
           revision.revision,
           revision.revision,
           revision.content.size,
           Raki::Authenticator.user_for(:username => revision.author),
           revision.date,
           revision.message,
-          false
+          :none
         )
     end
     revs
@@ -81,7 +84,7 @@ class DBProvider < Raki::AbstractProvider
   end
 
   def page_delete(namespace, name, user)
-    raise ProviderError.new 'Page doesn\'t exist' unless page_exists?(namespace, name)
+    raise PageNotExists unless page_exists?(namespace, name)
     begin
       DBPageRevision.all(:joins => "INNER JOIN #{DBPage.table_name} ON #{DBPage.table_name}.id = #{DBPageRevision.table_name}.page_id", :conditions => ["namespace = ? AND name = ?", namespace.to_s, name.to_s]).each do |revision|
         revision.destroy
@@ -103,15 +106,15 @@ class DBProvider < Raki::AbstractProvider
     limit = options.key?(:limit) ? options[:limit].to_i : 10000
     DBPageRevision.all(:joins => "INNER JOIN #{DBPage.table_name} ON #{DBPage.table_name}.id = #{DBPageRevision.table_name}.page_id", :conditions => ["namespace = ?", namespace.to_s], :order => 'date DESC', :limit => limit).each do |revision|
       break if options[:since] && options[:since] <= revision.date
-      changes << Change.new(namespace.to_s, revision.page.name, Revision.new(
-            revision.revision,
-            revision.revision,
-            revision.content.size,
-            Raki::Authenticator.user_for(:username => revision.author),
-            revision.date,
-            revision.message,
-            false
-          )
+      changes << Revision.new(
+          Page.new(:namespace => namespace, :name => name),
+          revision.revision,
+          revision.revision,
+          revision.content.size,
+          Raki::Authenticator.user_for(:username => revision.author),
+          revision.date,
+          revision.message,
+          :none
         )
     end
     changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
@@ -143,6 +146,7 @@ class DBProvider < Raki::AbstractProvider
   end
 
   def attachment_contents(namespace, page, name, revision=nil)
+    raise AttachmentNotExists unless attachment_exists?(namespace, page, name, revision)
     att_id = DBAttachment.find_by_namespace_and_page_and_name(namespace.to_s, page.to_s, name.to_s).id
     if revision
       return DBAttachmentRevision.find_by_attachment_id_and_revision(att_id, revision.to_i).content
@@ -153,17 +157,19 @@ class DBProvider < Raki::AbstractProvider
   end
 
   def attachment_revisions(namespace, page, name)
+    raise AttachmentNotExists unless attachment_exists?(namespace, page, name)
     att_id = DBAttachment.find_by_namespace_and_page_and_name(namespace.to_s, page.to_s, name.to_s).id
     revs = []
     DBAttachmentRevision.find_all_by_attachment_id(att_id, :order => 'revision DESC').each do |revision|
       revs << Revision.new(
+          Attachment.new(:namespace => namespace, :page => page, :name => name),
           revision.revision,
           revision.revision,
           revision.content.size,
           Raki::Authenticator.user_for(:username => revision.author),
           revision.date,
           revision.message,
-          false
+          :none
         )
     end
     revs
@@ -187,7 +193,7 @@ class DBProvider < Raki::AbstractProvider
   end
 
   def attachment_delete(namespace, page, name, user)
-    raise ProviderError.new 'Attachment doesn\'t exist' unless attachment_exists?(namespace, page, name)
+    raise AttachmentNotExists unless attachment_exists?(namespace, page, name)
     begin
       DBAttachmentRevision.all(:joins => "INNER JOIN #{DBAttachment.table_name} ON #{DBAttachment.table_name}.id = #{DBAttachmentRevision.table_name}.attachment_id", :conditions => ["namespace = ? AND page = ? AND name = ?", namespace.to_s, page.to_s, name.to_s]).each do |revision|
         revision.destroy
@@ -214,16 +220,15 @@ class DBProvider < Raki::AbstractProvider
     end
     revisions.each do |revision|
       break if options[:since] && options[:since] <= revision.date
-      changes << Change.new(namespace.to_s, revision.attachment.name, Revision.new(
-            revision.revision,
-            revision.revision,
-            revision.content.size,
-            Raki::Authenticator.user_for(:username => revision.author),
-            revision.date,
-            revision.message,
-            false
-          ),
-          revision.attachment.page
+      changes << Revision.new(
+          Attachment.new(:namespace => namespace, :page => revision.attachment.page, :name => name),
+          revision.revision,
+          revision.revision,
+          revision.content.size,
+          Raki::Authenticator.user_for(:username => revision.author),
+          revision.date,
+          revision.message,
+          :none
         )
     end
     changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }

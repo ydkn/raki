@@ -25,27 +25,28 @@ Raki::Plugin.register :insertpage do
   execute do
     parts = body.strip.split /\//, 2
     if parts.length == 2
-      namespace = parts[0].strip.to_sym
+      namespace = parts[0].strip
       page = parts[1].strip
     else
-      namespace = context[:namespace]
-      page = parts[0].nil? ? nil : parts[0].strip
+      namespace = context[:page] ? context[:page].namespace : Raki.frontpage[:namespace]
+      page = parts[0] ? parts[0].strip : nil
     end
     key = [namespace, page]
     
-    raise Raki::Plugin::PluginError.new(t 'insertpage.no_page') if page.nil? || page.empty?
+    page = Page.find(namespace, page)
     
-    if authorized? namespace, page, :view
-      raise Raki::Plugin::PluginError.new(t 'page.not_exists.msg') unless page_exists? namespace, page
+    raise Raki::Plugin::PluginError.new(t 'insertpage.no_page') unless page
+    
+    if page && page.authorized?(User.current, :view)
+      raise Raki::Plugin::PluginError.new(t 'page.not_exists.msg') unless page.exists?
 
       context[:subcontext][:insertpage] ||= []
-      raise Raki::Plugin::PluginError.new(t 'insertpage.already_included', :name => page) if context[:subcontext][:insertpage].include? key
+      raise Raki::Plugin::PluginError.new(t 'insertpage.already_included', :namespace => h(page.namespace), :name => h(page.name)) if context[:subcontext][:insertpage].include? key
       context[:subcontext][:insertpage] << key
 
-      context[:namespace] = namespace
       context[:page] = page
-
-      parsed_page!(namespace, page)
+      
+      page.render(@context)
     else
       ""
     end

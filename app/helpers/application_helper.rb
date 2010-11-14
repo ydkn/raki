@@ -25,5 +25,10 @@ module ApplicationHelper
     end
     stylesheets.join ""
   end
+  
+  def authenticated?
+    return false if User.current.is_a? AnonymousUser
+    User.current.is_a? User
+  end
 
 end

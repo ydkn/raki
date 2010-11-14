@@ -31,7 +31,7 @@
   <% unless @preview.nil? %>
     <h2><%=t 'page.edit.preview' %></h2>
     <div id="preview">
-      <%=parse @page.namespace, @preview %>
+      <%=@page.render context.merge({:preview => true}) %>
     </div>
   <% end %>
 <% end %>

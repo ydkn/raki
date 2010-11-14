@@ -35,7 +35,7 @@ class RakiParser < Raki::AbstractParser
   def parse text, context={}
     output = @parser.parse text
     return nil if output.nil?
-    output.to_html(context)
+    output.to_html(context).html_safe
   end
 
   def src text, context={}
