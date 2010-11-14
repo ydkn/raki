@@ -16,7 +16,7 @@
 
 require 'test_helper'
 
-class UserTest < Test::Unit::TestCase
+class CacheableTest < Test::Unit::TestCase
   
   class TestCache
     include Cacheable
