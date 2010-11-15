@@ -26,10 +26,10 @@ class Page
   attr_reader :errors
   
   def initialize(params={})
-    @namespace = params[:namespace]
-    @name = params[:name]
+    @namespace = params[:namespace].to_s.strip
+    @name = params[:name].to_s.strip
     if params[:revision]
-      @revision = page_revisions(namespace, name).select{|r| r.id.to_s == params[:revision].to_s}.first
+      @revision = page_revisions(namespace, name).select{|r| r.id.to_s == params[:revision].to_s.strip}.first
     end
     @errors = []
   end
@@ -98,7 +98,7 @@ class Page
       options[:revision] = options[:revision].id if options.key?(:revision) && options[:revision].is_a?(Revision)
     end
     options = {:controller => 'page', :action => 'view', :namespace => namespace, :page => name, :revision => (revision ? revision.id : nil)}.merge options
-    options.delete :revision if head_revision && options[:revision] == head_revision.id
+    options.delete :revision if !options[:revision] || head_revision && options[:revision] == head_revision.id
     
     opts = {}
     options.each{|k,v| opts[k] = h(v.to_s)}
@@ -199,6 +199,9 @@ class Page
   end
   
   def self.find(namespace, name, revision=nil)
+    namespace = namespace.to_s.strip if namespace
+    name = name.to_s.strip if name
+    revision = revision.to_s.strip if revision
     if page_exists?(namespace, name, revision)
       Page.new(:namespace => namespace, :name => name, :revision => revision)
     else

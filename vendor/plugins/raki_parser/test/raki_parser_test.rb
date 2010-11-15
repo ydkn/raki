@@ -15,17 +15,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'test_helper'
-include Raki::Helpers::ProviderHelper
 
 class RakiParserTest < Test::Unit::TestCase
 
   # Initializes the parser
   def setup
     @parser = RakiParser.new unless @parser
-    @context = {:namespace => 'test', :page => 'unit'}
+    @context = {:page => Page.new(:namespace => 'test', :name => 'unit')}
     [[:test, :WikiPageName],[:test, :link]].each do |namespace, name|
-      if !page_exists? namespace, name
-        page_save namespace, name, "test", "raki_parser test page", default_user
+      unless page = Page.find(namespace, name)
+        page.content = 'raki_parser test page'
+        pag.save default_user, 'test'
       end
     end
   end
