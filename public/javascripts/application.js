@@ -6,7 +6,7 @@
 function toolbarClickEvent(e) {
 	toolbarItem = (e.srcElement ? e.srcElement : e.target).parentNode;
 	
-	if (toolbarItem.tagName != "A") {
+	if (toolbarItem.tagName.toLowerCase() != "a") {
 		return;
 	}
 	
