@@ -39,7 +39,14 @@ class Page
   end
   
   def namespace=(namespace)
-    @new_namespace = namespace
+    @new_namespace = namespace.to_s.strip
+    if renamed?
+      @exists = nil
+      @revision = nil
+      @revisions = nil
+      @head_revision = nil
+      @attchments = nil
+    end
   end
   
   def name
@@ -47,7 +54,14 @@ class Page
   end
   
   def name=(name)
-    @new_name = name
+    @new_name = name.to_s.strip
+    if renamed?
+      @exists = nil
+      @revision = nil
+      @revisions = nil
+      @head_revision = nil
+      @attchments = nil
+    end
   end
   
   def revision
@@ -131,11 +145,15 @@ class Page
   def save(user, msg=nil)
     if renamed?
       page_rename(@namespace, @name, namespace, name, user)
-      @namespace = @new_namespace
-      @name = @new_name
+      @namespace = @new_namespace if @new_namespace
+      @name = @new_name if @new_name
       @new_namespace = nil
       @new_name = nil
+      @revision = nil
       @revisions = nil
+      @head_revision = nil
+      @attchments = nil
+      @exists = true
     end
     if changed?
       page_save(namespace, name, content, msg, user)

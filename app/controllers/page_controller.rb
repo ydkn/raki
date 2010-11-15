@@ -17,8 +17,6 @@
 class PageController < ApplicationController
   VISITED_LIMIT = 8
   
-  include Raki::Helpers::AuthorizationHelper
-  include Raki::Helpers::ProviderHelper
   include ERB::Util
   
   before_filter :common_init, :except => [:redirect_to_frontpage, :redirect_to_indexpage]
@@ -92,17 +90,21 @@ class PageController < ApplicationController
     else
       @page.name = parts[0]
     end
-    unless authorized? new_namespace, new_page, :create
+    unless @page.authorized?(User.current, :create)
       flash[:notice] = t 'page.edit.no_permission_to_create'
-      redirect_to :controller => 'page', :action => 'edit', :namespace => h(@namespace), :page => h(@page)
+      redirect_to @page.url(:edit)
       return
     end
-    unless page_exists? new_namespace, new_page
-      page_rename @namespace, @page, new_namespace, new_page
-      redirect_to :controller => 'page', :action => 'view', :namespace => h(new_namespace), :page => h(new_page)
-    else
+    if @page.exists?
       flash[:notice] = t 'page.edit.page_already_exists'
-      redirect_to :controller => 'page', :action => 'edit', :namespace => h(@namespace), :page => h(@page)
+      redirect_to @page.url(:edit)
+      return
+    end
+    if @page.save(User.current)
+      redirect_to @page.url
+    else
+      # show errors
+      render 'page/edit'
     end
   end
 
