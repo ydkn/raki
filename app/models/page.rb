@@ -40,13 +40,7 @@ class Page
   
   def namespace=(namespace)
     @new_namespace = namespace.to_s.strip
-    if renamed?
-      @exists = nil
-      @revision = nil
-      @revisions = nil
-      @head_revision = nil
-      @attchments = nil
-    end
+    reset if renamed?
   end
   
   def name
@@ -55,13 +49,7 @@ class Page
   
   def name=(name)
     @new_name = name.to_s.strip
-    if renamed?
-      @exists = nil
-      @revision = nil
-      @revisions = nil
-      @head_revision = nil
-      @attchments = nil
-    end
+    reset if renamed?
   end
   
   def revision
@@ -149,10 +137,7 @@ class Page
       @name = @new_name if @new_name
       @new_namespace = nil
       @new_name = nil
-      @revision = nil
-      @revisions = nil
-      @head_revision = nil
-      @attchments = nil
+      reset
       @exists = true
     end
     if changed?
@@ -289,6 +274,16 @@ class Page
     end
     
     revisions.sort{|a,b| a <=> b}
+  end
+  
+  private
+  
+  def reset
+    @exists = nil  
+    @revision = nil
+    @revisions = nil
+    @head_revision = nil
+    @attchments = nil
   end
   
 end
