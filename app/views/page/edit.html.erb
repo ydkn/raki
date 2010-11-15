@@ -1,4 +1,4 @@
-<% if @page.locked? %>
+<% if @page.locked? && @page.locked_by != User.current %>
   <div class="warning" id="lock_waring">
 	<%=t 'page.edit.locked', :user => @page.locked_by.username %>
   </div>

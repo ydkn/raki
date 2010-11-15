@@ -52,6 +52,10 @@ class User
     url_for_page(Raki.userpage_namespace, username)
   end
   
+  def == b
+    id == b.id
+  end
+  
   def self.current
     @current
   end

@@ -37,9 +37,17 @@ module Raki
       @locks[[page.namespace, page.name]][:user] rescue nil
     end
     
+    def self.locked_at(page)
+      @locks[[page.namespace, page.name]][:time] rescue nil
+    end
+    
+    def self.locked_until(page)
+      @locks[[page.namespace, page.name]][:expires] rescue nil
+    end
+    
     def self.unlock(page, user)
       key = [page.namespace, page.name]
-      @locks.delete key if @locks[key][:user].id == user.id
+      @locks.delete key if @locks[key][:user] == user
     end
     
     Thread.new do
