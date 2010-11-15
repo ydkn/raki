@@ -100,7 +100,10 @@ class Page
       options[:revision] = options[:revision].id if options.key?(:revision) && options[:revision].is_a?(Revision)
     end
     options = {:controller => 'page', :action => 'view', :namespace => namespace, :page => name, :revision => (revision ? revision.id : nil)}.merge options
-    options.delete :revision if !options[:revision] || head_revision && options[:revision] == head_revision.id
+    unless options[:force_revision]
+      options.delete :revision if !options[:revision] || head_revision && options[:revision] == head_revision.id
+    end
+    options.delete :force_revision
     
     opts = {}
     options.each{|k,v| opts[k] = h(v.to_s)}
