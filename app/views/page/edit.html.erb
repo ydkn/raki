@@ -25,7 +25,7 @@
       <input type="text" id="page-message" name="message" />
     </div>
     <div>
-      <textarea name="content" cols="100" rows="25"><%=params[:content] || @page.content %></textarea>
+      <textarea name="content" cols="100" rows="25"><%=h(params[:content] || @page.content) %></textarea>
     </div>
   <% end %>
   <% unless @preview.nil? %>
