@@ -185,7 +185,7 @@ function refreshPreview() {
 				previewRefresh = false;
 				refreshPreview();
 			}
-			window.setTimeout('previewLoading = false;', 500);
+			window.setTimeout('previewLoading = false', 500);
 		}
 		livePreviewLoader.style.display = 'none';
 	}
@@ -202,9 +202,10 @@ function refreshPreview() {
 			csrfTocken = value;
 		}
 	}
-	data = csrfParam + "=" + csrfTocken.replace(/\+/g, '%2B');
+	data = csrfParam + "=" + encodeURIComponent(csrfTocken);
 	
-	data += "&content=" + encodeURI(content.value) + "&parser=" + encodeURI("page");
+	data += "&content=" + encodeURIComponent(content.value) + "&parser=" + encodeURIComponent("page");
+	
 	httpRequest.open('POST', '/preview', true);
 	httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	httpRequest.setRequestHeader("Content-Length", data.length);
@@ -215,6 +216,7 @@ function refreshPreview() {
 
 function scheduleRefresh() {
 	if(!previewLoading && previewRefresh) {
+		previewRefresh = false;
 		refreshPreview();
 	}
 	window.setTimeout('scheduleRefresh()', 250);
@@ -247,14 +249,14 @@ function initLivePreview() {
 	
 	previewContent.style.display = 'none';
 	if(livePreviewSwitch.checked === true) {
-		refreshPreview();
+		previewRefresh = true;
 	}
 	
 	livePreviewSwitch.onchange = function(e) {
 		previewContent.innerHTML = '';
 		previewContent.style.display = 'none';
 		if(livePreviewSwitch.checked === true) {
-			refreshPreview();
+			previewRefresh = true;
 		}
 		expires = new Date((new Date()).getTime() + 31536000000); // 1 year
 		document.cookie = 'live-preview=' + livePreviewSwitch.checked + ';expires=' + expires.toGMTString() + ';';
@@ -262,7 +264,7 @@ function initLivePreview() {
 	}
 	
 	content.onkeyup = function(e) {
-		refreshPreview();
+		previewRefresh = true;
 		return false;
 	}
 	
