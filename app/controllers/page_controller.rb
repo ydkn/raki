@@ -118,7 +118,14 @@ class PageController < ApplicationController
       return
     end
     @page.delete(User.current)
-    # TODO redirect to last page if possible
+    
+    if session[:visited_pages].first
+      last_page = Page.find session[:visited_pages].first[:namespace], session[:visited_pages].first[:page]
+      if last_page && last_page.namespace != @page.namespace && last_page.name != @page.name
+        redirect_to last_page.url
+        return
+      end
+    end
     redirect_to_frontpage
   end
 
@@ -194,7 +201,10 @@ class PageController < ApplicationController
       return
     end
     
-    @diff = page_diff @namespace, @page, @revision_from, @revision_to
+    from = Page.find @page.namespace, @page.name, params[:revision_from]
+    to = Page.find @page.namespace, @page.name, params[:revision_to]
+    
+    @diff = from.diff to.revision
   end
 
   private

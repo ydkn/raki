@@ -41,7 +41,7 @@
         <div id="visted_pages">
 	      <% unless session[:visited_pages].empty? %>
 	        <%=t 'visited_pages' %>:
-            <%=session[:visited_pages].collect{|p| link_to "#{p[:namespace]}/#{p[:page]}", url_for_page(h(p[:namespace]), h(p[:page]))}.join(', ') %>
+            <%=session[:visited_pages].collect{|p| link_to h("#{p[:namespace]}/#{p[:page]}"), url_for_page(p[:namespace], p[:page])}.join(', ') %>
           <% end %>
         </div>
         <div id="content_container">

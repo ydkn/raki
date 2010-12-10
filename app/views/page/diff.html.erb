@@ -1,5 +1,5 @@
 <table class="diff">
-  <% @diff.each do |diff_line| %>
+  <% @diff.lines.each do |diff_line| %>
     <tr>
 	  <td class="line <%=h diff_line.type %>"><%=h diff_line.line %></td>
     </tr>

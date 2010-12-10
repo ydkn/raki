@@ -12,7 +12,7 @@
 		  <% if revision.deleted? %>
 		    <td><%=h(short_title ? revision.page.name : "#{revision.page.namespace}/#{revision.page.name}") %></td>
 		  <% else %>
-		    <td><a href="<%=revision.page.url(:view) %>"><%=h(short_title ? change.page : "#{revision.page.namespace}/#{revision.page.name}") %></a></td>
+		    <td><a href="<%=revision.page.url(:view) %>"><%=h(short_title ? revision.page.name : "#{revision.page.namespace}/#{revision.page.name}") %></a></td>
 		  <% end %>
 		<% else %>
 		  <% if revision.deleted? %>

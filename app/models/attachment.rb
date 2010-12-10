@@ -16,6 +16,8 @@
 
 class Attachment
   
+  class AttachmentError < StandardError; end
+  
   extend Raki::Helpers::ProviderHelper
   
   include Raki::Helpers::ProviderHelper
@@ -87,8 +89,22 @@ class Attachment
     true
   end
   
+  def save!(user, msg=nil)
+    unless save(user, msg)
+      raise AttachmentError
+    end
+    true
+  end
+  
   def delete(user, msg=nil)
     attachment_delete(page.namespace, page.name, name, user)
+  end
+  
+  def delete!(user, msg=nil)
+    unless delete(user, msg)
+      raise AttachmentError
+    end
+    true
   end
   
   def self.exists?(namespace, page, name, revision=nil)

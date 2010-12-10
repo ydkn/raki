@@ -363,9 +363,10 @@ class GitProvider < Raki::AbstractProvider
     end
     diff_lines = []
     @repo.diff(revision_to, revision_from, obj).each do |diff|
-      diff_lines += diff.diff.split("\n")
+      diff_lines += diff.diff
     end
-    Diff.new(diff_lines)
+    namespace, page = obj.split("/", 2)
+    Diff.create_from_unified_diff(Page.find(namespace, page, revision_from), Page.find(namespace, page, revision_to), diff_lines)
   rescue
     raise ProviderError.new('Invalid revisions')
   end

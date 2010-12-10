@@ -16,6 +16,8 @@
 
 class Page
   
+  class PageError < StandardError; end
+  
   extend Raki::Helpers::ProviderHelper
   
   include Raki::Helpers::AuthorizationHelper
@@ -88,8 +90,10 @@ class Page
     end
   end
   
-  def diff(options={})
-    # TODO
+  def diff(rev_to)
+    return nil unless exists?
+    to = Page.find(namespace, name, (rev_to.is_a?(Revision) ? rev_to.id : rev_to))
+    Diff.create(self, to)
   end
   
   def url(options={})
@@ -157,7 +161,7 @@ class Page
   
   def save!(user, msg=nil)
     unless save(user, msg)
-      # TODO
+      raise PageError
     end
     true
   end
@@ -171,7 +175,7 @@ class Page
   
   def delete!(user, msg=nil)
     unless delete(user, msg)
-      # TODO
+      raise PageError
     end
     true
   end
@@ -271,7 +275,7 @@ class Page
     namespaces.select do |ns|
       namespace ? !namespace.select{|nsf| nsf.is_a?(Regexp) ? (ns =~ nsf) : (nsf.to_s == ns.to_s)}.empty? : true
     end.each do |ns|
-      revisions += attachment_changes(ns, nil, opts).select do |r|
+      revisions += page_changes(ns, opts).select do |r|
         page ? !page.select{|pf| pf.is_a?(Regexp) ? (r.page =~ pf) : (pf.to_s == r.page.to_s)}.empty? : true
       end
     end
