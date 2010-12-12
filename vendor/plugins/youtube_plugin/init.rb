@@ -34,7 +34,6 @@ Raki::Plugin.register :youtube do
     else
       @video_id = url
     end
-    render :youtube_embedded
   end
 
 end

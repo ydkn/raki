@@ -23,7 +23,7 @@ Raki::Plugin.register :pre do
   version '0.1'
 
   execute do
-    "<pre>#{h body}</pre>"
+    render :inline => "<pre>#{h body}</pre>"
   end
 
 end
