@@ -23,7 +23,7 @@
 		  <% end %>
 		<% end %>
 		<td><%=l change.revision.date, :format => :time %></td>
-		<td><%=link_to h(change.revision.user.username), change.revision.user.page_url %></td>
+		<td><%=link_to h(change.revision.user.username), :controller => 'page', :action => 'view', :namespace => h(Raki.userpage_namespace), :page => h(change.revision.user.username) %></td>
 		<td><%=h change.revision.message %></td>
 	  </tr>
 	<% end %>
