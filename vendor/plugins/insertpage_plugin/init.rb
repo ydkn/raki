@@ -46,7 +46,7 @@ Raki::Plugin.register :insertpage do
       context[:subcontext][:insertpage] << key
       context[:page] = page
       
-      render :inline => page.render(@context)
+      render :inline => page.render(context)
     else
       render :nothing => true
     end
