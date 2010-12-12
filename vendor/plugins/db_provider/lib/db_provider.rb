@@ -107,7 +107,7 @@ class DBProvider < Raki::AbstractProvider
     DBPageRevision.all(:joins => "INNER JOIN #{DBPage.table_name} ON #{DBPage.table_name}.id = #{DBPageRevision.table_name}.page_id", :conditions => ["namespace = ?", namespace.to_s], :order => 'date DESC', :limit => limit).each do |revision|
       break if options[:since] && options[:since] <= revision.date
       changes << Revision.new(
-          Page.new(:namespace => namespace, :name => revision.page.name),
+          Page.new(:namespace => revision.page.namespace, :name => revision.page.name),
           revision.revision,
           revision.revision,
           revision.content.size,
@@ -192,7 +192,7 @@ class DBProvider < Raki::AbstractProvider
   end
 
   def attachment_all(namespace, page)
-    DBAttachment.find_all_by_namespace_and_page(namespace.to_s).collect{|attachment| attachment.name}
+    DBAttachment.find_all_by_namespace_and_page(namespace.to_s, page.to_s).collect{|attachment| attachment.name}
   end
 
   def attachment_changes(namespace, page=nil, options={})
@@ -206,7 +206,7 @@ class DBProvider < Raki::AbstractProvider
     revisions.each do |revision|
       break if options[:since] && options[:since] <= revision.date
       changes << Revision.new(
-          Attachment.new(:namespace => namespace, :page => revision.attachment.page, :name => name),
+          Attachment.new(:namespace => revision.attachment.namespace, :page => revision.attachment.page, :name => revision.attachment.name),
           revision.revision,
           revision.revision,
           revision.content.size,

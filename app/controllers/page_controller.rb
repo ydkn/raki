@@ -142,9 +142,11 @@ class PageController < ApplicationController
       redirect_to @page.url
       return
     end
+    
+    @attachment = Attachment.new :namespace => params[:namespace], :page => params[:page], :name => File.basename(params[:attachment_upload].original_filename)
     @attachment.content = params[:attachment_upload].read
-    @attachment.name = File.basename(params[:attachment_upload].original_filename)
-    if @attachment.save(params[:message], User.current)
+    
+    if @attachment.save(User.current, params[:message])
       redirect_to @page.url(:attachments)
     else
       # show errors
@@ -161,14 +163,7 @@ class PageController < ApplicationController
       return
     end
     
-    # ugly fix for ruby1.9 and rails2.5
-    unless File.exists? "#{Rails.root}/tmp/attachments/#{@attachment.page.namespace}/#{@attachment.page.name}/#{@attachment.name}/#{@attachment.revision.id}"
-      FileUtils.mkdir_p "#{Rails.root}/tmp/attachments/#{@attachment.page.namespace}/#{@attachment.page.name}/#{@attachment.name}"
-      File.open "#{Rails.root}/tmp/attachments/#{@attachment.page.namespace}/#{@attachment.page.name}/#{@attachment.name}/#{@attachment.revision.id}", 'w' do |f|
-        f.write(@attachment.content)
-      end
-    end
-    send_file "#{Rails.root}/tmp/attachments/#{@attachment.page.namespace}/#{@attachment.page.name}/#{@attachment.name}/#{@attachment.revision.id}", :filename => @attachment.name
+    send_data @attachment.content, :filename => @attachment.name, :type => @attachment.mime_type
   end
   
   def attachment_info
