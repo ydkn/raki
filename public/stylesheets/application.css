@@ -4,10 +4,6 @@ body {
     padding: 0;
 }
 
-a, a:visited {
-    color: #0000ff;
-}
-
 #container {
 }
 
@@ -223,6 +219,14 @@ a.feed img {
 
 .search_results li {
 	margin-bottom: 0.5em;
+}
+
+a, a:visited {
+    color: #0000ff;
+}
+
+a.inexistent, a.inexistent:visited {
+    color: #ff0000;
 }
 
 .information, .warning, .error, .confirmation {

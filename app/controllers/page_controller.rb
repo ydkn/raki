@@ -36,7 +36,7 @@ class PageController < ApplicationController
     if page_exists? @namespace, @page, @revision
       session[:visited_pages].unshift({:namespace => @namespace, :page => @page})
       session[:visited_pages].uniq!
-      session[:visited_pages].slice! 0, VISITED_LIMIT if session[:visited_pages].size > 10
+      session[:visited_pages].slice! 0, VISITED_LIMIT if session[:visited_pages].length > VISITED_LIMIT
       respond_to do |format|
         format.html
         format.src { render :inline => page_contents(@namespace, @page, @revision), :content_type => 'text/plain' }
@@ -110,7 +110,7 @@ class PageController < ApplicationController
       return if render_forbidden_if_not_authorized :delete
       return if redirect_if_page_not_exists
       page_delete @namespace, @page
-      redirect_to :controller => 'page', :namespace => h(Raki.frontpage[:namespace]), :page => h(Raki.frontpage[:page])
+      redirect_to :controller => 'page', :action => 'view', :namespace => h(Raki.frontpage[:namespace]), :page => h(Raki.frontpage[:page])
     else
       return if render_forbidden_if_not_authorized :delete
       return if redirect_if_attachment_not_exists

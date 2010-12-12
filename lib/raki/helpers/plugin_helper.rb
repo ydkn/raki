@@ -20,7 +20,7 @@ module Raki
     module PluginHelper
       
       def url?(url)
-        !(url.to_s.match "^[a-zA-Z]+:\/\/(.+(:.+)?@)?[a-zA-Z0-9_-](\.[a-zA-Z0-9_-])*(:[0-9]+)?/").nil?
+        !(url.to_s =~ /^[a-zA-Z]+:\/\/(.+(:.+)?@)?[a-zA-Z0-9_-](\.[a-zA-Z0-9_-])*(:[0-9]+)?/i).nil?
       end
 
     end

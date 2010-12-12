@@ -25,7 +25,7 @@ class User
     @id = id
     @username = options[:username]
     @email = options[:email]
-    @display_name = options[:display_name]
+    @fullname = options[:fullname]
   end
   
   def username
@@ -36,8 +36,12 @@ class User
     @email
   end
   
+  def fullname
+    @fullname
+  end
+  
   def display_name
-    @display_name.nil? ? username : @display_name
+    @fullname.nil? ? username : @fullname
   end
   
   def authorized_to?(type, page, action)

@@ -16,6 +16,7 @@
 
 class RakiSyntaxNode < Treetop::Runtime::SyntaxNode
   
+  include Raki::Helpers::ProviderHelper
   include Raki::Helpers::URLHelper
   include ERB::Util
   
@@ -80,8 +81,12 @@ class WikiLinkNode < RakiSyntaxNode
       page = parts[0]
     end
     pagelink = url_for_page h(namespace.strip), h(page.strip)
-    return '<a href="' + pagelink + '">' +
-      (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip).strip + '</a>'
+    if page_exists?(namespace.strip.to_sym, page.strip.to_sym)
+      link = '<a href="' + pagelink + '">'
+    else
+      link = '<a class="inexistent" href="' + pagelink + '">'
+    end
+    link + (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip).strip + '</a>'
   end
 
   def link_update from, to, context
