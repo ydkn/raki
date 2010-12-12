@@ -36,7 +36,7 @@ class PageController < ApplicationController
     if page_exists? @namespace, @page, @revision
       session[:visited_pages].unshift({:namespace => @namespace, :page => @page})
       session[:visited_pages].uniq!
-      session[:visited_pages].slice! 0, VISITED_LIMIT if session[:visited_pages].size > 10
+      session[:visited_pages].slice! 0, VISITED_LIMIT if session[:visited_pages].length > VISITED_LIMIT
       respond_to do |format|
         format.html
         format.src { render :inline => page_contents(@namespace, @page, @revision), :content_type => 'text/plain' }
