@@ -19,7 +19,7 @@ module Raki
     
     module SearchHelper
       
-      include PermissionHelper
+      include AuthorizationHelper
       
       def search(querystring)
         Raki::Search.search(querystring)
