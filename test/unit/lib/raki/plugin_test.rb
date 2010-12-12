@@ -38,6 +38,26 @@ class PluginTest < Test::Unit::TestCase
     assert_equal error.to_s, 'error-message'
   end
   
+  def test_render
+    # Inline
+    p1 = register :render_test_inline do
+      execute do
+        render :inline => 'test'
+      end
+    end
+    
+    assert_equal 'test', p1.exec(:render_test_nothing, {}, '', {})
+    
+    # Nothing
+    p2 = register :render_test_nothing do
+      execute do
+        render :nothing
+      end
+    end
+    
+    assert_nil p2.exec(:render_test_nothing, {}, '', {})
+  end
+  
   private
   
   def register(id, &block)
