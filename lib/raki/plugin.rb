@@ -64,6 +64,7 @@ module Raki
           @plugins[id] = plugin
         end
         Rails.logger.info "Registered plugin: #{id}"
+        plugin
       end
 
       # Returns an array off all registred plugins
@@ -98,19 +99,29 @@ module Raki
         stylesheets
       end
       
-      def add_template(file)
+      def templates(plugin, path)
         @templates = {} if @templates.nil?
-        template = ''
-        File.open(file, 'r').each_line do |line|
-          template += line
+        
+        path = path.to_s
+        
+        return nil if path =~ /\.\./
+        
+        path = "#{plugin.id}/#{path}" if path.split('/', 2).length == 1
+        
+        if @templates.key? path
+          @templates[path]
+        else
+          data = nil
+          Dir[File.join(Rails.root, 'vendor', 'plugins', '*')].each do |plugin|
+            if File.directory?(plugin)
+              template = File.join(plugin, 'templates', "#{path}.erb")
+              if File.exists?(template) && File.file?(template)
+                data = ERB.new(File.open(template, 'r').read)
+              end
+            end
+          end
+          @templates[path] = data
         end
-        key = /([^\/]+)\.erb$/.match(file)[1].to_sym
-        @templates[key] = ERB.new(template)
-      end
-      
-      def templates
-        @templates = {} if @templates.nil?
-        @templates
       end
 
     end
@@ -158,11 +169,30 @@ module Raki
       @callname = id
       @params = params
       @body = body
+      
+      @render = nil
+      
       old_subcontext = context[:subcontext]
       context[:subcontext] = context[:subcontext].clone if context[:subcontext]
       @context = context
-      result = @execute.call
+      
+      @execute.call
+      
       context[:subcontext] = old_subcontext
+      
+      @render = ["#{id.to_s}/#{id.to_s}"] unless @render
+      if @render.is_a?(Array) && @render[0].is_a?(String)
+        template = Raki::Plugin.templates(self, @render[0])
+        raise PluginError.new("Template '#{@render.to_s}' not found") if template.nil?
+        result = template.result(binding)
+      elsif @render.is_a?(Hash)
+        if @render.key?(:nothing) && @render[:nothing]
+          result = nil
+        elsif @render.key? :inline
+          result = @render[:inline]
+        end
+      end
+      
       result
     end
 
@@ -170,10 +200,17 @@ module Raki
       !@execute.nil?
     end
     
-    def render(tmpl)
-      template = Raki::Plugin.templates[tmpl.to_sym]
-      raise PluginError.new("Template '#{tmpl.to_s}' not found") if template.nil?
-      template.result(binding)
+    def render(*args)
+      raise PluginError.new('Render can only called once') if @render
+      if args.length == 1 && args[0].is_a?(Hash)
+        @render = args[0]
+      else
+        @render = args
+      end
+    end
+    
+    def raise(*args)
+      super(PluginError.new(*args))
     end
 
   end
