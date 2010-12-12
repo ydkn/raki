@@ -3,3 +3,4 @@ en:
   insertpage:
     already_included: Page '%{namespace}/%{name}' already included
     no_page: No Page specified
+    not_exists: Page '%{namespace}/%{name}' does not exist.

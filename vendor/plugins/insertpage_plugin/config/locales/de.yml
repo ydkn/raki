@@ -3,3 +3,4 @@ de:
   insertpage:
     already_included: Seite '%{namespace}/%{name}' wurde bereits eingebunden
     no_page: Keine Seite spezifiziert
+    not_exists: Die Seite '%{namespace}/%{name}' existiert nicht.

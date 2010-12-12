@@ -25,7 +25,7 @@ class User
     @id = id
     @username = options[:username]
     @email = options[:email]
-    @display_name = options[:display_name]
+    @fullname = options[:fullname]
   end
   
   def username
@@ -34,6 +34,10 @@ class User
   
   def email
     @email || "#{username}@#{Raki.app_name.underscore}"
+  end
+  
+  def fullname
+    @fullname
   end
   
   def display_name

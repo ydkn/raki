@@ -25,7 +25,7 @@
 		  <td class="diff"><%=radio_button_tag 'revision_to', revision.id, (cnt==2) %></td>
           <td><%=l revision.date, :format => :full %></td>
           <td><%=h(revision.deleted? ? '' : format_filesize(revision.size)) %></td>
-          <td><%=link_to h(revision.user.username), revision.user.page_url %></td>
+          <td><%=link_to h(revision.user.display_name), revision.user.page_url %></td>
           <td><%=h revision.message %></td>
         </tr>
       <% end %>

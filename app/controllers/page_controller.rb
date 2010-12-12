@@ -34,7 +34,7 @@ class PageController < ApplicationController
     if @page.authorized?(User.current, :view)
       session[:visited_pages].unshift({:namespace => @page.namespace, :page => @page.name})
       session[:visited_pages].uniq!
-      session[:visited_pages].slice! 0, VISITED_LIMIT if session[:visited_pages].size > 10
+      session[:visited_pages].slice! 0, VISITED_LIMIT if session[:visited_pages].length > VISITED_LIMIT
       respond_to do |format|
         format.html
         format.src { render :inline => @page.content, :content_type => 'text/plain' }

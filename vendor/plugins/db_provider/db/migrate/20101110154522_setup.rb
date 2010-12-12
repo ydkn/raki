@@ -48,7 +48,7 @@ class Setup < ActiveRecord::Migration
       t.string :message, :limit => 255, :null => true
       t.binary :content, :null => false
     end
-    add_index :page_revisions, [:attachment_id, :revision], :name => 'page_revisions_page_revision', :unique => true
+    add_index :attachment_revisions, [:attachment_id, :revision], :name => 'attachment_revisions_attachment_revision', :unique => true
   end
 
   def self.down

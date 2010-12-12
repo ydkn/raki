@@ -33,22 +33,22 @@ Raki::Plugin.register :insertpage do
     end
     key = [namespace, page]
     
-    page = Page.find(namespace, page)
+    page = Page.new :namespace => namespace, :name => page
     
-    raise Raki::Plugin::PluginError.new(t 'insertpage.no_page') unless page
+    raise t('insertpage.no_page') unless page
     
-    if page && page.authorized?(User.current, :view)
-      raise Raki::Plugin::PluginError.new(t 'page.not_exists.msg') unless page.exists?
+    if page.authorized?(User.current, :view)
+      raise t('insertpage.not_exists', :namespace => h(page.namespace), :name => h(page.name)) unless page.exists?
 
       context[:subcontext][:insertpage] ||= []
-      raise Raki::Plugin::PluginError.new(t 'insertpage.already_included', :namespace => h(page.namespace), :name => h(page.name)) if context[:subcontext][:insertpage].include? key
+      raise t('insertpage.already_included', :namespace => h(page.namespace), :name => h(page.name)) if context[:subcontext][:insertpage].include? key
+      
       context[:subcontext][:insertpage] << key
-
       context[:page] = page
       
-      page.render(@context)
+      render :inline => page.render(@context)
     else
-      ""
+      render :nothing => true
     end
   end
 
