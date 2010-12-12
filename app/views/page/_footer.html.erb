@@ -1,4 +1,4 @@
-<% if authorized?(@namespace, @page, :view) %>
+<% if authorized?(@namespace, @page, :view) && page_exists?(@namespace, @page, @revision) %>
   <% current_revision = page_revisions(@namespace, @page).first %>
   <%=t 'page.footer',
     :date => l(current_revision.date, :format => :full),

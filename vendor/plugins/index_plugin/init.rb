@@ -53,11 +53,7 @@ Raki::Plugin.register :index do
     end
     @rnd = rand(900)+100
     
-    if @index.empty?
-      "<b>#{t 'indexplugin.no_pages'}</b>"
-    else
-      render :index
-    end
+    render :inline => "<b>#{t 'indexplugin.no_pages'}</b>" if @index.empty?
   end
 
 end

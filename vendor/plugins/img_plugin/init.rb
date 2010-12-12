@@ -35,7 +35,7 @@ Raki::Plugin.register :img do
     attributes << "width=\"#{h params[:width]}\"" unless params[:width].nil?
     attributes << "height=\"#{h params[:height]}\"" unless params[:height].nil?
     
-    "<img src=\"#{h url}\" alt=\"#{h alt}\" #{attributes.join ' '} />"
+    render :inline => "<img src=\"#{h url}\" alt=\"#{h alt}\" #{attributes.join ' '} />"
   end
 
 end

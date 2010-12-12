@@ -40,7 +40,7 @@ class RakiPluginGenerator < Rails::Generator::NamedBase
       m.template 'init.rb.erb', "#{plugin_path}/init.rb"
       m.template 'en.yml.erb', "#{plugin_path}/config/locales/en.yml"
       m.template 'test_helper.rb.erb', "#{plugin_path}/test/test_helper.rb"
-      m.template 'template.erb', "#{plugin_path}/templates/#{@plugin_name}.erb"
+      m.template 'template.erb', "#{plugin_path}/templates/#{@plugin_name}/#{@plugin_name}.erb"
       m.template 'gitkeep', "#{plugin_path}/app/.gitkeep"
     end
   end
