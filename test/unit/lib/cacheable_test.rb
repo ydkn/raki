@@ -14,7 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class UserTest < Test::Unit::TestCase
+require 'test_helper'
+
+class CacheableTest < Test::Unit::TestCase
   
   class TestCache
     include Cacheable

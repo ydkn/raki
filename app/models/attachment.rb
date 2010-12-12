@@ -14,7 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'mime/types'
+
 class Attachment
+  
+  class AttachmentError < StandardError; end
   
   extend Raki::Helpers::ProviderHelper
   
@@ -37,9 +41,6 @@ class Attachment
   
   def name
     @name
-  end
-  
-  def name=(name)
   end
   
   def revision
@@ -66,6 +67,13 @@ class Attachment
     attachment_revisions(page.namespace, page.name, name).first
   end
   
+  def mime_type
+    return nil unless name
+    @mime_type ||= MIME::Types.type_for(name).first.content_type
+  rescue
+    'application/octet-stream'
+  end
+  
   def url(options={})
     if options.is_a?(Symbol)
       options = {:action => options}
@@ -83,12 +91,26 @@ class Attachment
   
   def save(user, msg=nil)
     attachment_save(page.namespace, page.name, name, content, msg, user)
-    @revision = head
+    @revision = head_revision
+    true
+  end
+  
+  def save!(user, msg=nil)
+    unless save(user, msg)
+      raise AttachmentError
+    end
     true
   end
   
   def delete(user, msg=nil)
     attachment_delete(page.namespace, page.name, name, user)
+  end
+  
+  def delete!(user, msg=nil)
+    unless delete(user, msg)
+      raise AttachmentError
+    end
+    true
   end
   
   def self.exists?(namespace, page, name, revision=nil)

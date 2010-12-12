@@ -107,7 +107,7 @@ class DBProvider < Raki::AbstractProvider
     DBPageRevision.all(:joins => "INNER JOIN #{DBPage.table_name} ON #{DBPage.table_name}.id = #{DBPageRevision.table_name}.page_id", :conditions => ["namespace = ?", namespace.to_s], :order => 'date DESC', :limit => limit).each do |revision|
       break if options[:since] && options[:since] <= revision.date
       changes << Revision.new(
-          Page.new(:namespace => namespace, :name => name),
+          Page.new(:namespace => revision.page.namespace, :name => revision.page.name),
           revision.revision,
           revision.revision,
           revision.content.size,
@@ -117,23 +117,8 @@ class DBProvider < Raki::AbstractProvider
           :none
         )
     end
-    changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
+    changes = changes.sort { |a,b| b.date <=> a.date }
     changes
-  end
-  
-  def page_diff(namespace, page, revision_from=nil, revision_to=nil)
-    if revision_from.nil?
-      revision_from = DBPageRevision.find_all_by_namespace_and_name(namespace.to_s, page.to_s, :order => 'revision DESC', :limit => 2).last.revision
-    end
-    revision_to = revision_from + 1 if revision_to.nil?
-    rev_from = DBPageRevision.find_by_namespace_and_name_and_revision(namespace.to_s, page.to_s, revision_from.to_i)
-    rev_to = DBPageRevision.find_by_namespace_and_name_and_revision(namespace.to_s, page.to_s, revision_to.to_i)
-    
-    diff_lines = []
-    # TODO implment diff generation 
-    Diff.new(diff_lines)
-  rescue
-    raise ProviderError.new('Invalid revisions')
   end
 
   def attachment_exists?(namespace, page, name, revision=nil)
@@ -207,7 +192,7 @@ class DBProvider < Raki::AbstractProvider
   end
 
   def attachment_all(namespace, page)
-    DBAttachment.find_all_by_namespace_and_page(namespace.to_s).collect{|attachment| attachment.name}
+    DBAttachment.find_all_by_namespace_and_page(namespace.to_s, page.to_s).collect{|attachment| attachment.name}
   end
 
   def attachment_changes(namespace, page=nil, options={})
@@ -221,7 +206,7 @@ class DBProvider < Raki::AbstractProvider
     revisions.each do |revision|
       break if options[:since] && options[:since] <= revision.date
       changes << Revision.new(
-          Attachment.new(:namespace => namespace, :page => revision.attachment.page, :name => name),
+          Attachment.new(:namespace => revision.attachment.namespace, :page => revision.attachment.page, :name => revision.attachment.name),
           revision.revision,
           revision.revision,
           revision.content.size,
@@ -231,7 +216,7 @@ class DBProvider < Raki::AbstractProvider
           :none
         )
     end
-    changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
+    changes = changes.sort { |a,b| b.date <=> a.date }
     changes
   end
   

@@ -20,8 +20,14 @@ class RakiParserTest < Test::Unit::TestCase
 
   # Initializes the parser
   def setup
-    @parser = RakiParser.new if @parser.nil?
-    @context = {:namespace => 'test', :page => 'unit'}
+    @parser = RakiParser.new unless @parser
+    @context = {:page => Page.new(:namespace => 'test', :name => 'unit')}
+    [[:test, :WikiPageName],[:test, :link]].each do |namespace, name|
+      unless page = Page.find(namespace, name)
+        page.content = 'raki_parser test page'
+        pag.save default_user, 'test'
+      end
+    end
   end
 
   def test_text
@@ -47,9 +53,9 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal '<a href="/test/WikiPageName">WikiPageName</a>', parse("[WikiPageName]")
     assert_equal '<a href="/test/WikiPageName">WikiPageName</a>', parse("[ WikiPageName  ]")
     assert_equal '<a href="/test/WikiPageName">title for link</a>', parse("[WikiPageName|title for link]")
-    assert_equal '<a href="/wiki/WikiPageName">wiki/WikiPageName</a>', parse("[wiki/WikiPageName]")
-    assert_equal '<a href="/wiki/WikiPageName">wiki/WikiPageName</a>', parse("[ wiki/WikiPageName  ]")
-    assert_equal '<a href="/wiki/WikiPageName">title for link</a>', parse("[wiki/WikiPageName|title for link]")
+    assert_equal '<a class="inexistent" href="/wiki/WikiPageName">wiki/WikiPageName</a>', parse("[wiki/WikiPageName]")
+    assert_equal '<a class="inexistent" href="/wiki/WikiPageName">wiki/WikiPageName</a>', parse("[ wiki/WikiPageName  ]")
+    assert_equal '<a class="inexistent" href="/wiki/WikiPageName">title for link</a>', parse("[wiki/WikiPageName|title for link]")
   end
 
   # Test links for urls
@@ -110,7 +116,7 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal "<h6>!!Heading sixth order with extra exlamation marks</h6>\n", parse("!!!!!! !!Heading sixth order with extra exlamation marks\n")
     assert_equal "<h1>Heading first order</h1>\ntest", parse("!Heading first order\ntest")
     assert_equal "<h1><i>Heading first</i> <span class=\"underline\">order</span></h1>\ntest", parse("!~Heading first~ _order_\ntest")
-    assert_equal "<h1>Heading first <a href=\"/test/Link\">Link</a> order</h1>\ntest", parse("!Heading first [Link] order\ntest")
+    assert_equal "<h1>Heading first <a class=\"inexistent\" href=\"/test/Link\">Link</a> order</h1>\ntest", parse("!Heading first [Link] order\ntest")
     # assert_equal "<h1>Heading first <span class=notbold>order</span></h1>\ntest", parse("!Heading first *order*\ntest")
   end
 
@@ -120,7 +126,7 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal '<div class="error">content of error-box</div>', parse("%%error content of error-box%%")
     assert_equal '<div class="warning">content of warning-box</div>', parse("%%warning content of warning-box%%")
     assert_equal '<div class="confirmation">content of confirmation-box</div>', parse("%%confirmation content of confirmation-box%%")
-    assert_equal '<div class="confirmation"><a href="/test/content">content</a> of confirmation-box</div>', parse("%%confirmation [content] of confirmation-box%%")
+    assert_equal '<div class="confirmation"><a class="inexistent" href="/test/content">content</a> of confirmation-box</div>', parse("%%confirmation [content] of confirmation-box%%")
     assert_equal '<div class="error"><div class="warning">some warning</div></div>', parse("%%error %%warning some warning%%%%")
     assert_equal '<div class="error">error<div class="warning">some warning</div></div>', parse("%%error error%%warning some warning%%%%")
     assert_equal '<div class="error"><div class="warning">some warning</div> test</div>', parse("%%error %%warning some warning%% test%%")
@@ -204,6 +210,17 @@ class RakiParserTest < Test::Unit::TestCase
   
   def link_update text, from, to
     @parser.link_update(text, from, to, @context)
+  end
+
+  # Default user
+  def default_user
+    @default_user = user('raki_parser_test', 'test@user.org') if @default_user.nil?
+    @default_user
+  end
+
+   # Creates a user
+  def user(username, email)
+    User.new(Time.new.to_s, :username => username, :email => email)
   end
 
 end

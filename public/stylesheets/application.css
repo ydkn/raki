@@ -4,10 +4,6 @@ body {
     padding: 0;
 }
 
-a, a:visited {
-    color: #0000ff;
-}
-
 #container {
 }
 
@@ -214,6 +210,14 @@ a.feed {
 a.feed img {
     vertical-align: bottom;
     border: 0;
+}
+
+a, a:visited {
+    color: #0000ff;
+}
+
+a.inexistent, a.inexistent:visited {
+    color: #ff0000;
 }
 
 .information, .warning, .error, .confirmation {

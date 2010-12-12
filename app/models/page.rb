@@ -16,6 +16,8 @@
 
 class Page
   
+  class PageError < StandardError; end
+  
   extend Raki::Helpers::ProviderHelper
   
   include Raki::Helpers::AuthorizationHelper
@@ -26,10 +28,10 @@ class Page
   attr_reader :errors
   
   def initialize(params={})
-    @namespace = params[:namespace]
-    @name = params[:name]
+    @namespace = params[:namespace].to_s.strip
+    @name = params[:name].to_s.strip
     if params[:revision]
-      @revision = page_revisions(namespace, name).select{|r| r.id.to_s == params[:revision].to_s}.first
+      @revision = page_revisions(namespace, name).select{|r| r.id.to_s == params[:revision].to_s.strip}.first
     end
     @errors = []
   end
@@ -39,7 +41,8 @@ class Page
   end
   
   def namespace=(namespace)
-    @new_namespace = namespace
+    @new_namespace = namespace.to_s.strip
+    reset if renamed?
   end
   
   def name
@@ -47,7 +50,8 @@ class Page
   end
   
   def name=(name)
-    @new_name = name
+    @new_name = name.to_s.strip
+    reset if renamed?
   end
   
   def revision
@@ -86,8 +90,10 @@ class Page
     end
   end
   
-  def diff(options={})
-    # TODO
+  def diff(rev_to)
+    return nil unless exists?
+    to = Page.find(namespace, name, (rev_to.is_a?(Revision) ? rev_to.id : rev_to))
+    Diff.create(self, to)
   end
   
   def url(options={})
@@ -98,7 +104,10 @@ class Page
       options[:revision] = options[:revision].id if options.key?(:revision) && options[:revision].is_a?(Revision)
     end
     options = {:controller => 'page', :action => 'view', :namespace => namespace, :page => name, :revision => (revision ? revision.id : nil)}.merge options
-    options.delete :revision if head_revision && options[:revision] == head_revision.id
+    unless options[:force_revision]
+      options.delete :revision if !options[:revision] || head_revision && options[:revision] == head_revision.id
+    end
+    options.delete :force_revision
     
     opts = {}
     options.each{|k,v| opts[k] = h(v.to_s)}
@@ -148,11 +157,12 @@ class Page
   def save(user, msg=nil)
     if renamed?
       page_rename(@namespace, @name, namespace, name, user)
-      @namespace = @new_namespace
-      @name = @new_name
+      @namespace = @new_namespace if @new_namespace
+      @name = @new_name if @new_name
       @new_namespace = nil
       @new_name = nil
-      @revisions = nil
+      reset
+      @exists = true
     end
     if changed?
       page_save(namespace, name, content, msg, user)
@@ -168,7 +178,7 @@ class Page
   
   def save!(user, msg=nil)
     unless save(user, msg)
-      # TODO
+      raise PageError
     end
     true
   end
@@ -182,7 +192,7 @@ class Page
   
   def delete!(user, msg=nil)
     unless delete(user, msg)
-      # TODO
+      raise PageError
     end
     true
   end
@@ -216,6 +226,9 @@ class Page
   end
   
   def self.find(namespace, name, revision=nil)
+    namespace = namespace.to_s.strip if namespace
+    name = name.to_s.strip if name
+    revision = revision.to_s.strip if revision
     if page_exists?(namespace, name, revision)
       Page.new(:namespace => namespace, :name => name, :revision => revision)
     else
@@ -279,12 +292,22 @@ class Page
     namespaces.select do |ns|
       namespace ? !namespace.select{|nsf| nsf.is_a?(Regexp) ? (ns =~ nsf) : (nsf.to_s == ns.to_s)}.empty? : true
     end.each do |ns|
-      revisions += attachment_changes(ns, nil, opts).select do |r|
+      revisions += page_changes(ns, opts).select do |r|
         page ? !page.select{|pf| pf.is_a?(Regexp) ? (r.page =~ pf) : (pf.to_s == r.page.to_s)}.empty? : true
       end
     end
     
     revisions.sort{|a,b| a <=> b}
+  end
+  
+  private
+  
+  def reset
+    @exists = nil  
+    @revision = nil
+    @revisions = nil
+    @head_revision = nil
+    @attchments = nil
   end
   
 end

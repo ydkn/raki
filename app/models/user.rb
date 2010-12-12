@@ -29,15 +29,15 @@ class User
   end
   
   def username
-    @username.nil? ? @id : @username
+    @username || @id
   end
   
   def email
-    @email
+    @email || "#{username}@#{Raki.app_name.underscore}"
   end
   
   def display_name
-    @display_name.nil? ? username : @display_name
+    @display_name || username
   end
   
   def authorized_to?(namespace, page, action)

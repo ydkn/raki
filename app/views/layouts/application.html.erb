@@ -31,7 +31,7 @@
 		<div id="global_feed">
           <%=link_to image_tag('feed.png', :alt => 'Feed'), {:controller => 'feed', :action => 'global'}, {:title => t('feed.global', :app_name => Raki.app_name), :class => 'feed'} %>
         </div>
-        <div id="application_info">Raki v<%=Raki.version %></div>
+        <div id="application_info"><%=link_to 'Raki', 'http://github.com/ydkn/raki' %> v<%=Raki.version %></div>
       </div>
       <div id="main">
         <div id="auth">
@@ -41,7 +41,7 @@
         <div id="visted_pages">
 	      <% unless session[:visited_pages].empty? %>
 	        <%=t 'visited_pages' %>:
-            <%=session[:visited_pages].collect{|p| link_to "#{p[:namespace]}/#{p[:page]}", url_for_page(h(p[:namespace]), h(p[:page]))}.join(', ') %>
+            <%=session[:visited_pages].collect{|p| link_to h("#{p[:namespace]}/#{p[:page]}"), url_for_page(p[:namespace], p[:page])}.join(', ') %>
           <% end %>
         </div>
         <div id="content_container">

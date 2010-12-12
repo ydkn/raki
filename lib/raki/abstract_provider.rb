@@ -18,9 +18,9 @@ module Raki
   class AbstractProvider
 
     class ProviderError < StandardError; end
-    class PageNotExists < StandardError; end
-    class AttachmentNotExists < StandardError; end
-    class InvalidName < StandardError; end
+    class PageNotExists < ProviderError; end
+    class AttachmentNotExists < ProviderError; end
+    class InvalidName < ProviderError; end
     
     attr_reader :id
 
@@ -55,10 +55,6 @@ module Raki
     def page_changes(namespace, options={})
       raise ProviderError.new 'not implemented'
     end
-    
-    def page_diff(namespace, page, revision_from=nil, revision_to=nil)
-      raise ProviderError.new 'not implemented'
-    end
 
     def attachment_exists?(namespace, page, name, revision=nil)
       raise ProviderError.new 'not implemented'
@@ -90,44 +86,6 @@ module Raki
     
     def namespaces
       raise ProviderError.new 'not implemented'
-    end
-
-    private
-    
-    class Diff < Array
-      attr_reader :lines
-      
-      def initialize(lines)
-        @lines = []
-        found_start = false
-        lines.each do |line|
-          if line =~ /^@@ (\+|\-)(\d+)(,\d+)? (\+|\-)(\d+)(,\d+)? @@/
-            found_start = true
-            @lines << line
-            next
-          end
-          next unless found_start
-          next if line =~ /^\\/
-          @lines << line
-          self << DiffLine.new(nil, nil, line)
-        end
-      end
-      
-      class DiffLine
-        attr_reader :namespace, :line, :line_number1, :line_number2
-        
-        def initialize(line_num_1, line_num_2, line)
-          @line_number1 = line_num_1
-          @line_number2 = line_num_2
-          if line =~ /^(\+|\-)(.*)/
-            @type = $1 == '+' ? 'add' : 'remove'
-            @line = $2
-          else
-            @type = 'same'
-            @line = line
-          end
-        end
-      end
     end
 
   end

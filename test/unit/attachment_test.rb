@@ -14,6 +14,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#require 'git_provider'
+require 'test_helper'
 
-#Raki::Provider.register(:git, GitProvider)
+class AttachmentTest < Test::Unit::TestCase
+  
+  def test_mime_type
+    {
+      'test.png' => 'image/png',
+      'test.jpg' => 'image/jpeg',
+      'test.pdf' => 'application/pdf',
+      'test.foobar' => 'application/octet-stream',
+      nil => nil
+    }.each do |name, content_type|
+      a = Attachment.new :namespace => 'testNS', :page => 'testPAGE', :name => name
+      assert_equal content_type, a.mime_type
+    end
+  end
+  
+end

@@ -17,8 +17,6 @@
 class PageController < ApplicationController
   VISITED_LIMIT = 8
   
-  include Raki::Helpers::AuthorizationHelper
-  include Raki::Helpers::ProviderHelper
   include ERB::Util
   
   before_filter :common_init, :except => [:redirect_to_frontpage, :redirect_to_indexpage]
@@ -94,17 +92,21 @@ class PageController < ApplicationController
     else
       @page.name = parts[0]
     end
-    unless authorized? new_namespace, new_page, :create
+    unless @page.authorized?(User.current, :create)
       flash[:notice] = t 'page.edit.no_permission_to_create'
-      redirect_to :controller => 'page', :action => 'edit', :namespace => h(@namespace), :page => h(@page)
+      redirect_to @page.url(:edit)
       return
     end
-    unless page_exists? new_namespace, new_page
-      page_rename @namespace, @page, new_namespace, new_page
-      redirect_to :controller => 'page', :action => 'view', :namespace => h(new_namespace), :page => h(new_page)
-    else
+    if @page.exists?
       flash[:notice] = t 'page.edit.page_already_exists'
-      redirect_to :controller => 'page', :action => 'edit', :namespace => h(@namespace), :page => h(@page)
+      redirect_to @page.url(:edit)
+      return
+    end
+    if @page.save(User.current)
+      redirect_to @page.url
+    else
+      # show errors
+      render 'page/edit'
     end
   end
 
@@ -118,7 +120,14 @@ class PageController < ApplicationController
       return
     end
     @page.delete(User.current)
-    # TODO redirect to last page if possible
+    
+    if session[:visited_pages].first
+      last_page = Page.find session[:visited_pages].first[:namespace], session[:visited_pages].first[:page]
+      if last_page && last_page.namespace != @page.namespace && last_page.name != @page.name
+        redirect_to last_page.url
+        return
+      end
+    end
     redirect_to_frontpage
   end
 
@@ -135,9 +144,11 @@ class PageController < ApplicationController
       redirect_to @page.url
       return
     end
+    
+    @attachment = Attachment.new :namespace => params[:namespace], :page => params[:page], :name => File.basename(params[:attachment_upload].original_filename)
     @attachment.content = params[:attachment_upload].read
-    @attachment.name = File.basename(params[:attachment_upload].original_filename)
-    if @attachment.save(params[:message], User.current)
+    
+    if @attachment.save(User.current, params[:message])
       redirect_to @page.url(:attachments)
     else
       # show errors
@@ -154,14 +165,7 @@ class PageController < ApplicationController
       return
     end
     
-    # ugly fix for ruby1.9 and rails2.5
-    unless File.exists? "#{Rails.root}/tmp/attachments/#{@attachment.page.namespace}/#{@attachment.page.name}/#{@attachment.name}/#{@attachment.revision.id}"
-      FileUtils.mkdir_p "#{Rails.root}/tmp/attachments/#{@attachment.page.namespace}/#{@attachment.page.name}/#{@attachment.name}"
-      File.open "#{Rails.root}/tmp/attachments/#{@attachment.page.namespace}/#{@attachment.page.name}/#{@attachment.name}/#{@attachment.revision.id}", 'w' do |f|
-        f.write(@attachment.content)
-      end
-    end
-    send_file "#{Rails.root}/tmp/attachments/#{@attachment.page.namespace}/#{@attachment.page.name}/#{@attachment.name}/#{@attachment.revision.id}", :filename => @attachment.name
+    send_data @attachment.content, :filename => @attachment.name, :type => @attachment.mime_type
   end
   
   def attachment_info
@@ -194,7 +198,10 @@ class PageController < ApplicationController
       return
     end
     
-    @diff = page_diff @namespace, @page, @revision_from, @revision_to
+    from = Page.find @page.namespace, @page.name, params[:revision_from]
+    to = Page.find @page.namespace, @page.name, params[:revision_to]
+    
+    @diff = from.diff to.revision
   end
 
   private
