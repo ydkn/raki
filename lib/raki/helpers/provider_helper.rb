@@ -121,15 +121,6 @@ module Raki
         end
       end
 
-      def page_diff(namespace, page, revision_from=nil, revision_to=nil)
-        provider(namespace).page_diff(namespace, page, revision_from, revision_to)
-      end
-
-      def page_diff!(namespace, page, revision_from=nil, revision_to=nil, user=User.current)
-        authorized!(namespace, page, :view, user)
-        page_diff(namespace, page, revision_from, revision_to)
-      end
-
       def attachment_exists?(namespace, page, name, revision=nil)
         provider(namespace).attachment_exists?(namespace, page, name, revision)
       end
