@@ -1,0 +1,11 @@
+require 'raki_plugin_test'
+
+class <%=plugin_class %>Test < Raki::Test::Plugin::TestCase
+  
+  plugin_id :<%=plugin_name %>
+  
+  def test_dummy
+    assert true
+  end
+  
+end
