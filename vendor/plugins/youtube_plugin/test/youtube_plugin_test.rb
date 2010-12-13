@@ -18,23 +18,21 @@ require 'raki_plugin_test'
 
 class YoutubePluginTest < Raki::Test::Plugin::TestCase
   
-  plugin_id :youtube
-  
   def test_no_video
     assert_raise_plugin_error 'No video specified' do
-      plugin.exec(:youtube, {}, '', {})
+      exec({}, '')
     end
   end
   
   def test_url
     ['-dnL00TdmLY', 'DWef69ItVrU'].each do |vid|
-      assert_equal embed_code(vid), plugin.exec(:youtube, {}, "http://www.youtube.com/watch?v=#{vid}", {})
+      assert_equal embed_code(vid), exec({}, "http://www.youtube.com/watch?v=#{vid}")
     end
   end
   
   def test_embed_url
     ['-dnL00TdmLY', 'DWef69ItVrU'].each do |vid|
-      assert_equal embed_code(vid), plugin.exec(:youtube, {}, "http://www.youtube.com/embed/#{vid}", {})
+      assert_equal embed_code(vid), exec({}, "http://www.youtube.com/embed/#{vid}")
     end
   end
   

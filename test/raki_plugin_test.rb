@@ -23,7 +23,7 @@ module Raki
         
         def self.plugin_id(id=nil)
           @plugin_id = id if id
-          @plugin_id
+          @plugin_id ||= self.to_s.gsub(/Test$/, '').gsub(/Plugin$/, '').underscore.to_sym
         end
         
         private
@@ -37,6 +37,10 @@ module Raki
         
         def plugin(id=self.class.plugin_id)
           Raki::Plugin.all.select{|p| p.id == id}.first
+        end
+        
+        def exec(params, body, context={}, callname=self.class.plugin_id)
+          plugin.exec(callname.to_s, params, body, context)
         end
         
         def assert_raise_plugin_error(error_msg, *args, &block)
