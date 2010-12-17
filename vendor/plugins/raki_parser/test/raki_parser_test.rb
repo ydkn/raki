@@ -212,15 +212,14 @@ class RakiParserTest < Test::Unit::TestCase
     @parser.link_update(text, from, to, @context)
   end
 
-  # Default user
-  def default_user
-    @default_user = user('raki_parser_test', 'test@user.org') if @default_user.nil?
-    @default_user
-  end
-
-   # Creates a user
+  # Creates a user
   def user(username, email)
     User.new(Time.new.to_s, :username => username, :email => email)
+  end
+
+  # Default user
+  def default_user
+    @default_user ||= user('raki_parser_test', 'test@user.org')
   end
 
 end
