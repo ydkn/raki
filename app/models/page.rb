@@ -283,6 +283,16 @@ class Page
     revisions.sort{|a,b| a <=> b}
   end
   
+  def self.namespaces
+    namespaces = []
+    Raki::Provider.used.values.each do |provider|
+      provider.namespaces.each do |namespace|
+        namespaces << namespace if provider(namespace) == provider
+      end
+    end
+    namespaces
+  end
+  
   private
   
   def reset
