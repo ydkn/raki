@@ -16,7 +16,6 @@
 
 class User
   
-  include Raki::Helpers::AuthorizationHelper
   include Raki::Helpers::URLHelper
   
   attr_reader :id
@@ -40,16 +39,12 @@ class User
     @display_name || username
   end
   
-  def authorized_to?(namespace, page, action)
-    authorized?(namespace, page, action, self)
+  def authorized_to?(page, action='view')
+    page.authorized?(self, action)
   end
   
-  def authorized_to!(namespace, page, action)
-    authorized!(namespace, page, action, self)
-  end
-  
-  def page_url
-    url_for_page(Raki.userpage_namespace, username)
+  def page
+    @page ||= Page.new(:namespace => Raki.userpage_namespace, :name => username)
   end
   
   def self.current

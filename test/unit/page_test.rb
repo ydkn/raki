@@ -18,11 +18,9 @@ require 'test_helper'
 
 class PageTest < Test::Unit::TestCase
   
-  include Raki::Helpers::ProviderHelper
-  
   def test_find
     user = default_user
-    page_save('PageTest', 'FindMe', 'foo bar', 'message', user)
+    Raki::Provider[:default].page_save('PageTest', 'FindMe', 'foo bar', 'message', user)
     page = Page.find 'PageTest', 'FindMe'
     assert_not_nil page
     assert_equal 'foo bar', page.content
@@ -30,6 +28,8 @@ class PageTest < Test::Unit::TestCase
     assert_equal 'message', page.revisions.last.message
     assert_equal user.username, page.revisions.last.user.username
   end
+  
+  private
   
   # Creates a user
   def user(username, email)

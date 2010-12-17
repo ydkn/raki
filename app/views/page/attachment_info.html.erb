@@ -16,7 +16,7 @@
         <td class="version"><%=link_to revision.version, @attachment.url(:revision =>  revision.id) %></td>
         <td><%=l revision.date, :format => :full %></td>
         <td><%=h format_filesize(revision.size) %></td>
-        <td><%=link_to h(revision.user.username), revision.user.page_url %></td>
+        <td><%=link_to h(revision.user.username), revision.user.page.url %></td>
         <td><%=h revision.message %></td>
       </tr>
     <%  end %>

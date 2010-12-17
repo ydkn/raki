@@ -20,9 +20,6 @@ class Attachment
   
   class AttachmentError < StandardError; end
   
-  extend Raki::Helpers::ProviderHelper
-  
-  include Raki::Helpers::ProviderHelper
   include Raki::Helpers::URLHelper
   
   def initialize(params={})
@@ -31,7 +28,7 @@ class Attachment
     end
     @name = params[:name]
     if params[:revision]
-      @revision = attachment_revisions(@page.namespace, params[:page], params[:name]).select{|r| r.id.to_s == params[:revision].to_s}.first
+      @revision = provider.attachment_revisions(@page.namespace, params[:page], params[:name]).select{|r| r.id.to_s == params[:revision].to_s}.first
     end
   end
   
@@ -44,15 +41,15 @@ class Attachment
   end
   
   def revision
-    @revision ||= attachment_revisions(page.namespace, page.name, name).first
+    @revision ||= provider.attachment_revisions(page.namespace, page.name, name).first
   end
   
   def exists?
-    @exists ||= attachment_exists?(page.namespace, page.name, name, revision.id)
+    @exists ||= provider.attachment_exists?(page.namespace, page.name, name, revision.id)
   end
   
   def content
-    @content ||= attachment_contents(page.namespace, page.name, name, revision.id)
+    @content ||= provider.attachment_contents(page.namespace, page.name, name, revision.id)
   end
   
   def content=(content)
@@ -60,11 +57,11 @@ class Attachment
   end
   
   def revisions
-    attachment_revisions(page.namespace, page.name, name)
+    @revisions ||= provider.attachment_revisions(page.namespace, page.name, name)
   end
   
   def head_revision
-    attachment_revisions(page.namespace, page.name, name).first
+    provider.attachment_revisions(page.namespace, page.name, name).first
   end
   
   def mime_type
@@ -90,7 +87,7 @@ class Attachment
   end
   
   def save(user, msg=nil)
-    attachment_save(page.namespace, page.name, name, content, msg, user)
+    provider.attachment_save(page.namespace, page.name, name, content, msg, user)
     @revision = head_revision
     true
   end
@@ -103,7 +100,7 @@ class Attachment
   end
   
   def delete(user, msg=nil)
-    attachment_delete(page.namespace, page.name, name, user)
+    provider.attachment_delete(page.namespace, page.name, name, user)
   end
   
   def delete!(user, msg=nil)
@@ -114,12 +111,12 @@ class Attachment
   end
   
   def self.exists?(namespace, page, name, revision=nil)
-    attachment_exists?(namespace, page, name, revision)
+    Raki::Provider[namespace.to_s.strip.to_sym].attachment_exists?(namespace.to_s.strip, page.to_s.strip, name.to_s.strip, revision)
   end
   
   def self.find(namespace, page, name, revision=nil)
-    if attachment_exists?(namespace, page, name, revision)
-      Attachment.new(:namespace => namespace, :page => page, :name => name, :revision => revision)
+    if Raki::Provider[namespace.to_s.strip.to_sym].attachment_exists?(namespace.to_s.strip, page.to_s.strip, name.to_s.strip, revision)
+      Attachment.new(:namespace => namespace.to_s.strip, :page => page.to_s.strip, :name => name.to_s.strip, :revision => revision)
     else
       nil
     end
@@ -160,7 +157,7 @@ class Attachment
     namespaces.select do |ns|
       namespace ? !namespace.select{|nsf| nsf.is_a?(Regexp) ? (ns =~ nsf) : (nsf.to_s == ns.to_s)}.empty? : true
     end.each do |ns|
-      revisions += attachment_changes(ns, nil, opts).select do |r|
+      revisions += Raki::Provider[ns].attachment_changes(ns, nil, opts).select do |r|
         ret = true
         if page
           ret = !page.select{|pf| pf.is_a?(Regexp) ? (r.page =~ pf) : (pf.to_s == r.page.to_s)}.empty?
@@ -173,6 +170,16 @@ class Attachment
     end
     
     revisions.sort{|a,b| a <=> b}
+  end
+  
+  private
+  
+  def provider
+    Raki::Provider[@page.namespace]
+  end
+  
+  def self.namespaces
+    Page.namespaces
   end
   
 end
