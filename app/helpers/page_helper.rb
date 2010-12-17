@@ -16,31 +16,25 @@
 
 module PageHelper
   
-  include Raki::Helpers::AuthorizationHelper
-  include Raki::Helpers::ProviderHelper
-  include Raki::Helpers::ParserHelper
-  
   def url_for_page namespace, page, revision=nil
-    if revision.nil?
-      url_for :controller => 'page', :action => 'view', :namespace => h(namespace), :page => h(page)
-    else
-      url_for :controller => 'page', :action => 'view', :namespace => h(namespace), :page => h(page), :revision => h(revision)
-    end
+    options = {:controller => 'page', :action => 'view', :namespace => h(namespace), :page => h(page)}
+    options[:revision] = h(revision) if revision
+    url_for options
+  end
+  
+  def context
+    @context
   end
 
-  def insert_page namespace, page, revision=nil
-    if authorized?(namespace, page, :view) && page_exists?(namespace, page, revision)
-      context = @context.clone
-      context[:namespace] = namespace
-      context[:page] = page
-      begin
-        contents = page_contents namespace, page, revision
-        parsed = parse namespace, contents, context
-      rescue => e
-        Rails.logger.error e
-        "<div class=\"error\">#{t 'parser.parsing_error'}</div>"
-      end
+  def insert_page page
+    return unless page
+    if page.authorized?(User.current, :view) && page.exists?
+      page.render context
     end
+  end
+  
+  def format_diff diff
+    ""
   end
   
   def toolbar_item options

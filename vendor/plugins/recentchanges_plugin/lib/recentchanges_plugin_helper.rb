@@ -21,26 +21,29 @@ module RecentchangesPluginHelper
   def days_changes  
     days = {}
     
-    @namespaces.each do |namespace|
-      namespace = namespace.to_sym
-      
-      page_changes(namespace, @options).each do |change|
-        next unless authorized? change.namespace, change.page, RIGHTS
-        day = change.revision.date.strftime("%Y-%m-%d")
-        days[day] = [] unless days.key?(day)
-        days[day] << change
-      end
-      
-      attachment_changes(namespace, nil, @options).each do |change|
-        next unless authorized? change.namespace, change.page, RIGHTS
-        day = change.revision.date.strftime("%Y-%m-%d")
-        days[day] = [] unless days.key?(day)
-        days[day] << change
-      end
-      
+    options = {:namespace => @namespaces}.merge @options
+    
+    Page.changes(options).select{|r| authorized? r.page}.each do |revision|
+      day = revision.date.strftime "%Y-%m-%d"
+      days[day] = [] unless days.key? day
+      days[day] << revision
+    end
+    
+    Attachment.changes(options).select{|r| authorized? r.page}.each do |revision|
+      day = revision.date.strftime "%Y-%m-%d"
+      days[day] = [] unless days.key? day
+      days[day] << revision
     end
     
     days.sort { |a,b| b <=> a }
+  end
+  
+  def authorized? page
+    !RIGHTS.select{|r| page.authorized? User.current, r}.empty?
+  end
+  
+  def short_title
+    (@namespaces ? @namespaces.length : -1) == 1
   end
   
 end

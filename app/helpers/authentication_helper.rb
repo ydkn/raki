@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,10 +15,4 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 module AuthenticationHelper
-
-  def authenticated?
-    return false if User.current.is_a? AnonymousUser
-    User.current.is_a? User
-  end
-
 end

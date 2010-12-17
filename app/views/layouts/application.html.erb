@@ -10,15 +10,17 @@
     <link rel="shortcut icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
     <link rel="icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
     <%=auto_discovery_link_tag :rss, {:controller => 'feed', :action => 'global'}, :title => t('feed.global', :app_name => Raki.app_name) %>
-	<%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'namespace', :namespace => h(@namespace)}, :title => t('feed.namespace', :namespace => h(@namespace))) %>
-    <% if @namespace && @page && authorized?(@namespace, @page, :view) %>
-	  <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'page', :namespace => h(@namespace), :page => h(@page)}, :title => t('feed.page', :namespace => h(@namespace), :page => h(@page))) %>
+	<% if @page %>
+	  <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'namespace', :namespace => h(@page.namespace)}, :title => t('feed.namespace', :namespace => h(@page.namespace))) %>
+      <% if @page.authorized?(User.current, :view) %>
+	    <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'page', :namespace => h(@page.namespace), :page => h(@page.name)}, :title => t('feed.page', :namespace => h(@page.namespace), :page => h(@page.name))) %>
+	  <% end %>
 	<% end %>
 	<meta name="csrf-param" content="authenticity_token"/>
 	<meta name="csrf-token" content="<%=form_authenticity_token %>"/>
 	<% if @page %>
-	  <meta name="raki-namespace" content="<%=@namespace %>"/>
-	  <meta name="raki-page" content="<%=@page %>"/>
+	  <meta name="raki-namespace" content="<%=@page.namespace %>"/>
+	  <meta name="raki-page" content="<%=@page.name %>"/>
 	<% end %>
   </head>
   <body>
@@ -28,10 +30,10 @@
           <%=link_to image_tag('raki_logo.png', :alt => 'Raki'), :controller => 'page', :action => 'redirect_to_frontpage' %>
         </div>
         <div id="left_menu">
-          <%=insert_page :page, 'LeftMenu' %>
+          <%=insert_page Page.find(:page, 'LeftMenu') %>
         </div>
         <div id="left_menu_footer">
-          <%=insert_page :page, 'LeftMenuFooter' %>
+          <%=insert_page Page.find(:page, 'LeftMenuFooter') %>
         </div>
 		<div id="global_feed">
           <%=link_to image_tag('feed.png', :alt => 'Feed'), {:controller => 'feed', :action => 'global'}, {:title => t('feed.global', :app_name => Raki.app_name), :class => 'feed'} %>
@@ -46,7 +48,7 @@
         <div id="visted_pages">
 	      <% unless session[:visited_pages].empty? %>
 	        <%=t 'visited_pages' %>:
-            <%=session[:visited_pages].collect{|p| link_to "#{p[:namespace]}/#{p[:page]}", url_for_page(h(p[:namespace]), h(p[:page]))}.join(', ') %>
+            <%=session[:visited_pages].collect{|p| link_to h("#{p[:namespace]}/#{p[:page]}"), url_for_page(p[:namespace], p[:page])}.join(', ') %>
           <% end %>
         </div>
         <div id="content_container">

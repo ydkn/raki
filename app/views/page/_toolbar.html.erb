@@ -1,7 +1,7 @@
-<% if parser(@namespace).respond_to?(:toolbar_items) %>
+<% if Raki::Parser[@page.namespace].respond_to?(:toolbar_items) %>
   <div id="toolbar">
     <div id="toolbar-items">
-	  <% parser(@namespace).toolbar_items.each do |group| %>
+	  <% Raki::Parser[@page.namespace].toolbar_items.each do |group| %>
 	    <div class="toolbar-items-group">
 		  <% group.each do |item| %>
 	        <%=toolbar_item item %>

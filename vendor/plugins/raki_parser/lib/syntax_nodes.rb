@@ -15,9 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class RakiSyntaxNode < Treetop::Runtime::SyntaxNode
-
-  include Raki::Helpers::ProviderHelper
-  include Raki::Helpers::URLHelper
+  
   include ERB::Util
 
 end
@@ -72,19 +70,17 @@ end
 class WikiLinkNode < RakiSyntaxNode
 
   def to_html context
-    parts = (@page || href.text_value).split '/'
-    if parts.length == 2
-      namespace = parts[0]
-      page = parts[1]
-    else
-      namespace = context[:namespace].nil? ? Raki.frontpage[:namespace] : context[:namespace].to_s
-      page = parts[0]
+    page = @page
+    parts = href.text_value.split '/'
+    if !@page && parts.length == 2
+      page = Page.new(:namespace => parts[0], :name => parts[1])
+    elsif !@page
+      page = Page.new(:namespace => (context[:page] ? context[:page].namespace : Raki.frontpage[:namespace]), :name => parts[0])
     end
-    pagelink = url_for_page h(namespace.strip), h(page.strip)
-    if page_exists?(namespace.strip.to_sym, page.strip.to_sym)
-      link = '<a href="' + pagelink + '">'
+    if page.exists?
+      link = '<a href="' + page.url + '">'
     else
-      link = '<a class="inexistent" href="' + pagelink + '">'
+      link = '<a class="inexistent" href="' + page.url + '">'
     end
     link + (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip).strip + '</a>'
   end

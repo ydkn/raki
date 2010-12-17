@@ -15,17 +15,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'test_helper'
-include Raki::Helpers::ProviderHelper
 
 class RakiParserTest < Test::Unit::TestCase
 
   # Initializes the parser
   def setup
     @parser = RakiParser.new unless @parser
-    @context = {:namespace => 'test', :page => 'unit'}
-    [[:test, :WikiPageName],[:test, :link]].each do |namespace, name|
-      if !page_exists? namespace, name
-        page_save namespace, name, "test", "raki_parser test page", default_user
+    @context = {:page => Page.new(:namespace => 'test', :name => 'unit')}
+    [[:test, :WikiPageName], [:test, :link]].each do |namespace, name|
+      unless Page.exists? namespace, name
+        page = Page.new :namespace => namespace, :name => name
+        page.content = 'raki_parser test page'
+        page.save default_user, 'test'
       end
     end
   end
@@ -175,12 +176,17 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal "<h1>Testseite</h1>\n<a href=\"/test/link\">link</a><br/>\n<ul>\n<li><b>item1</b></li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("!Testseite\n\n[link]\n\n* *item1*\n# item2")
   end
 
-  # Test for convertions
-  def test_convert
-    assert_equal '[NewPageName]', link_update("[OldPage]", "OldPage", 'NewPageName')
-    assert_equal 'some text [NewPageName] some other text', link_update("some text [OldPage] some other text", "OldPage", 'NewPageName')
-    assert_equal "foo [other link] *bar*\ntest", link_update("foo [other link] *bar*\ntest", "OldPage", 'NewPageName')
-    assert_equal "foo [other link] *bar*\n[NewPageName] test", link_update("foo [other link] *bar*\n[OldPage] test", "OldPage", 'NewPageName')
+  # Test rewriting of links
+  def test_link_update
+    old_page = Page.new(:namespace => 'test', :name => 'OldPage')
+    new_page = Page.new(:namespace => 'test', :name => 'NewPageName')
+    other_page = Page.new(:namespace => 'test', :name => 'OtherPage')
+    
+    assert_equal [true, '[NewPageName]'], link_update("[OldPage]", old_page, new_page)
+    assert_equal [false, '[OldPage]'], link_update("[OldPage]", other_page, new_page)
+    assert_equal [true, 'some text [NewPageName] some other text'], link_update("some text [OldPage] some other text", old_page, new_page)
+    assert_equal [true, "foo [other link] *bar*\ntest"], link_update("foo [other link] *bar*\ntest", old_page, new_page)
+    assert_equal [true, "foo [other link] *bar*\n[NewPageName] test"], link_update("foo [other link] *bar*\n[OldPage] test", old_page, new_page)
   end
 
   def test_plugin
@@ -214,15 +220,14 @@ class RakiParserTest < Test::Unit::TestCase
     @parser.link_update(text, from, to, @context)
   end
 
-  # Default user
-  def default_user
-    @default_user = user('raki_parser_test', 'test@user.org') if @default_user.nil?
-    @default_user
-  end
-
-   # Creates a user
+  # Creates a user
   def user(username, email)
     User.new(Time.new.to_s, :username => username, :email => email)
+  end
+
+  # Default user
+  def default_user
+    @default_user ||= user('raki_parser_test', 'test@user.org')
   end
 
 end

@@ -16,5 +16,29 @@
 
 require 'test_helper'
 
-class ParseHelperTest < ActionView::TestCase
+class PageTest < Test::Unit::TestCase
+  
+  def test_find
+    user = default_user
+    Raki::Provider[:default].page_save('PageTest', 'FindMe', 'foo bar', 'message', user)
+    page = Page.find 'PageTest', 'FindMe'
+    assert_not_nil page
+    assert_equal 'foo bar', page.content
+    assert_equal page.revisions.first, page.revisions.last
+    assert_equal 'message', page.revisions.last.message
+    assert_equal user.username, page.revisions.last.user.username
+  end
+  
+  private
+  
+  # Creates a user
+  def user(username, email)
+    User.new(Time.new.to_s, :username => username, :email => email)
+  end
+  
+  # Default user
+  def default_user
+    @default_user ||= user('raki_parser_test', 'test@user.org')
+  end
+  
 end

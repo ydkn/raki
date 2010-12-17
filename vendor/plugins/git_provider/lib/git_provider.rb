@@ -156,7 +156,7 @@ class GitProvider < Raki::AbstractProvider
   private
 
   def check_obj(obj)
-    raise ProviderError.new 'Invalid filename' if obj.nil? || obj.empty?
+    raise InvalidName if obj.nil? || obj.empty?
   end
 
   def check_user(user)
@@ -193,7 +193,7 @@ class GitProvider < Raki::AbstractProvider
       end
     rescue => e
     end
-    raise ProviderError.new("Object '#{obj}@#{revision}' does not exist!")
+    raise PageNotExists
   end
   cache :contents
 
@@ -239,8 +239,7 @@ class GitProvider < Raki::AbstractProvider
         :author => format_user(user)
     )
     push
-    flush(:exists?, old_obj, nil)
-    flush(:exists?, new_obj, nil)
+    flush(:exists?)
     flush(:contents, old_obj, nil)
     flush(:contents, new_obj, nil)
     flush(:revisions, old_obj)
@@ -253,7 +252,7 @@ class GitProvider < Raki::AbstractProvider
     check_obj(obj)
     check_user(user)
     obj = normalize(obj)
-    raise ProviderError.new('Object don\'t exists') unless exists?(obj)
+    raise PageNotExists unless exists?(obj)
     message = '-' if message.nil? || message.empty?
     @repo.remove(obj)
     @repo.commit_index(
@@ -271,7 +270,9 @@ class GitProvider < Raki::AbstractProvider
   def revisions(obj)
     check_obj(obj)
     obj = normalize(obj)
+    raise PageNotExists unless exists? obj
     revs = []
+    parts = obj.split('/')
     @repo.log(@branch, obj).each do |commit|
       deleted = false
       commit.diffs.each do |diff|
@@ -279,13 +280,14 @@ class GitProvider < Raki::AbstractProvider
         deleted = diff.deleted_file
       end
       revs << Revision.new(
+          ((parts.length == 2) ? Page.new(:namespace => parts[0], :name => parts[1]) : Attachment.new(:namespace => parts[0], :page => parts[1], :name => parts[2])),
           commit.sha,
           commit.id_abbrev.upcase,
           (deleted ? -1 : size(obj, commit.sha)),
           Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
           commit.authored_date,
           commit.message,
-          deleted
+          deleted ? :deleted : nil
         )
     end
     revs
@@ -312,30 +314,29 @@ class GitProvider < Raki::AbstractProvider
     changes = []
     begin
       @repo.log(@branch, dir).each do |commit|
-        break if options[:since] && options[:since] >= commit.authored_date
+        break if options[:since] && options[:since] <= commit.authored_date
         commit.diffs.each do |diff|
-          if page && diff.a_path =~ /^#{namespace}\/#{page}\//
-            changes << Change.new(namespace, normalize(File.basename(diff.a_path)), Revision.new(
-                  commit.sha,
-                  commit.id_abbrev.upcase,
-                  (diff.deleted_file ? -1 : size(diff.a_path, commit.sha)),
-                  Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
-                  commit.authored_date,
-                  commit.message,
-                  diff.deleted_file
-                ),
-                normalize(File.basename(diff.a_path))
+          if page
+            changes << Revision.new(
+                Attachment.find(namespace, page, normalize(File.basename(diff.a_path)), commit.sha),
+                commit.sha,
+                commit.id_abbrev.upcase,
+                (diff.deleted_file ? -1 : size(diff.a_path, commit.sha)),
+                Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
+                commit.authored_date,
+                commit.message,
+                diff.deleted_file ? :deleted : nil
               )
           else
-            changes << Change.new(namespace, normalize(File.basename(diff.a_path)), Revision.new(
-                  commit.sha,
-                  commit.id_abbrev.upcase,
-                  (diff.deleted_file ? -1 : size(diff.a_path, commit.sha)),
-                  Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
-                  commit.authored_date,
-                  commit.message,
-                  diff.deleted_file
-                )
+            changes << Revision.new(
+                Page.find(namespace, normalize(File.basename(diff.a_path)), commit.sha),
+                commit.sha,
+                commit.id_abbrev.upcase,
+                (diff.deleted_file ? -1 : size(diff.a_path, commit.sha)),
+                Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
+                commit.authored_date,
+                commit.message,
+                diff.deleted_file ? :deleted : nil
               )
           end
           raise LimitReached if options[:limit] && changes.length >= options[:limit]
@@ -343,7 +344,7 @@ class GitProvider < Raki::AbstractProvider
       end
     rescue LimitReached
     end
-    changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
+    changes = changes.sort { |a,b| b.date <=> a.date }
     changes
   end
   cache :changes
@@ -362,9 +363,10 @@ class GitProvider < Raki::AbstractProvider
     end
     diff_lines = []
     @repo.diff(revision_to, revision_from, obj).each do |diff|
-      diff_lines += diff.diff.split("\n")
+      diff_lines += diff.diff
     end
-    Diff.new(diff_lines)
+    namespace, page = obj.split("/", 2)
+    Diff.create_from_unified_diff(Page.find(namespace, page, revision_from), Page.find(namespace, page, revision_to), diff_lines)
   rescue
     raise ProviderError.new('Invalid revisions')
   end

@@ -1,16 +1,16 @@
 <div class="index">
   <div class="index_header">
-  	<% i = 0; letters_pages.each do |index| %>
-	  <a href="#INDEX-<%=h("#{index[:letter]}-#{rnd}") %>"><%=h index[:letter] %></a>
-	  <%=h " - " if (i += 1) < letters_pages.size %>
+  	<% i = 0; @index.each do |index| %>
+	  <a href="#INDEX-<%=h("#{index[:letter]}-#{@rnd}") %>"><%=h index[:letter] %></a>
+	  <%=h " - " if (i += 1) < @index.length %>
 	<% end %>
   </div>
   <div class="index_body">
-  	<% letters_pages.each do |index| %>
-	  <div class="index_letter" id="INDEX-<%=h("#{index[:letter]}-#{rnd}") %>"><%=h index[:letter] %></div>
+  	<% @index.each do |index| %>
+	  <div class="index_letter" id="INDEX-<%=h("#{index[:letter]}-#{@rnd}") %>"><%=h index[:letter] %></div>
 	  <div class="index_pages">
 		<% i = 0; index[:pages].each do |page| %>
-		  <%=link_to h(namespaces.length == 1 ? page[:page] : "#{page[:namespace]}/#{page[:page]}"), {:controller => 'page', :action => 'view', :namespace => h(page[:namespace]), :page => h(page[:page])} %>
+		  <a href="<%=page.url %>"><%=h((@namespaces ? @namespaces.length : -1 ) == 1 ? page.name : "#{page.namespace}/#{page.name}") %></a>
 		  <%=h ", " if (i += 1) < index[:pages].size %>
 	  	<% end %>
 	  </div>

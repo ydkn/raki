@@ -14,25 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module IndexPluginHelper
+require 'test_helper'
+
+class AttachmentTest < Test::Unit::TestCase
   
-  def letters_pages
-    @index
-  end
-  
-  def rnd
-    @rnd
-  end
-  
-  private
-  
-  def sort_pages pages
-    pages.sort do |a,b|
-      if a[:page].downcase == b[:page].downcase
-        a[:page] <=> b[:page]
-      else
-        a[:page].downcase <=> b[:page].downcase
-      end
+  def test_mime_type
+    {
+      'test.png' => 'image/png',
+      'test.jpg' => 'image/jpeg',
+      'test.pdf' => 'application/pdf',
+      'test.foobar' => 'application/octet-stream',
+      nil => nil
+    }.each do |name, content_type|
+      a = Attachment.new :namespace => 'testNS', :page => 'testPAGE', :name => name
+      assert_equal content_type, a.mime_type
     end
   end
   

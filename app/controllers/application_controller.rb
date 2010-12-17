@@ -19,9 +19,7 @@ class ApplicationController < ActionController::Base
 
   filter_parameter_logging :password
 
-  helper AuthenticationHelper
   helper PageHelper
-  helper ParseHelper
 
   before_filter :init_url_helper, :init_visited_pages, :try_to_authenticate_user, :set_locale, :init_context
 
@@ -78,6 +76,10 @@ class ApplicationController < ActionController::Base
       end
     rescue => e
     end
+  end
+  
+  def render_forbidden
+    render 'common/forbidden', :status => :forbidden
   end
 
 end
