@@ -48,7 +48,10 @@ de:
     edit:
       save: Speichern
       preview: Vorschau
+      preview_info: Dies ist nur eine <strong>Vorschau</strong>!
+      live_preview: Schnellvorschau
       abort: Abbrechen
+      keep_editing: Weiter bearbeiten
       message: Kommentar
       rename: Seite umbenennen
       delete: Komplette Seite löschen
@@ -93,3 +96,7 @@ de:
   plugin:
     error: Plugin '%{name}' gab einen Fehler aus.
     missing_parameter: Fehlende Parameter
+
+  toolbar:
+    bold: Fett
+    italic: Kursiv

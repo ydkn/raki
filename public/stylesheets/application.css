@@ -104,6 +104,13 @@ body {
 
 #page_footer {
     float: right;
+	text-align: right;
+}
+
+#footer {
+	font-size: 0.8em;
+	text-align: center;
+	margin-top: 3em;
 }
 
 #controls {
@@ -139,8 +146,33 @@ body {
 
 #preview {
     border: 1px solid #cccccc;
-    margin: 0 0.5em;
-    padding: 1em 1em;
+    margin: 1em 0;
+	display: none;
+}
+
+#preview #preview-header {
+	font-weight: bold;
+	background-color: #dddddd;
+	margin: 0;
+	padding: 0.25em;
+	height: 1.5em;
+}
+
+#preview #preview-header #live-preview-switch {
+	margin-right: 1em;
+}
+
+#preview #preview-header #live-preview-loader {
+	height: 16px;
+	width: 16px;
+	border: 0;
+	display: none;
+	float: right;
+}
+
+#preview #preview-content {
+	padding: 1em;
+	display: none;
 }
 
 #revisions {
@@ -196,6 +228,34 @@ body {
 
 #login input[type=submit] {
     margin-left: 13.5em;
+}
+
+#toolbar {
+	display: none;
+	margin: 1em 0 0.25em 0;
+}
+
+#toolbar-items {
+	height: 32px;
+	font-size: 1px;
+}
+
+#toolbar-items a {
+	border: 0;
+	margin: 0;
+	padding: 0 4px;
+}
+
+#toolbar-items img {
+	border: 0;
+	margin: 0;
+}
+
+.toolbar-items-group {
+	float: left;
+	border: 1px solid #cccccc;
+	margin-right: 15px;
+	padding: 4px 0;
 }
 
 a.feed {

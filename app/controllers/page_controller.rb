@@ -19,7 +19,7 @@ class PageController < ApplicationController
   
   include ERB::Util
   
-  before_filter :common_init, :except => [:redirect_to_frontpage, :redirect_to_indexpage]
+  before_filter :common_init, :except => [:redirect_to_frontpage, :redirect_to_indexpage, :live_preview]
 
   def redirect_to_frontpage
     redirect_to :controller => 'page', :action => 'view', :namespace => h(Raki.frontpage[:namespace]), :page => h(Raki.frontpage[:page])
@@ -200,6 +200,13 @@ class PageController < ApplicationController
     to = Page.find @page.namespace, @page.name, params[:revision_to]
     
     @diff = from.diff to.revision
+  end
+  
+  def preview
+  end
+  
+  def live_preview
+    render :inline => Raki::Parser[params[:parser]].parse(params[:content], @context), :content_type => 'text/html'
   end
 
   private

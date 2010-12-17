@@ -48,7 +48,10 @@ en:
     edit:
       save: Save
       preview: Preview
+      preview_info: This is only a <strong>preview</strong>!
+      live_preview: Sneak Preview
       abort: Abort
+      keep_editing: Keep editing
       message: Comment
       rename: Rename page
       delete: Remove entire page
@@ -93,3 +96,7 @@ en:
   plugin:
     error: Plugin '%{name}' caused error
     missing_parameter: Missing parameter
+    
+  toolbar:
+      bold: Bold
+      italic: Italic

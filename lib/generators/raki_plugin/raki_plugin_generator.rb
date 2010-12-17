@@ -16,12 +16,13 @@
 
 class RakiPluginGenerator < Rails::Generator::NamedBase
   
-  attr_reader :plugin_path, :plugin_name, :plugin_dir, :plugin_pretty_name
+  attr_reader :plugin_path, :plugin_name, :plugin_class, :plugin_dir, :plugin_pretty_name
   
   def initialize runtime_args, runtime_options = {}
     super
     @plugin_dir = "raki_#{file_name.underscore}"
     @plugin_name = file_name.underscore
+    @plugin_class = file_name.classify
     @plugin_pretty_name = file_name.underscore.titleize
     @plugin_path = "vendor/plugins/#{plugin_dir}"
   end
@@ -34,12 +35,13 @@ class RakiPluginGenerator < Rails::Generator::NamedBase
       m.directory "#{plugin_path}/assets/stylesheets"
       m.directory "#{plugin_path}/config/locales"
       m.directory "#{plugin_path}/templates"
+      m.directory "#{plugin_path}/templates/#{@plugin_name}"
       m.directory "#{plugin_path}/test"
       
       m.template 'README.rdoc.erb', "#{plugin_path}/README.rdoc"
       m.template 'init.rb.erb', "#{plugin_path}/init.rb"
       m.template 'en.yml.erb', "#{plugin_path}/config/locales/en.yml"
-      m.template 'test_helper.rb.erb', "#{plugin_path}/test/test_helper.rb"
+      m.template 'plugin_test.rb.erb', "#{plugin_path}/test/#{@plugin_name}_test.rb"
       m.template 'template.erb', "#{plugin_path}/templates/#{@plugin_name}/#{@plugin_name}.erb"
       m.template 'gitkeep', "#{plugin_path}/app/.gitkeep"
     end

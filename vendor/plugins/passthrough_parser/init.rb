@@ -14,19 +14,5 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module Raki
-  class AbstractParser
 
-    class ParserError < StandardError
-    end
-
-    def parse(text, context={})
-      raise ParserError.new 'not implemented'
-    end
-    
-    #def toolbar_items
-    #  raise ParserError.new 'not implemented'
-    #end
-
-  end
-end
+Raki::Parser.register(:passthrough, PassthroughParser)

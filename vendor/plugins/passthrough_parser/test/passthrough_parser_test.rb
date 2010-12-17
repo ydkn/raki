@@ -14,5 +14,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'rubygems'
-require 'test/unit'
+require 'test_helper'
+
+class PassthroughParserTest < Test::Unit::TestCase
+
+  def setup
+    @parser ||= RakiParser.new
+  end
+
+  def test_passthrough
+    assert_equal 'input text', @parser.parse('input text', {})
+  end
+
+end

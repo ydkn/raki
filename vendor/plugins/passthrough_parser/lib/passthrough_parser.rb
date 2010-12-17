@@ -14,5 +14,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'rubygems'
-require 'test/unit'
+class PassthroughParser < Raki::AbstractParser
+
+  def initialize(params={})
+  end
+
+  def parse(text, context={})
+    text
+  end
+
+  def src(text, context={})
+    text
+  end
+
+  def link_update(text, from, to, context={})
+    # do nothing
+  end
+
+end
