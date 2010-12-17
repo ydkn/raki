@@ -62,12 +62,6 @@ class RakiParser < Raki::AbstractParser
     ]
   end
 
-  def src text, context={}
-    output = @parser.parse text
-    return nil unless output
-    output.to_src(context)
-  end
-
   def link_update text, from, to, context={}
     output = @parser.parse text
     return [nil, nil] unless output
@@ -76,6 +70,14 @@ class RakiParser < Raki::AbstractParser
     else
       [false, text]
     end
+  end
+  
+  private
+  
+  def src text, context={}
+    output = @parser.parse text
+    return nil unless output
+    output.to_src(context)
   end
 
 end
