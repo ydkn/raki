@@ -19,11 +19,11 @@ require 'test_helper'
 class PassthroughParserTest < Test::Unit::TestCase
 
   def setup
-    @parser ||= RakiParser.new
+    @parser ||= PassthroughParser.new
   end
 
   def test_passthrough
-    assert_equal 'input text', @parser.parse('input text', {})
+    assert_equal '<input> &text', @parser.parse('<input> &text', {})
   end
 
 end
