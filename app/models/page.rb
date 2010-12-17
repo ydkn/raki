@@ -140,6 +140,14 @@ class Page
   def save(user, msg=nil)
     if renamed?
       page_rename(@namespace, @name, namespace, name, user)
+      namespaces.each do |ns|
+        Page.all(:namespace => ns).each do |page|
+          changed, new_content = parser(ns).link_update(page.content, "#{@namespace}/#{@name}", "#{namespace}/#{name}")
+          break unless changed
+          page.content = new_content
+          page.save(user, msg)
+        end
+      end
       @namespace = @new_namespace if @new_namespace
       @name = @new_name if @new_name
       @new_namespace = nil
@@ -292,5 +300,5 @@ class Page
     @head_revision = nil
     @attchments = nil
   end
-  
+
 end

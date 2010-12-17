@@ -178,13 +178,15 @@ class RakiParserTest < Test::Unit::TestCase
   # Test for convertions
   def test_convert
     assert_equal '[NewPageName]', link_update("[OldPage]", "OldPage", 'NewPageName')
-    #assert_equal "\\signature user=raki date=10-11-04 time=11:41:28\\", convert('~~~')
+    assert_equal 'some text [NewPageName] some other text', link_update("some text [OldPage] some other text", "OldPage", 'NewPageName')
+    assert_equal "foo [other link] *bar*\ntest", link_update("foo [other link] *bar*\ntest", "OldPage", 'NewPageName')
+    assert_equal "foo [other link] *bar*\n[NewPageName] test", link_update("foo [other link] *bar*\n[OldPage] test", "OldPage", 'NewPageName')
   end
 
   def test_plugin
     Raki::Plugin.register :testexample do
       execute do
-        body.reverse
+        render :inline => body.reverse
       end
     end
     assert_equal "fdsa", parse("\\testexample asdf\\")
@@ -194,7 +196,7 @@ class RakiParserTest < Test::Unit::TestCase
 
     Raki::Plugin.register :testparams do
       execute do
-        params[:name] + params[:id]
+        render :inline => params[:name] + params[:id]
       end
     end
     assert_equal 'hello world', parse('\\testparams id=world name="hello "\\')
