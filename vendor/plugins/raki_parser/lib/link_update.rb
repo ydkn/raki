@@ -19,12 +19,13 @@ module LinkUpdate
   include ERB::Util
   
   def link_update from, to, context
+    changed = false
     unless elements.nil?
       elements.each do |e|
-        e.link_update from, to, context
+        changed |= e.link_update from, to, context
       end
     end
-    self
+    changed
   end
   
 end

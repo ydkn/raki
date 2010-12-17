@@ -15,40 +15,40 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class RakiSyntaxNode < Treetop::Runtime::SyntaxNode
-  
+
   include Raki::Helpers::ProviderHelper
   include Raki::Helpers::URLHelper
   include ERB::Util
-  
+
 end
 
 class IgnoreNode < RakiSyntaxNode
-  
+
   def to_html context
     ''
   end
-  
+
 end
 
 class EscapedNode < RakiSyntaxNode
-  
+
   def to_html context
     h text_value[1..-1]
   end
-  
+
 end
 
 class LinebreakNode < RakiSyntaxNode
-  
+
   def to_html context
     "<br/>\n"
   end
-  
+
 end
 
 
 class LinkNode < RakiSyntaxNode
-  
+
   DANGEROUS_PROTOCOLS = ['about', 'wysiwyg', 'data', 'view-source', 'ms-its',
     'mhtml', 'shell', 'lynxexec',  'lynxcgi', 'hcp', 'ms-help', 'help', 'disk',
     'vnd.ms.radio', 'opera', 'res', 'resource',  'chrome', 'mocha',
@@ -58,21 +58,21 @@ class LinkNode < RakiSyntaxNode
   def to_html context
     if SAFE_PROTOCOLS.include? href.protocol.to_html(context).strip.downcase
       '<a href="' + href.to_html(context).strip + '">' +
-      (desc.to_html(context).empty? ? href : desc).to_html(context).strip + '</a>'
+        (desc.to_html(context).empty? ? href : desc).to_html(context).strip + '</a>'
     else
       #TODO: no attribute "target" in XHTML 1.1
       '<a target="_blank" href="' + href.to_html(context).strip + '">' +
-      (desc.to_html(context).empty? ? href : desc).to_html(context).strip + '</a>'
+        (desc.to_html(context).empty? ? href : desc).to_html(context).strip + '</a>'
     end
   end
-  
+
 end
 
 
 class WikiLinkNode < RakiSyntaxNode
-  
+
   def to_html context
-    parts = href.text_value.split '/'
+    parts = (@page || href.text_value).split '/'
     if parts.length == 2
       namespace = parts[0]
       page = parts[1]
@@ -89,40 +89,41 @@ class WikiLinkNode < RakiSyntaxNode
     link + (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip).strip + '</a>'
   end
 
-  def link_update from, to, context
-    def href.set_href href
-      @href = href
-    end
-    href.set_href to
+  def to_src context={}
+    "[" + (@page || href.text_value) + (desc.empty? ? '' : ('|' + desc.text_value))  + "]"
+  end
 
-    def href.to_src context={}
-      @href
+  def link_update from, to, context
+    if href.text_value == from
+      @page = to
+      return true
     end
+    false
   end
 
 end
 
 
 class BoldNode < RakiSyntaxNode
-  
+
   def to_html context
     return '<b>' + text.to_html(context) + '</b>'
   end
-  
+
 end
 
 
 class ItalicNode < RakiSyntaxNode
-  
+
   def to_html context
     return '<i>' + text.to_html(context) + '</i>'
   end
-  
+
 end
 
 
 class UnderlineNode < RakiSyntaxNode
-  
+
   def to_html context
     return '<span class="underline">' + text.to_html(context) + '</span>'
   end
@@ -130,11 +131,11 @@ end
 
 
 class StrikethroughNode < RakiSyntaxNode
-  
+
   def to_html context
     return '<del>' + text.to_html(context) + '</del>'
   end
-  
+
 end
 
 
@@ -148,26 +149,26 @@ end
 
 
 class HeadingNode < RakiSyntaxNode
-  
+
   def to_html context
     l = level.text_value.length
     l = 6 if l > 6
     return "<h#{l}>" + text.to_html(context).strip + "</h#{l}>\n"
   end
-  
+
   def rename_link(o, n)
     children.select{|c| c.respond_to? :rename_link }.each{|c| c.rename_link(o,n)}
   end
-  
+
 end
 
 
 class InfoboxNode < RakiSyntaxNode
-  
+
   def to_html context
     '<div class="' + type.to_html(context) + '">' + text.to_html(context).strip + '</div>'
   end
-  
+
 end
 
 
@@ -189,7 +190,7 @@ class ListNode < RakiSyntaxNode
       out += item.text.to_html context
     end
     out += adapt 0, ''
-   end
+  end
 
   private
 
@@ -206,7 +207,7 @@ class ListNode < RakiSyntaxNode
       type = 'ul'
       parameter = 'class="line"'
     else
-       type = ''
+      type = ''
     end
 
     if diff > 0
@@ -227,7 +228,7 @@ class ListNode < RakiSyntaxNode
     else
       out += "</li>\n"
     end
-    
+
     if type != @lists[-1] && level != 0
       out += "</#{@lists.slice!(-1)}>\n"
       out += "<#{type}>\n"
@@ -235,14 +236,14 @@ class ListNode < RakiSyntaxNode
     end
     out
   end
-  
+
 end
 
 
 class PluginNode < RakiSyntaxNode
-  
+
   include Raki::Helpers::I18nHelper
-  
+
   def to_html context
     begin
       if defined? body and !body.nil?
@@ -266,21 +267,21 @@ class PluginNode < RakiSyntaxNode
       "<div class=\"error\"><b>#{t 'plugin.error', :name => name.text_value}</b></div>"
     end
   end
-  
+
 end
 
 
 class ParameterNode < RakiSyntaxNode
-  
+
   def keyval
     Hash[key.text_value.to_sym, value.text.text_value]
   end
-  
+
 end
 
 
 class TableNode < RakiSyntaxNode
-  
+
   def to_html context
     out = "<table class=\"wikitable\">\n"
     out += "<tr>" + first_row.to_html(context) + "</tr>\n"
@@ -289,12 +290,12 @@ class TableNode < RakiSyntaxNode
     end
     out += "</table>\n"
   end
-  
+
 end
 
 
 class TableRowNode < RakiSyntaxNode
-  
+
   def to_html context
     out = ''
     is_head_row = !head_row.text_value.empty?
@@ -307,5 +308,5 @@ class TableRowNode < RakiSyntaxNode
     end
     out
   end
-  
+
 end
