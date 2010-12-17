@@ -16,6 +16,10 @@
 	<% end %>
 	<meta name="csrf-param" content="authenticity_token"/>
 	<meta name="csrf-token" content="<%=form_authenticity_token %>"/>
+	<% if @page %>
+	  <meta name="raki-namespace" content="<%=@namespace %>"/>
+	  <meta name="raki-page" content="<%=@page %>"/>
+	<% end %>
   </head>
   <body>
     <div id="container">

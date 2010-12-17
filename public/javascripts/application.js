@@ -192,6 +192,7 @@ function refreshPreview() {
 	
 	var csrfParam;
 	var csrfTocken;
+	var namespace;
 	metaTags = document.getElementsByTagName("meta");
 	for(i = 0; i < metaTags.length; i++) {
 		name = metaTags[i].getAttribute('name');
@@ -200,11 +201,13 @@ function refreshPreview() {
 			csrfParam = value
 		} else if(name == 'csrf-token') {
 			csrfTocken = value;
+		} else if(name == 'raki-namespace') {
+			namespace = value;
 		}
 	}
 	data = csrfParam + "=" + encodeURIComponent(csrfTocken);
 	
-	data += "&content=" + encodeURIComponent(content.value) + "&parser=" + encodeURIComponent("page");
+	data += "&content=" + encodeURIComponent(content.value) + "&parser=" + encodeURIComponent(namespace);
 	
 	httpRequest.open('POST', '/preview', true);
 	httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
