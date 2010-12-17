@@ -34,21 +34,24 @@ class RakiParser < Raki::AbstractParser
 
   def parse text, context={}
     output = @parser.parse text
-    return nil if output.nil?
+    return nil unless output
     output.to_html(context)
   end
 
   def src text, context={}
     output = @parser.parse text
-    return text if output.nil?
+    return nil unless output
     output.to_src(context)
   end
 
   def link_update text, from, to, context={}
     output = @parser.parse text
-    return text if output.nil?
-    output.link_update from, to, context
-    output.to_src(context)
+    return [nil, nil] unless output
+    if output.link_update(from, to, context)
+      [true, output.to_src(context)]
+    else
+      [false, text]
+    end
   end
 
 end
