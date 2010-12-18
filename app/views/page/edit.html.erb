@@ -17,7 +17,7 @@
   <% form_tag(@page.url(:update), {:id => 'edit-form'}) do %>
     <div>
       <input type="submit" value="<%=t 'page.edit.save' %>" />
-      <input type="button" value="<%=t 'page.edit.preview' %>" onclick="javascript:document.getElementById('edit-form').action='<%=@page.url(:edit) %>'; document.getElementById('edit-form').submit();" />
+      <input type="button" value="<%=t 'page.edit.preview' %>" onclick="javascript:document.getElementById('edit-form').action='<%=@page.url(:preview) %>'; document.getElementById('edit-form').submit();" />
       <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=@page.url(:view) %>';" />
     </div>
     <div>
