@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Page
+  LOCK_TIME = 1800
   
   class PageError < StandardError; end
   
@@ -121,20 +122,48 @@ class Page
   end
   
   def locked?
-    Raki::LockManager.locked?(self)
+    current_lock ? true : false
   end
   
   def locked_by
     return nil unless locked?
-    Raki::LockManager.locked_by(self)
+    Raki::Authenticator.user_for(:username => current_lock.locked_by)
+  end
+  
+  def locked_at
+    return nil unless locked?
+    current_lock.locked_at
+  end
+  
+  def locked_until
+    return nil unless locked?
+    current_lock.expires_at
   end
   
   def lock(user)
-    Raki::LockManager.lock(self, user)
+    unless current_lock
+      Lock.create!(
+        :page_namespace => namespace,
+        :page_name => name,
+        :locked_by => user.username,
+        :locked_at => Time.new,
+        :expires_at => Time.new + LOCK_TIME
+      )
+      true
+    else
+      false
+    end
   end
   
   def unlock(user)
-    Raki::LockManager.unlock(self, user)
+    return true unless current_lock
+    
+    if current_lock.locked_by == user.username
+      current_lock.destroy
+      true
+    else
+      false
+    end
   end
   
   def renamed?
@@ -313,6 +342,17 @@ class Page
   
   def parser
     Raki::Parser[namespace]
+  end
+  
+  def current_lock
+    lock = Lock.find_by_page_namespace_and_page_name(namespace, name)
+    
+    if lock && lock.expired?
+      lock.destroy
+      lock = nil
+    end
+    
+    lock
   end
   
   def reset

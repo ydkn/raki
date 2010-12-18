@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,20 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace :db do
-  namespace :migrate do
-
-    desc 'Migrate plugins to current status.'
-    task :plugins => :environment do
-      Dir["#{Rails.root}/vendor/plugins/*"].each do |dir|
-        if File.directory?(dir) && File.exists?("#{dir}/db/migrate")
-          ActiveRecord::Migrator.migrate(
-            "#{dir}/db/migrate/",
-            ENV["VERSION"] ? ENV["VERSION"].to_i : nil
-          )
-        end
-      end
+class CreateLocks < ActiveRecord::Migration
+  def self.up
+    create_table :locks do |t|
+      t.string :page_namespace
+      t.string :page_name
+      t.string :locked_by
+      t.datetime :locked_at
+      t.datetime :expires_at
     end
+    
+    add_index :locks, [:page_namespace, :page_name], :name => 'locks_page', :unique => true
+  end
 
+  def self.down
+    drop_table :locks
   end
 end

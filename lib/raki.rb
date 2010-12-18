@@ -19,7 +19,6 @@ require 'raki/parser'
 require 'raki/authenticator'
 require 'raki/authorizer'
 require 'raki/plugin'
-require 'raki/lock_manager'
 
 module Raki
   

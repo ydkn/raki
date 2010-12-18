@@ -18,8 +18,9 @@ require 'test_helper'
 
 class PageTest < Test::Unit::TestCase
   
+  # Test find
   def test_find
-    user = User.new Time.new.to_s, :username => 'raki_parser_test', :email => 'test@user.org'
+    user = User.new Time.new.to_s, :username => 'raki_page_test', :email => 'test@user.org'
     
     # Existing page without revision and with valid revision
     Raki::Provider[:default].page_save 'PageTest', 'FindMe', 'foo bar', 'message', user
@@ -49,6 +50,81 @@ class PageTest < Test::Unit::TestCase
     # Existing page with invalid revision
     page = Page.find 'PageTest', 'FindMe', 'InvalidRevision'
     assert_nil page
+  end
+  
+  # Test page locking
+  def test_locking
+    Lock.all.each{|l| l.destroy}
+    
+    user = User.new 'raki_page_test', :username => 'raki_page_test', :email => 'test@user.org'
+    user2 = User.new 'raki_page_test2', :username => 'raki_page_test2', :email => 'test2@user.org'
+    page = Page.new(:namespace => 'PageLockTest', :name => 'PageName')
+    
+    # Lock and unlock
+    assert !page.locked?
+    assert_nil page.locked_by
+    page.lock user
+    assert page.locked?
+    assert_equal user, page.locked_by
+    page.unlock user
+    assert !page.locked?
+    assert_nil page.locked_by
+    
+    # Unlock with other user
+    page.lock user
+    page.unlock user2
+    assert page.locked?
+    assert_equal user, page.locked_by
+    page.unlock user
+    assert !page.locked?
+    assert_nil page.locked_by
+    
+    # Lock with other user
+    page.lock user
+    assert page.locked?
+    assert_equal user, page.locked_by
+    page.lock user2
+    assert page.locked?
+    assert_equal user, page.locked_by
+  end
+  
+  # Test locking and unlocking of multiple pages
+  def test_locking_multiple
+    Lock.all.each{|l| l.destroy}
+    
+    pages = ['Page1', 'Page2', 'Page3', 'Page4'].collect{|p| Page.new(:namespace => 'PageLockTest', :name => p)}
+    users = {}
+    pages.each{|p| users[p] = User.new(p.name, :username => p.name, :email => "#{p.name}@user.org")}
+    
+    pages.each do |page|
+      assert !page.locked?
+      assert_nil page.locked_by
+    end
+    
+    pages.each do |page|
+      assert !page.locked?
+      page.lock users[page]
+      assert page.locked?
+      assert_equal users[page],  page.locked_by
+    end
+    
+    pages.each do |page|
+      assert page.locked?
+      assert_equal users[page], page.locked_by
+    end
+    
+    pages.each do |page|
+      assert page.locked?
+      assert_equal users[page], page.locked_by
+      page.unlock users[page]
+      assert !page.locked?
+      assert_nil page.locked_by
+    end
+    
+    pages.each do |page|
+      assert !page.locked?
+      assert_nil page.locked_by
+    end
   end
   
 end

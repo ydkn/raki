@@ -14,20 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace :db do
-  namespace :migrate do
-
-    desc 'Migrate plugins to current status.'
-    task :plugins => :environment do
-      Dir["#{Rails.root}/vendor/plugins/*"].each do |dir|
-        if File.directory?(dir) && File.exists?("#{dir}/db/migrate")
-          ActiveRecord::Migrator.migrate(
-            "#{dir}/db/migrate/",
-            ENV["VERSION"] ? ENV["VERSION"].to_i : nil
-          )
-        end
-      end
+namespace :raki do
+  
+  desc 'Remove expired locks from database.'
+  task :remove_expired_locks => :environment do
+    Lock.all.each do |lock|
+      lock.destroy! if lock.expired?
     end
-
   end
+  
 end
