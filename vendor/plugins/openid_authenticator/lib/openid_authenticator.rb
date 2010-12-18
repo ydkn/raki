@@ -89,7 +89,7 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
   end
   
   def user_for(options)
-    id = options.key?(:id).nil? ? options[:username] : options[:id]
+    id = options[:id] || options[:username]
     User.new(id, :username => options[:username], :email => options[:email], :display_name => options[:display_name])
   end
 
