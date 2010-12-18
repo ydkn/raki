@@ -1,0 +1,11 @@
+<div class="information">
+  <%=t 'page.edit.preview_info' %>
+  <br/><br/>
+  <% form_tag({:controller => 'page', :namespace => h(@namespace), :page => h(@page), :action => 'update'}, {:id => 'preview-form'}) do %>
+    <input type="button" value="<%=t 'page.edit.keep_editing' %>" onclick="javascript:document.getElementById('preview-form').action='<%=url_for :controller => 'page', :action => 'edit', :namespace => h(@namespace), :page => h(@page) %>'; document.getElementById('preview-form').submit();" />
+    <input type="submit" value="<%=t 'page.edit.save' %>" />
+    <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :action => 'view', :namespace => h(@namespace), :page => h(@page) %>';" />
+    <input type="hidden" name="content" value="<%=params[:content] %>" />
+  <% end %>
+</div>
+<%=parse @namespace, params[:content] %>

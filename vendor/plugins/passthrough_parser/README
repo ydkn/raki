@@ -1,0 +1,7 @@
+PassThroughParser
+===========
+
+Syntax parser, which passes through the output of the provider
+
+
+Copyright (c) 2010 Martin Sigloch and Florian Schwab, released under the GPLv3 license

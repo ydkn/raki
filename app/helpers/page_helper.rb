@@ -36,5 +36,27 @@ module PageHelper
   def format_diff diff
     ""
   end
+  
+  def toolbar_item options
+    options = options.clone
+    opts = {}
+    
+    opts[:title] = options[:title] || t("toolbar.#{options[:id]}")
+    options.delete :title
+    
+    opts[:id] = "toolbar-#{options[:id]}"
+    id = options.delete :id
+    
+    image = options[:image] || "toolbar/#{id}.png"
+    options.delete :image
+    
+    options.each do |key, value|
+      opts["data-#{key}"] = value
+    end
+    
+    opts[:class] = 'item'
+    
+    link_to image_tag(image), '#', opts
+  end
 
 end

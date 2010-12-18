@@ -14,15 +14,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Dir[File.join(Rails.root, 'vendor', 'plugins', '*')].each do |plugin|
-  if File.directory?(plugin)
-    template_dir = File.join(plugin, 'templates')
-    if File.exists?(template_dir) && File.directory?(template_dir)
-      Dir[File.join(template_dir, '*')].each do |template|
-        if File.exists?(template) && !File.directory?(template) && /\.erb$/.match(template)
-          Raki::Plugin.add_template(template)
-        end
-      end
-    end
+class PassthroughParser < Raki::AbstractParser
+
+  def initialize(params={})
   end
+
+  def parse(text, context={})
+    text
+  end
+
+  def src(text, context={})
+    text
+  end
+
+  def link_update(text, from, to, context={})
+    # do nothing
+  end
+
 end

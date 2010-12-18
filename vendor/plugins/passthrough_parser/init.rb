@@ -14,5 +14,5 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'rubygems'
-require 'test/unit'
+
+Raki::Parser.register(:passthrough, PassthroughParser)

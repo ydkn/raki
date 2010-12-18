@@ -29,8 +29,9 @@
       <label for="page-message"><%=t 'page.edit.message' %></label>
       <input type="text" id="page-message" name="message" />
     </div>
+    <%=render :partial => 'toolbar' %>
     <div>
-      <textarea name="content" cols="100" rows="25"><%=h(params[:content] || @page.content) %></textarea>
+      <textarea id="content" name="content" cols="100" rows="25"><%=h(params[:content] || @page.content) %></textarea>
     </div>
   <% end %>
   <% unless @preview.nil? %>
@@ -39,4 +40,8 @@
       <%=@page.render context.merge({:preview => true}) %>
     </div>
   <% end %>
+  <div id="preview">
+    <div id="preview-header"><input id="live-preview-switch" type="checkbox" /><%=t 'page.edit.live_preview' %><%=image_tag 'preview_loader.gif', :alt => 'Loading Preview', :id => 'live-preview-loader' %></div>
+    <div id="preview-content"></div>
+  </div>
 <% end %>

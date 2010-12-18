@@ -33,8 +33,6 @@ Raki::Plugin.register :recentchanges do
     @options = {}
     @options[:limit] = params[:limit].to_i if params[:limit]
     @options[:since] = params[:since].to_i.days.ago if params[:since]
-    
-    render :recentchanges
   end
 
 end

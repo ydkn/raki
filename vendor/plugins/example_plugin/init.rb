@@ -24,14 +24,15 @@ Raki::Plugin.register :example do
 
   execute do
     if params.key?(:error)
-      raise Raki::Plugin::PluginError.new "ERROR: #{params[:error]}"
+      raise "ERROR: #{params[:error]}"
     end
     
     context_out = context.inspect.gsub /\\/, ''
     params_out = params.inspect.gsub /\\/, ''
     body_out = body.inspect.gsub(/^"(.*)"$/, '\1').gsub /\\/, ''
     
-    "<div class=\"information\">
+    render :inline => "
+      <div class=\"information\">
       <b>Example Plugin</b><br/><br/>
       Context: #{h context_out}<br/>
       Parameters: #{h params_out}<br/>

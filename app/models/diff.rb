@@ -73,7 +73,7 @@ class Diff
     attr_reader :type, :line
     
     def initialize(lna, lnb, type, line)
-      @type = type
+      @type = type.to_sym
       @line = line
     end
     
