@@ -23,19 +23,23 @@ module RecentchangesPluginHelper
     
     options = {:namespace => @namespaces}.merge @options
     
-    Page.changes(options).select{|r| r.page.authorized?(User.current, RIGHTS)}.each do |revision|
-      day = revision.date.strftime("%Y-%m-%d")
-      days[day] = [] unless days.key?(day)
+    Page.changes(options).select{|r| authorized? r.page}.each do |revision|
+      day = revision.date.strftime "%Y-%m-%d"
+      days[day] = [] unless days.key? day
       days[day] << revision
     end
     
-    Attachment.changes(options).select{|r| r.page.authorized?(User.current, RIGHTS)}.each do |revision|
-      day = revision.date.strftime("%Y-%m-%d")
-      days[day] = [] unless days.key?(day)
+    Attachment.changes(options).select{|r| authorized? r.page}.each do |revision|
+      day = revision.date.strftime "%Y-%m-%d"
+      days[day] = [] unless days.key? day
       days[day] << revision
     end
     
     days.sort { |a,b| b <=> a }
+  end
+  
+  def authorized? page
+    !RIGHTS.select{|r| page.authorized? User.current, r}.empty?
   end
   
   def short_title

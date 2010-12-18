@@ -16,7 +16,6 @@
 
 class User
   
-  include Raki::Helpers::AuthorizationHelper
   include Raki::Helpers::URLHelper
   
   attr_reader :id
@@ -29,27 +28,27 @@ class User
   end
   
   def username
-    @username.nil? ? @id : @username
+    @username || @id
   end
   
   def email
-    @email
+    @email || "#{username}@#{Raki.app_name.underscore}"
   end
   
   def display_name
-    @display_name.nil? ? username : @display_name
+    @display_name || username
   end
   
-  def authorized_to?(namespace, page, action)
-    authorized?(namespace, page, action, self)
+  def authorized_to?(page, action='view')
+    page.authorized?(self, action)
   end
   
-  def authorized_to!(namespace, page, action)
-    authorized!(namespace, page, action, self)
+  def page
+    @page ||= Page.new(:namespace => Raki.userpage_namespace, :name => username)
   end
   
-  def page_url
-    url_for_page(Raki.userpage_namespace, username)
+  def == b
+    id == b.id
   end
   
   def self.current

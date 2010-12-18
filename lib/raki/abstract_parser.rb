@@ -21,8 +21,12 @@ module Raki
     end
 
     def parse(text, context={})
-      raise ProviderError.new 'not implemented'
+      raise ParserError.new 'not implemented'
     end
+    
+    #def toolbar_items
+    #  raise ParserError.new 'not implemented'
+    #end
 
   end
 end

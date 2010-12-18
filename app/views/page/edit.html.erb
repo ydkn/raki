@@ -1,3 +1,8 @@
+<% if @page.locked? && @page.locked_by != User.current %>
+  <div class="warning" id="lock_waring">
+	<%=t 'page.edit.locked', :user => @page.locked_by.username %>
+  </div>
+<% end %>
 <% if @page.authorized?(User.current, :rename) && @page.exists? %>
   <% form_tag(@page.url(:rename)) do %>
     <div>
@@ -10,22 +15,23 @@
   <% end %>
 <% end %>
 <% if @page.authorized?(User.current, :delete) && @page.exists? %>
-  <input type="button" value="<%=t 'page.edit.delete' %>" onclick="javascript:if(confirm('<%=t 'page.edit.delete_question'%>')) location.href='<%=@page.url(:delete) %>';" />
+  <input id="edit-delete" type="button" value="<%=t 'page.edit.delete' %>" onclick="javascript:if(confirm('<%=t 'page.edit.delete_question'%>')) location.href='<%=@page.url(:delete) %>';" />
   <br/>
 <% end %>
 <% if @page.authorized?(User.current, :edit) && @page.exists? || @page.authorized?(User.current, :create) && !@page.exists? %>
   <% form_tag(@page.url(:update), {:id => 'edit-form'}) do %>
     <div>
-      <input type="submit" value="<%=t 'page.edit.save' %>" />
-      <input type="button" value="<%=t 'page.edit.preview' %>" onclick="javascript:document.getElementById('edit-form').action='<%=@page.url(:edit) %>'; document.getElementById('edit-form').submit();" />
-      <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=@page.url(:view) %>';" />
+      <input id="edit-save" type="submit" value="<%=t 'page.edit.save' %>" />
+      <input id="edit-preview" type="button" value="<%=t 'page.edit.preview' %>" />
+      <input id="edit-abort" type="button" value="<%=t 'page.edit.abort' %>" />
     </div>
     <div>
       <label for="page-message"><%=t 'page.edit.message' %></label>
       <input type="text" id="page-message" name="message" />
     </div>
+    <%=render :partial => 'toolbar' %>
     <div>
-      <textarea name="content" cols="100" rows="25"><%=h(params[:content] || @page.content) %></textarea>
+      <textarea id="content" name="content" cols="100" rows="25"><%=h(params[:content] || @page.content) %></textarea>
     </div>
   <% end %>
   <% unless @preview.nil? %>
@@ -34,4 +40,8 @@
       <%=@page.render context.merge({:preview => true}) %>
     </div>
   <% end %>
+  <div id="preview">
+    <div id="preview-header"><input id="live-preview-switch" type="checkbox" /><%=t 'page.edit.live_preview' %><%=image_tag 'preview_loader.gif', :alt => 'Loading Preview', :id => 'live-preview-loader' %></div>
+    <div id="preview-content"></div>
+  </div>
 <% end %>

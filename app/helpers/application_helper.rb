@@ -17,6 +17,10 @@
 module ApplicationHelper
   
   include Raki::Helpers::FormatHelper
+  
+  def meta_tag name, content
+    "<meta name=\"#{h name}\" content=\"#{h content}\" />"
+  end
 
   def plugin_stylesheets
     stylesheets = []

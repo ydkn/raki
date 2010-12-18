@@ -14,10 +14,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'rubygems'
-require 'test/unit'
-
-ActionController::Base.new.process(
-  ActionController::TestRequest.new,
-  ActionController::TestResponse.new
-)
+class Lock < ActiveRecord::Base
+  
+  def page
+    @page ||= Page.find page_namespace, page_name
+  end
+  
+  def user
+    @user ||= Raki::Authenticator.user_for :username => locked_by
+  end
+  
+  def expired?
+    expires_at < Time.new
+  end
+  
+end

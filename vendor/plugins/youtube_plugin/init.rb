@@ -31,10 +31,11 @@ Raki::Plugin.register :youtube do
       @video_id = $1
     elsif url =~ /^http:\/\/www.youtube.com\/watch\?v=([^\?&]+)/i
       @video_id = $1
-    else
+    elsif !url.empty?
       @video_id = url
+    else
+      raise t('youtube.no_video')
     end
-    render :youtube_embedded
   end
 
 end

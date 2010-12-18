@@ -15,14 +15,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Page
+  LOCK_TIME = 1800
   
   class PageError < StandardError; end
   
-  extend Raki::Helpers::ProviderHelper
-  
-  include Raki::Helpers::AuthorizationHelper
-  include Raki::Helpers::ProviderHelper
-  include Raki::Helpers::ParserHelper
   include Raki::Helpers::URLHelper
   
   attr_reader :errors
@@ -31,7 +27,7 @@ class Page
     @namespace = params[:namespace].to_s.strip
     @name = params[:name].to_s.strip
     if params[:revision]
-      @revision = page_revisions(namespace, name).select{|r| r.id.to_s == params[:revision].to_s.strip}.first
+      @revision = provider.page_revisions(namespace, name).select{|r| r.id.to_s == params[:revision].to_s.strip}.first
     end
     @errors = []
   end
@@ -56,16 +52,16 @@ class Page
   
   def revision
     return nil unless exists?
-    @revision ||= page_revisions(namespace, name).first
+    @revision ||= provider.page_revisions(namespace, name).first
   end
   
   def exists?
-    @exists ||= page_exists?(namespace, name, (@revision ? @revision.id : nil))
+    @exists ||= provider.page_exists?(namespace, name, (@revision ? @revision.id : nil))
   end
   
   def content
     return @content unless exists?
-    @content ||= page_contents(namespace, name, (revision ? revision.id : nil))
+    @content ||= provider.page_contents(namespace, name, (revision ? revision.id : nil))
   end
   
   def content=(content)
@@ -75,17 +71,17 @@ class Page
   
   def revisions
     return [] unless exists?
-    @revisions ||= page_revisions(namespace, name)
+    @revisions ||= provider.page_revisions(namespace, name)
   end
   
   def head_revision
     return nil unless exists?
-    @head_revision ||= page_revisions(namespace, name).first
+    @head_revision ||= provider.page_revisions(namespace, name).first
   end
   
   def attachments
     return [] unless exists?
-    @attchments ||= attachment_all(namespace, name).collect do |attachment|
+    @attchments ||= provider.attachment_all(namespace, name).collect do |attachment|
       Attachment.new(:namespace => namespace, :page => name, :name => attachment)
     end
   end
@@ -118,11 +114,56 @@ class Page
   def render(context={})
     context = context.clone
     context[:page] = self
-    parse namespace, content, context
+    parser.parse content, context
   end
   
   def authorized?(user, action='view')
-    super(namespace, name, action, user)
+    Raki::Authorizer.authorized_to?(namespace, name, action, user)
+  end
+  
+  def locked?
+    current_lock ? true : false
+  end
+  
+  def locked_by
+    return nil unless locked?
+    Raki::Authenticator.user_for(:username => current_lock.locked_by)
+  end
+  
+  def locked_at
+    return nil unless locked?
+    current_lock.locked_at
+  end
+  
+  def locked_until
+    return nil unless locked?
+    current_lock.expires_at
+  end
+  
+  def lock(user)
+    unless current_lock
+      Lock.create!(
+        :page_namespace => namespace,
+        :page_name => name,
+        :locked_by => user.username,
+        :locked_at => Time.new,
+        :expires_at => Time.new + LOCK_TIME
+      )
+      true
+    else
+      false
+    end
+  end
+  
+  def unlock(user)
+    return true unless current_lock
+    
+    if current_lock.locked_by == user.username
+      current_lock.destroy
+      true
+    else
+      false
+    end
   end
   
   def renamed?
@@ -148,10 +189,11 @@ class Page
       @exists = true
     end
     if changed?
-      page_save(namespace, name, content, msg, user)
+      provider.page_save(namespace, name, content, msg, user)
+      reset
       @exists = true
     end
-    @head_revision = page_revisions(namespace, name).first
+    @head_revision = provider.page_revisions(namespace, name).first
     @revision = @head_revision
     @revisions.unshift @head_revision if @revisions
     true
@@ -167,7 +209,7 @@ class Page
   end
   
   def delete(user, msg=nil)
-    page_delete(namespace, name, user)
+    provider.page_delete(namespace, name, user)
     @deleted = true
   rescue
     false
@@ -205,15 +247,15 @@ class Page
   end
   
   def self.exists?(namespace, name, revision=nil)
-    page_exists?(namespace, name, revision)
+    Raki::Provider[namespace.to_s.strip.to_sym].page_exists?(namespace.to_s.strip, name.to_s.strip, revision)
   end
   
   def self.find(namespace, name, revision=nil)
     namespace = namespace.to_s.strip if namespace
     name = name.to_s.strip if name
     revision = revision.to_s.strip if revision
-    if page_exists?(namespace, name, revision)
-      Page.new(:namespace => namespace, :name => name, :revision => revision)
+    if Raki::Provider[namespace.to_s.strip.to_sym].page_exists?(namespace.to_s.strip, name.to_s.strip, revision)
+      Page.new(:namespace => namespace.to_s.strip, :name => name.to_s.strip, :revision => revision)
     else
       nil
     end
@@ -241,7 +283,7 @@ class Page
     namespaces.select do |ns|
       namespace ? !namespace.select{|nsf| nsf.is_a?(Regexp) ? (ns =~ nsf) : (nsf.to_s == ns.to_s)}.empty? : true
     end.each do |ns|
-      pages += page_all(ns).select do |p|
+      pages += Raki::Provider[ns].page_all(ns).select do |p|
         page ? !page.select{|pf| pf.is_a?(Regexp) ? (p =~ pf) : (pf.to_s == p.to_s)}.empty? : true
       end.collect{|p| Page.new(:namespace => ns, :name => p)}
     end
@@ -275,7 +317,7 @@ class Page
     namespaces.select do |ns|
       namespace ? !namespace.select{|nsf| nsf.is_a?(Regexp) ? (ns =~ nsf) : (nsf.to_s == ns.to_s)}.empty? : true
     end.each do |ns|
-      revisions += page_changes(ns, opts).select do |r|
+      revisions += Raki::Provider[ns].page_changes(ns, opts).select do |r|
         page ? !page.select{|pf| pf.is_a?(Regexp) ? (r.page =~ pf) : (pf.to_s == r.page.to_s)}.empty? : true
       end
     end
@@ -283,7 +325,36 @@ class Page
     revisions.sort{|a,b| a <=> b}
   end
   
+  def self.namespaces
+    namespaces = []
+    Raki::Provider.used.values.each do |provider|
+      provider.namespaces.each do |namespace|
+        namespaces << namespace if Raki::Provider[namespace] == provider
+      end
+    end
+    namespaces
+  end
+  
   private
+  
+  def provider
+    Raki::Provider[namespace]
+  end
+  
+  def parser
+    Raki::Parser[namespace]
+  end
+  
+  def current_lock
+    lock = Lock.find_by_page_namespace_and_page_name(namespace, name)
+    
+    if lock && lock.expired?
+      lock.destroy
+      lock = nil
+    end
+    
+    lock
+  end
   
   def reset
     @exists = nil  

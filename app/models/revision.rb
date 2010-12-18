@@ -62,6 +62,10 @@ class Revision
     end
   end
   
+  def == b
+    (self <=> b) == 0
+  end
+  
   private
   
   def compare_page(a, b)

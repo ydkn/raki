@@ -19,7 +19,7 @@ class PageController < ApplicationController
   
   include ERB::Util
   
-  before_filter :common_init, :except => [:redirect_to_frontpage, :redirect_to_indexpage]
+  before_filter :common_init, :except => [:redirect_to_frontpage, :redirect_to_indexpage, :live_preview]
 
   def redirect_to_frontpage
     redirect_to :controller => 'page', :action => 'view', :namespace => h(Raki.frontpage[:namespace]), :page => h(Raki.frontpage[:page])
@@ -34,10 +34,10 @@ class PageController < ApplicationController
     if @page.authorized?(User.current, :view)
       session[:visited_pages].unshift({:namespace => @page.namespace, :page => @page.name})
       session[:visited_pages].uniq!
-      session[:visited_pages].slice! 0, VISITED_LIMIT if session[:visited_pages].size > 10
+      session[:visited_pages].slice! 0, VISITED_LIMIT if session[:visited_pages].length > VISITED_LIMIT
       respond_to do |format|
-        format.html
-        format.src { render :inline => @page.content, :content_type => 'text/plain' }
+        format.html { render 'view', :status => (@page.exists? ? 200 : 404) }
+        format.src { render :inline => @page.content, :content_type => 'text/plain', :status => (@page.exists? ? 200 : 404) }
       end
     else
       render_forbidden
@@ -57,6 +57,7 @@ class PageController < ApplicationController
       return
     end
     @page.content = params[:content] if params[:content]
+    @page.lock(User.current)
   end
 
   def update
@@ -67,6 +68,7 @@ class PageController < ApplicationController
     end
     @page.content = params[:content]
     if @page.save(User.current, params[:message])
+      @page.unlock(User.current)
       redirect_to @page.url
     else
       # show errors
@@ -101,6 +103,7 @@ class PageController < ApplicationController
       return
     end
     if @page.save(User.current)
+      @page.unlock(User.current)
       redirect_to @page.url
     else
       # show errors
@@ -118,6 +121,7 @@ class PageController < ApplicationController
       return
     end
     @page.delete(User.current)
+    @page.unlock(User.current)
     
     if session[:visited_pages].first
       last_page = Page.find session[:visited_pages].first[:namespace], session[:visited_pages].first[:page]
@@ -200,6 +204,26 @@ class PageController < ApplicationController
     to = Page.find @page.namespace, @page.name, params[:revision_to]
     
     @diff = from.diff to.revision
+  end
+  
+  def preview
+    @page.content = params[:content]
+    
+    @page.lock User.current
+  end
+  
+  def live_preview
+    render :inline => Raki::Parser[params[:namespace]].parse(params[:content], @context), :content_type => 'text/html'
+  end
+  
+  def unlock
+    @page.unlock User.current
+    
+    if request.get?
+      redirect_to @page.url :view
+    else
+      render :nothing => true
+    end
   end
 
   private

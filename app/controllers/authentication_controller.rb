@@ -15,8 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class AuthenticationController < ApplicationController
-  
-  include AuthenticationHelper
 
   def login
     redirect_to :controller => 'page', :action => 'view', :namespace => Raki.frontpage[:namespace], :page => Raki.frontpage[:page] if authenticated?
@@ -89,6 +87,11 @@ class AuthenticationController < ApplicationController
     reset_session
     flash[:notice] = t 'auth.logged_out'
     redirect
+  end
+  
+  def authenticated?
+    return false if User.current.is_a? AnonymousUser
+    User.current.is_a? User
   end
 
 end
