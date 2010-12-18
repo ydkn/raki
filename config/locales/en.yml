@@ -58,7 +58,7 @@ en:
       delete_question: Remove entire page?
       page_already_exists: Page already exists
       no_permission_to_create: No Permission to create page
-      locked: User %{user} is currently editing this page.
+      locked: User <b>%{user}</b> is currently editing this page.
 
     info:
       versions: Versions
