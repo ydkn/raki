@@ -205,6 +205,7 @@ class PageController < ApplicationController
   end
   
   def preview
+    @page.content = params[:content]
   end
   
   def live_preview
