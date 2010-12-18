@@ -59,7 +59,7 @@ class DBProvider < Raki::AbstractProvider
   end
 
   def page_save(namespace, name, contents, message, user)
-    message = nil if message.empty?
+    message = nil if message && message.strip.blank?
     page = DBPage.find_by_namespace_and_name(namespace.to_s, name.to_s)
     page = DBPage.create!(:namespace => namespace.to_s, :name => name.to_s) unless page
     revision = DBPageRevision.find_by_page_id(page.id, :order => 'revision DESC', :limit => 1)

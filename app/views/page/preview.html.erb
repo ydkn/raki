@@ -2,9 +2,9 @@
   <%=t 'page.edit.preview_info' %>
   <br/><br/>
   <% form_tag(@page.url(:update), {:id => 'preview-form'}) do %>
-    <input type="button" value="<%=t 'page.edit.keep_editing' %>" onclick="javascript:document.getElementById('preview-form').action='<%=@page.url(:edit) %>'; document.getElementById('preview-form').submit();" />
-    <input type="submit" value="<%=t 'page.edit.save' %>" />
-    <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=@page.url(:view) %>';" />
+    <input id="preview-edit" type="button" value="<%=t 'page.edit.keep_editing' %>" onclick="javascript:document.getElementById('preview-form').action='<%=@page.url(:edit) %>'; document.getElementById('preview-form').submit();" />
+    <input id="preview-save" type="submit" value="<%=t 'page.edit.save' %>" />
+    <input id="preview-abort" type="button" value="<%=t 'page.edit.abort' %>" />
     <input type="hidden" name="content" value="<%=params[:content] %>" />
   <% end %>
 </div>

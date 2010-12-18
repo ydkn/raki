@@ -3,6 +3,80 @@
  * Copyright (C) 2010 Florian Schwab & Martin Sigloch
  */
 
+var csrfParam;
+var csrfTocken;
+var namespace;
+var page;
+var action;
+var viewUrl;
+var editUrl;
+var previewUrl;
+
+function initMetaVars() {
+	metaTags = document.getElementsByTagName("meta");
+	for(i = 0; i < metaTags.length; i++) {
+		name = metaTags[i].getAttribute('name');
+		value = metaTags[i].getAttribute('content');
+		if(name == 'csrf-param') {
+			csrfParam = value
+		} else if(name == 'csrf-token') {
+			csrfTocken = value;
+		} else if(name == 'raki-namespace') {
+			namespace = value;
+		} else if(name == 'raki-page') {
+			page = value;
+		} else if(name == 'raki-action') {
+			action = value;
+		} else if(name == 'raki-view-url') {
+			viewUrl = value;
+		} else if(name == 'raki-edit-url') {
+			editUrl = value;
+		} else if(name == 'raki-preview-url') {
+			previewUrl = value;
+		}
+	}
+}
+
+function initEditButtons() {
+	editForm = document.getElementById('edit-form');
+	editPreview = document.getElementById('edit-preview');
+	editAbort = document.getElementById('edit-abort');
+	editSave = document.getElementById('edit-save');
+	
+	if(editForm && editPreview && editAbort && editSave) {
+		editPreview.onclick = function(e) {
+			doUnlock = false;
+			editForm.action = previewUrl;
+			editForm.submit();
+		}
+		editAbort.onclick = function(e) {
+			window.location = viewUrl;
+		}
+		editSave.onclick = function(e) {
+			doUnlock = false;
+		}
+	}
+	
+	previewForm = document.getElementById('preview-form');
+	previewEdit = document.getElementById('preview-edit');
+	previewAbort = document.getElementById('preview-abort');
+	previewSave = document.getElementById('preview-save');
+	
+	if(previewForm && previewEdit && previewAbort && previewSave) {
+		previewEdit.onclick = function(e) {
+			doUnlock = false;
+			previewForm.action = editUrl;
+			previewForm.submit();
+		}
+		previewAbort.onclick = function(e) {
+			window.location = viewUrl;
+		}
+		previewSave.onclick = function(e) {
+			doUnlock = false;
+		}
+	}
+}
+
 function toolbarClickEvent(e) {
 	toolbarItem = (e.srcElement ? e.srcElement : e.target).parentNode;
 	
@@ -190,24 +264,9 @@ function refreshPreview() {
 		livePreviewLoader.style.display = 'none';
 	}
 	
-	var csrfParam;
-	var csrfTocken;
-	var namespace;
-	metaTags = document.getElementsByTagName("meta");
-	for(i = 0; i < metaTags.length; i++) {
-		name = metaTags[i].getAttribute('name');
-		value = metaTags[i].getAttribute('content');
-		if(name == 'csrf-param') {
-			csrfParam = value
-		} else if(name == 'csrf-token') {
-			csrfTocken = value;
-		} else if(name == 'raki-namespace') {
-			namespace = value;
-		}
-	}
-	data = csrfParam + "=" + encodeURIComponent(csrfTocken);
+	data = encodeURIComponent(csrfParam) + "=" + encodeURIComponent(csrfTocken);
 	
-	data += "&content=" + encodeURIComponent(content.value) + "&parser=" + encodeURIComponent(namespace);
+	data += "&content=" + encodeURIComponent(content.value) + "&namespace=" + encodeURIComponent(namespace);
 	
 	httpRequest.open('POST', '/preview', true);
 	httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -274,9 +333,36 @@ function initLivePreview() {
 	window.setTimeout('scheduleRefresh()', 250);
 }
 
-function startup() {
-	initToolbar();
-	initLivePreview();
+var doUnlock = true;
+function unlock() {
+	var httpRequest;
+	if(window.XMLHttpRequest) {
+		httpRequest = new XMLHttpRequest();
+	} else if(window.ActiveXObject) {
+		httpRequest = new ActiveXObject('Microsoft.XMLHTTP');
+	} else {
+		return;
+	}
+	
+	data = encodeURIComponent(csrfParam) + "=" + encodeURIComponent(csrfTocken);
+	data += "&namespace=" + encodeURIComponent(namespace) + "&page=" + encodeURIComponent(page);
+
+	httpRequest.open('POST', '/unlock', false);
+	httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	httpRequest.setRequestHeader("Content-Length", data.length);
+	httpRequest.setRequestHeader("Connection", "close");
+	httpRequest.send(data);
 }
 
-window.onload = startup;
+window.onload = function() {
+	initMetaVars();
+	initEditButtons();
+	initToolbar();
+	initLivePreview();
+};
+
+window.onunload = function() {
+	if(((action == 'edit') || (action == 'preview')) && doUnlock) {
+		unlock();
+	}
+};

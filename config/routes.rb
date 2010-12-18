@@ -29,6 +29,9 @@ ActionController::Routing::Routes.draw do |map|
   
   # Route for preview
   map.connect 'preview', :controller => 'page', :action => 'live_preview', :conditions => { :method => :post }
+  
+  # Route for unlock
+  map.connect 'unlock', :controller => 'page', :action => 'unlock', :conditions => { :method => :post }
 
   # Routes for wiki pages
   map.with_options :controller => 'page', :requirements => {:namespace => /[^\/\.]+/} do |namespace|
@@ -40,6 +43,7 @@ ActionController::Routing::Routes.draw do |map|
       page.connect ':namespace/:page/diff', :action => 'diff'
       page.connect ':namespace/:page/edit', :action => 'edit'
       page.connect ':namespace/:page/preview', :action => 'preview', :conditions => { :method => :post }
+      page.connect ':namespace/:page/unlock', :action => 'unlock', :conditions => { :method => :get }
       page.connect ':namespace/:page/update', :action => 'update', :conditions => { :method => :post }
       page.connect ':namespace/:page/rename', :action => 'rename', :conditions => { :method => :post }
       page.connect ':namespace/:page/delete', :action => 'delete'

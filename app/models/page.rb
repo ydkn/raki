@@ -190,6 +190,7 @@ class Page
     end
     if changed?
       provider.page_save(namespace, name, content, msg, user)
+      reset
       @exists = true
     end
     @head_revision = provider.page_revisions(namespace, name).first

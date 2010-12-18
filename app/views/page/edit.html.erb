@@ -15,15 +15,15 @@
   <% end %>
 <% end %>
 <% if @page.authorized?(User.current, :delete) && @page.exists? %>
-  <input type="button" value="<%=t 'page.edit.delete' %>" onclick="javascript:if(confirm('<%=t 'page.edit.delete_question'%>')) location.href='<%=@page.url(:delete) %>';" />
+  <input id="edit-delete" type="button" value="<%=t 'page.edit.delete' %>" onclick="javascript:if(confirm('<%=t 'page.edit.delete_question'%>')) location.href='<%=@page.url(:delete) %>';" />
   <br/>
 <% end %>
 <% if @page.authorized?(User.current, :edit) && @page.exists? || @page.authorized?(User.current, :create) && !@page.exists? %>
   <% form_tag(@page.url(:update), {:id => 'edit-form'}) do %>
     <div>
-      <input type="submit" value="<%=t 'page.edit.save' %>" />
-      <input type="button" value="<%=t 'page.edit.preview' %>" onclick="javascript:document.getElementById('edit-form').action='<%=@page.url(:preview) %>'; document.getElementById('edit-form').submit();" />
-      <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=@page.url(:view) %>';" />
+      <input id="edit-save" type="submit" value="<%=t 'page.edit.save' %>" />
+      <input id="edit-preview" type="button" value="<%=t 'page.edit.preview' %>" />
+      <input id="edit-abort" type="button" value="<%=t 'page.edit.abort' %>" />
     </div>
     <div>
       <label for="page-message"><%=t 'page.edit.message' %></label>

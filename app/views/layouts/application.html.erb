@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <meta name="generator" content="Raki wiki engine"/>
+    <meta name="generator" content="Raki wiki engine" />
     <title><%=h "#{Raki.app_name} :: #{@title}" %></title>
     <%=stylesheet_link_tag 'application', :media => 'all' %>
     <%=plugin_stylesheets %>
@@ -16,11 +16,15 @@
 	    <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'page', :namespace => h(@page.namespace), :page => h(@page.name)}, :title => t('feed.page', :namespace => h(@page.namespace), :page => h(@page.name))) %>
 	  <% end %>
 	<% end %>
-	<meta name="csrf-param" content="authenticity_token"/>
-	<meta name="csrf-token" content="<%=form_authenticity_token %>"/>
+	<%=meta_tag 'csrf-param', 'authenticity_token' %>
+	<%=meta_tag 'csrf-token', form_authenticity_token %>
 	<% if @page %>
-	  <meta name="raki-namespace" content="<%=@page.namespace %>"/>
-	  <meta name="raki-page" content="<%=@page.name %>"/>
+	  <%=meta_tag 'raki-namespace', @page.namespace %>
+	  <%=meta_tag 'raki-page', @page.name %>
+	  <%=meta_tag 'raki-action', action_name %>
+	  <%=meta_tag 'raki-view-url', @page.url(:view) %>
+	  <%=meta_tag 'raki-edit-url', @page.url(:edit) %>
+	  <%=meta_tag 'raki-preview-url', @page.url(:preview) %>
 	<% end %>
   </head>
   <body>
@@ -48,7 +52,7 @@
         <div id="visted_pages">
 	      <% unless session[:visited_pages].empty? %>
 	        <%=t 'visited_pages' %>:
-            <%=session[:visited_pages].collect{|p| link_to h("#{p[:namespace]}/#{p[:page]}"), url_for_page(p[:namespace], p[:page])}.join(', ') %>
+            <%=session[:visited_pages].collect{|p| Page.new :namespace => p[:namespace], :name => p[:page]}.collect{|p| link_to h("#{p.namespace}/#{p.name}"), p.url}.join(', ') %>
           <% end %>
         </div>
         <div id="content_container">

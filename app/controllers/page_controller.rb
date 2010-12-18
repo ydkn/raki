@@ -36,8 +36,8 @@ class PageController < ApplicationController
       session[:visited_pages].uniq!
       session[:visited_pages].slice! 0, VISITED_LIMIT if session[:visited_pages].length > VISITED_LIMIT
       respond_to do |format|
-        format.html
-        format.src { render :inline => @page.content, :content_type => 'text/plain' }
+        format.html { render 'view', :status => (@page.exists? ? 200 : 404) }
+        format.src { render :inline => @page.content, :content_type => 'text/plain', :status => (@page.exists? ? 200 : 404) }
       end
     else
       render_forbidden
@@ -103,6 +103,7 @@ class PageController < ApplicationController
       return
     end
     if @page.save(User.current)
+      @page.unlock(User.current)
       redirect_to @page.url
     else
       # show errors
@@ -120,6 +121,7 @@ class PageController < ApplicationController
       return
     end
     @page.delete(User.current)
+    @page.unlock(User.current)
     
     if session[:visited_pages].first
       last_page = Page.find session[:visited_pages].first[:namespace], session[:visited_pages].first[:page]
@@ -206,10 +208,22 @@ class PageController < ApplicationController
   
   def preview
     @page.content = params[:content]
+    
+    @page.lock User.current
   end
   
   def live_preview
-    render :inline => Raki::Parser[params[:parser]].parse(params[:content], @context), :content_type => 'text/html'
+    render :inline => Raki::Parser[params[:namespace]].parse(params[:content], @context), :content_type => 'text/html'
+  end
+  
+  def unlock
+    @page.unlock User.current
+    
+    if request.get?
+      redirect_to @page.url :view
+    else
+      render :nothing => true
+    end
   end
 
   private
