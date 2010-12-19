@@ -15,19 +15,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'test_helper'
+require 'digest/md5'
 
 class GitProviderTest < Test::Unit::TestCase
 
   # Setup a GIT repository for testing
   def setup
-    FileUtils.remove_dir("#{Rails.root}/tmp/test-git-repo", true) if File.exists?("#{Rails.root}/tmp/test-git-repo")
-    `git init #{Rails.root}/tmp/test-git-repo`
-    @provider = GitProvider.new(:default, {'path' => "#{Rails.root}/tmp/test-git-repo"})
+    @repo_path = File.join(Rails.root, 'tmp', 'test-git-repo')
+    @tmp_repo_path = File.join(Rails.root, 'tmp', 'gitrepos', "#{Digest::MD5.hexdigest(@repo_path)}_test")
+    
+    `git init #{@repo_path}`
+    @provider = GitProvider.new('test', {'path' => @repo_path})
   end
 
   # Remove GIT repository after testing
   def teardown
-    FileUtils.remove_dir("#{Rails.root}/tmp/test-git-repo", true)
+    FileUtils.remove_dir(@repo_path, true) if @repo_path && File.exists?(@repo_path)
+    FileUtils.remove_dir(@tmp_repo_path, true) if @tmp_repo_path && File.exists?(@tmp_repo_path)
   end
 
   # Try to create with an invalid repository
