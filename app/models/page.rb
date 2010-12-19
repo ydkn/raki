@@ -66,7 +66,7 @@ class Page
   
   def content
     return @content unless exists?
-    @content ||= provider.page_contents(namespace, name, (revision ? revision.id : nil))
+    @content ||= provider.page_contents(namespace, name, (@revision ? @revision.id : nil))
   end
   
   def content=(content)

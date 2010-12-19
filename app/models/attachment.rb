@@ -51,7 +51,7 @@ class Attachment
   end
   
   def exists?
-    @exists ||= provider.attachment_exists?(page.namespace, page.name, name, revision.id)
+    @exists ||= provider.attachment_exists?(page.namespace, page.name, name, @revision)
   end
   
   def content

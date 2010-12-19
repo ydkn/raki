@@ -31,7 +31,7 @@ class Revision
   end
   
   def type
-    @page ? :page : :attachment
+    @attachment ? :attachment : :page
   end
   
   def deleted?

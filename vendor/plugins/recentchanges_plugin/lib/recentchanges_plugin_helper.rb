@@ -35,7 +35,10 @@ module RecentchangesPluginHelper
       days[day] << revision
     end
     
-    days.sort { |a,b| b <=> a }
+    days.keys.each do |day|
+      days[day].sort!{|a,b| b <=> a}
+    end
+    days.sort {|a,b| b[0] <=> a[0] }
   end
   
   def authorized? page
