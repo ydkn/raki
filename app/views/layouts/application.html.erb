@@ -50,9 +50,9 @@
         </div>
         <div id="page_title"><%=h @title %></div>
         <div id="visted_pages">
-	      <% unless session[:visited_pages].empty? %>
+	      <% unless visited_pages.empty? %>
 	        <%=t 'visited_pages' %>:
-            <%=session[:visited_pages].collect{|p| Page.new :namespace => p[:namespace], :name => p[:page]}.collect{|p| link_to h("#{p.namespace}/#{p.name}"), p.url}.join(', ') %>
+            <%=visited_pages.collect{|p| link_to h("#{p.namespace}/#{p.name}"), p.url}.join(', ') %>
           <% end %>
         </div>
         <div id="content_container">

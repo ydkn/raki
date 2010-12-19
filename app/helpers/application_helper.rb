@@ -34,5 +34,9 @@ module ApplicationHelper
     return false if User.current.is_a? AnonymousUser
     User.current.is_a? User
   end
+  
+  def visited_pages
+    @visited_pages ||= session[:visited_pages].collect{|p| Page.new :namespace => p[:namespace], :name => p[:page]}
+  end
 
 end
