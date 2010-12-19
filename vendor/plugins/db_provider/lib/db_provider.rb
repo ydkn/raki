@@ -39,11 +39,11 @@ class DBProvider < Raki::AbstractProvider
     true
   end
 
-  def page_revisions(namespace, name)
+  def page_revisions(namespace, name, options={})
     raise PageNotExists unless page_exists?(namespace, name)
     page_id = DBPage.find_by_namespace_and_name(namespace.to_s, name.to_s).id
     revs = []
-    DBPageRevision.find_all_by_page_id(page_id, :order => 'revision DESC').each do |revision|
+    DBPageRevision.find_all_by_page_id(page_id, :order => 'revision DESC', :limit => options[:limit]).each do |revision|
       revs << Revision.new(
           Page.new(:namespace => namespace, :name => name),
           revision.revision,
@@ -141,11 +141,11 @@ class DBProvider < Raki::AbstractProvider
     true
   end
 
-  def attachment_revisions(namespace, page, name)
+  def attachment_revisions(namespace, page, name, options={})
     raise AttachmentNotExists unless attachment_exists?(namespace, page, name)
     att_id = DBAttachment.find_by_namespace_and_page_and_name(namespace.to_s, page.to_s, name.to_s).id
     revs = []
-    DBAttachmentRevision.find_all_by_attachment_id(att_id, :order => 'revision DESC').each do |revision|
+    DBAttachmentRevision.find_all_by_attachment_id(att_id, :order => 'revision DESC', :limit => options[:limit]).each do |revision|
       revs << Revision.new(
           Attachment.new(:namespace => namespace, :page => page, :name => name),
           revision.revision,

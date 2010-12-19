@@ -78,9 +78,9 @@ class GitProvider < Raki::AbstractProvider
     contents("#{namespace.to_s}/#{name.to_s}", revision)
   end
 
-  def page_revisions(namespace, name)
+  def page_revisions(namespace, name, options={})
     logger.debug("Fetching revisions for page: #{{:namespace => namespace, :name => name}.inspect}")
-    revisions("#{namespace.to_s}/#{name.to_s}")
+    revisions("#{namespace.to_s}/#{name.to_s}", options)
   end
 
   def page_save(namespace, name, contents, message, user)
@@ -124,9 +124,9 @@ class GitProvider < Raki::AbstractProvider
     contents("#{namespace.to_s}/#{page.to_s}_att/#{name.to_s}", revision)
   end
 
-  def attachment_revisions(namespace, page, name)
+  def attachment_revisions(namespace, page, name, options={})
     logger.debug("Fetching revisions for page attachment: #{{:namespace => namespace, :page => page, :name => name}.inspect}")
-    revisions("#{namespace.to_s}/#{page.to_s}_att/#{name.to_s}")
+    revisions("#{namespace.to_s}/#{page.to_s}_att/#{name.to_s}", options)
   end
 
   def attachment_save(namespace, page, name, contents, message, user)
@@ -252,7 +252,7 @@ class GitProvider < Raki::AbstractProvider
     flush(:namespaces)
   end
 
-  def revisions(obj)
+  def revisions(obj, options)
     obj = normalize(obj)
     
     raise PageNotExists unless exists?(obj)
@@ -260,7 +260,7 @@ class GitProvider < Raki::AbstractProvider
     parts = obj.split('/')
     
     revs = []
-    @repo.log(@branch, obj).each do |commit|
+    @repo.log(@branch, obj, :limit => options[:limit]).each do |commit|
       mode = commit[:changes].first[:mode]
       revs << Revision.new(
           ((parts.length == 2) ? Page.new(:namespace => parts[0], :name => parts[1]) : Attachment.new(:namespace => parts[0], :page => parts[1], :name => parts[2])),

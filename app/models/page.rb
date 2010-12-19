@@ -76,7 +76,7 @@ class Page
   
   def head_revision
     return nil unless exists?
-    @head_revision ||= provider.page_revisions(namespace, name).first
+    @head_revision ||= provider.page_revisions(namespace, name, 1).first
   end
   
   def attachments
