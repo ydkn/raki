@@ -26,7 +26,7 @@ class ApplicationController < ActionController::Base
   private
   
   def init_visited_pages
-    session[:visited_pages] = [] if session[:visited_pages].nil?
+    session[:visited_pages] ||= []
   end
   
   def init_url_helper
@@ -53,7 +53,7 @@ class ApplicationController < ActionController::Base
     elsif session[:user] && session[:user].is_a?(User)
       User.current = session[:user]
     end
-    User.current = AnonymousUser.new request.remote_ip unless User.current
+    User.current ||= AnonymousUser.new request.remote_ip
     session[:user] = User.current
   end
   
