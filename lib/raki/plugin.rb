@@ -142,7 +142,11 @@ module Raki
     end
     
     def <=> b
-      name <=> b.name
+      if name && b.name
+        name <=> b.name
+      else
+        id.to_s <=> b.id.to_s
+      end
     end
     
     def include(clazz)
