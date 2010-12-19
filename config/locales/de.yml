@@ -90,6 +90,9 @@ de:
   search:
     tab: Suche
     title: Suche
+    result_for: Suchergebnisse für '%{query}'
+    no_result: Keine Ergebnisse gefunden
+    button: Suchen
 
   parser:
     parsing_error: Parsen der Seite schlug fehl

@@ -90,6 +90,9 @@ en:
   search:
     tab: Search
     title: Search
+    result_for: Search results for '%{query}'
+    no_result: No results were found
+    button: Search
   
   parser:
     parsing_error: Parsing Error

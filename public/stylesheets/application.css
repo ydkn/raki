@@ -213,12 +213,33 @@ a.feed img {
     border: 0;
 }
 
-.search_results {
+#search-form {
+	margin-bottom: 2em;
+}
+
+#search_results {
 	list-style-type: none;
 }
 
-.search_results li {
-	margin-bottom: 0.5em;
+#search_results p:first-child {
+	font-weight: bold;
+	margin-bottom: 2em;
+}
+
+#search_results ul {
+	padding-left: 2em;
+}
+
+#search_results ul li {
+	margin-bottom: 0.75em;
+}
+
+#search_results ul li a {
+	font-weight: bold;
+}
+
+#search_results ul li span {
+	font-size: 0.75em;
 }
 
 a, a:visited {

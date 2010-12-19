@@ -19,9 +19,9 @@ class SearchController < ApplicationController
   include Raki::Helpers::SearchHelper
   
   def search
-    redirect_to :controller => 'search', :action => 'search', :query => params[:q] unless params[:q].nil?
+    @query = params[:query].empty? ? params[:q] : params[:query].join('/')
     @title = t 'search.title'
-    @results = search!(params[:query].join('/')) unless params[:query].nil?
+    @results = search!(@query) if @query && !@query.blank?
   end
 
 end

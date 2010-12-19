@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'fileutils'
 require 'ferret'
 
 module Raki
@@ -30,70 +31,45 @@ module Raki
         SEARCH_FIELDS.each do |field|
           results += field_search field, querystring
         end
-        results.sort {|a,b| a[:score] <=> b[:score]}
+        results.sort {|a,b| b[:score] <=> a[:score]}
       end
       
-      def field_search(field, querystring)
-        query = Ferret::Search::MultiTermQuery.new(field.to_sym)
-        querystring.downcase.split(/\s+/).each do |term|
-          query.add_term(term) 
-        end
-        results = []
-        @index.search_each(query) do |id, score|
-          doc = @index[id]
-          results << {
-              :type => doc[:type],
-              :page => doc[:page],
-              :revision => doc[:revision],
-              :attachment => doc[:attachment],
-              :score => score,
-              :excerpt => @index.highlight(querystring, id, :field => :content, :pre_tag => '<b>', :post_tag => '</b>')
-            }
-        end
-        results.sort {|a,b| a[:score] <=> b[:score]}
-        results.each do |r|
-          p r
-        end
-        results
-      end
-      private :field_search
-      
-      def <<(type, page, revision, content=nil, attachment=nil)
+      def <<(namespace, page, revision, content=nil, attachment=nil)
         type = type.to_s
         page = page.to_s
         revision = revision.to_s
         doc_id = nil
-        @index.search_each("(type:\"#{type}\" AND page:\"#{page}\" AND revision:\"#{revision}\")") {|id, score| doc_id = id}
-        return false unless doc_id.nil?
-        if attachment.nil?
-          doc = {:type => type, :page => page, :revision => revision, :content => content}
+        @index.search_each("(namespace:\"#{namespace}\" AND page:\"#{page}\" AND revision:\"#{revision}\")") {|id, score| doc_id = id}
+        return false if doc_id
+        if attachment
+          doc = {:namespace => namespace, :page => page, :revision => revision, :attachment => attachment}
         else
-          doc = {:type => type, :page => page, :revision => revision, :attachment => attachment}
+          doc = {:namespace => namespace, :page => page, :revision => revision, :content => content}
         end
         @index << doc
         true
       end
       
-      def indexed?(type, page, revision)
+      def indexed?(namespace, page, revision)
         doc_id = nil
-        @index.search_each("(type:\"#{type}\" AND page:\"#{page}\" AND revision:\"#{revision}\")") {|id, score| doc_id = id}
+        @index.search_each("(namespace:\"#{namespace}\" AND page:\"#{page}\" AND revision:\"#{revision}\")") {|id, score| doc_id = id}
         !doc_id.nil?
       end
       
       def refresh
-        types.each do |type|
-          page_all(type).each do |page|
-            page_revisions(type, page).reverse_each do |revision|
-              next if indexed?(type, page, revision.id)
+        namespaces.each do |namespace|
+          page_all(namespace).each do |page|
+            page_revisions(namespace, page).reverse_each do |revision|
+              next if indexed?(namespace, page, revision.id)
               begin
-                self.<< type, page, revision.id, page_contents(type, page, revision.id), nil
+                self.<< namespace, page, revision.id, page_contents(namespace, page, revision.id), nil
               rescue => e
               end
             end
-            attachment_all(type, page).each do |attachment|
-              attachment_revisions(type, page, attachment).reverse_each do |revision|
+            attachment_all(namespace, page).each do |attachment|
+              attachment_revisions(namespace, page, attachment).reverse_each do |revision|
                 begin
-                  self.<< type, page, revision.id, nil, attachment
+                  self.<< namespace, page, revision.id, nil, attachment
                 rescue => e
                 end
               end
@@ -104,22 +80,45 @@ module Raki
       end
       
       def rebuild_index
-        require 'fileutils'
-        FileUtils.rm_rf "#{Rails.root}/tmp/search.idx"
+        FileUtils.rm_rf(File.join(Rails.root, 'tmp', "#{Rails.env}.idx"))
         create_index
         refresh
       end
       
-      def create_index
-        @index = Ferret::Index::Index.new(:path => "#{Rails.root}/tmp/search.idx")
-        @index.field_infos.add_field(:type, :store => :yes, :boost => 5.0)
-        @index.field_infos.add_field(:page, :store => :yes, :boost => 5.0)
-        @index.field_infos.add_field(:content, :store => :yes, :boost => 2.0)
-      end
-      private :create_index
-      
       def optimize_index
         @index.optimize
+      end
+      
+      private
+      
+      def create_index
+        @index = Ferret::Index::Index.new(:path => File.join(Rails.root, 'tmp', "#{Rails.env}.idx"))
+        @index.field_infos.add_field(:namespace, :store => :yes, :boost => 5.0)
+        @index.field_infos.add_field(:page, :store => :yes, :boost => 6.0)
+        @index.field_infos.add_field(:attachment, :store => :yes, :boost => 5.0)
+        @index.field_infos.add_field(:content, :store => :yes, :boost => 2.0)
+      end
+      
+      def field_search(field, querystring)
+        query = Ferret::Search::MultiTermQuery.new(field.to_sym)
+        querystring.downcase.split(/\s+/).each do |term|
+          query.add_term(term)
+        end
+        
+        results = []
+        @index.search_each(query) do |id, score|
+          doc = @index[id]
+          results << {
+              :namespace => doc[:namespace],
+              :page => doc[:page],
+              :attachment => doc[:attachment],
+              :revision => doc[:revision],
+              :score => score,
+              :excerpt => @index.highlight(querystring, id, :field => :content, :pre_tag => '<b>', :post_tag => '</b>')
+            }
+        end
+        
+        results
       end
       
     end
@@ -127,6 +126,7 @@ module Raki
     begin
       create_index
     rescue => e
+      Rails.logger.error(e)
     end
     
   end
