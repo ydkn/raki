@@ -89,7 +89,7 @@ function toolbarClickEvent(e) {
 	
 	itemAttributes = toolbarItem.attributes;
 	
-	var content = document.getElementById('content');
+	var content = document.getElementById('edit-content');
 	var selectionStart = content.selectionStart;
 	var selectionEnd = content.selectionEnd;
 	var selectedText = content.value.substring(content.selectionStart, content.selectionEnd);
@@ -226,7 +226,7 @@ function refreshPreview() {
 		previewRefresh = true;
 		return;
 	}
-	if(!document.getElementById("preview") || !document.getElementById("content")) {
+	if(!document.getElementById("preview") || !document.getElementById("edit-content")) {
 		return;
 	}
 	
@@ -238,7 +238,7 @@ function refreshPreview() {
 	
 	previewLoading = true;
 	
-	content = document.getElementById("content");
+	content = document.getElementById("edit-content");
 	previewContent = document.getElementById("preview-content");
 	livePreviewLoader = document.getElementById("live-preview-loader");
 	
@@ -288,7 +288,7 @@ function scheduleRefresh() {
 }
 
 function initLivePreview() {
-	if(!document.getElementById("preview") || !document.getElementById("content")) {
+	if(!document.getElementById("preview") || !document.getElementById("edit-content")) {
 		return;
 	}
 	document.getElementById("preview").style.display = 'block';
@@ -299,7 +299,7 @@ function initLivePreview() {
 		return;
 	}
 	
-	content = document.getElementById("content");
+	content = document.getElementById("edit-content");
 	previewContent = document.getElementById("preview-content");
 	livePreviewSwitch = document.getElementById("live-preview-switch");
 	

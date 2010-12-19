@@ -27,11 +27,11 @@
     </div>
     <div>
       <label for="page-message"><%=t 'page.edit.message' %></label>
-      <input type="text" id="page-message" name="message" />
+      <input type="text" id="edit-message" name="message" />
     </div>
     <%=render :partial => 'toolbar' %>
     <div>
-      <textarea id="content" name="content" cols="100" rows="25"><%=h(params[:content] || @page.content) %></textarea>
+      <textarea id="edit-content" name="content" cols="100" rows="25"><%=h(params[:content] || @page.content) %></textarea>
     </div>
   <% end %>
   <% unless @preview.nil? %>
