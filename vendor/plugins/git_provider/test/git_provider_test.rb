@@ -15,25 +15,29 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'test_helper'
+require 'digest/md5'
 
 class GitProviderTest < Test::Unit::TestCase
 
   # Setup a GIT repository for testing
   def setup
-    FileUtils.remove_dir("#{Rails.root}/tmp/test-git-repo", true) if File.exists?("#{Rails.root}/tmp/test-git-repo")
-    `git init #{Rails.root}/tmp/test-git-repo`
-    @provider = GitProvider.new(:default, {'path' => "#{Rails.root}/tmp/test-git-repo"})
+    @repo_path = File.join(Rails.root, 'tmp', 'test-git-repo')
+    @tmp_repo_path = File.join(Rails.root, 'tmp', 'gitrepos', "#{Digest::MD5.hexdigest(@repo_path)}_test")
+    
+    `git init #{@repo_path}`
+    @provider = GitProvider.new('test', {'path' => @repo_path})
   end
 
   # Remove GIT repository after testing
   def teardown
-    FileUtils.remove_dir("#{Rails.root}/tmp/test-git-repo", true)
+    FileUtils.remove_dir(@repo_path, true) if @repo_path && File.exists?(@repo_path)
+    FileUtils.remove_dir(@tmp_repo_path, true) if @tmp_repo_path && File.exists?(@tmp_repo_path)
   end
 
   # Try to create with an invalid repository
   def test_invalid_repository
     assert_raise(Raki::AbstractProvider::ProviderError) do
-      GitProvider.new(:invalid, {'path' => "#{Rails.root}/tmp/test-git-repo-not-exists"})
+      GitProvider.new(:invalid, {'path' => File.join(Rails.root, 'tmp', 'test-git-repo-not-exists')})
     end
   end
 
@@ -72,7 +76,7 @@ class GitProviderTest < Test::Unit::TestCase
         assert_equal content, page_contents(namespace_name, page_name)
         revisions = page_revisions namespace_name, page_name
         assert_equal 1, revisions.length
-        assert_same_user default_user, revisions[0].user
+        assert_same_user default_user, revisions[0][:user]
       end
     end
   end
@@ -89,8 +93,8 @@ class GitProviderTest < Test::Unit::TestCase
     assert_equal new_content, page_contents(:page, page_name)
     revisions = page_revisions :page, page_name
     assert_equal 2, revisions.length
-    assert_same_user default_user, revisions[1].user
-    assert_same_user update_user, revisions[0].user
+    assert_same_user default_user, revisions[1][:user]
+    assert_same_user update_user, revisions[0][:user]
   end
 
   # Rename page
@@ -109,7 +113,7 @@ class GitProviderTest < Test::Unit::TestCase
     assert_equal content, page_contents(new_page[:namespace], new_page[:page])
     revisions = page_revisions new_page[:namespace], new_page[:page]
     assert_equal 1, revisions.length
-    assert_same_user rename_user, revisions[0].user
+    assert_same_user rename_user, revisions[0][:user]
     
     # other namespace
     rename_user2 = user 'renamer2', 'renamer2@other-dom.net'
@@ -119,7 +123,7 @@ class GitProviderTest < Test::Unit::TestCase
     assert_equal content, page_contents(new_page2[:namespace], new_page2[:page])
     revisions = page_revisions new_page2[:namespace], new_page2[:page]
     assert_equal 1, revisions.length
-    assert_same_user rename_user2, revisions[0].user
+    assert_same_user rename_user2, revisions[0][:user]
     
     # target page already exists
     page = {:namespace => :page, :page => 'TestPage2'}
@@ -176,26 +180,26 @@ class GitProviderTest < Test::Unit::TestCase
     page_save :page, page_name, "test content", 'create', user1
     revisions = page_revisions :page, page_name
     assert_equal 1, revisions.length
-    assert_same_user user1, revisions[0].user
-    assert_equal 'create', revisions[0].message
+    assert_same_user user1, revisions[0][:user]
+    assert_equal 'create', revisions[0][:message]
     page_save :page, page_name, "updated content", 'update', user2
     revisions = page_revisions :page, page_name
     assert_equal 2, revisions.length
-    assert_same_user user2, revisions[0].user
-    assert_same_user user1, revisions[1].user
-    assert_not_equal revisions[0].version, revisions[1].version
-    assert_equal 'update', revisions[0].message
-    assert_equal 'create', revisions[1].message
+    assert_same_user user2, revisions[0][:user]
+    assert_same_user user1, revisions[1][:user]
+    assert_not_equal revisions[0][:version], revisions[1][:version]
+    assert_equal 'update', revisions[0][:message]
+    assert_equal 'create', revisions[1][:message]
     page_save :page, page_name, "new updated content", 'update2', user3
     revisions = page_revisions :page, page_name
     assert_equal 3, revisions.length
-    assert_same_user user3, revisions[0].user
-    assert_same_user user1, revisions[2].user
-    assert_not_equal revisions[0].version, revisions[2].version
-    assert_not_equal revisions[1].version, revisions[2].version
-    assert_not_equal revisions[0].version, revisions[1].version
-    assert_equal 'update2', revisions[0].message
-    assert_equal 'update', revisions[1].message
+    assert_same_user user3, revisions[0][:user]
+    assert_same_user user1, revisions[2][:user]
+    assert_not_equal revisions[0][:version], revisions[2][:version]
+    assert_not_equal revisions[1][:version], revisions[2][:version]
+    assert_not_equal revisions[0][:version], revisions[1][:version]
+    assert_equal 'update2', revisions[0][:message]
+    assert_equal 'update', revisions[1][:message]
   end
 
   def test_attachment_exists
@@ -222,7 +226,7 @@ class GitProviderTest < Test::Unit::TestCase
           assert_equal data, attachment_contents(namespace_name, page_name, attachment_name)
           revisions = attachment_revisions namespace_name, page_name, attachment_name
           assert_equal 1, revisions.length
-          assert_same_user default_user, revisions[0].user
+          assert_same_user default_user, revisions[0][:user]
         end
       end
     end
@@ -241,8 +245,8 @@ class GitProviderTest < Test::Unit::TestCase
     assert_equal new_data, attachment_contents(:page, page_name, attachment_name)
     revisions = attachment_revisions :page, page_name, attachment_name
     assert_equal 2, revisions.length
-    assert_same_user default_user, revisions[1].user
-    assert_same_user update_user, revisions[0].user
+    assert_same_user default_user, revisions[1][:user]
+    assert_same_user update_user, revisions[0][:user]
   end
   
   # Delete an existing attachment

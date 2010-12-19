@@ -32,7 +32,7 @@ module Raki
       raise ProviderError.new 'not implemented'
     end
 
-    def page_revisions(namespace, name)
+    def page_revisions(namespace, name, options={})
       raise ProviderError.new 'not implemented'
     end
 
@@ -64,7 +64,7 @@ module Raki
       raise ProviderError.new 'not implemented'
     end
 
-    def attachment_revisions(namespace, page, name)
+    def attachment_revisions(namespace, page, name, options={})
       raise ProviderError.new 'not implemented'
     end
 

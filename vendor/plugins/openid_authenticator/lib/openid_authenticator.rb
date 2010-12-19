@@ -64,7 +64,6 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
         sreg = parse_sreg_response(response)
         ax = parse_ax_response(response)
         fields = sreg.merge(ax)
-        p fields
         fields[:nickname] = fields[:fullname] if fields[:nickname].nil?
         raise AuthenticatorError.new(t 'auth.openid.nickname_missing') if fields[:nickname].nil?
         return User.new(fields[:nickname], :username => fields[:nickname], :email => fields[:email], :display_name => fields[:fullname])
@@ -120,8 +119,6 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
   def parse_ax_response(response)
     begin
       ax = OpenID::AX::FetchResponse.from_success_response(response)
-      p ax.inspect
-      p response
       return {} if ax.nil?
       fields = {}
       fields[:email] = ax.data['http://axschema.org/contact/email'].first unless ax.data['http://axschema.org/contact/email'].first.nil?
