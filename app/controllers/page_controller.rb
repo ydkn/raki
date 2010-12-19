@@ -213,6 +213,9 @@ class PageController < ApplicationController
   end
   
   def live_preview
+    @context[:page] = Page.new(:namespace => params[:namespace], :name => params[:page])
+    @context[:real_page] = @context[:page]
+    
     render :inline => Raki::Parser[params[:namespace]].parse(params[:content], @context), :content_type => 'text/html'
   end
   

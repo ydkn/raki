@@ -266,7 +266,7 @@ function refreshPreview() {
 	
 	data = encodeURIComponent(csrfParam) + "=" + encodeURIComponent(csrfTocken);
 	
-	data += "&content=" + encodeURIComponent(content.value) + "&namespace=" + encodeURIComponent(namespace);
+	data +=  "&namespace=" + encodeURIComponent(namespace) + "&page=" + encodeURIComponent(page) + "&content=" + encodeURIComponent(content.value);
 	
 	httpRequest.open('POST', '/preview', true);
 	httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
