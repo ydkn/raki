@@ -5,6 +5,7 @@
 
 var csrfParam;
 var csrfTocken;
+var urlPrefix;
 var namespace;
 var page;
 var action;
@@ -21,6 +22,8 @@ function initMetaVars() {
 			csrfParam = value
 		} else if(name == 'csrf-token') {
 			csrfTocken = value;
+		} else if(name == 'raki-url-prefix') {
+			urlPrefix = value;
 		} else if(name == 'raki-namespace') {
 			namespace = value;
 		} else if(name == 'raki-page') {
@@ -268,7 +271,7 @@ function refreshPreview() {
 	
 	data +=  "&namespace=" + encodeURIComponent(namespace) + "&page=" + encodeURIComponent(page) + "&content=" + encodeURIComponent(content.value);
 	
-	httpRequest.open('POST', '/preview', true);
+	httpRequest.open('POST', urlPrefix + 'preview', true);
 	httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	httpRequest.setRequestHeader("Content-Length", data.length);
 	httpRequest.setRequestHeader("Connection", "close");
@@ -347,7 +350,7 @@ function unlock() {
 	data = encodeURIComponent(csrfParam) + "=" + encodeURIComponent(csrfTocken);
 	data += "&namespace=" + encodeURIComponent(namespace) + "&page=" + encodeURIComponent(page);
 
-	httpRequest.open('POST', '/unlock', false);
+	httpRequest.open('POST', urlPrefix + 'unlock', false);
 	httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	httpRequest.setRequestHeader("Content-Length", data.length);
 	httpRequest.setRequestHeader("Connection", "close");

@@ -38,5 +38,9 @@ module ApplicationHelper
   def visited_pages
     @visited_pages ||= session[:visited_pages].collect{|p| Page.new :namespace => p[:namespace], :name => p[:page]}
   end
+  
+  def url_prefix
+    url_for({:controller => 'page', :action => 'redirect_to_indexpage', :namespace => 'PREFIX'}).gsub(/PREFIX$/, '')
+  end
 
 end
