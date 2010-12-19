@@ -100,7 +100,8 @@ class GitRepo
   
   def log(refspec, pathspec=nil, options={})
     params = ['log', '--raw', '--full-index']
-    params << "-n #{options[:limit]}" if options.key?(:limit)
+    params << "-n #{options[:limit]}" if options[:limit]
+    params << "--since=#{options[:since].strftime("%Y-%m-%d %H:%M:%S")}" if options[:since]
     params << refspec
     
     out, err = run_git(params, ["\"#{pathspec}\""])
@@ -122,7 +123,7 @@ class GitRepo
       elsif line =~ /^Author:\s+(.+) <(.+)>/i
         commit[:author] = {:name => $1, :email => $2}
       elsif line =~ /^Date:\s+(.+)/i
-        commit[:date] = Time.new # TODO Time.parse($3)
+        commit[:date] = Time.parse($1.strip)
       elsif line =~ /^:\d{6} \d{6} [0-9a-f]+\.\.\. [0-9a-f]+\.\.\. ([a-z])\s+(.+)/i
         commit[:changes] << {:mode => $1.strip, :file => $2.strip}
       else
@@ -168,7 +169,6 @@ class GitRepo
     command += options[:path] + ' ' if !options[:working_dir] && options[:path]
     command += cmds.join(' ')
     command += ' -- ' + args.join(' ') if args && !args.empty?
-    #p command
     
     timeout = options[:timeout] || GIT_TIMEOUT
     max_size = options[:max_size] || GIT_MAX_SIZE
@@ -190,9 +190,7 @@ class GitRepo
     
     [out, err]
   rescue => e
-    p e.to_s
-    print e.backtrace.join("\n")
-    raise 'error'
+    raise e.to_s
   end
   
 end

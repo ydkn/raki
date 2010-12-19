@@ -27,7 +27,12 @@ class Page
     @namespace = params[:namespace].to_s.strip
     @name = params[:name].to_s.strip
     if params[:revision]
-      @revision = provider.page_revisions(namespace, name).select{|r| r.id.to_s == params[:revision].to_s.strip}.first
+      provider.page_revisions(namespace, name).each do |r|
+        if r[:id].to_s == params[:revision].to_s.strip
+          @revision = hash_to_revision(r)
+          break
+        end
+      end
     end
     @errors = []
   end
@@ -52,7 +57,7 @@ class Page
   
   def revision
     return nil unless exists?
-    @revision ||= provider.page_revisions(namespace, name).first
+    @revision ||= head_revision
   end
   
   def exists?
@@ -71,12 +76,12 @@ class Page
   
   def revisions
     return [] unless exists?
-    @revisions ||= provider.page_revisions(namespace, name)
+    @revisions ||= provider.page_revisions(namespace, name).collect{|r| hash_to_revision(r)}
   end
   
   def head_revision
-    return nil unless exists?
-    @head_revision ||= provider.page_revisions(namespace, name, 1).first
+    return nil unless provider.page_exists?(namespace, name)
+    hash_to_revision(provider.page_revisions(namespace, name, :limit => 1).first)
   end
   
   def attachments
@@ -193,9 +198,7 @@ class Page
       reset
       @exists = true
     end
-    @head_revision = provider.page_revisions(namespace, name).first
-    @revision = @head_revision
-    @revisions.unshift @head_revision if @revisions
+    @revision = head_revision
     true
   rescue
     false
@@ -318,7 +321,9 @@ class Page
       namespace ? !namespace.select{|nsf| nsf.is_a?(Regexp) ? (ns =~ nsf) : (nsf.to_s == ns.to_s)}.empty? : true
     end.each do |ns|
       revisions += Raki::Provider[ns].page_changes(ns, opts).select do |r|
-        page ? !page.select{|pf| pf.is_a?(Regexp) ? (r.page =~ pf) : (pf.to_s == r.page.to_s)}.empty? : true
+        page ? !page.select{|pf| pf.is_a?(Regexp) ? (r[:page][:name] =~ pf) : (pf.to_s == "#{r[:page][:namespace]}/#{r[:page][:name]}")}.empty? : true
+      end.collect do |r|
+        hash_to_revision(r)
       end
     end
     
@@ -336,6 +341,17 @@ class Page
   end
   
   private
+  
+  def hash_to_revision(rev)
+    Revision.new(self, nil, rev[:id], rev[:version], rev[:size], rev[:user], rev[:date], rev[:message], rev[:mode])
+  end
+  
+  def self.hash_to_revision(rev)
+    Revision.new(
+      Page.new(:namespace => rev[:page][:namespace], :name => rev[:page][:name]),
+      nil, rev[:id], rev[:version], rev[:size], rev[:user], rev[:date], rev[:message], rev[:mode]
+    )
+  end
   
   def provider
     Raki::Provider[namespace]

@@ -18,13 +18,9 @@ class Revision
   
   attr_reader :page, :attachment, :id, :version, :size, :user, :date, :message, :mode
 
-  def initialize(obj, id, version, size, user, date, message, mode=nil)
-    if obj.is_a?(Page)
-      @page = obj
-    elsif obj.is_a?(Attachment)
-      @attachment = obj
-      @page = @attachment.page
-    end
+  def initialize(page, attachment, id, version, size, user, date, message, mode=nil)
+    @page = page
+    @attachment = attachment
     @id = id
     @version = version
     @size = size
