@@ -120,12 +120,17 @@ class PageController < ApplicationController
       redirect_to @page.url
       return
     end
+    
     @page.delete(User.current)
     @page.unlock(User.current)
     
-    if session[:visited_pages].first
-      last_page = Page.find session[:visited_pages].first[:namespace], session[:visited_pages].first[:page]
-      if last_page && last_page.namespace != @page.namespace && last_page.name != @page.name
+    if session[:visited_pages]
+      last_page = session[:visited_pages].select do |p|
+        p[:namespace] != @page.namespace || p[:page] != @page.name
+      end.collect do |p|
+        Page.find(p[:namespace], p[:page])
+      end.compact.first
+      if last_page
         redirect_to last_page.url
         return
       end
