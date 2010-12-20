@@ -185,7 +185,13 @@ class Page
   
   def save(user, msg=nil)
     if renamed?
-      page_rename(@namespace, @name, namespace, name, user)
+      if Raki::Provider[@namespace] == Raki::Provider[namespace]
+        provider.page_rename(@namespace, @name, namespace, name, user)
+      else
+        c = Raki::Provider[@namespace].page_contents(@namespace, @name)
+        Raki::Provider[@namespace].page_delete(@namespace, @name, user)
+        Raki::Provider[namespace].page_save(namespace, name, c, msg, user)
+      end
       @namespace = @new_namespace if @new_namespace
       @name = @new_name if @new_name
       @new_namespace = nil
@@ -200,7 +206,8 @@ class Page
     end
     @revision = head_revision
     true
-  rescue
+  rescue => e
+    Rails.logger.error(e)
     false
   end
   
