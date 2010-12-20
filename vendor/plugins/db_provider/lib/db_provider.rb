@@ -39,27 +39,34 @@ class DBProvider < Raki::AbstractProvider
     true
   end
 
-  def page_revisions(namespace, name)
+  def page_revisions(namespace, name, options={})
     raise PageNotExists unless page_exists?(namespace, name)
     page_id = DBPage.find_by_namespace_and_name(namespace.to_s, name.to_s).id
     revs = []
-    DBPageRevision.find_all_by_page_id(page_id, :order => 'revision DESC').each do |revision|
-      revs << Revision.new(
-          Page.new(:namespace => namespace, :name => name),
-          revision.revision,
-          revision.revision,
-          revision.content.size,
-          Raki::Authenticator.user_for(:username => revision.author),
-          revision.date,
-          revision.message,
-          :none
-        )
+    DBPageRevision.find_all_by_page_id(page_id, :order => 'revision DESC', :limit => options[:limit]).each do |revision|
+      break if options[:since] && options[:since] <= revision.date
+      mode = case revision.revision
+        when 1
+          :created
+        else
+          :modified
+      end
+      revs << {
+        :id => revision.revision,
+        :version => revision.revision,
+        :date => revision.date,
+        :message => revision.message,
+        :user => Raki::Authenticator.user_for(:username => revision.author),
+        :mode => mode,
+        :size => revision.content.size,
+        :type => :page
+      }
     end
     revs
   end
 
   def page_save(namespace, name, contents, message, user)
-    message = nil if message.empty?
+    message = nil if message && message.strip.blank?
     page = DBPage.find_by_namespace_and_name(namespace.to_s, name.to_s)
     page = DBPage.create!(:namespace => namespace.to_s, :name => name.to_s) unless page
     revision = DBPageRevision.find_by_page_id(page.id, :order => 'revision DESC', :limit => 1)
@@ -106,18 +113,24 @@ class DBProvider < Raki::AbstractProvider
     limit = options.key?(:limit) ? options[:limit].to_i : 10000
     DBPageRevision.all(:joins => "INNER JOIN #{DBPage.table_name} ON #{DBPage.table_name}.id = #{DBPageRevision.table_name}.page_id", :conditions => ["namespace = ?", namespace.to_s], :order => 'date DESC', :limit => limit).each do |revision|
       break if options[:since] && options[:since] <= revision.date
-      changes << Revision.new(
-          Page.new(:namespace => revision.page.namespace, :name => revision.page.name),
-          revision.revision,
-          revision.revision,
-          revision.content.size,
-          Raki::Authenticator.user_for(:username => revision.author),
-          revision.date,
-          revision.message,
-          :none
-        )
+      mode = case revision.revision
+        when 1
+          :created
+        else
+          :modified
+        end
+      changes << {
+        :id => revision.revision,
+        :version => revision.revision,
+        :date => revision.date,
+        :message => revision.message,
+        :user => Raki::Authenticator.user_for(:username => revision.author),
+        :mode => mode,
+        :size => revision.content.size,
+        :type => :page,
+        :page => {:namespace => revision.page.namespace, :name => revision.page.name}
+      }
     end
-    changes = changes.sort { |a,b| b.date <=> a.date }
     changes
   end
 
@@ -141,21 +154,28 @@ class DBProvider < Raki::AbstractProvider
     true
   end
 
-  def attachment_revisions(namespace, page, name)
+  def attachment_revisions(namespace, page, name, options={})
     raise AttachmentNotExists unless attachment_exists?(namespace, page, name)
     att_id = DBAttachment.find_by_namespace_and_page_and_name(namespace.to_s, page.to_s, name.to_s).id
     revs = []
-    DBAttachmentRevision.find_all_by_attachment_id(att_id, :order => 'revision DESC').each do |revision|
-      revs << Revision.new(
-          Attachment.new(:namespace => namespace, :page => page, :name => name),
-          revision.revision,
-          revision.revision,
-          revision.content.size,
-          Raki::Authenticator.user_for(:username => revision.author),
-          revision.date,
-          revision.message,
-          :none
-        )
+    DBAttachmentRevision.find_all_by_attachment_id(att_id, :order => 'revision DESC', :limit => options[:limit]).each do |revision|
+      break if options[:since] && options[:since] <= revision.date
+      mode = case revision.revision
+        when 1
+          :created
+        else
+          :modified
+      end
+      revs << {
+        :id => revision.revision,
+        :version => revision.revision,
+        :date => revision.date,
+        :message => revision.message,
+        :user => Raki::Authenticator.user_for(:username => revision.author),
+        :mode => mode,
+        :size => revision.content.size,
+        :type => :attachment
+      }
     end
     revs
   end
@@ -205,18 +225,25 @@ class DBProvider < Raki::AbstractProvider
     end
     revisions.each do |revision|
       break if options[:since] && options[:since] <= revision.date
-      changes << Revision.new(
-          Attachment.new(:namespace => revision.attachment.namespace, :page => revision.attachment.page, :name => revision.attachment.name),
-          revision.revision,
-          revision.revision,
-          revision.content.size,
-          Raki::Authenticator.user_for(:username => revision.author),
-          revision.date,
-          revision.message,
-          :none
-        )
+      mode = case revision.revision
+        when 1
+          :created
+        else
+          :modified
+        end
+      changes << {
+        :id => revision.revision,
+        :version => revision.revision,
+        :date => revision.date,
+        :message => revision.message,
+        :user => Raki::Authenticator.user_for(:username => revision.author),
+        :mode => mode,
+        :size => revision.content.size,
+        :type => :attachment,
+        :page => {:namespace => revision.attachment.namespace, :name => revision.attachment.page},
+        :attachment => revision.attachment.name
+      }
     end
-    changes = changes.sort { |a,b| b.date <=> a.date }
     changes
   end
   

@@ -47,7 +47,7 @@ class DBProviderTest < Test::Unit::TestCase
         assert_equal content, page_contents(namespace_name, page_name)
         revisions = page_revisions namespace_name, page_name
         assert_equal 1, revisions.length
-        assert_same_user default_user, revisions[0].user
+        assert_same_user default_user, revisions[0][:user]
       end
     end
   end
@@ -64,8 +64,8 @@ class DBProviderTest < Test::Unit::TestCase
     assert_equal new_content, page_contents(:page, page_name)
     revisions = page_revisions :page, page_name
     assert_equal 2, revisions.length
-    assert_same_user default_user, revisions[1].user
-    assert_same_user update_user, revisions[0].user
+    assert_same_user default_user, revisions[1][:user]
+    assert_same_user update_user, revisions[0][:user]
   end
 
   # Rename page
@@ -84,7 +84,7 @@ class DBProviderTest < Test::Unit::TestCase
     assert_equal content, page_contents(new_page[:namespace], new_page[:page])
     revisions = page_revisions new_page[:namespace], new_page[:page]
     assert_equal 1, revisions.length
-    assert_same_user default_user, revisions[0].user
+    assert_same_user default_user, revisions[0][:user]
     
     # other namespace
     rename_user2 = user 'renamer2', 'renamer2@other-dom.net'
@@ -94,7 +94,7 @@ class DBProviderTest < Test::Unit::TestCase
     assert_equal content, page_contents(new_page2[:namespace], new_page2[:page])
     revisions = page_revisions new_page2[:namespace], new_page2[:page]
     assert_equal 1, revisions.length
-    assert_same_user default_user, revisions[0].user
+    assert_same_user default_user, revisions[0][:user]
     
     # target page already exists
     page = {:namespace => :page, :page => 'RenameTestPage2'}
@@ -115,7 +115,7 @@ class DBProviderTest < Test::Unit::TestCase
     assert !page_exists?(:page, page_name)
     
     # delete page which don't exists
-    assert_raise(Raki::AbstractProvider::ProviderError) do
+    assert_raise(Raki::AbstractProvider::PageNotExists) do
       page_delete :page, 'NotExistingPage', default_user
     end
   end
@@ -151,26 +151,26 @@ class DBProviderTest < Test::Unit::TestCase
     page_save :page, page_name, "test content", 'create', user1
     revisions = page_revisions :page, page_name
     assert_equal 1, revisions.length
-    assert_same_user user1, revisions[0].user
-    assert_equal 'create', revisions[0].message
+    assert_same_user user1, revisions[0][:user]
+    assert_equal 'create', revisions[0][:message]
     page_save :page, page_name, "updated content", 'update', user2
     revisions = page_revisions :page, page_name
     assert_equal 2, revisions.length
-    assert_same_user user2, revisions[0].user
-    assert_same_user user1, revisions[1].user
-    assert_not_equal revisions[0].version, revisions[1].version
-    assert_equal 'update', revisions[0].message
-    assert_equal 'create', revisions[1].message
+    assert_same_user user2, revisions[0][:user]
+    assert_same_user user1, revisions[1][:user]
+    assert_not_equal revisions[0][:version], revisions[1][:version]
+    assert_equal 'update', revisions[0][:message]
+    assert_equal 'create', revisions[1][:message]
     page_save :page, page_name, "new updated content", 'update2', user3
     revisions = page_revisions :page, page_name
     assert_equal 3, revisions.length
-    assert_same_user user3, revisions[0].user
-    assert_same_user user1, revisions[2].user
-    assert_not_equal revisions[0].version, revisions[2].version
-    assert_not_equal revisions[1].version, revisions[2].version
-    assert_not_equal revisions[0].version, revisions[1].version
-    assert_equal 'update2', revisions[0].message
-    assert_equal 'update', revisions[1].message
+    assert_same_user user3, revisions[0][:user]
+    assert_same_user user1, revisions[2][:user]
+    assert_not_equal revisions[0][:version], revisions[2][:version]
+    assert_not_equal revisions[1][:version], revisions[2][:version]
+    assert_not_equal revisions[0][:version], revisions[1][:version]
+    assert_equal 'update2', revisions[0][:message]
+    assert_equal 'update', revisions[1][:message]
   end
 
   def test_attachment_exists
@@ -197,7 +197,7 @@ class DBProviderTest < Test::Unit::TestCase
           assert_equal data, attachment_contents(namespace_name, page_name, attachment_name)
           revisions = attachment_revisions namespace_name, page_name, attachment_name
           assert_equal 1, revisions.length
-          assert_same_user default_user, revisions[0].user
+          assert_same_user default_user, revisions[0][:user]
         end
       end
     end
@@ -216,8 +216,8 @@ class DBProviderTest < Test::Unit::TestCase
     assert_equal new_data, attachment_contents(:page, page_name, attachment_name)
     revisions = attachment_revisions :page, page_name, attachment_name
     assert_equal 2, revisions.length
-    assert_same_user default_user, revisions[1].user
-    assert_same_user update_user, revisions[0].user
+    assert_same_user default_user, revisions[1][:user]
+    assert_same_user update_user, revisions[0][:user]
   end
   
   # Delete an existing attachment
@@ -230,7 +230,7 @@ class DBProviderTest < Test::Unit::TestCase
     assert !attachment_exists?(:page, page_name, attachment_name)
     
     # delete page which don't exists
-    assert_raise(Raki::AbstractProvider::ProviderError) do
+    assert_raise(Raki::AbstractProvider::AttachmentNotExists) do
       attachment_delete :page, page_name, 'exists.not', delete_user
     end
   end

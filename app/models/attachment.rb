@@ -20,18 +20,20 @@ class Attachment
   
   class AttachmentError < StandardError; end
   
-  extend Raki::Helpers::ProviderHelper
-  
-  include Raki::Helpers::ProviderHelper
   include Raki::Helpers::URLHelper
   
   def initialize(params={})
     if params[:namespace] && params[:page]
-      @page = Page.find(params[:namespace], params[:page])
+      @page = Page.new(:namespace => params[:namespace], :name => params[:page])
     end
     @name = params[:name]
     if params[:revision]
-      @revision = attachment_revisions(@page.namespace, params[:page], params[:name]).select{|r| r.id.to_s == params[:revision].to_s}.first
+      provider.attachment_revisions(@page.namespace, @page.name, @name).each do |r|
+        if r[:id].to_s == params[:revision].to_s.strip
+          @revision = hash_to_revision(r)
+          break
+        end
+      end
     end
   end
   
@@ -44,15 +46,17 @@ class Attachment
   end
   
   def revision
-    @revision ||= attachment_revisions(page.namespace, page.name, name).first
+    return nil unless exists?
+    @revision ||= head_revision
   end
   
   def exists?
-    @exists ||= attachment_exists?(page.namespace, page.name, name, revision.id)
+    @exists ||= provider.attachment_exists?(page.namespace, page.name, name, @revision)
   end
   
   def content
-    @content ||= attachment_contents(page.namespace, page.name, name, revision.id)
+    return @content unless exists?
+    @content ||= provider.attachment_contents(page.namespace, page.name, name, revision.id)
   end
   
   def content=(content)
@@ -60,11 +64,13 @@ class Attachment
   end
   
   def revisions
-    attachment_revisions(page.namespace, page.name, name)
+    return [] unless exists?
+    @revisions ||= provider.attachment_revisions(page.namespace, page.name, name).collect{|r| hash_to_revision(r)}
   end
   
   def head_revision
-    attachment_revisions(page.namespace, page.name, name).first
+    return nil unless provider.attachment_exists?(page.namespace, page.name, name)
+    hash_to_revision(provider.attachment_revisions(page.namespace, page.name, name, :limit => 1).first)
   end
   
   def mime_type
@@ -90,7 +96,7 @@ class Attachment
   end
   
   def save(user, msg=nil)
-    attachment_save(page.namespace, page.name, name, content, msg, user)
+    provider.attachment_save(page.namespace, page.name, name, content, msg, user)
     @revision = head_revision
     true
   end
@@ -103,7 +109,7 @@ class Attachment
   end
   
   def delete(user, msg=nil)
-    attachment_delete(page.namespace, page.name, name, user)
+    provider.attachment_delete(page.namespace, page.name, name, user)
   end
   
   def delete!(user, msg=nil)
@@ -114,12 +120,12 @@ class Attachment
   end
   
   def self.exists?(namespace, page, name, revision=nil)
-    attachment_exists?(namespace, page, name, revision)
+    Raki::Provider[namespace.to_s.strip.to_sym].attachment_exists?(namespace.to_s.strip, page.to_s.strip, name.to_s.strip, revision)
   end
   
   def self.find(namespace, page, name, revision=nil)
-    if attachment_exists?(namespace, page, name, revision)
-      Attachment.new(:namespace => namespace, :page => page, :name => name, :revision => revision)
+    if Raki::Provider[namespace.to_s.strip.to_sym].attachment_exists?(namespace.to_s.strip, page.to_s.strip, name.to_s.strip, revision)
+      Attachment.new(:namespace => namespace.to_s.strip, :page => page.to_s.strip, :name => name.to_s.strip, :revision => revision)
     else
       nil
     end
@@ -160,19 +166,43 @@ class Attachment
     namespaces.select do |ns|
       namespace ? !namespace.select{|nsf| nsf.is_a?(Regexp) ? (ns =~ nsf) : (nsf.to_s == ns.to_s)}.empty? : true
     end.each do |ns|
-      revisions += attachment_changes(ns, nil, opts).select do |r|
+      revisions += Raki::Provider[ns].attachment_changes(ns, nil, opts).select do |r|
         ret = true
         if page
-          ret = !page.select{|pf| pf.is_a?(Regexp) ? (r.page =~ pf) : (pf.to_s == r.page.to_s)}.empty?
+          ret = !page.select{|pf| pf.is_a?(Regexp) ? (r[:page][:name] =~ pf) : (pf.to_s == "#{r[:page][:namespace]}/#{r[:page][:name]}")}.empty?
         end
         if name && ret
           ret = !name.select{|nf| nf.is_a?(Regexp) ? (r.attachment.name =~ nf) : (nf.to_s == r.attachment.name.to_s)}.empty?
         end
         ret
+      end.collect do |r|
+        hash_to_revision(r)
       end
     end
     
     revisions.sort{|a,b| a <=> b}
+  end
+  
+  private
+  
+  def hash_to_revision(rev)
+    Revision.new(@page, self, rev[:id], rev[:version], rev[:size], rev[:user], rev[:date], rev[:message], rev[:mode])
+  end
+  
+  def self.hash_to_revision(rev)
+    Revision.new(
+      Page.new(:namespace => rev[:page][:namespace], :name => rev[:page][:name]),
+      Attachment.new(:namespace => rev[:page][:namespace], :page => rev[:page][:name], :name => rev[:attachment]),
+      rev[:id], rev[:version], rev[:size], rev[:user], rev[:date], rev[:message], rev[:mode]
+    )
+  end
+  
+  def provider
+    Raki::Provider[@page.namespace]
+  end
+  
+  def self.namespaces
+    Page.namespaces
   end
   
 end

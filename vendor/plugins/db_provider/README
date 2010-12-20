@@ -1,7 +1,7 @@
-GitProvider
+DBProvider
 ===========
 
-Page and attachment provider using a GIT repository as backend.
+Page and attachment provider using a database as backend.
 
 
 Copyright (c) 2010 Florian Schwab, released under the GPLv3 license

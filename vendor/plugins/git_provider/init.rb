@@ -14,6 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#require 'git_provider'
+require 'git_provider'
 
-#Raki::Provider.register(:git, GitProvider)
+Raki::Provider.register(:git, GitProvider)

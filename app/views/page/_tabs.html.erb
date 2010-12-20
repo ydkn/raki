@@ -7,6 +7,6 @@
 </div>
 <div id="controls_right">
   <% if @page.exists? && @page.authorized?(User.current, :edit) || !@page.exists? && @page.authorized?(User.current, :create) || @page.authorized?(User.current, :rename) || @page.authorized?(User.current, :delete) %>
-    <%=link_to t('page.tab.edit'), @page.url(:edit), :class => (action_name=~/^(edit|update|delete|rename)$/ ? 'active' : 'inactive') %>
+    <%=link_to t('page.tab.edit'), @page.url(:edit), :class => (action_name=~/^(edit|update|delete|rename|preview)$/ ? 'active' : 'inactive') %>
   <% end %>
 </div>

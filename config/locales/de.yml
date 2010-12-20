@@ -48,13 +48,17 @@ de:
     edit:
       save: Speichern
       preview: Vorschau
+      preview_info: Dies ist nur eine <strong>Vorschau</strong>!
+      live_preview: Schnellvorschau
       abort: Abbrechen
+      keep_editing: Weiter bearbeiten
       message: Kommentar
       rename: Seite umbenennen
       delete: Komplette Seite löschen
       delete_question: Komplette Seite löschen?
       page_already_exists: Seite existiert bereits.
       no_permission_to_create: Keine Berechtigung um Seite anzulegen
+      locked: Der Benutzer <b>%{user}</b> ist gerade dabei diese Seite zu bearbeiten.
 
     info:
       versions: Versionen
@@ -93,3 +97,7 @@ de:
   plugin:
     error: Plugin '%{name}' gab einen Fehler aus.
     missing_parameter: Fehlende Parameter
+
+  toolbar:
+    bold: Fett
+    italic: Kursiv

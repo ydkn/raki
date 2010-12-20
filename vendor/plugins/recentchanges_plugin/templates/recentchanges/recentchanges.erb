@@ -22,7 +22,7 @@
 		  <% end %>
 		<% end %>
 		<td><%=l revision.date, :format => :time %></td>
-		<td><a href="<%=revision.user.page_url %>"><%=h(revision.user.username) %></a></td>
+		<td><a href="<%=revision.user.page.url %>"><%=h(revision.user.display_name) %></a></td>
 		<td><%=h revision.message %></td>
 	  </tr>
 	<% end %>

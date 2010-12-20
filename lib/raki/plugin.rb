@@ -126,10 +126,6 @@ module Raki
 
     end
     
-    include Raki::Helpers::PluginHelper
-    include Raki::Helpers::AuthorizationHelper
-    include Raki::Helpers::ProviderHelper
-    include Raki::Helpers::ParserHelper
     include Raki::Helpers::URLHelper
     include Raki::Helpers::I18nHelper
     include Raki::Helpers::FormatHelper
@@ -146,7 +142,11 @@ module Raki
     end
     
     def <=> b
-      name <=> b.name
+      if name && b.name
+        name <=> b.name
+      else
+        id.to_s <=> b.id.to_s
+      end
     end
     
     def include(clazz)

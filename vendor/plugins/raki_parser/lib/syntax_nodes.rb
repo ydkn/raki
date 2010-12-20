@@ -70,11 +70,11 @@ end
 class WikiLinkNode < RakiSyntaxNode
 
   def to_html context
-    page = nil
-    parts = (@page || href.text_value).split '/'
-    if parts.length == 2
+    page = @page
+    parts = href.text_value.split '/'
+    if !@page && parts.length == 2
       page = Page.new(:namespace => parts[0], :name => parts[1])
-    else
+    elsif !@page
       page = Page.new(:namespace => (context[:page] ? context[:page].namespace : Raki.frontpage[:namespace]), :name => parts[0])
     end
     if page.exists?

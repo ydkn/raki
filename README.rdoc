@@ -17,9 +17,10 @@ different namespaces. It can also have a namespace-specific syntax.
 
 === Raki core
   $ gem install -v=2.3.10 rails
+  $ gem install mime-types
 
 === GIT provider
-  $ gem install unicode mime-types diff-lcs
+  $ gem install unicode popen4
 
 === Raki parser
   $ gem install treetop

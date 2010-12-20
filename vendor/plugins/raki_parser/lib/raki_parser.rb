@@ -37,11 +37,29 @@ class RakiParser < Raki::AbstractParser
     return nil unless output
     output.to_html(context).html_safe
   end
-
-  def src text, context={}
-    output = @parser.parse text
-    return nil unless output
-    output.to_src(context)
+  
+  def toolbar_items
+    [
+      [
+        {:id => 'link', :prefix => '[', :suffix => ']'},
+        {:id => 'heading1', :'line-start' => '!'},
+        {:id => 'heading2', :'line-start' => '!!'},
+        {:id => 'heading3', :'line-start' => '!!!'}
+      ],
+      [
+        {:id => 'bold', :enclosed => '*'},
+        {:id => 'italic', :enclosed => '~'},
+        {:id => 'underline', :enclosed => '_'},
+        {:id => 'strike', :enclosed => '-'}
+      ],
+      [
+        {:id => 'hline', :line => '----'}
+      ],
+      [
+        {:id => 'orderedlist', :'multiline-start' => '# '},
+        {:id => 'list', :'multiline-start' => '* '},
+      ]
+    ]
   end
 
   def link_update text, from, to, context={}
@@ -52,6 +70,14 @@ class RakiParser < Raki::AbstractParser
     else
       [false, text]
     end
+  end
+  
+  private
+  
+  def src text, context={}
+    output = @parser.parse text
+    return nil unless output
+    output.to_src(context)
   end
 
 end

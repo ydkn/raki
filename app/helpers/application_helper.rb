@@ -17,6 +17,10 @@
 module ApplicationHelper
   
   include Raki::Helpers::FormatHelper
+  
+  def meta_tag name, content
+    "<meta name=\"#{h name}\" content=\"#{h content}\" />"
+  end
 
   def plugin_stylesheets
     stylesheets = []
@@ -29,6 +33,14 @@ module ApplicationHelper
   def authenticated?
     return false if User.current.is_a? AnonymousUser
     User.current.is_a? User
+  end
+  
+  def visited_pages
+    @visited_pages ||= session[:visited_pages].collect{|p| Page.new :namespace => p[:namespace], :name => p[:page]}
+  end
+  
+  def url_prefix
+    url_for({:controller => 'page', :action => 'redirect_to_indexpage', :namespace => 'PREFIX'}).gsub(/PREFIX$/, '')
   end
 
 end
