@@ -130,12 +130,12 @@ class GitProvider < Raki::AbstractProvider
   end
 
   def attachment_changes(namespace, page=nil, options={})
-    if page.nil?
+    unless page
       changes = []
       page_all(namespace).each do |page|
         changes += changes(namespace, "#{namespace.to_s}/#{page.to_s}_att", options, page)
       end
-      changes.sort { |a,b| a.revision.date <=> b.revision.date }
+      changes.sort!{|a,b| a[:date] <=> b[:date] }
     else
       changes(namespace, "#{namespace.to_s}/#{page.to_s}_att", options, page)
     end
