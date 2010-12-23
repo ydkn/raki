@@ -51,12 +51,12 @@ class Attachment
   end
   
   def exists?
-    @exists ||= provider.attachment_exists?(page.namespace, page.name, name, @revision)
+    @exists ||= provider.attachment_exists?(page.namespace, page.name, name, (@revision ? @revision.id : nil))
   end
   
   def content
     return @content unless exists?
-    @content ||= provider.attachment_contents(page.namespace, page.name, name, revision.id)
+    @content ||= provider.attachment_contents(page.namespace, page.name, name, (@revision ? @revision.id : nil))
   end
   
   def content=(content)
@@ -87,7 +87,10 @@ class Attachment
       options = options.symbolize_keys
     end
     options = {:controller => 'page', :action => 'attachment', :namespace => page.namespace, :page => page.name, :attachment => name, :revision => (revision ? revision.id : nil)}.merge options
-    options.delete :revision if head_revision && options[:revision] == head_revision.id
+    unless options[:force_revision]
+      options.delete :revision if !options[:revision] || head_revision && options[:revision] == head_revision.id
+    end
+    options.delete :force_revision
     
     opts = {}
     options.each{|k,v| opts[k] = h(v.to_s)}
@@ -192,7 +195,7 @@ class Attachment
   def self.hash_to_revision(rev)
     Revision.new(
       Page.new(:namespace => rev[:page][:namespace], :name => rev[:page][:name]),
-      Attachment.new(:namespace => rev[:page][:namespace], :page => rev[:page][:name], :name => rev[:attachment]),
+      Attachment.new(:namespace => rev[:page][:namespace], :page => rev[:page][:name], :name => rev[:attachment], :revision => rev[:id]),
       rev[:id], rev[:version], rev[:size], rev[:user], rev[:date], rev[:message], rev[:mode]
     )
   end

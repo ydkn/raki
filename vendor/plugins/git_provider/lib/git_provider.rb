@@ -126,18 +126,18 @@ class GitProvider < Raki::AbstractProvider
   end
 
   def attachment_all(namespace, page)
-    all("#{namespace.to_s}/#{page.to_s}_att")
+    all("#{namespace.to_s}/#{page.to_s}_att", 3)
   end
 
   def attachment_changes(namespace, page=nil, options={})
     unless page
       changes = []
       page_all(namespace).each do |page|
-        changes += changes(namespace, "#{namespace.to_s}/#{page.to_s}_att", options, page)
+        changes += changes(namespace, "#{namespace.to_s}/#{page.to_s}_att", options, true)
       end
       changes.sort!{|a,b| a[:date] <=> b[:date] }
     else
-      changes(namespace, "#{namespace.to_s}/#{page.to_s}_att", options, page)
+      changes(namespace, "#{namespace.to_s}/#{page.to_s}_att", options, true)
     end
   end
   
@@ -271,7 +271,7 @@ class GitProvider < Raki::AbstractProvider
   end
   cache :revisions
 
-  def all(dir, revision=nil)
+  def all(dir, fp=2)
     dir = normalize(dir)
     revision ||= 'HEAD'
     
@@ -279,20 +279,21 @@ class GitProvider < Raki::AbstractProvider
     @repo.log(revision, dir).each do |commit|
       commit[:changes].each do |change|
         parts = change[:file].split('/')
-        files << normalize(parts[1]) if parts.length == 2
+        files << normalize(parts.last) if parts.length == fp
       end
     end
     
-    files.sort { |a,b| a <=> b }
+    files.uniq.sort { |a,b| a <=> b }
   end
   cache :all
 
-  def changes(namespace, dir, options={}, page=nil)
+  def changes(namespace, dir, options={}, att=false)
     dir = normalize(dir)
     
     changes = []
     @repo.log(@branch, dir, :limit => options[:limit], :since => options[:since]).each do |commit|
       commit[:changes].each do |change|
+        next if !att && change[:file] =~ /_att\//
         mode = case change[:mode]
           when 'D'
             :deleted
@@ -304,7 +305,7 @@ class GitProvider < Raki::AbstractProvider
             :none
           end
         parts = change[:file].split('/')
-        type = page ? :attachment : :page
+        type = att ? :attachment : :page
         changes << {
           :id => commit[:id].downcase,
           :version => commit[:id][0..6].upcase,
@@ -314,7 +315,7 @@ class GitProvider < Raki::AbstractProvider
           :mode => mode,
           :size => size(change[:file], commit[:id]),
           :type => type,
-          :page => (type == :attachment) ? {:namespace => namespace, :name => page} : {:namespace => namespace, :name => parts[1]},
+          :page => (type == :attachment) ? {:namespace => namespace, :name => parts[1].gsub(/_att$/, '')} : {:namespace => namespace, :name => parts[1]},
           :attachment => parts[2]
         }
       end

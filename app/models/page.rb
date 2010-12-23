@@ -355,7 +355,7 @@ class Page
   
   def self.hash_to_revision(rev)
     Revision.new(
-      Page.new(:namespace => rev[:page][:namespace], :name => rev[:page][:name]),
+      Page.new(:namespace => rev[:page][:namespace], :name => rev[:page][:name], :revision => rev[:id]),
       nil, rev[:id], rev[:version], rev[:size], rev[:user], rev[:date], rev[:message], rev[:mode]
     )
   end
