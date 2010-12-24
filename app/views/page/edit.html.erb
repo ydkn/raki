@@ -27,7 +27,7 @@
     </div>
     <div>
       <label for="page-message"><%=t 'page.edit.message' %></label>
-      <input type="text" id="edit-message" name="message" />
+      <input type="text" id="edit-message" name="message" value="<%=h(params[:message] || '')%>" />
     </div>
     <%=render :partial => 'toolbar' %>
     <div>
