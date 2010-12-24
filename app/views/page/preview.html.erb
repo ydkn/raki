@@ -9,4 +9,4 @@
     <input type="hidden" name="content" value="<%=h params[:content] %>" />
   <% end %>
 </div>
-<%=@page.render %>
+<%=@page.render context.merge({:preview => true}) %>
