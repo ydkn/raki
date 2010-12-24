@@ -30,14 +30,13 @@ class PageController < ApplicationController
   end
 
   def view
-    return unless @page
     if @page.authorized?(User.current, :view)
       session[:visited_pages].unshift({:namespace => @page.namespace, :page => @page.name})
       session[:visited_pages].uniq!
       session[:visited_pages].slice! 0, VISITED_LIMIT if session[:visited_pages].length > VISITED_LIMIT
       respond_to do |format|
         format.html { render 'view', :status => (@page.exists? ? 200 : 404) }
-        format.src { render :inline => @page.content, :content_type => 'text/plain', :status => (@page.exists? ? 200 : 404) }
+        format.src { render :inline => (@page.content || ''), :content_type => 'text/plain', :status => (@page.exists? ? 200 : 404) }
       end
     else
       render_forbidden
