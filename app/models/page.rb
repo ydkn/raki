@@ -195,7 +195,7 @@ class Page
       Page.namespaces.each do |ns|
         Page.all(:namespace => ns).each do |page|
           changed, new_content = Raki::Parser[ns].link_update(page.content, "#{@namespace}/#{@name}", "#{namespace}/#{name}")
-          break unless changed
+          next unless changed
           page.content = new_content
           page.save(user, msg)
         end
@@ -240,8 +240,12 @@ class Page
     true
   end
   
-  def to_s
-    "#{namespace}/#{name}@#{revision.version}"
+  def to_s(revision=false)
+    if revision
+      "#{namespace}/#{name}@#{revision.version}"
+    else
+      "#{namespace}/#{name}"
+    end
   end
   
   def <=> b
