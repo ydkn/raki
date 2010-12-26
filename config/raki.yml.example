@@ -16,22 +16,33 @@
 
 # Raki settings
 
-app_name: Raki
+all: &all
+  app_name: Raki
+  
+  frontpage: page/Main
+  userpage_namespace: user
+  index_page: Main
+  
+  authenticator: openid
+  authorizer: file
+  
+  providers:
+    default:
+      provider: git
+      path: /path/to/git/repo
+      branch: master
+      refresh: 600
+      
+  parsers:
+    default:
+      parser: raki
 
-frontpage: page/Main
-userpage_namespace: user
-index_page: Main
 
-providers:
-  default:
-    provider: git
-    path: /path/to/git/repo
-    branch: master
-    refresh: 600
+production:
+  <<: *all
+    
+development:
+  <<: *all
 
-parsers:
-  default:
-    parser: raki
-
-authenticator: openid
-authorizer: file
+test:
+  <<: *all

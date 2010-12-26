@@ -33,10 +33,10 @@ module Raki
     
     def config(*keys)
       @config = YAML.load(File.read("#{Rails.root}/config/raki.yml")) if @config.nil?
-      requested_config = @config
-      keys.each do |key,value|
+      requested_config = @config[Rails.env]
+      keys.each do |key, value|
         key = key.to_s
-        return nil if requested_config[key].nil?
+        return nil unless requested_config.key? key
         requested_config = requested_config[key]
       end
       requested_config
