@@ -192,6 +192,14 @@ class Page
         Raki::Provider[@namespace].page_delete(@namespace, @name, user)
         Raki::Provider[namespace].page_save(namespace, name, c, msg, user)
       end
+      Page.namespaces.each do |ns|
+        Page.all(:namespace => ns).each do |page|
+          changed, new_content = Raki::Parser[ns].link_update(page.content, "#{@namespace}/#{@name}", "#{namespace}/#{name}")
+          next unless changed
+          page.content = new_content
+          page.save(user, msg)
+        end
+      end
       @namespace = @new_namespace if @new_namespace
       @name = @new_name if @new_name
       @new_namespace = nil
@@ -232,8 +240,12 @@ class Page
     true
   end
   
-  def to_s
-    "#{namespace}/#{name}@#{revision.version}"
+  def to_s(revision=false)
+    if revision
+      "#{namespace}/#{name}@#{revision.version}"
+    else
+      "#{namespace}/#{name}"
+    end
   end
   
   def <=> b
@@ -386,5 +398,5 @@ class Page
     @head_revision = nil
     @attchments = nil
   end
-  
+
 end

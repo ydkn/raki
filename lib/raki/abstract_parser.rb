@@ -28,5 +28,9 @@ module Raki
     #  raise ParserError.new 'not implemented'
     #end
 
+    def link_update text, from, to, context={}
+      raise ProviderError.new 'not implemented'
+    end
+
   end
 end

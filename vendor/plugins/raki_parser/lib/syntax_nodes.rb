@@ -15,8 +15,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class RakiSyntaxNode < Treetop::Runtime::SyntaxNode
-  
+
   include ERB::Util
+
+  private
+
+  def page_for link, context
+    parts = link.split '/'
+    if parts.length == 2
+      Page.new(:namespace => parts[0], :name => parts[1])
+    else
+      Page.new(:namespace => (context[:page] ? context[:page].namespace : Raki.frontpage[:namespace]), :name => parts[0])
+    end
+  end
 
 end
 
@@ -70,7 +81,7 @@ end
 class WikiLinkNode < RakiSyntaxNode
 
   def to_html context
-    page = @page
+    page = @page || page_for(href.text_value, context)
     parts = href.text_value.split '/'
     if !@page && parts.length == 2
       page = Page.new(:namespace => parts[0], :name => parts[1])
@@ -86,11 +97,12 @@ class WikiLinkNode < RakiSyntaxNode
   end
 
   def to_src context={}
-    "[" + (@page || href.text_value) + (desc.empty? ? '' : ('|' + desc.text_value))  + "]"
+    "[" + (@page ? @page.to_s : href.text_value) + (desc.empty? ? '' : ('|' + desc.text_value))  + "]"
   end
 
   def link_update from, to, context
-    if href.text_value == from
+    link_target = page_for(href.text_value, context)
+    if "#{link_target.namespace}/#{link_target.name}" == "#{from.namespace}/#{from.name}"
       @page = to
       return true
     end
@@ -149,7 +161,8 @@ class HeadingNode < RakiSyntaxNode
   def to_html context
     l = level.text_value.length
     l = 6 if l > 6
-    return "<h#{l}>" + text.to_html(context).strip + "</h#{l}>\n"
+    anker = text.text_value.gsub(/[^a-zA-Z0-9 _-]/, '').gsub(/_/, ' ').strip.gsub(/\s+/, '_')
+    return "<h#{l} id=\"#{h anker}\">" + text.to_html(context).strip + "</h#{l}>\n"
   end
 
   def rename_link(o, n)
