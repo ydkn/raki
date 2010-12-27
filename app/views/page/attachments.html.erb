@@ -1,4 +1,5 @@
 <h2><%=t 'attachment.list' %></h2>
+<%=render :partial => 'page/errors' %>
 <% unless @page.attachments.empty? %>
   <table id="revisions" cellspacing="0" cellpadding="0">
     <thead>
@@ -18,7 +19,7 @@
         <tr class="<%=((cnt+=1)%2==0) ? 'even' : 'odd' %>">
           <td><%=link_to h(attachment.name), attachment.url %></td>
           <td><%=h format_filesize(attachment.revision.size) %></td>
-          <td class="version"><%=link_to attachment.revision.version, attachment.url(:attachment_info) %></td>
+          <td class="version"><%=link_to attachment.revision.version, attachment.url(:info) %></td>
           <td><%=l attachment.revision.date, :format => :full %></td>
           <td><%=link_to h(attachment.revision.user.display_name), attachment.revision.user.page.url %></td>
           <td><%=h attachment.revision.message %></td>
@@ -30,7 +31,7 @@
 <% end %>
 <% if @page.authorized?(User.current, :upload) %>
   <br/>
-  <% form_tag(@page.url(:attachment_upload), {:enctype => 'multipart/form-data'}) do %>
+  <% form_tag(@page.url(:upload), {:enctype => 'multipart/form-data'}) do %>
     <div>
       <label for="attachment-file"><%=t 'attachment.upload.file' %></label>
       <input id="attachment-file" name="attachment_upload" size="30" type="file" />

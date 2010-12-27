@@ -49,7 +49,7 @@ ActionController::Routing::Routes.draw do |map|
       page.connect ':namespace/:page/delete', :action => 'delete'
       page.with_options :requirements => {:attachment => /[^\/]+/} do |attachment|
         attachment.connect ':namespace/:page/attachment/:attachment/info', :action => 'attachment_info'
-        attachment.connect ':namespace/:page/attachment/:attachment/delete', :action => 'delete'
+        attachment.connect ':namespace/:page/attachment/:attachment/delete', :action => 'attachment_delete'
         attachment.connect ':namespace/:page/attachment/:attachment/:revision', :action => 'attachment'
         attachment.connect ':namespace/:page/attachment/:attachment', :action => 'attachment'
       end

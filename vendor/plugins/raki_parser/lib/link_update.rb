@@ -16,8 +16,6 @@
 
 module LinkUpdate
   
-  include ERB::Util
-  
   def link_update from, to, context
     changed = false
     unless elements.nil?

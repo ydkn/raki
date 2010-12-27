@@ -65,12 +65,13 @@ class PageController < ApplicationController
         render_forbidden
         return
     end
+    
     @page.content = params[:content]
+    
     if @page.save(User.current, params[:message])
       @page.unlock(User.current)
       redirect_to @page.url
     else
-      # show errors
       render 'page/edit'
     end
   end
@@ -84,6 +85,7 @@ class PageController < ApplicationController
       redirect_to @page.url
       return
     end
+    
     parts = params[:name].split '/', 2
     if parts.length == 2
       @page.namespace = parts[0]
@@ -91,21 +93,11 @@ class PageController < ApplicationController
     else
       @page.name = parts[0]
     end
-    unless @page.authorized?(User.current, :create)
-      flash[:notice] = t 'page.edit.no_permission_to_create'
-      redirect_to @page.url(:edit)
-      return
-    end
-    if @page.exists?
-      flash[:notice] = t 'page.edit.page_already_exists'
-      redirect_to @page.url(:edit)
-      return
-    end
+    
     if @page.save(User.current)
       @page.unlock(User.current)
       redirect_to @page.url
     else
-      # show errors
       render 'page/edit'
     end
   end
@@ -120,21 +112,24 @@ class PageController < ApplicationController
       return
     end
     
-    @page.delete(User.current)
-    @page.unlock(User.current)
-    
-    if session[:visited_pages]
-      last_page = session[:visited_pages].select do |p|
-        p[:namespace] != @page.namespace || p[:page] != @page.name
-      end.collect do |p|
-        Page.find(p[:namespace], p[:page])
-      end.compact.first
-      if last_page
-        redirect_to last_page.url
-        return
+    if @page.delete(User.current)
+      @page.unlock(User.current)
+      
+      if session[:visited_pages]
+        last_page = session[:visited_pages].select do |p|
+          p[:namespace] != @page.namespace || p[:page] != @page.name
+        end.collect do |p|
+          Page.find(p[:namespace], p[:page])
+        end.compact.first
+        if last_page
+          redirect_to last_page.url
+          return
+        end
       end
+      redirect_to_frontpage
+    else
+      render 'page/edit'
     end
-    redirect_to_frontpage
   end
 
   def attachments

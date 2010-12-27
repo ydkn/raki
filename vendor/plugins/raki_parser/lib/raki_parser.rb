@@ -38,6 +38,16 @@ class RakiParser < Raki::AbstractParser
     output.to_html(context).html_safe
   end
   
+  def link_update text, from, to, context={}
+    output = @parser.parse text
+    return [nil, nil] unless output
+    if output.link_update(from, to, context)
+      [true, output.to_src(context)]
+    else
+      [false, text]
+    end
+  end
+  
   def toolbar_items
     [
       [
@@ -60,16 +70,6 @@ class RakiParser < Raki::AbstractParser
         {:id => 'list', :'multiline-start' => '* '},
       ]
     ]
-  end
-
-  def link_update text, from, to, context={}
-    output = @parser.parse text
-    return [nil, nil] unless output
-    if output.link_update(from, to, context)
-      [true, output.to_src(context)]
-    else
-      [false, text]
-    end
   end
   
   private

@@ -102,7 +102,7 @@ class WikiLinkNode < RakiSyntaxNode
 
   def link_update from, to, context
     link_target = page_for(href.text_value, context)
-    if "#{link_target.namespace}/#{link_target.name}" == "#{from.namespace}/#{from.name}"
+    if link_target.namespace == from.namespace && link_target.name == from.name
       @page = to
       return true
     end

@@ -34,7 +34,7 @@ class Page
         end
       end
     end
-    @errors = []
+    @errors = nil
   end
   
   def namespace
@@ -184,38 +184,49 @@ class Page
   end
   
   def save(user, msg=nil)
+    @errors = []
+    
     if renamed?
+      @errors << I18n.t('page.edit.page_already_exists') if Page.exists?(namespace, name)
+      @errors << I18n.t('page.edit.no_permission_to_create') unless authorized?(user, :create)
+      return false unless @errors.empty?
+      
       if Raki::Provider[@namespace] == Raki::Provider[namespace]
         provider.page_rename(@namespace, @name, namespace, name, user)
       else
         c = Raki::Provider[@namespace].page_contents(@namespace, @name)
-        Raki::Provider[@namespace].page_delete(@namespace, @name, user)
         Raki::Provider[namespace].page_save(namespace, name, c, msg, user)
+        Raki::Provider[@namespace].page_delete(@namespace, @name, user)
       end
-      Page.namespaces.each do |ns|
-        Page.all(:namespace => ns).each do |page|
-          changed, new_content = Raki::Parser[ns].link_update(page.content, "#{@namespace}/#{@name}", "#{namespace}/#{name}")
-          next unless changed
-          page.content = new_content
-          page.save(user, msg)
+      Thread.new do
+        Page.namespaces.each do |ns|
+          Page.all(:namespace => ns).each do |page|
+            changed, new_content = Raki::Parser[ns].link_update(page.content, "#{@namespace}/#{@name}", "#{namespace}/#{name}")
+            next unless changed
+            page.content = new_content
+            page.save(user, msg)
+          end
         end
       end
-      @namespace = @new_namespace if @new_namespace
-      @name = @new_name if @new_name
+      @namespace ||= @new_namespace
+      @name ||= @new_name
       @new_namespace = nil
       @new_name = nil
-      reset
-      @exists = true
-    end
-    if changed?
+    elsif changed?
+      @errors << I18n.t('page.edit.no_contents') if content.nil? || content.blank?
+      return false unless @errors.empty?
+      
       provider.page_save(namespace, name, content, msg, user)
-      reset
-      @exists = true
     end
+    
+    reset
+    @exists = true
     @revision = head_revision
+    @errors = nil
     true
   rescue => e
     Rails.logger.error(e)
+    @errors << I18n.t('test')
     false
   end
   
@@ -227,7 +238,13 @@ class Page
   end
   
   def delete(user, msg=nil)
+    @errors = []
+    @errors << I18n.t('page.edit.no_permission_to_delete') unless authorized?(user, :delete)
+    return false unless @errors.empty?
+    
     provider.page_delete(namespace, name, user)
+    
+    @errors = nil
     @deleted = true
   rescue
     false
@@ -392,6 +409,7 @@ class Page
   end
   
   def reset
+    @deleted = nil
     @exists = nil  
     @revision = nil
     @revisions = nil

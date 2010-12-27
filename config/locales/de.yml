@@ -58,7 +58,9 @@ de:
       delete_question: Komplette Seite löschen?
       page_already_exists: Seite existiert bereits.
       no_permission_to_create: Keine Berechtigung um Seite anzulegen
+      no_permission_to_delete: Keine Berechtigung um Seite zu löschen
       locked: Der Benutzer <b>%{user}</b> ist gerade dabei diese Seite zu bearbeiten.
+      no_contents: Leere Seite
 
     info:
       versions: Versionen
@@ -87,6 +89,8 @@ de:
       file: Datei
       message: Kommentar
       save: Hochladen
+      no_permission_to_create: Keine Berechtigung um Anhang anzulegen
+      no_permission_to_delete: Keine Berechtigung um Anhang zu löschen
 
     info:
         versions: Versionen

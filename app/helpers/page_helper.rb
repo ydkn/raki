@@ -58,5 +58,12 @@ module PageHelper
     
     link_to image_tag(image), '#', opts
   end
+  
+  def error_messages
+    e = []
+    e += @page.errors if @page && @page.errors
+    e += @attachment.errors if @attachment && @attachment.errors
+    e
+  end
 
 end

@@ -3,6 +3,7 @@
 	<%=t 'page.edit.locked', :user => @page.locked_by.username %>
   </div>
 <% end %>
+<%=render :partial => 'page/errors' %>
 <% if @page.authorized?(User.current, :rename) && @page.exists? %>
   <% form_tag(@page.url(:rename)) do %>
     <div>

@@ -22,6 +22,8 @@ class Attachment
   
   include Raki::Helpers::URLHelper
   
+  attr_reader :errors
+  
   def initialize(params={})
     if params[:namespace] && params[:page]
       @page = Page.new(:namespace => params[:namespace], :name => params[:page])
@@ -35,6 +37,7 @@ class Attachment
         end
       end
     end
+    @errors = nil
   end
   
   def page
@@ -81,8 +84,10 @@ class Attachment
   end
   
   def url(options={})
+    action_rewrites = {:delete => 'attachment_delete', :upload => 'attachment_upload', :info => 'attachment_info'}
+    
     if options.is_a?(Symbol)
-      options = {:action => options}
+      options = {:action => (action_rewrites.include?(options.to_sym) ? action_rewrites[options.to_sym] : options)}
     else
       options = options.symbolize_keys
     end
@@ -98,9 +103,20 @@ class Attachment
     url_for opts
   end
   
+  def authorized?(user, action='upload')
+    Raki::Authorizer.authorized_to?(page.namespace, page.name, action, user)
+  end
+  
   def save(user, msg=nil)
+    @errors = []
+    @errors << I18n.t('attachment.upload.no_permission_to_create') unless authorized?(user, :upload)
+    return false unless @errors.empty?
+    
     provider.attachment_save(page.namespace, page.name, name, content, msg, user)
+    
     @revision = head_revision
+    @errors = nil
+    
     true
   end
   
@@ -112,7 +128,15 @@ class Attachment
   end
   
   def delete(user, msg=nil)
+    @errors = []
+    @errors << I18n.t('attachment.upload.no_permission_to_delete') unless authorized?(user, :delete)
+    return false unless @errors.empty?
+    
     provider.attachment_delete(page.namespace, page.name, name, user)
+    
+    @errors = nil
+    
+    true
   end
   
   def delete!(user, msg=nil)
