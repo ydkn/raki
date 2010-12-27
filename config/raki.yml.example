@@ -27,14 +27,14 @@ all: &all
   authorizer: file
   
   providers:
-    default:
+    :default:
       provider: git
       path: /path/to/git/repo
       branch: master
       refresh: 600
       
   parsers:
-    default:
+    :default:
       parser: raki
 
 
@@ -45,4 +45,7 @@ development:
   <<: *all
 
 test:
+  providers:
+    :default:
+      provider: db
   <<: *all

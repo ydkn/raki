@@ -26,13 +26,13 @@ module Raki
         @providers[id.to_sym] = clazz
         Raki.config('providers').each do |namespace, settings|
           if settings['provider'] == id.to_s
-            @initialized[namespace.to_sym] = clazz.new(namespace, settings)
+            @initialized[namespace] = clazz.new(namespace, settings)
           end
         end
       end
 
       def [](namespace)
-        namespace = namespace.to_sym
+        namespace = namespace.to_s
         unless @initialized.key?(namespace)
           return @initialized[:default] if @initialized.key?(:default)
           raise RakiError.new("No Provider")
