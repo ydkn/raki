@@ -200,6 +200,10 @@ module Raki
       !@execute.nil?
     end
     
+    def parse(namespace, text)
+      Raki::Parser[namespace].parse text, context
+    end
+    
     def render(*args)
       raise PluginError.new('Render can only called once') if @render
       if args.length == 1 && args[0].is_a?(Hash)
