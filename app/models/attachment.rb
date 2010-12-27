@@ -87,7 +87,7 @@ class Attachment
     action_rewrites = {:delete => 'attachment_delete', :upload => 'attachment_upload', :info => 'attachment_info'}
     
     if options.is_a?(Symbol)
-      options = {:action => (action_rewrites.include?(options.to_sym) ? action_rewrites[options.to_sym] : options)}
+      options = {:action => (action_rewrites.key?(options.to_sym) ? action_rewrites[options.to_sym] : options)}
     else
       options = options.symbolize_keys
     end

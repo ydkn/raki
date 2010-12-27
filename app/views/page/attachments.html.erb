@@ -23,7 +23,11 @@
           <td><%=l attachment.revision.date, :format => :full %></td>
           <td><%=link_to h(attachment.revision.user.display_name), attachment.revision.user.page.url %></td>
           <td><%=h attachment.revision.message %></td>
-          <td><input type="button" value="<%=t 'attachment.delete' %>" onclick="javascript:location.href='<%=attachment.url(:delete) %>';" /></td>
+          <td>
+	        <% if attachment.authorized?(User.current, :delete) %>
+	          <input type="button" value="<%=t 'attachment.delete' %>" onclick="javascript:location.href='<%=attachment.url(:delete) %>';" />
+	        <% end %>
+	      </td>
         </tr>
       <% end %>
     </tbody>
@@ -31,7 +35,7 @@
 <% end %>
 <% if @page.authorized?(User.current, :upload) %>
   <br/>
-  <% form_tag(@page.url(:upload), {:enctype => 'multipart/form-data'}) do %>
+  <% form_tag(@page.url(:attachment_upload), {:enctype => 'multipart/form-data'}) do %>
     <div>
       <label for="attachment-file"><%=t 'attachment.upload.file' %></label>
       <input id="attachment-file" name="attachment_upload" size="30" type="file" />
