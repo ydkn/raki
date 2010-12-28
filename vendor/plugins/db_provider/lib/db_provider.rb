@@ -111,8 +111,12 @@ class DBProvider < Raki::AbstractProvider
   def page_changes(namespace, options={})
     changes = []
     limit = options.key?(:limit) ? options[:limit].to_i : 10000
-    DBPageRevision.all(:joins => "INNER JOIN #{DBPage.table_name} ON #{DBPage.table_name}.id = #{DBPageRevision.table_name}.page_id", :conditions => ["namespace = ?", namespace.to_s], :order => 'date DESC', :limit => limit).each do |revision|
-      break if options[:since] && options[:since] <= revision.date
+    if options[:since]
+      condition = ["namespace = ? AND date >= ?", namespace.to_s, options[:since].to_time]
+    else
+      condition = ["namespace = ?", namespace.to_s]
+    end
+    DBPageRevision.all(:joins => "INNER JOIN #{DBPage.table_name} ON #{DBPage.table_name}.id = #{DBPageRevision.table_name}.page_id", :conditions => condition, :order => 'date DESC', :limit => limit).each do |revision|
       mode = case revision.revision
         when 1
           :created
@@ -219,12 +223,21 @@ class DBProvider < Raki::AbstractProvider
     changes = []
     limit = options.key?(:limit) ? options[:limit].to_i : 10000
     if page
-      revisions = DBAttachmentRevision.all(:joins => "INNER JOIN #{DBAttachment.table_name} ON #{DBAttachment.table_name}.id = #{DBAttachmentRevision.table_name}.attachment_id", :conditions => ["namespace = ? AND page = ?", namespace.to_s, page.to_s], :order => 'date DESC', :limit => limit)
+      if options[:since]
+        condition = ["namespace = ? AND page = ? AND date >= ?", namespace.to_s, page.to_s, options[:since].to_time]
+      else
+        condition = ["namespace = ? AND page = ?", namespace.to_s, page.to_s]
+      end
+      revisions = DBAttachmentRevision.all(:joins => "INNER JOIN #{DBAttachment.table_name} ON #{DBAttachment.table_name}.id = #{DBAttachmentRevision.table_name}.attachment_id", :conditions => condition, :order => 'date DESC', :limit => limit)
     else
-      revisions = DBAttachmentRevision.all(:joins => "INNER JOIN #{DBAttachment.table_name} ON #{DBAttachment.table_name}.id = #{DBAttachmentRevision.table_name}.attachment_id", :conditions => ["namespace = ?", namespace.to_s], :order => 'date DESC', :limit => limit)
+      if options[:since]
+        condition = ["namespace = ? AND date >= ?", namespace.to_s, options[:since].to_time]
+      else
+        condition = ["namespace = ?", namespace.to_s]
+      end
+      revisions = DBAttachmentRevision.all(:joins => "INNER JOIN #{DBAttachment.table_name} ON #{DBAttachment.table_name}.id = #{DBAttachmentRevision.table_name}.attachment_id", :conditions => condition, :order => 'date DESC', :limit => limit)
     end
     revisions.each do |revision|
-      break if options[:since] && options[:since] <= revision.date
       mode = case revision.revision
         when 1
           :created
