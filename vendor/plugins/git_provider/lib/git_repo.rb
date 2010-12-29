@@ -196,8 +196,8 @@ class GitRepo
   def self.shell_escape(string)
     string = string.to_s
     
-    [';', '"', "'", '(', ')'].each do |c|
-      string.gsub!(c, "\\#{c}")
+    ['\\', ';', '"', "'", '(', ')'].each do |c|
+      string.gsub!(c, "\\\\#{c}")
     end
     
     string
