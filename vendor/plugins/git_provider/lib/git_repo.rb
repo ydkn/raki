@@ -69,32 +69,32 @@ class GitRepo
   cache :remotes
   
   def checkout(refspec)
-    out, err = run_git(['checkout', refspec])
+    out, err = run_git(['checkout', self.class.shell_escape(refspec)])
     true
   end
   
   def add(pathspec)
-    out, err = run_git(['add', "\"#{pathspec}\""])
+    out, err = run_git(['add', "\"#{self.class.shell_escape(pathspec)}\""])
     true
   end
   
   def remove(pathspec)
-    out, err = run_git(['rm', "\"#{pathspec}\""])
+    out, err = run_git(['rm', "\"#{self.class.shell_escape(pathspec)}\""])
     true
   end
   
   def commit(message, user, pathspec=nil)
-    out, err = run_git(['commit', '-m', "\"#{message.to_s}\"", "--author=\"#{user.to_s}\"", '"' + (pathspec.respond_to?(:join) ? pathspec.join('" "') : pathspec) + '"'])
+    out, err = run_git(['commit', '-m', "\"#{self.class.shell_escape(message)}\"", "--author=\"#{self.class.shell_escape(user)}\"", '"' + self.class.shell_escape(pathspec.respond_to?(:join) ? pathspec.join('" "') : pathspec) + '"'])
     true
   end
   
   def pull(remote, branch)
-    out, err = run_git(['pull', remote, branch])
+    out, err = run_git(['pull', self.class.shell_escape(remote), self.class.shell_escape(branch)])
     true
   end
   
   def push(remote, branch)
-    out, err = run_git(['push', remote, branch])
+    out, err = run_git(['push', self.class.shell_escape(remote), self.class.shell_escape(branch)])
     true
   end
   
@@ -104,7 +104,7 @@ class GitRepo
     params << "--since=#{options[:since].strftime("%Y-%m-%d %H:%M:%S")}" if options[:since]
     params << refspec
     
-    out, err = run_git(params, ["\"#{pathspec}\""])
+    out, err = run_git(params, ["\"#{pathspec ? self.class.shell_escape(pathspec) : ''}\""])
     
     raise GitBinaryError.new(err) unless err.empty?
     
@@ -139,13 +139,13 @@ class GitRepo
   end
   
   def show(refspec, pathspec)
-    out, err = run_git(['show', "#{refspec}:\"#{pathspec}\""])
+    out, err = run_git(['show', "#{self.class.shell_escape(refspec)}:\"#{self.class.shell_escape(pathspec)}\""])
     raise GitBinaryError.new(err) unless err.empty?
     out
   end
   
   def self.clone(url, path)
-    out, err = run_git(['clone', url, path])
+    out, err = run_git(['clone', shell_escape(url), shell_escape(path)])
     raise GitBinaryError.new(err) unless err.split("\n").select{|l| l =~ /^fatal: /}.empty?
     GitRepo.new(path)
   end
@@ -191,6 +191,16 @@ class GitRepo
     [out, err]
   rescue => e
     raise e.to_s
+  end
+  
+  def self.shell_escape(string)
+    string = string.to_s
+    
+    [';', '"', "'", '(', ')'].each do |c|
+      string.gsub!(c, "\\#{c}")
+    end
+    
+    string
   end
   
 end
