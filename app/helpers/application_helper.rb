@@ -21,6 +21,14 @@ module ApplicationHelper
   def meta_tag name, content
     "<meta name=\"#{h name}\" content=\"#{h content}\" />"
   end
+  
+  def robots_meta_tag
+    if controller_name == 'page' && ['view', 'info', 'attachments', 'attachment_info'].include?(action_name)
+      meta_tag 'robots', 'index,follow'
+    else
+      meta_tag 'robots', 'noindex,follow'
+    end
+  end
 
   def plugin_stylesheets
     stylesheets = []
