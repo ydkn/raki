@@ -32,10 +32,14 @@ atom_feed do |feed|
         if revision.type == :page
           page = Page.find(revision.page.namespace, revision.page.name, revision.id)
           content.br
-          content.div format_diff(page.diff)
+          content.div do |div|
+            div << render(:partial => 'common/diff', :locals => {:diff => page.diff})
+          end
           content.br
           content.hr
-          content.div << page.render(context)
+          content.div do |div|
+            div << page.render(context)
+          end
         end
       end
       entry.author do |author|

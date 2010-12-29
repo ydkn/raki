@@ -91,8 +91,9 @@ class Page
     end
   end
   
-  def diff(rev_to)
+  def diff(rev_to=nil)
     return nil unless exists?
+    rev_to = provider.page_revisions(namespace, name, :limit => 2).last[:id] unless rev_to
     to = Page.find(namespace, name, (rev_to.is_a?(Revision) ? rev_to.id : rev_to))
     Diff.create(self, to)
   end
