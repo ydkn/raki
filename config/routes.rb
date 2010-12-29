@@ -42,7 +42,6 @@ ActionController::Routing::Routes.draw do |map|
       page.connect ':namespace/:page/diff/:revision_from/:revision_to', :action => 'diff'
       page.connect ':namespace/:page/diff', :action => 'diff'
       page.connect ':namespace/:page/edit', :action => 'edit'
-      #page.connect ':namespace/:page/unlock', :action => 'unlock', :conditions => {:method => :get}
       page.with_options :conditions => {:method => :post} do |page_post|
         page_post.connect ':namespace/:page/preview', :action => 'preview'
         page_post.connect ':namespace/:page/update', :action => 'update'
@@ -51,7 +50,7 @@ ActionController::Routing::Routes.draw do |map|
       end
       page.with_options :requirements => {:attachment => /[^\/]+/} do |attachment|
         attachment.connect ':namespace/:page/attachment/:attachment/info', :action => 'attachment_info'
-        attachment.connect ':namespace/:page/attachment/:attachment/delete', :action => 'attachment_delete'
+        attachment.connect ':namespace/:page/attachment/:attachment/delete', :action => 'attachment_delete', :conditions => {:method => :post}
         attachment.connect ':namespace/:page/attachment/:attachment/:revision', :action => 'attachment'
         attachment.connect ':namespace/:page/attachment/:attachment', :action => 'attachment'
       end
