@@ -5,18 +5,20 @@
 <% end %>
 <%=render :partial => 'page/errors' %>
 <% if @page.authorized?(User.current, :rename) && @page.exists? %>
-  <% form_tag(@page.url(:rename)) do %>
+  <% form_tag(@page.url(:rename), {:id => 'edit-rename-form'}) do %>
     <div>
       <% unless flash[:notice].nil? %>
         <div class="error"><%=flash[:notice] %></div>
       <% end %>
       <input type="text" id="page-name" name="name" value="<%=h @page.name %>" />
-      <input type="submit" value="<%=t 'page.edit.rename' %>" />
+      <input id="edit-rename" type="submit" value="<%=t 'page.edit.rename' %>" />
     </div>
   <% end %>
 <% end %>
 <% if @page.authorized?(User.current, :delete) && @page.exists? %>
-  <input id="edit-delete" type="button" value="<%=t 'page.edit.delete' %>" onclick="javascript:if(confirm('<%=t 'page.edit.delete_question'%>')) location.href='<%=@page.url(:delete) %>';" />
+  <% form_tag(@page.url(:delete), {:id => 'edit-delete-form'}) do %>
+    <input id="edit-delete" type="submit" value="<%=t 'page.edit.delete' %>" data-question="<%=t 'page.edit.delete_question' %>" />
+  <% end %>
   <br/>
 <% end %>
 <% if @page.authorized?(User.current, :edit) && @page.exists? || @page.authorized?(User.current, :create) && !@page.exists? %>

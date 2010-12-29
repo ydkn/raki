@@ -84,6 +84,7 @@ de:
     actions: Aktionen
     
     delete: Löschen
+    delete_question: Anhang löschen?
 
     upload:
       file: Datei

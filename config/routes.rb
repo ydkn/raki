@@ -28,10 +28,10 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'feed.atom', :controller => 'feed', :action => 'global'
   
   # Route for preview
-  map.connect 'preview', :controller => 'page', :action => 'live_preview', :conditions => { :method => :post }
+  map.connect 'preview', :controller => 'page', :action => 'live_preview', :conditions => {:method => :post}
   
   # Route for unlock
-  map.connect 'unlock', :controller => 'page', :action => 'unlock', :conditions => { :method => :post }
+  map.connect 'unlock', :controller => 'page', :action => 'unlock', :conditions => {:method => :post}
 
   # Routes for wiki pages
   map.with_options :controller => 'page', :requirements => {:namespace => /[^\/\.]+/} do |namespace|
@@ -42,11 +42,13 @@ ActionController::Routing::Routes.draw do |map|
       page.connect ':namespace/:page/diff/:revision_from/:revision_to', :action => 'diff'
       page.connect ':namespace/:page/diff', :action => 'diff'
       page.connect ':namespace/:page/edit', :action => 'edit'
-      page.connect ':namespace/:page/preview', :action => 'preview', :conditions => { :method => :post }
-      page.connect ':namespace/:page/unlock', :action => 'unlock', :conditions => { :method => :get }
-      page.connect ':namespace/:page/update', :action => 'update', :conditions => { :method => :post }
-      page.connect ':namespace/:page/rename', :action => 'rename', :conditions => { :method => :post }
-      page.connect ':namespace/:page/delete', :action => 'delete'
+      #page.connect ':namespace/:page/unlock', :action => 'unlock', :conditions => {:method => :get}
+      page.with_options :conditions => {:method => :post} do |page_post|
+        page_post.connect ':namespace/:page/preview', :action => 'preview'
+        page_post.connect ':namespace/:page/update', :action => 'update'
+        page_post.connect ':namespace/:page/rename', :action => 'rename'
+        page_post.connect ':namespace/:page/delete', :action => 'delete'
+      end
       page.with_options :requirements => {:attachment => /[^\/]+/} do |attachment|
         attachment.connect ':namespace/:page/attachment/:attachment/info', :action => 'attachment_info'
         attachment.connect ':namespace/:page/attachment/:attachment/delete', :action => 'attachment_delete'
@@ -54,7 +56,7 @@ ActionController::Routing::Routes.draw do |map|
         attachment.connect ':namespace/:page/attachment/:attachment', :action => 'attachment'
       end
       page.connect ':namespace/:page/attachments', :action => 'attachments'
-      page.connect ':namespace/:page/attachment_upload', :action => 'attachment_upload', :conditions => { :method => :post }
+      page.connect ':namespace/:page/attachment_upload', :action => 'attachment_upload', :conditions => {:method => :post}
       page.connect ':namespace/:page/:revision.:format', :action => 'view', :requirements => {:format => /src/}
       page.connect ':namespace/:page/:revision', :action => 'view'
       page.connect ':namespace/:page.atom', :controller => 'feed', :action => 'page'

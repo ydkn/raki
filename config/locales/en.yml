@@ -84,6 +84,7 @@ en:
     actions: Actions
     
     delete: Delete
+    delete_question: Remove attachment?
 
     upload:
       file: File

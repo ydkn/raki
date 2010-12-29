@@ -41,6 +41,18 @@ function initMetaVars() {
 }
 
 function initEditButtons() {
+	editDeleteForm = document.getElementById('edit-delete-form');
+	editDelete = document.getElementById('edit-delete');
+	
+	if(editDeleteForm && editDelete) {
+		editDelete.onclick = function(e) {
+			if(confirm(editDelete.getAttribute('data-question')) == true) {
+				editDeleteForm.submit();
+			}
+			return false;
+		}
+	}
+	
 	editForm = document.getElementById('edit-form');
 	editPreview = document.getElementById('edit-preview');
 	editAbort = document.getElementById('edit-abort');
@@ -76,6 +88,30 @@ function initEditButtons() {
 		}
 		previewSave.onclick = function(e) {
 			doUnlock = false;
+		}
+	}
+	
+	attachmentDeleteForms = document.getElementsByClassName('attachment-delete-form');
+	attachmentDeletes = document.getElementsByClassName('attachment-delete');
+	
+	if(attachmentDeleteForms.length == attachmentDeletes.length) {
+		for(i= 0; i < attachmentDeletes.length; i++) {
+			attachmentDeletes[i].onclick = function(e) {
+				attachmentDelete = e.srcElement;
+				parent = attachmentDelete.parentNode;
+				parentForm = null;
+				while(true) {
+					if((parent.tagName.toLowerCase() == 'form') && parent.className.match('\s?attachment\-delete\-form\s?')) {
+						parentForm = parent;
+						break;
+					}
+					parent = parent.parentNode;
+				}
+				if(!parentForm || (confirm(e.srcElement.getAttribute('data-question')) == true)) {
+					parentForm.submit();
+				}
+				return false;
+			}
 		}
 	}
 }

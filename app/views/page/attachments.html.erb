@@ -25,7 +25,9 @@
           <td><%=h attachment.revision.message %></td>
           <td>
 	        <% if attachment.authorized?(User.current, :delete) %>
-	          <input type="button" value="<%=t 'attachment.delete' %>" onclick="javascript:location.href='<%=attachment.url(:delete) %>';" />
+              <% form_tag(attachment.url(:delete), {:class => 'attachment-delete-form'}) do %>
+                <input type="submit" value="<%=t 'attachment.delete' %>" data-question="<%=t 'attachment.delete_question' %>" class="attachment-delete" />
+              <% end %>
 	        <% end %>
 	      </td>
         </tr>
