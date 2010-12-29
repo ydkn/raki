@@ -17,9 +17,10 @@ different namespaces. It also supports a namespace-specific syntax.
 
 === Raki core
   $ gem install -v=2.3.10 rails
+  $ gem install mime-types
 
 === GIT provider
-  $ gem install unicode mime-types diff-lcs
+  $ gem install unicode popen4
 
 === Raki parser
   $ gem install treetop
@@ -32,6 +33,7 @@ different namespaces. It also supports a namespace-specific syntax.
 Rename/copy the file <tt>config/database.yml.example</tt> to <tt>config/database.yml</tt> and edit the
 credentials for the database if necessary. Now rename/copy the file
 <tt>config/raki.yml.example</tt> to <tt>config/raki.yml</tt> and edit it to fit your needs.
+Run <tt>rake db:migrate</tt> to create all necessary tables.
 
 === Example with GIT as storage, OpenID for authentication and file-based authorization
 Create a GIT repository with <tt>git init --bare /path/to/git-repo</tt>. Now change in

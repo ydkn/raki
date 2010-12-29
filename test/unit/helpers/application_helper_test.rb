@@ -16,5 +16,5 @@
 
 require 'test_helper'
 
-class ParseHelperTest < ActionView::TestCase
+class ApplicationHelperTest < ActionView::TestCase
 end

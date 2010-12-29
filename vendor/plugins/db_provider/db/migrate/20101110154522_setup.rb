@@ -49,6 +49,9 @@ class Setup < ActiveRecord::Migration
       t.binary :content, :null => false
     end
     add_index :attachment_revisions, [:attachment_id, :revision], :name => 'attachment_revisions_attachment_revision', :unique => true
+    if ActiveRecord::Base.configurations[Rails.env]['adapter'] =~ /^mysql/
+      execute 'ALTER TABLE attachment_revisions MODIFY COLUMN content LONGBLOB'
+    end
   end
 
   def self.down

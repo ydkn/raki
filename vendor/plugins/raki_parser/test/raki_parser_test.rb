@@ -15,17 +15,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'test_helper'
-include Raki::Helpers::ProviderHelper
 
 class RakiParserTest < Test::Unit::TestCase
 
   # Initializes the parser
   def setup
     @parser = RakiParser.new unless @parser
-    @context = {:namespace => 'test', :page => 'unit'}
-    [[:test, :WikiPageName],[:test, :link]].each do |namespace, name|
-      if !page_exists? namespace, name
-        page_save namespace, name, "test", "raki_parser test page", default_user
+    @context = {:page => Page.new(:namespace => 'test', :name => 'unit')}
+    [[:test, :WikiPageName], [:test, :link]].each do |namespace, name|
+      unless Page.exists? namespace, name
+        page = Page.new :namespace => namespace, :name => name
+        page.content = 'raki_parser test page'
+        page.save default_user, 'test'
       end
     end
   end
@@ -108,16 +109,16 @@ class RakiParserTest < Test::Unit::TestCase
 
   # Test for headings
   def test_headings
-    assert_equal "<h1>Heading first order</h1>\n", parse("!Heading first order")
-    assert_equal "<h1>Heading first order</h1>\n<br/>\n", parse("!Heading first order\r\n\r\n\r\n")
-    assert_equal "<h2>Heading second order</h2>\n", parse("!!Heading second order\n")
-    assert_equal "<h3>Heading third order</h3>\n", parse("!!!Heading third order")
-    assert_equal "<h6>Heading sixth order</h6>\n", parse("!!!!!!Heading sixth order\n")
-    assert_equal "<h6>!!Heading sixth order with extra exlamation marks</h6>\n", parse("!!!!!! !!Heading sixth order with extra exlamation marks\n")
-    assert_equal "<h1>Heading first order</h1>\ntest", parse("!Heading first order\ntest")
-    assert_equal "<h1><i>Heading first</i> <span class=\"underline\">order</span></h1>\ntest", parse("!~Heading first~ _order_\ntest")
-    assert_equal "<h1>Heading first <a class=\"inexistent\" href=\"/test/Link\">Link</a> order</h1>\ntest", parse("!Heading first [Link] order\ntest")
-    # assert_equal "<h1>Heading first <span class=notbold>order</span></h1>\ntest", parse("!Heading first *order*\ntest")
+    assert_equal "<h1 id=\"Heading_first_order\">Heading first order</h1>\n", parse("!Heading first order")
+    assert_equal "<h1 id=\"Heading_first_order\">Heading first order</h1>\n<br/>\n", parse("!Heading first order\r\n\r\n\r\n")
+    assert_equal "<h2 id=\"Heading_second_order\">Heading second order</h2>\n", parse("!!Heading second order\n")
+    assert_equal "<h3 id=\"Heading_third_order\">Heading third order</h3>\n", parse("!!!Heading third order")
+    assert_equal "<h6 id=\"Heading_sixth_order\">Heading sixth order</h6>\n", parse("!!!!!!Heading sixth order\n")
+    assert_equal "<h6 id=\"Heading_sixth_order_with_extra_exclamation_marks\">!!Heading sixth order with extra exclamation marks</h6>\n", parse("!!!!!! !!Heading sixth order with extra exclamation marks\n")
+    assert_equal "<h1 id=\"Heading_first_order\">Heading first order</h1>\ntest", parse("!Heading first order\ntest")
+    assert_equal "<h1 id=\"Heading_first_order\"><i>Heading first</i> <span class=\"underline\">order</span></h1>\ntest", parse("!~Heading first~ _order_\ntest")
+    assert_equal "<h1 id=\"Heading_first_Link_order\">Heading first <a class=\"inexistent\" href=\"/test/Link\">Link</a> order</h1>\ntest", parse("!Heading first [Link] order\ntest")
+    # assert_equal "<h1 id=\"Heading_first_order\">Heading first <span class=notbold>order</span></h1>\ntest", parse("!Heading first *order*\ntest")
   end
 
   # Test for message boxes
@@ -133,8 +134,8 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal '<div class="error">error! <div class="warning">some warning</div> test</div>', parse("%%error error! %%warning some warning%% test%%")
     assert_equal '<div class="warning"><b>content</b> of confirmation-box</div>', parse("%%warning *content* of confirmation-box%%")
     assert_equal "<div class=\"warning\"><b>content</b><br/>\n<ul>\n<li>of</li>\n<li>confirmation-box</li>\n</ul>\n<br/></div>", parse("%%warning *content*\n* of\n* confirmation-box\n%%")
-    assert_equal "<div class=\"warning\"><h1>content</h1>\nof confirmation-box</div>", parse("%%warning !content\nof confirmation-box%%")
-    assert_equal "<div class=\"warning\"><h1>content</h1></div>", parse("%%warning !content%%")
+    assert_equal "<div class=\"warning\"><h1 id=\"content\">content</h1>\nof confirmation-box</div>", parse("%%warning !content\nof confirmation-box%%")
+    assert_equal "<div class=\"warning\"><h1 id=\"content\">content</h1></div>", parse("%%warning !content%%")
   end
 
   # Test for unordered lists
@@ -172,19 +173,26 @@ class RakiParserTest < Test::Unit::TestCase
 
   def test_pages
     assert_equal "<a href=\"/test/link\">link</a><br/>\n<ul>\n<li>item1</li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("[link]\n\n* item1\n# item2")
-    assert_equal "<h1>Testseite</h1>\n<a href=\"/test/link\">link</a><br/>\n<ul>\n<li><b>item1</b></li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("!Testseite\n\n[link]\n\n* *item1*\n# item2")
+    assert_equal "<h1 id=\"Testseite\">Testseite</h1>\n<a href=\"/test/link\">link</a><br/>\n<ul>\n<li><b>item1</b></li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("!Testseite\n\n[link]\n\n* *item1*\n# item2")
   end
 
-  # Test for convertions
-  def test_convert
-    assert_equal '[NewPageName]', link_update("[OldPage]", "OldPage", 'NewPageName')
-    #assert_equal "\\signature user=raki date=10-11-04 time=11:41:28\\", convert('~~~')
+  # Test rewriting of links
+  def test_link_update
+    old_page = Page.new(:namespace => 'test', :name => 'OldPage')
+    new_page = Page.new(:namespace => 'test', :name => 'NewPageName')
+    other_page = Page.new(:namespace => 'test', :name => 'OtherPage')
+    
+    assert_equal [true, '[test/NewPageName]'], link_update("[OldPage]", old_page, new_page)
+    assert_equal [false, '[OldPage]'], link_update("[OldPage]", other_page, new_page)
+    assert_equal [true, 'some text [test/NewPageName] some other text'], link_update("some text [OldPage] some other text", old_page, new_page)
+    assert_equal [false, "foo [other link] *bar*\ntest"], link_update("foo [other link] *bar*\ntest", old_page, new_page)
+    assert_equal [true, "foo [other link] *bar*\n[test/NewPageName] test"], link_update("foo [other link] *bar*\n[OldPage] test", old_page, new_page)
   end
 
   def test_plugin
     Raki::Plugin.register :testexample do
       execute do
-        body.reverse
+        render :inline => body.reverse
       end
     end
     assert_equal "fdsa", parse("\\testexample asdf\\")
@@ -194,7 +202,7 @@ class RakiParserTest < Test::Unit::TestCase
 
     Raki::Plugin.register :testparams do
       execute do
-        params[:name] + params[:id]
+        render :inline => params[:name] + params[:id]
       end
     end
     assert_equal 'hello world', parse('\\testparams id=world name="hello "\\')
@@ -212,15 +220,14 @@ class RakiParserTest < Test::Unit::TestCase
     @parser.link_update(text, from, to, @context)
   end
 
-  # Default user
-  def default_user
-    @default_user = user('raki_parser_test', 'test@user.org') if @default_user.nil?
-    @default_user
-  end
-
-   # Creates a user
+  # Creates a user
   def user(username, email)
     User.new(Time.new.to_s, :username => username, :email => email)
+  end
+
+  # Default user
+  def default_user
+    @default_user ||= user('raki_parser_test', 'test@user.org')
   end
 
 end

@@ -14,26 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module IndexPluginHelper
-  
-  def letters_pages
-    @index
-  end
-  
-  def rnd
-    @rnd
-  end
-  
-  private
-  
-  def sort_pages pages
-    pages.sort do |a,b|
-      if a[:page].downcase == b[:page].downcase
-        a[:page] <=> b[:page]
-      else
-        a[:page].downcase <=> b[:page].downcase
-      end
-    end
-  end
-  
+require 'test_helper'
+
+class LockTest < ActiveSupport::TestCase
 end

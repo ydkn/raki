@@ -48,13 +48,19 @@ en:
     edit:
       save: Save
       preview: Preview
+      preview_info: This is only a <strong>preview</strong>!
+      live_preview: Sneak Preview
       abort: Abort
+      keep_editing: Keep editing
       message: Comment
       rename: Rename page
       delete: Remove entire page
       delete_question: Remove entire page?
       page_already_exists: Page already exists
-      no_permission_to_create: No Permission to create page
+      no_permission_to_create: No permission to create page
+      no_permission_to_delete: No permission to delete page
+      locked: User <b>%{user}</b> is currently editing this page.
+      no_contents: Empty page
 
     info:
       versions: Versions
@@ -78,11 +84,14 @@ en:
     actions: Actions
     
     delete: Delete
+    delete_question: Remove attachment?
 
     upload:
       file: File
       message: Comment
       save: Upload
+      no_permission_to_create: No permission to upload attachment
+      no_permission_to_delete: No permission to delete attachment
 
     info:
         versions: Versions
@@ -100,3 +109,7 @@ en:
   plugin:
     error: Plugin '%{name}' caused error
     missing_parameter: Missing parameter
+    
+  toolbar:
+      bold: Bold
+      italic: Italic

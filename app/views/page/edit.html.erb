@@ -1,37 +1,44 @@
-<% if authorized?(@namespace, @page, :rename) && page_exists?(@namespace, @page) %>
-  <% form_tag({:controller => 'page', :namespace => h(@namespace), :page => h(@page), :action => 'rename'}, {:id => 'rename-form'}) do %>
+<% if @page.locked? && @page.locked_by != User.current %>
+  <div class="warning" id="lock_waring">
+	<%=t 'page.edit.locked', :user => @page.locked_by.username %>
+  </div>
+<% end %>
+<%=render :partial => 'page/errors' %>
+<% if @page.authorized?(User.current, :rename) && @page.exists? %>
+  <% form_tag(@page.url(:rename), {:id => 'edit-rename-form'}) do %>
     <div>
       <% unless flash[:notice].nil? %>
         <div class="error"><%=flash[:notice] %></div>
       <% end %>
-      <input type="text" id="page-name" name="name" value="<%=h @page %>" />
-      <input type="submit" value="<%=t 'page.edit.rename' %>" />
+      <input type="text" id="page-name" name="name" value="<%=h @page.name %>" />
+      <input id="edit-rename" type="submit" value="<%=t 'page.edit.rename' %>" />
     </div>
   <% end %>
 <% end %>
-<% if authorized?(@namespace, @page, :delete) && page_exists?(@namespace, @page) %>
-  <input type="button" value="<%=t 'page.edit.delete' %>" onclick="javascript:if(confirm('<%=t 'page.edit.delete_question'%>')) location.href='<%=url_for :controller => 'page', :namespace => h(@namespace), :page => h(@page), :action => 'delete' %>';" />
+<% if @page.authorized?(User.current, :delete) && @page.exists? %>
+  <% form_tag(@page.url(:delete), {:id => 'edit-delete-form'}) do %>
+    <input id="edit-delete" type="submit" value="<%=t 'page.edit.delete' %>" data-question="<%=t 'page.edit.delete_question' %>" />
+  <% end %>
   <br/>
 <% end %>
-<% if authorized?(@namespace, @page, :edit) && page_exists?(@namespace, @page) || authorized?(@namespace, @page, :create) && !page_exists?(@namespace, @page) %>
-  <% form_tag({:controller => 'page', :namespace => h(@namespace), :page => h(@page), :action => 'update'}, {:id => 'edit-form'}) do %>
+<% if @page.authorized?(User.current, :edit) && @page.exists? || @page.authorized?(User.current, :create) && !@page.exists? %>
+  <% form_tag(@page.url(:update), {:id => 'edit-form'}) do %>
     <div>
-      <input type="submit" value="<%=t 'page.edit.save' %>" />
-      <input type="button" value="<%=t 'page.edit.preview' %>" onclick="javascript:document.getElementById('edit-form').action='<%=url_for :controller => 'page', :action => 'edit', :namespace => h(@namespace), :page => h(@page) %>'; document.getElementById('edit-form').submit();" />
-      <input type="button" value="<%=t 'page.edit.abort' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :action => 'view', :namespace => h(@namespace), :page => h(@page) %>';" />
+      <input id="edit-save" type="submit" value="<%=t 'page.edit.save' %>" />
+      <input id="edit-preview" type="button" value="<%=t 'page.edit.preview' %>" />
+      <input id="edit-abort" type="button" value="<%=t 'page.edit.abort' %>" />
     </div>
     <div>
       <label for="page-message"><%=t 'page.edit.message' %></label>
-      <input type="text" id="page-message" name="message" />
+      <input type="text" id="edit-message" name="message" value="<%=h(params[:message] || '')%>" />
     </div>
+    <%=render :partial => 'toolbar' %>
     <div>
-      <textarea name="content" cols="100" rows="25"><%=h @content %></textarea>
+      <textarea id="edit-content" name="content" cols="100" rows="25"><%=h(params[:content] || @page.content) %></textarea>
     </div>
   <% end %>
-  <% unless @preview.nil? %>
-    <h2><%=t 'page.edit.preview' %></h2>
-    <div id="preview">
-      <%=parse @namespace, @preview %>
-    </div>
-  <% end %>
+  <div id="preview">
+    <div id="preview-header"><input id="live-preview-switch" type="checkbox" /><%=t 'page.edit.live_preview' %><%=image_tag 'preview_loader.gif', :alt => 'Loading Preview', :id => 'live-preview-loader' %></div>
+    <div id="preview-content"></div>
+  </div>
 <% end %>

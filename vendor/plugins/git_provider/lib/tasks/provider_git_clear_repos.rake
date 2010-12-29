@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab & Martin Sigloch
+# Copyright (C) 2010 Florian Schwab
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,10 +14,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'rubygems'
-require 'test/unit'
+namespace :raki do
+  namespace :provider do
+    namespace :git do
 
-ActionController::Base.new.process(
-  ActionController::TestRequest.new,
-  ActionController::TestResponse.new
-)
+      desc 'Clear all git repositories from tmp/gitrepos/'
+      task :clear_repos do
+        Dir[File.join(Rails.root, 'tmp', 'gitrepos', '*')].each do |dir|
+          FileUtils.rm_rf(dir) if File.directory?(dir)
+        end
+      end
+
+    end
+  end
+end

@@ -1,55 +1,52 @@
 atom_feed do |feed|
 
-  feed.title h "#{Raki.app_name} :: #{@namespace}"
-  
-  updated = nil
-  @changes.each do |change|
-    next unless authorized?(change.namespace, change.page, :view)
-    updated = change.revision.date if updated.nil?    
-    if change.attachment.nil?
-      feed.entry change.revision, :url => url_for(:controller => 'page', :action => 'view', :namespace => h(change.namespace), :page => h(change.page), :revision => h(change.revision.id)) do |entry|
-        entry.title h "#{change.namespace}/#{change.page}"
-        entry.updated change.revision.date.xmlschema
-        diff = []
-        begin
-          page_diff(change.namespace, change.page, change.revision.id).lines.each do |line|
-            diff << h(line)
-          end
-        rescue
-          diff << 'Invalid diff'
+  feed.title h("#{Raki.app_name} :: #{@namespace}")
+  feed.updated @revisions.first.date
+
+  @revisions.each do |revision|
+    if revision.type == :page
+      entry_id = "#{revision.page.namespace}/#{revision.page.name}@#{revision.id}"
+      entry_url = revision.page.url(:revision => revision, :force_revision => true)
+    else
+      entry_id = "#{revision.page.namespace}/#{revision.page.name}/#{revision.attachment.name}@#{revision.id}"
+      entry_url = revision.attachment.url(:revision => revision, :force_revision => true)
+    end
+    feed.entry revision, :id => h(entry_id), :url => entry_url do |entry|
+      if revision.type == :page
+        entry.title h("#{revision.page.name} :: #{revision.message}")
+      else
+        entry.title h("#{revision.page.name}/#{revision.attachment.name} :: #{revision.message}")
+      end
+      entry.updated revision.date.xmlschema
+      entry.content :type => 'html' do |content|
+        if revision.type == :page
+          content.h1 h(revision.page.name)
+        else
+          content.h1 h("#{revision.page.name}/#{revision.attachment.name}")
         end
-        entry.content %Q{
-          <h1>#{h change.namespace}/#{h change.page}</h1>
-          <h2>#{h change.revision.version}: #{h change.revision.message}</h2>
-          <div><b>Author: </b>#{h change.revision.user.display_name}</div>
-          <div><b>Size: </b>#{h format_filesize(change.revision.size)}</div>
-          <br />
-          <div>#{diff.join('<br/>')}</div>
-          <br />
-          <hr />
-          <div>#{insert_page change.namespace, change.page, change.revision.id}</div>
-        }, :type => 'html'
-        entry.author do |author|
-          author.name h change.revision.user.display_name
+        content.h2 h("#{revision.version}: #{revision.message}")
+        content.div do |div|
+          div.b "#{t 'page.info.version.user'}: "
+          div.span h(revision.user.display_name)
+        end
+        content.div do |div|
+          div.b "#{t 'page.info.version.size'}: "
+          div.span h(revision.size)
+        end
+        if revision.type == :page
+          page = Page.find(revision.page.namespace, revision.page.name, revision.id)
+          content.br
+          content.div format_diff(page.diff)
+          content.br
+          content.hr
+          content.div << page.render(context)
         end
       end
-    else
-      feed.entry change.revision, :url => url_for(:controller => 'page', :action => 'attachment', :namespace => h(change.namespace), :page => h(change.page), :attachment => h(change.attachment), :revision => h(change.revision.id)) do |entry|
-        entry.title h "#{change.namespace}/#{change.page}/#{change.attachment}"
-        entry.updated change.revision.date.xmlschema
-        entry.content %Q{
-          <h1>#{h change.namespace}/#{h change.page}/#{h change.attachment}</h1>
-          <h2>#{h change.revision.version}: #{h change.revision.message}</h2>
-          <div><b>Author: </b>#{h change.revision.user.display_name}</div>
-          <div><b>Size: </b>#{h format_filesize(change.revision.size)}</div>
-        }, :type => 'html'
-        entry.author do |author|
-          author.name h change.revision.user.display_name
-        end
+      entry.author do |author|
+        author.name h(revision.user.display_name)
+        author.email h(revision.user.email) if revision.user.email
       end
     end
   end
-  
-  feed.updated updated
 
 end
