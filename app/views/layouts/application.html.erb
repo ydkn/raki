@@ -47,14 +47,14 @@
         <div id="application_info"><%=link_to 'Raki', 'http://github.com/ydkn/raki' %> v<%=Raki.version %></div>
       </div>
       <div id="main">
-	    <div id="top_right">
-		  <div id="auth">
-	        <%=render :partial => 'layouts/auth' %>
-	      </div>
-	      <div id="search">
-		    <%=render :partial => 'layouts/search' %>
-		  </div>
-		</div>
+        <div id="top_right">
+          <div id="auth">
+            <%=render :partial => 'layouts/auth' %>
+          </div>
+          <div id="search">
+            <%=render :partial => 'layouts/search' %>
+          </div>
+        </div>
         <div id="page_title"><%=h @title %></div>
         <div id="visted_pages">
 	      <% unless visited_pages.empty? %>

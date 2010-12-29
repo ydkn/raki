@@ -126,6 +126,10 @@ class Page
     Raki::Authorizer.authorized_to?(namespace, name, action, user)
   end
   
+  def indexed?
+    Raki::Search.indexed?(namespace, name, nil, revision.id) rescue false
+  end
+  
   def locked?
     current_lock ? true : false
   end
@@ -226,7 +230,7 @@ class Page
     true
   rescue => e
     Rails.logger.error(e)
-    @errors << I18n.t('test')
+    @errors << I18n.t(e.to_s)
     false
   end
   
@@ -246,7 +250,9 @@ class Page
     
     @errors = nil
     @deleted = true
-  rescue
+  rescue => e
+    Rails.logger.error(e)
+    @errors << I18n.t(e.to_s)
     false
   end
   
@@ -304,7 +310,7 @@ class Page
     pages = []
     
     if options[:namespace].nil?
-      namespace = namespaces
+      namespace = Page.namespaces
     elsif options[:namespace].is_a?(Array)
       namespace = options[:namespace]
     else

@@ -11,7 +11,11 @@
       <ul>
         <% @results.each do |result| %>
           <li>
-            <%=link_to h("#{result[:namespace]}/#{result[:page]}"), url_for_page(result[:namespace], result[:page], result[:revision]) %>
+            <% if result[:attachment] %>
+              <%=link_to h("#{result[:attachment].page.namespace}/#{result[:attachment].page.name}/#{result[:attachment].name}@#{result[:attachment].revision.version}"), result[:attachment].url %>
+            <% else %>
+              <%=link_to h("#{result[:page].namespace}/#{result[:page].name}@#{result[:page].revision.version}"), result[:page].url %>
+            <% end %>
             <span class="score"><%=result[:score].to_i*100 %>%</span>
             <br/>
             <%=result[:excerpt].join('<br/>') if result[:excerpt] %>

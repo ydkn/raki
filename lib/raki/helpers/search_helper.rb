@@ -19,15 +19,13 @@ module Raki
     
     module SearchHelper
       
-      include AuthorizationHelper
-      
       def search(querystring)
         Raki::Search.search(querystring)
       end
       
       def search!(querystring, user=User.current)
         Raki::Search.search(querystring).select do |result|
-          authorized?(result[:type], result[:page], :view, user)
+          (result[:attachment] || result[:page]).authorized?(user, :view)
         end
       end
       

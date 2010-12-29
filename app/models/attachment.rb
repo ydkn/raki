@@ -107,6 +107,10 @@ class Attachment
     Raki::Authorizer.authorized_to?(page.namespace, page.name, action, user)
   end
   
+  def indexed?
+    Raki::Search.indexed?(page.namespace, page.name, name, revision.id) rescue false
+  end
+  
   def save(user, msg=nil)
     @errors = []
     @errors << I18n.t('attachment.upload.no_permission_to_create') unless authorized?(user, :upload)
@@ -118,6 +122,10 @@ class Attachment
     @errors = nil
     
     true
+  rescue => e
+    Rails.logger.error(e)
+    @errors << I18n.t(e.to_s)
+    false
   end
   
   def save!(user, msg=nil)
@@ -137,6 +145,10 @@ class Attachment
     @errors = nil
     
     true
+  rescue => e
+    Rails.logger.error(e)
+    @errors << I18n.t(e.to_s)
+    false
   end
   
   def delete!(user, msg=nil)

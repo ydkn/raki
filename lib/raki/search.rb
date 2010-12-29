@@ -24,63 +24,51 @@ module Raki
     
     class << self
       
-      include Raki::Helpers::ProviderHelper
-      
-      def search(querystring)
+      def search(querystring, options={})
         results = []
         SEARCH_FIELDS.each do |field|
-          results += field_search field, querystring
+          results += field_search(field, querystring)
         end
+        results.delete_if{|r| !(r[:attachment] || r[:page]).authorized?(options[:user])} if options[:user]
         results.sort {|a,b| b[:score] <=> a[:score]}
       end
       
-      def <<(namespace, page, revision, content=nil, attachment=nil)
-        type = type.to_s
-        page = page.to_s
-        revision = revision.to_s
-        doc_id = nil
-        @index.search_each("(namespace:\"#{namespace}\" AND page:\"#{page}\" AND revision:\"#{revision}\")") {|id, score| doc_id = id}
-        return false if doc_id
+      def add(namespace, page, attachment, revision, content)
+        return false if indexed?(namespace, page, attachment, revision)
+        
         if attachment
-          doc = {:namespace => namespace, :page => page, :revision => revision, :attachment => attachment}
+          @index << {:namespace => namespace.to_s, :page => page.to_s, :attachment => attachment.to_s, :revision => revision.to_s, :content => content}
         else
-          doc = {:namespace => namespace, :page => page, :revision => revision, :content => content}
+          @index << {:namespace => namespace.to_s, :page => page.to_s, :revision => revision.to_s, :content => content}
         end
-        @index << doc
+        
         true
       end
       
-      def indexed?(namespace, page, revision)
+      def indexed?(namespace, page, attachment, revision)
         doc_id = nil
-        @index.search_each("(namespace:\"#{namespace}\" AND page:\"#{page}\" AND revision:\"#{revision}\")") {|id, score| doc_id = id}
+        
+        query = "namespace:\"#{namespace.to_s}\" AND page:\"#{page.to_s}\" AND revision:\"#{revision.to_s}\""
+        query += " AND attachment:\"#{attachment.to_s}\"" if attachment
+        
+        @index.search_each("(#{query})") {|id, score| doc_id = id}
+        
         !doc_id.nil?
       end
       
       def refresh
-        namespaces.each do |namespace|
-          page_all(namespace).each do |page|
-            page_revisions(namespace, page).reverse_each do |revision|
-              next if indexed?(namespace, page, revision.id)
-              begin
-                self.<< namespace, page, revision.id, page_contents(namespace, page, revision.id), nil
-              rescue => e
-              end
-            end
-            attachment_all(namespace, page).each do |attachment|
-              attachment_revisions(namespace, page, attachment).reverse_each do |revision|
-                begin
-                  self.<< namespace, page, revision.id, nil, attachment
-                rescue => e
-                end
-              end
-            end
+        Page.all.each do |page| 
+          add(page.namespace, page.name, nil, page.revision.id, page.content) unless indexed?(page.namespace, page.name, nil, page.revision.id)
+          page.attachments.each do |attachment|
+            add(attachment.page.namespace, attachment.page.name, attachment.name, attachment.revision.id, attachment.content) unless indexed?(attachment.page.namespace, attachment.page.name, attachment.name, attachment.revision.id)
           end
         end
+        
         nil
       end
       
       def rebuild_index
-        FileUtils.rm_rf(File.join(Rails.root, 'tmp', "#{Rails.env}.idx"))
+        FileUtils.rm_rf(@index_file)
         create_index
         refresh
       end
@@ -92,14 +80,16 @@ module Raki
       private
       
       def create_index
-        @index = Ferret::Index::Index.new(:path => File.join(Rails.root, 'tmp', "#{Rails.env}.idx"))
+        FileUtils.mkdir_p(File.dirname(@index_file)) unless File.exists?(@index_file)
+        @index = Ferret::Index::Index.new(:path => @index_file)
+        return if (@index.field_infos.fields - [:namespace, :revision, :content, :page, :attachment]).empty?
         @index.field_infos.add_field(:namespace, :store => :yes, :boost => 5.0)
         @index.field_infos.add_field(:page, :store => :yes, :boost => 6.0)
         @index.field_infos.add_field(:attachment, :store => :yes, :boost => 5.0)
         @index.field_infos.add_field(:content, :store => :yes, :boost => 2.0)
       end
       
-      def field_search(field, querystring)
+      def field_search(field, querystring, options={})
         query = Ferret::Search::MultiTermQuery.new(field.to_sym)
         querystring.downcase.split(/\s+/).each do |term|
           query.add_term(term)
@@ -108,14 +98,20 @@ module Raki
         results = []
         @index.search_each(query) do |id, score|
           doc = @index[id]
-          results << {
-              :namespace => doc[:namespace],
-              :page => doc[:page],
-              :attachment => doc[:attachment],
-              :revision => doc[:revision],
-              :score => score,
-              :excerpt => @index.highlight(querystring, id, :field => :content, :pre_tag => '<b>', :post_tag => '</b>')
-            }
+          
+          r = {
+            :revision => doc[:revision],
+            :score => score,
+            :excerpt => @index.highlight(querystring, id, :field => :content, :pre_tag => '<b>', :post_tag => '</b>')
+          }
+          
+          if doc[:attachment]
+            r[:attachment] = Attachment.find(doc[:namespace], doc[:page], doc[:attachment], doc[:revision])
+          else
+            r[:page] = Page.find(doc[:namespace], doc[:page], doc[:revision])
+          end
+          
+          results << r
         end
         
         results
@@ -123,11 +119,8 @@ module Raki
       
     end
     
-    begin
-      create_index
-    rescue => e
-      Rails.logger.error(e)
-    end
+    @index_file = File.join(Rails.root, 'tmp', 'search_index', "#{Rails.env}.idx")
+    create_index
     
   end
 end

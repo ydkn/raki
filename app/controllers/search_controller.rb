@@ -21,7 +21,7 @@ class SearchController < ApplicationController
   def search
     @query = params[:query].empty? ? params[:q] : params[:query].join('/')
     @title = t 'search.title'
-    @results = search!(@query) if @query && !@query.blank?
+    @results = Raki::Search.search(@query, :user => User.current) if @query && !@query.blank?
   end
 
 end

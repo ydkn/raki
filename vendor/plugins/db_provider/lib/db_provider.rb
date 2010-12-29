@@ -261,7 +261,7 @@ class DBProvider < Raki::AbstractProvider
   end
   
   def namespaces
-    DBPage.all.collect{|page| page.namespace}.uniq
+    DBPage.all.collect{|p| p.attributes['namespace']}.uniq
   end
   
   private
