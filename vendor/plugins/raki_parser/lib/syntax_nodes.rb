@@ -20,12 +20,18 @@ class RakiSyntaxNode < Treetop::Runtime::SyntaxNode
 
   private
 
-  def page_for link, context
+  def target_for link, context
+    page = context[:page] || Page.new(:namespace => Raki.frontpage[:namespace], :name => Raki.frontpage[:name])
+    
     parts = link.split '/'
-    if parts.length == 2
-      Page.new(:namespace => parts[0], :name => parts[1])
+    if parts.length == 3
+      Attachment.new(:namespace => parts[0], :page => parts[1], :name => parts[2])
+    elsif parts.length == 2
+      Attachment.find(page.namespace, parts[0], parts[1]) || Page.new(:namespace => parts[0], :name => parts[1])
+    elsif parts.length == 1
+      Attachment.find(page.namespace, page.name, parts[0]) || Page.new(:namespace => page.namespace, :name => parts[0])
     else
-      Page.new(:namespace => (context[:page] ? context[:page].namespace : Raki.frontpage[:namespace]), :name => parts[0])
+      nil
     end
   end
 
@@ -81,29 +87,24 @@ end
 class WikiLinkNode < RakiSyntaxNode
 
   def to_html context
-    page = @page || page_for(href.text_value, context)
-    parts = href.text_value.split '/'
-    if !@page && parts.length == 2
-      page = Page.new(:namespace => parts[0], :name => parts[1])
-    elsif !@page
-      page = Page.new(:namespace => (context[:page] ? context[:page].namespace : Raki.frontpage[:namespace]), :name => parts[0])
-    end
-    if page.exists?
-      link = '<a href="' + page.url + '">'
+    target = @target || target_for(href.text_value, context)
+    
+    if target.exists?
+      link = '<a href="' + target.url + '">'
     else
-      link = '<a class="inexistent" href="' + page.url + '">'
+      link = '<a class="inexistent" href="' + target.url + '">'
     end
     link + (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip).strip + '</a>'
   end
 
   def to_src context={}
-    "[" + (@page ? @page.to_s : href.text_value) + (desc.empty? ? '' : ('|' + desc.text_value))  + "]"
+    "[" + (@target ? @target.to_s : href.text_value) + (desc.empty? ? '' : ('|' + desc.text_value))  + "]"
   end
 
   def link_update from, to, context
-    link_target = page_for(href.text_value, context)
-    if link_target.namespace == from.namespace && link_target.name == from.name
-      @page = to
+    link_target = target_for(href.text_value, context)
+    if link_target.is_a?(Page) && link_target.namespace == from.namespace && link_target.name == from.name
+      @target = to
       return true
     end
     false
