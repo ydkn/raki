@@ -188,7 +188,7 @@ class GitProvider < Raki::AbstractProvider
     flush(:exists?, obj, nil)
     flush(:contents, obj, nil)
     flush(:revisions)
-    flush(:changes)
+    flush(:page_contents)
     flush(:namespaces)
   end
 
@@ -204,8 +204,7 @@ class GitProvider < Raki::AbstractProvider
     git_push
     
     flush(:exists?)
-    flush(:contents, old_obj, nil)
-    flush(:contents, new_obj, nil)
+    flush(:page_contents)
     flush(:revisions)
     flush(:revisions)
     flush(:changes)
@@ -223,7 +222,7 @@ class GitProvider < Raki::AbstractProvider
     git_push
     
     flush(:exists?, obj, nil)
-    flush(:contents, obj, nil)
+    flush(:page_contents)
     flush(:revisions)
     flush(:changes)
     flush(:namespaces)
@@ -269,14 +268,11 @@ class GitProvider < Raki::AbstractProvider
     revision ||= 'HEAD'
     
     files = []
-    @repo.log(revision, dir).each do |commit|
-      commit[:changes].each do |change|
-        parts = change[:file].split('/')
-        files << normalize(parts.last) if parts.length == fp
-      end
+    @repo.tree(revision, dir).each do |child|
+      files << child[:filename] if child[:type] == 'blob'
     end
     
-    files.uniq.sort { |a,b| a <=> b }
+    files.sort { |a,b| a <=> b }
   end
   cache :all
 

@@ -154,6 +154,20 @@ class GitRepo
     commits
   end
   
+  def tree(refspec, pathspec)
+    out, es = run_git(['ls-tree', "#{shell_escape(refspec)}:\"#{shell_escape(pathspec)}\""])
+    raise GitBinaryError unless es == 0
+    
+    children = []
+    out.split("\n").each do |line|
+      line.strip!
+      parts = line.split(/\s+/)
+      children << {:type => parts[1], :filename => parts[3]}
+    end
+    
+    children
+  end
+  
   def show(refspec, pathspec)
     out, es = run_git(['show', "#{shell_escape(refspec)}:\"#{shell_escape(pathspec)}\""])
     raise GitBinaryError unless es == 0
