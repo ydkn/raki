@@ -69,53 +69,53 @@ class GitRepo
   cache :remotes
   
   def checkout(refspec)
-    out, err = run_git(['checkout', self.class.shell_escape(refspec)])
+    out, err = run_git(['checkout', shell_escape(refspec)])
     true
   end
   
   def add(pathspec)
-    out, err = run_git(['add', "\"#{self.class.shell_escape(pathspec)}\""])
+    out, err = run_git(['add', "\"#{shell_escape(pathspec)}\""])
     true
   end
   
   def move(src, dest)
     target_dir = File.join(working_dir, File.dirname(dest))
     FileUtils.mkdir_p(target_dir) unless File.exists?(target_dir)
-    out, err = run_git(['mv', "\"#{self.class.shell_escape(src)}\"", "\"#{self.class.shell_escape(dest)}\""])
+    out, err = run_git(['mv', "\"#{shell_escape(src)}\"", "\"#{shell_escape(dest)}\""])
     true
   end
   
   def remove(pathspec)
-    out, err = run_git(['rm', "\"#{self.class.shell_escape(pathspec)}\""])
+    out, err = run_git(['rm', "\"#{shell_escape(pathspec)}\""])
     true
   end
   
   def commit(message, user, pathspec=nil)
     pathspec = [pathspec] unless pathspec.respond_to?(:each)
     paths = pathspec.collect do |p|
-      "\"#{self.class.shell_escape(p)}\""
+      "\"#{shell_escape(p)}\""
     end.join(' ')
-    out, err = run_git(['commit', '-m', "\"#{self.class.shell_escape(message)}\"", "--author=\"#{self.class.shell_escape(user)}\"", paths])
+    out, err = run_git(['commit', '-m', "\"#{shell_escape(message)}\"", "--author=\"#{shell_escape(user)}\"", paths])
     true
   end
   
   def pull(remote, branch)
-    out, err = run_git(['pull', self.class.shell_escape(remote), self.class.shell_escape(branch)])
+    out, err = run_git(['pull', shell_escape(remote), shell_escape(branch)])
     true
   end
   
   def push(remote, branch)
-    out, err = run_git(['push', self.class.shell_escape(remote), self.class.shell_escape(branch)])
+    out, err = run_git(['push', shell_escape(remote), shell_escape(branch)])
     true
   end
   
   def log(refspec, pathspec=nil, options={})
     params = ['log', '--raw', '--full-index']
-    params << "-n #{options[:limit]}" if options[:limit]
-    params << "--since=#{options[:since].strftime("%Y-%m-%d %H:%M:%S")}" if options[:since]
+    params << "-n #{shell_escape(options[:limit].to_i)}" if options[:limit]
+    params << "--since=\"#{shell_escape(options[:since].strftime("%Y-%m-%d %H:%M:%S"))}\"" if options[:since]
     params << refspec
     
-    out, err = run_git(params, ["\"#{pathspec ? self.class.shell_escape(pathspec) : ''}\""])
+    out, err = run_git(params, ["\"#{pathspec ? shell_escape(pathspec) : ''}\""])
     
     raise GitBinaryError.new(err) unless err.empty?
     
@@ -150,7 +150,7 @@ class GitRepo
   end
   
   def show(refspec, pathspec)
-    out, err = run_git(['show', "#{self.class.shell_escape(refspec)}:\"#{self.class.shell_escape(pathspec)}\""])
+    out, err = run_git(['show', "#{shell_escape(refspec)}:\"#{shell_escape(pathspec)}\""])
     raise GitBinaryError.new(err) unless err.empty?
     out
   end
@@ -162,6 +162,10 @@ class GitRepo
   end
   
   private
+  
+  def shell_escape(string)
+    self.class.shell_escape(string)
+  end
   
   def run_git(cmds, args=[], options={})
     options[:working_dir] ||= working_dir
