@@ -54,8 +54,8 @@ class GitProvider < Raki::AbstractProvider
       
       @repo.checkout(@branch)
       
-      @repo.git_timeout = 10
-      @repo.git_max_size = 26214400
+      @repo.git_timeout = (params['timeout'] || 10).to_i
+      @repo.git_max_size = (params['max_size'] || 26214400).to_i
       
       Thread.new do
         while true do
