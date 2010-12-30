@@ -55,7 +55,6 @@ class GitProvider < Raki::AbstractProvider
       @repo.checkout(@branch)
       
       @repo.git_timeout = (params['timeout'] || 10).to_i
-      @repo.git_max_size = (params['max_size'] || 26214400).to_i
       
       Thread.new do
         while true do
@@ -75,6 +74,7 @@ class GitProvider < Raki::AbstractProvider
   def page_contents(namespace, name, revision=nil)
     contents("#{namespace.to_s}/#{name.to_s}", revision)
   end
+  cache :page_contents
 
   def page_revisions(namespace, name, options={})
     revisions("#{namespace.to_s}/#{name.to_s}", options)
@@ -159,7 +159,7 @@ class GitProvider < Raki::AbstractProvider
     obj = normalize(obj)
     revision ||= 'HEAD'
     
-    return @repo.log(revision, obj, :limit => 1).first[:changes].first[:mode] != 'D' rescue false
+    @repo.log(revision, obj, :limit => 1).first[:changes].first[:mode] != 'D' rescue false
   end
   cache :exists?
 
@@ -171,7 +171,6 @@ class GitProvider < Raki::AbstractProvider
     
     @repo.show(revision, obj)
   end
-  cache :contents
 
   def save(obj, contents, message, user)
     obj = normalize(obj)
@@ -322,7 +321,7 @@ class GitProvider < Raki::AbstractProvider
   
   def size(obj, revision)
     return nil unless exists?(obj, revision)
-    @repo.show(revision, obj).size
+    @repo.size(revision, obj)
   end
   cache :size, :ttl => 3600
   
