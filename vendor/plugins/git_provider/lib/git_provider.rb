@@ -52,7 +52,7 @@ class GitProvider < Raki::AbstractProvider
         @repo = GitRepo.clone(params['path'], repo_path)
       end
       
-      @repo.checkout(@branch)
+      @repo.checkout(@branch) rescue nil
       
       @repo.git_timeout = (params['timeout'] || 10).to_i
       
@@ -63,6 +63,7 @@ class GitProvider < Raki::AbstractProvider
         end
       end
     rescue => e
+      Rails.logger.error(e)
       raise ProviderError.new("Failed to initialize GIT repository: #{e.to_s}")
     end
   end
@@ -169,7 +170,7 @@ class GitProvider < Raki::AbstractProvider
     
     raise PageNotExists unless exists?(obj, revision)
     
-    @repo.show(revision, obj)
+    @repo.cat(revision, obj)
   end
 
   def save(obj, contents, message, user)

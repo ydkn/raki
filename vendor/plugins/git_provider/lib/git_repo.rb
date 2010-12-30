@@ -174,6 +174,12 @@ class GitRepo
     out
   end
   
+  def cat(refspec, pathspec)
+    out, es = run_git(['cat-file', '-p', "#{shell_escape(refspec)}:\"#{shell_escape(pathspec)}\""])
+    raise GitBinaryError unless es == 0
+    out
+  end
+  
   def size(refspec, pathspec)
     out, es = run_git(['cat-file', '-s', "#{shell_escape(refspec)}:\"#{shell_escape(pathspec)}\""])
     raise GitBinaryError unless es == 0
@@ -208,6 +214,7 @@ class GitRepo
     command += options[:path] + ' ' if !options[:working_dir] && options[:path]
     command += cmds.join(' ')
     command += ' -- ' + args.join(' ') if args && !args.empty?
+    command += ' 2>/dev/null' unless RUBY_PLATFORM =~ /mswin/i
     
     timeout = options[:timeout] || GIT_TIMEOUT
     
