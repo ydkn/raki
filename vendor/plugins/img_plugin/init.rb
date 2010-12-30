@@ -21,6 +21,8 @@ Raki::Plugin.register :img do
   url 'http://github.com/ydkn/raki'
   author 'Martin Sigloch'
   version '0.1'
+  
+  include Raki::Helpers::PluginHelper
 
   execute do
     img = body.strip
