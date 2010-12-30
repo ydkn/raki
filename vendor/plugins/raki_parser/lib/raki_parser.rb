@@ -36,6 +36,8 @@ class RakiParser < Raki::AbstractParser
     output = @parser.parse text
     return nil unless output
     output.to_html(context).html_safe
+  rescue => e
+    raise ParserError.new(e)
   end
   
   def link_update text, from, to, context={}

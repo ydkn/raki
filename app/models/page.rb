@@ -121,6 +121,8 @@ class Page
     context = context.clone
     context[:page] = self
     parser.parse content, context
+  rescue => e
+    "<div class=\"render-error\">#{I18n.t('page.render.error')}</div>".html_safe
   end
   
   def authorized?(user, action='view')

@@ -71,6 +71,9 @@ en:
         user: Author
         message: Comment
       diff: Diff
+      
+    render:
+      error: Rendern der Seite fehlgeschlagen
 
   attachment:
     list: Attachments

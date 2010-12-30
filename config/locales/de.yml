@@ -71,6 +71,9 @@ de:
         user: Autor
         message: Kommentar
       diff: Unterschiede
+    
+    render:
+      error: Rendern der Seite fehlgeschlagen
 
   attachment:
     list: Anhänge
