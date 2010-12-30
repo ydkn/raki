@@ -216,6 +216,8 @@ class PageController < ApplicationController
     @context[:real_page] = @context[:page]
     
     render :inline => Raki::Parser[params[:namespace]].parse(params[:content], @context), :content_type => 'text/html'
+  rescue => e
+    render :nothing => true, :status => 500
   end
   
   def unlock
