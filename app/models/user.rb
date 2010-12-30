@@ -48,7 +48,7 @@ class User
   end
   
   def == b
-    id == b.id
+    id == b.id || username == b.username
   end
   
   def self.current
