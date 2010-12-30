@@ -209,8 +209,8 @@ class Page
           end
         end
       end
-      @namespace ||= @new_namespace
-      @name ||= @new_name
+      @namespace = @new_namespace if @new_namespace
+      @name = @new_name if @new_name
       @new_namespace = nil
       @new_name = nil
     elsif changed?
@@ -227,7 +227,7 @@ class Page
     true
   rescue => e
     Rails.logger.error(e)
-    @errors << I18n.t('test')
+    @errors << e.to_s
     false
   end
   

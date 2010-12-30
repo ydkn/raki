@@ -200,13 +200,7 @@ class GitProvider < Raki::AbstractProvider
     
     raise ProviderError.new('Target exists') if exists?(new_obj)
     
-    FileUtils.mkdir_p(File.join(@repo.working_dir, path(new_obj)))
-    File.open(File.join(@repo.working_dir, new_obj), 'w') do |f|
-      f.write(contents(old_obj))
-    end
-    
-    @repo.remove(old_obj)
-    @repo.add(new_obj)
+    @repo.move(old_obj, new_obj)
     @repo.commit(message, format_user(user), [old_obj, new_obj])
     git_push
     
@@ -294,6 +288,7 @@ class GitProvider < Raki::AbstractProvider
     @repo.log(@branch, dir, :limit => options[:limit], :since => options[:since]).each do |commit|
       commit[:changes].each do |change|
         next if !att && change[:file] =~ /_att\//
+        next unless exists?(change[:file])
         mode = case change[:mode]
           when 'D'
             :deleted

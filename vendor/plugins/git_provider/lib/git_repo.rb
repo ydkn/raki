@@ -78,13 +78,24 @@ class GitRepo
     true
   end
   
+  def move(src, dest)
+    target_dir = File.join(working_dir, File.dirname(dest))
+    FileUtils.mkdir_p(target_dir) unless File.exists?(target_dir)
+    out, err = run_git(['mv', "\"#{self.class.shell_escape(src)}\"", "\"#{self.class.shell_escape(dest)}\""])
+    true
+  end
+  
   def remove(pathspec)
     out, err = run_git(['rm', "\"#{self.class.shell_escape(pathspec)}\""])
     true
   end
   
   def commit(message, user, pathspec=nil)
-    out, err = run_git(['commit', '-m', "\"#{self.class.shell_escape(message)}\"", "--author=\"#{self.class.shell_escape(user)}\"", '"' + self.class.shell_escape(pathspec.respond_to?(:join) ? pathspec.join('" "') : pathspec) + '"'])
+    pathspec = [pathspec] unless pathspec.respond_to?(:each)
+    paths = pathspec.collect do |p|
+      "\"#{self.class.shell_escape(p)}\""
+    end.join(' ')
+    out, err = run_git(['commit', '-m', "\"#{self.class.shell_escape(message)}\"", "--author=\"#{self.class.shell_escape(user)}\"", paths])
     true
   end
   
@@ -159,7 +170,7 @@ class GitRepo
     options[:max_size] ||= git_max_size
     options[:binary] ||= git_binary
     
-    GitRepo.run_git(cmds, args, options)
+    self.class.run_git(cmds, args, options)
   end
   
   def self.run_git(cmds, args=[], options={})
