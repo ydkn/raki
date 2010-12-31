@@ -33,7 +33,7 @@ atom_feed do |feed|
           div.b "#{t 'page.info.version.size'}: "
           div.span h(revision.size)
         end
-        if revision.type == :page
+        if revision.type == :page && revision.mode != :deleted
           page = Page.find(revision.page.namespace, revision.page.name, revision.id)
           content.br
           content.div do |div|
