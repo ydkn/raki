@@ -227,7 +227,7 @@ class GitRepo
     
     [out, ret]
   rescue => e
-    raise e.to_s
+    raise GitBinaryError.new(e)
   end
   
   def self.shell_escape(string)

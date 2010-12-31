@@ -201,7 +201,12 @@ class GitProvider < Raki::AbstractProvider
     raise ProviderError.new('Target exists') if exists?(new_obj)
     
     @repo.move(old_obj, new_obj)
-    @repo.commit(message, format_user(user), [old_obj, new_obj])
+    pathspecs = [old_obj, new_obj]
+    if exists?("#{old_obj}_att")
+      @repo.move("#{old_obj}_att", "#{new_obj}_att")
+      pathspecs += ["#{old_obj}_att", "#{new_obj}_att"]
+    end
+    @repo.commit(message, format_user(user), pathspecs)
     git_push
     
     flush(:exists?)
@@ -219,7 +224,12 @@ class GitProvider < Raki::AbstractProvider
     raise PageNotExists unless exists?(obj)
     
     @repo.remove(obj)
-    @repo.commit(message, format_user(user), obj)
+    pathspecs = [obj]
+    if exists?("#{obj}_att")
+      @repo.remove("#{obj}_att")
+      pathspecs << "#{obj}_att"
+    end
+    @repo.commit(message, format_user(user), pathspecs)
     git_push
     
     flush(:exists?, obj, nil)
@@ -271,7 +281,7 @@ class GitProvider < Raki::AbstractProvider
     files = []
     @repo.tree(revision, dir).each do |child|
       files << child[:filename] if child[:type] == 'blob'
-    end
+    end if exists?(dir)
     
     files.sort { |a,b| a <=> b }
   end
