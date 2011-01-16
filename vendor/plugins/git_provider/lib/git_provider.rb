@@ -69,6 +69,7 @@ class GitProvider < Raki::AbstractProvider
   end
 
   def page_exists?(namespace, name, revision=nil)
+    return false unless valid_page_name(name)
     exists?("#{namespace.to_s}/#{name.to_s}", revision)
   end
 
@@ -294,7 +295,6 @@ class GitProvider < Raki::AbstractProvider
     @repo.log(@branch, dir, :limit => options[:limit], :since => options[:since]).each do |commit|
       commit[:changes].each do |change|
         next if !att && change[:file] =~ /_att\//
-        next unless exists?(change[:file])
         mode = case change[:mode]
           when 'D'
             :deleted
@@ -307,6 +307,8 @@ class GitProvider < Raki::AbstractProvider
           end
         parts = change[:file].split('/')
         type = att ? :attachment : :page
+        page_name = (type == :attachment) ? parts[1].gsub(/_att$/, '') : parts[1]
+        next unless valid_page_name(page_name)
         changes << {
           :id => commit[:id].downcase,
           :version => commit[:id][0..6].upcase,
@@ -316,7 +318,7 @@ class GitProvider < Raki::AbstractProvider
           :mode => mode,
           :size => size(change[:file], commit[:id]),
           :type => type,
-          :page => (type == :attachment) ? {:namespace => namespace, :name => parts[1].gsub(/_att$/, '')} : {:namespace => namespace, :name => parts[1]},
+          :page => {:namespace => namespace, :name => page_name},
           :attachment => parts[2]
         }
       end
@@ -352,6 +354,10 @@ class GitProvider < Raki::AbstractProvider
   
   def format_user(user)
     "#{user.username} <#{user.email}>"
+  end
+  
+  def valid_page_name(name)
+    name =~ /[^\.]+|\d+\.\d+\.\d+\.\d+/i
   end
   
   def user_for(commit_author)

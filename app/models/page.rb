@@ -26,6 +26,9 @@ class Page
   def initialize(params={})
     @namespace = params[:namespace].to_s.strip
     @name = params[:name].to_s.strip
+    
+    raise PageError unless @namespace =~ /^[^\.]+$/i && @name =~ /[^\/\.]+|\d+\.\d+\.\d+\.\d+/
+    
     if params[:revision]
       provider.page_revisions(namespace, name).each do |r|
         if r[:id].to_s == params[:revision].to_s.strip
