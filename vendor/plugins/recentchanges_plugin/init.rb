@@ -31,8 +31,8 @@ Raki::Plugin.register :recentchanges do
     @namespaces = nil if params[:namespace] == 'all'
     
     @options = {}
-    @options[:limit] = params[:limit].to_i if params[:limit]
-    @options[:since] = params[:since].to_i.days.ago if params[:since]
+    @options[:limit] = (params[:limit] || 50).to_i
+    @options[:since] = (params[:since] || 30).to_i.days.ago
   end
 
 end
