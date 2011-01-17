@@ -98,6 +98,9 @@ en:
 
     info:
         versions: Versions
+
+  diff:
+    no_diff: No difference
   
   parser:
     parsing_error: Parsing Error

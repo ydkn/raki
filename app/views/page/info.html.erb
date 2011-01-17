@@ -16,13 +16,13 @@
       <% cnt = 0 %>
       <% @page.revisions.each do |revision| %>
         <tr class="<%=((cnt+=1)%2==0) ? 'even' : 'odd' %>">
-	      <% if revision.deleted? %>
-	        <td class="version"><%=h revision.version %></td>
-	      <% else %>
-	        <td class="version"><%=link_to h(revision.version), @page.url(:revision => revision.id) %></td>
-	      <% end %>
-		  <td class="diff"><%=radio_button_tag 'revision_from', revision.id, (cnt==1) %></td>
-		  <td class="diff"><%=radio_button_tag 'revision_to', revision.id, (cnt==2) %></td>
+          <% if revision.deleted? %>
+            <td class="version"><%=h revision.version %></td>
+          <% else %>
+            <td class="version"><%=link_to h(revision.version), @page.url(:revision => revision.id) %></td>
+          <% end %>
+          <td class="diff"><%=radio_button_tag 'revision_to', revision.id, (cnt==1) %></td>
+          <td class="diff"><%=radio_button_tag 'revision_from', revision.id, (cnt==2) %></td>
           <td><%=l revision.date, :format => :full %></td>
           <td><%=h(revision.deleted? ? '' : format_filesize(revision.size)) %></td>
           <td><%=link_to h(revision.user.display_name), revision.user.page.url %></td>
@@ -31,5 +31,5 @@
       <% end %>
     </tbody>
   </table>
-<%=submit_tag(t('page.info.diff'), :name => nil) %>
+  <%=submit_tag(t('page.info.diff'), :name => nil) %>
 <% end %>

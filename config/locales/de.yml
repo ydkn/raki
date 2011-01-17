@@ -98,6 +98,9 @@ de:
 
     info:
         versions: Versionen
+  
+  diff:
+    no_diff: Keine Unterschiede vorhanden
 
   parser:
     parsing_error: Parsen der Seite schlug fehl
