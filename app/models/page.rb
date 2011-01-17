@@ -26,6 +26,9 @@ class Page
   def initialize(params={})
     @namespace = params[:namespace].to_s.strip
     @name = params[:name].to_s.strip
+    
+    raise PageError unless @namespace =~ /^[^\.]+$/i && @name =~ /[^\/\.]+|\d+\.\d+\.\d+\.\d+/
+    
     if params[:revision]
       provider.page_revisions(namespace, name).each do |r|
         if r[:id].to_s == params[:revision].to_s.strip
@@ -91,8 +94,9 @@ class Page
     end
   end
   
-  def diff(rev_to)
+  def diff(rev_to=nil)
     return nil unless exists?
+    rev_to = provider.page_revisions(namespace, name, :limit => 2).last[:id] unless rev_to
     to = Page.find(namespace, name, (rev_to.is_a?(Revision) ? rev_to.id : rev_to))
     Diff.create(self, to)
   end
@@ -120,6 +124,9 @@ class Page
     context = context.clone
     context[:page] = self
     parser.parse content, context
+  rescue => e
+    Rails.logger.error(e)
+    "<div class=\"render-error\">#{I18n.t('page.render.error')}</div>".html_safe
   end
   
   def authorized?(user, action='view')
@@ -212,8 +219,8 @@ class Page
           end
         end
       end
-      @namespace ||= @new_namespace
-      @name ||= @new_name
+      @namespace = @new_namespace if @new_namespace
+      @name = @new_name if @new_name
       @new_namespace = nil
       @new_name = nil
     elsif changed?

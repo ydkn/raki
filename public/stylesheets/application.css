@@ -267,6 +267,17 @@ body {
 	padding: 4px 0;
 }
 
+.render-error {
+	display: block;
+    margin: 1em .5em;
+    padding: 1em 1em 1em 3em;
+    background-position: .8em .9em;
+    background-repeat: no-repeat;
+	background-image: url(../images/error.png);
+    background-color: #ffe0e0;
+    border: 1px solid #f0b0b0;
+}
+
 a.feed {
     padding: 0 0.5em;
     text-decoration: none;

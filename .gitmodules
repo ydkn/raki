@@ -1,3 +1,0 @@
-[submodule "vendor/gems/grit-2.1.0"]
-	path = vendor/gems/grit-2.1.0
-	url = git://github.com/ydkn/grit.git

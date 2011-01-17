@@ -20,7 +20,7 @@ different namespaces. It also supports a namespace-specific syntax.
   $ gem install mime-types
 
 === GIT provider
-  $ gem install unicode popen4
+  $ gem install unicode
 
 === Raki parser
   $ gem install treetop

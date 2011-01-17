@@ -52,10 +52,9 @@ class GitProvider < Raki::AbstractProvider
         @repo = GitRepo.clone(params['path'], repo_path)
       end
       
-      @repo.checkout(@branch)
+      @repo.checkout(@branch) rescue nil
       
-      @repo.git_timeout = 10
-      @repo.git_max_size = 26214400
+      @repo.git_timeout = (params['timeout'] || 10).to_i
       
       Thread.new do
         while true do
@@ -64,17 +63,20 @@ class GitProvider < Raki::AbstractProvider
         end
       end
     rescue => e
+      Rails.logger.error(e)
       raise ProviderError.new("Failed to initialize GIT repository: #{e.to_s}")
     end
   end
 
   def page_exists?(namespace, name, revision=nil)
+    return false unless valid_page_name(name)
     exists?("#{namespace.to_s}/#{name.to_s}", revision)
   end
 
   def page_contents(namespace, name, revision=nil)
     contents("#{namespace.to_s}/#{name.to_s}", revision)
   end
+  cache :page_contents
 
   def page_revisions(namespace, name, options={})
     revisions("#{namespace.to_s}/#{name.to_s}", options)
@@ -159,7 +161,7 @@ class GitProvider < Raki::AbstractProvider
     obj = normalize(obj)
     revision ||= 'HEAD'
     
-    return @repo.log(revision, obj, :limit => 1).first[:changes].first[:mode] != 'D' rescue false
+    @repo.log(revision, obj, :limit => 1).first[:changes].first[:mode] != 'D' rescue false
   end
   cache :exists?
 
@@ -169,9 +171,8 @@ class GitProvider < Raki::AbstractProvider
     
     raise PageNotExists unless exists?(obj, revision)
     
-    @repo.show(revision, obj)
+    @repo.cat(revision, obj)
   end
-  cache :contents
 
   def save(obj, contents, message, user)
     obj = normalize(obj)
@@ -189,7 +190,7 @@ class GitProvider < Raki::AbstractProvider
     flush(:exists?, obj, nil)
     flush(:contents, obj, nil)
     flush(:revisions)
-    flush(:changes)
+    flush(:page_contents)
     flush(:namespaces)
   end
 
@@ -200,19 +201,17 @@ class GitProvider < Raki::AbstractProvider
     
     raise ProviderError.new('Target exists') if exists?(new_obj)
     
-    FileUtils.mkdir_p(File.join(@repo.working_dir, path(new_obj)))
-    File.open(File.join(@repo.working_dir, new_obj), 'w') do |f|
-      f.write(contents(old_obj))
+    @repo.move(old_obj, new_obj)
+    pathspecs = [old_obj, new_obj]
+    if exists?("#{old_obj}_att")
+      @repo.move("#{old_obj}_att", "#{new_obj}_att")
+      pathspecs += ["#{old_obj}_att", "#{new_obj}_att"]
     end
-    
-    @repo.remove(old_obj)
-    @repo.add(new_obj)
-    @repo.commit(message, format_user(user), [old_obj, new_obj])
+    @repo.commit(message, format_user(user), pathspecs)
     git_push
     
     flush(:exists?)
-    flush(:contents, old_obj, nil)
-    flush(:contents, new_obj, nil)
+    flush(:page_contents)
     flush(:revisions)
     flush(:revisions)
     flush(:changes)
@@ -226,11 +225,16 @@ class GitProvider < Raki::AbstractProvider
     raise PageNotExists unless exists?(obj)
     
     @repo.remove(obj)
-    @repo.commit(message, format_user(user), obj)
+    pathspecs = [obj]
+    if exists?("#{obj}_att")
+      @repo.remove("#{obj}_att")
+      pathspecs << "#{obj}_att"
+    end
+    @repo.commit(message, format_user(user), pathspecs)
     git_push
     
     flush(:exists?, obj, nil)
-    flush(:contents, obj, nil)
+    flush(:page_contents)
     flush(:revisions)
     flush(:changes)
     flush(:namespaces)
@@ -276,14 +280,11 @@ class GitProvider < Raki::AbstractProvider
     revision ||= 'HEAD'
     
     files = []
-    @repo.log(revision, dir).each do |commit|
-      commit[:changes].each do |change|
-        parts = change[:file].split('/')
-        files << normalize(parts.last) if parts.length == fp
-      end
-    end
+    @repo.tree(revision, dir).each do |child|
+      files << child[:filename] if child[:type] == 'blob'
+    end if exists?(dir)
     
-    files.uniq.sort { |a,b| a <=> b }
+    files.sort { |a,b| a <=> b }
   end
   cache :all
 
@@ -306,6 +307,8 @@ class GitProvider < Raki::AbstractProvider
           end
         parts = change[:file].split('/')
         type = att ? :attachment : :page
+        page_name = (type == :attachment) ? parts[1].gsub(/_att$/, '') : parts[1]
+        next unless valid_page_name(page_name)
         changes << {
           :id => commit[:id].downcase,
           :version => commit[:id][0..6].upcase,
@@ -315,7 +318,7 @@ class GitProvider < Raki::AbstractProvider
           :mode => mode,
           :size => size(change[:file], commit[:id]),
           :type => type,
-          :page => (type == :attachment) ? {:namespace => namespace, :name => parts[1].gsub(/_att$/, '')} : {:namespace => namespace, :name => parts[1]},
+          :page => {:namespace => namespace, :name => page_name},
           :attachment => parts[2]
         }
       end
@@ -327,7 +330,7 @@ class GitProvider < Raki::AbstractProvider
   
   def size(obj, revision)
     return nil unless exists?(obj, revision)
-    @repo.show(revision, obj).size
+    @repo.size(revision, obj)
   end
   cache :size, :ttl => 3600
   
@@ -351,6 +354,10 @@ class GitProvider < Raki::AbstractProvider
   
   def format_user(user)
     "#{user.username} <#{user.email}>"
+  end
+  
+  def valid_page_name(name)
+    name =~ /[^\.]+|\d+\.\d+\.\d+\.\d+/i
   end
   
   def user_for(commit_author)

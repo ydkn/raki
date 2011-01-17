@@ -182,7 +182,7 @@ class Attachment
     end
     
     if options[:page].nil?
-      page = nil
+      page = [nil]
     elsif options[:page].is_a?(Array)
       page = options[:page]
     else
@@ -205,17 +205,16 @@ class Attachment
     namespaces.select do |ns|
       namespace ? !namespace.select{|nsf| nsf.is_a?(Regexp) ? (ns =~ nsf) : (nsf.to_s == ns.to_s)}.empty? : true
     end.each do |ns|
-      revisions += Raki::Provider[ns].attachment_changes(ns, nil, opts).select do |r|
-        ret = true
-        if page
-          ret = !page.select{|pf| pf.is_a?(Regexp) ? (r[:page][:name] =~ pf) : (pf.to_s == "#{r[:page][:namespace]}/#{r[:page][:name]}")}.empty?
+      page.each do |p|
+        revisions += Raki::Provider[ns].attachment_changes(ns, p, opts).select do |r|
+          ret = true
+          if name
+            ret = !name.select{|nf| nf.is_a?(Regexp) ? (r.attachment.name =~ nf) : (nf.to_s == r.attachment.name.to_s)}.empty?
+          end
+          ret
+        end.collect do |r|
+          hash_to_revision(r)
         end
-        if name && ret
-          ret = !name.select{|nf| nf.is_a?(Regexp) ? (r.attachment.name =~ nf) : (nf.to_s == r.attachment.name.to_s)}.empty?
-        end
-        ret
-      end.collect do |r|
-        hash_to_revision(r)
       end
     end
     

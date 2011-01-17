@@ -50,10 +50,10 @@ class FeedController < ApplicationController
   def page
     @page = Page.find(params[:namespace], params[:page])
     unless @page
-      render :status => :not_found
+      render :nothing => true, :status => :not_found
       return
     end
-    render :status => :forbidden unless @page.authorized?(User.current, :view)
+    render :nothing => true, :status => :forbidden unless @page.authorized?(User.current, :view)
     
     @revisions = @page.revisions
     @revisions += Attachment.changes(:namespace => @page.namespace, :page => @page.name, :limit => LIMIT)

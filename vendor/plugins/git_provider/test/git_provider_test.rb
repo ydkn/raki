@@ -24,7 +24,7 @@ class GitProviderTest < Test::Unit::TestCase
     @repo_path = File.join(Rails.root, 'tmp', 'test-git-repo')
     @tmp_repo_path = File.join(Rails.root, 'tmp', 'gitrepos', "#{Digest::MD5.hexdigest(@repo_path)}_test")
     
-    `git init #{@repo_path}`
+    `git init --bare #{@repo_path}`
     @provider = GitProvider.new('test', {'path' => @repo_path})
   end
 

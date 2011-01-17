@@ -22,7 +22,7 @@ class PageController < ApplicationController
   before_filter :common_init, :except => [:redirect_to_frontpage, :redirect_to_indexpage, :live_preview]
 
   def redirect_to_frontpage
-    redirect_to :controller => 'page', :action => 'view', :namespace => h(Raki.frontpage[:namespace]), :page => h(Raki.frontpage[:page])
+    redirect_to :controller => 'page', :action => 'view', :namespace => h(Raki.frontpage[:namespace]), :page => h(Raki.frontpage[:name])
   end
   
   def redirect_to_indexpage
@@ -216,6 +216,8 @@ class PageController < ApplicationController
     @context[:real_page] = @context[:page]
     
     render :inline => Raki::Parser[params[:namespace]].parse(params[:content], @context), :content_type => 'text/html'
+  rescue => e
+    render :nothing => true, :status => 500
   end
   
   def unlock

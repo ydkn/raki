@@ -14,21 +14,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'rubygems'
-require 'popen4'
-
 class GitRepo
   
   GIT_BINARY = `/usr/bin/env which git`.strip
   GIT_TIMEOUT = 10
-  GIT_MAX_SIZE = 5242880
   
   class GitError < StandardError; end
   class GitBinaryError < GitError; end
   
   include Cacheable
   
-  attr_accessor :git_timeout, :git_max_size, :git_binary
+  attr_accessor :git_timeout, :git_binary
   attr_reader :path, :working_dir
   
   def initialize(path)
@@ -44,7 +40,6 @@ class GitRepo
     end
     
     @git_timeout = GIT_TIMEOUT
-    @git_max_size = GIT_MAX_SIZE
     @git_binary = GIT_BINARY
   end
   
@@ -69,44 +64,65 @@ class GitRepo
   cache :remotes
   
   def checkout(refspec)
-    out, err = run_git(['checkout', refspec])
+    out, es = run_git(['checkout', shell_escape(refspec)])
+    raise GitBinaryError unless es == 0
     true
   end
   
   def add(pathspec)
-    out, err = run_git(['add', "\"#{pathspec}\""])
+    out, es = run_git(['add', "\"#{shell_escape(pathspec)}\""])
+    raise GitBinaryError unless es == 0
+    true
+  end
+  
+  def move(src, dest)
+    target_dir = File.join(working_dir, File.dirname(dest))
+    FileUtils.mkdir_p(target_dir) unless File.exists?(target_dir)
+    out, es = run_git(['mv', "\"#{shell_escape(src)}\"", "\"#{shell_escape(dest)}\""])
+    raise GitBinaryError unless es == 0
     true
   end
   
   def remove(pathspec)
-    out, err = run_git(['rm', "\"#{pathspec}\""])
+    out, es = run_git(['rm', "\"#{shell_escape(pathspec)}\""])
+    raise GitBinaryError unless es == 0
     true
   end
   
   def commit(message, user, pathspec=nil)
-    out, err = run_git(['commit', '-m', "\"#{message.to_s}\"", "--author=\"#{user.to_s}\"", '"' + (pathspec.respond_to?(:join) ? pathspec.join('" "') : pathspec) + '"'])
+    pathspec = [pathspec] unless pathspec.respond_to?(:each)
+    paths = pathspec.collect do |p|
+      "\"#{shell_escape(p)}\""
+    end.join(' ')
+    
+    out, es = run_git(['commit', '-m', "\"#{shell_escape(message)}\"", "--author=\"#{shell_escape(user)}\"", paths])
+    
+    raise GitBinaryError unless es == 0
+    
     true
   end
   
   def pull(remote, branch)
-    out, err = run_git(['pull', remote, branch])
+    out, es = run_git(['pull', shell_escape(remote), shell_escape(branch)])
+    raise GitBinaryError unless es == 0
     true
   end
   
   def push(remote, branch)
-    out, err = run_git(['push', remote, branch])
+    out, es = run_git(['push', shell_escape(remote), shell_escape(branch)])
+    raise GitBinaryError unless es == 0
     true
   end
   
   def log(refspec, pathspec=nil, options={})
     params = ['log', '--raw', '--full-index']
-    params << "-n #{options[:limit]}" if options[:limit]
-    params << "--since=#{options[:since].strftime("%Y-%m-%d %H:%M:%S")}" if options[:since]
+    params << "-n #{shell_escape(options[:limit].to_i)}" if options[:limit]
+    params << "--since=\"#{shell_escape(options[:since].strftime("%Y-%m-%d %H:%M:%S"))}\"" if options[:since]
     params << refspec
     
-    out, err = run_git(params, ["\"#{pathspec}\""])
+    out, es = run_git(params, ["\"#{pathspec ? shell_escape(pathspec) : ''}\""])
     
-    raise GitBinaryError.new(err) unless err.empty?
+    raise GitBinaryError unless es == 0
     
     commits = []
     commit = {:changes => []}
@@ -138,28 +154,57 @@ class GitRepo
     commits
   end
   
+  def tree(refspec, pathspec)
+    out, es = run_git(['ls-tree', "#{shell_escape(refspec)}:\"#{shell_escape(pathspec)}\""])
+    raise GitBinaryError unless es == 0
+    
+    children = []
+    out.split("\n").each do |line|
+      line.strip!
+      parts = line.split(/\s+/)
+      children << {:type => parts[1], :filename => parts[3]}
+    end
+    
+    children
+  end
+  
   def show(refspec, pathspec)
-    out, err = run_git(['show', "#{refspec}:\"#{pathspec}\""])
-    raise GitBinaryError.new(err) unless err.empty?
+    out, es = run_git(['show', "#{shell_escape(refspec)}:\"#{shell_escape(pathspec)}\""])
+    raise GitBinaryError unless es == 0
     out
   end
   
+  def cat(refspec, pathspec)
+    out, es = run_git(['cat-file', '-p', "#{shell_escape(refspec)}:\"#{shell_escape(pathspec)}\""])
+    raise GitBinaryError unless es == 0
+    out
+  end
+  
+  def size(refspec, pathspec)
+    out, es = run_git(['cat-file', '-s', "#{shell_escape(refspec)}:\"#{shell_escape(pathspec)}\""])
+    raise GitBinaryError unless es == 0
+    out.strip.to_i
+  end
+  
   def self.clone(url, path)
-    out, err = run_git(['clone', url, path])
-    raise GitBinaryError.new(err) unless err.split("\n").select{|l| l =~ /^fatal: /}.empty?
+    out, es = run_git(['clone', shell_escape(url), shell_escape(path)])
+    raise GitBinaryError unless es == 0
     GitRepo.new(path)
   end
   
   private
   
+  def shell_escape(string)
+    self.class.shell_escape(string)
+  end
+  
   def run_git(cmds, args=[], options={})
     options[:working_dir] ||= working_dir
     options[:path] ||= path
     options[:timeout] ||= git_timeout
-    options[:max_size] ||= git_max_size
     options[:binary] ||= git_binary
     
-    GitRepo.run_git(cmds, args, options)
+    self.class.run_git(cmds, args, options)
   end
   
   def self.run_git(cmds, args=[], options={})
@@ -169,28 +214,30 @@ class GitRepo
     command += options[:path] + ' ' if !options[:working_dir] && options[:path]
     command += cmds.join(' ')
     command += ' -- ' + args.join(' ') if args && !args.empty?
+    command += ' 2>/dev/null' unless RUBY_PLATFORM =~ /mswin/i
     
     timeout = options[:timeout] || GIT_TIMEOUT
-    max_size = options[:max_size] || GIT_MAX_SIZE
     
-    out, err = '', ''
-    read = 0
-    POpen4.popen4(command) do |stdout, stderr, stdin, pid|
-      Timeout.timeout(timeout) do
-        while tmp = stdout.read(1024)
-          out += tmp
-          raise 'Max size exceeded' if (read += tmp.size) > max_size
-        end
-      end
-      
-      while tmp = stderr.read(1024)
-        err += tmp
-      end
+    out = ''
+    ret = -1
+    Timeout.timeout(timeout) do
+      out = `#{command}`
+      ret = $?.to_i
     end
     
-    [out, err]
+    [out, ret]
   rescue => e
-    raise e.to_s
+    raise GitBinaryError.new(e)
+  end
+  
+  def self.shell_escape(string)
+    string = string.to_s
+    
+    ['\\', ';', '"', "'", '(', ')'].each do |c|
+      string.gsub!(c, "\\\\#{c}")
+    end
+    
+    string
   end
   
 end
