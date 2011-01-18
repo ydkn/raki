@@ -33,6 +33,8 @@ class RakiSyntaxNode < Treetop::Runtime::SyntaxNode
     else
       nil
     end
+  rescue => e
+    nil
   end
 
 end
@@ -87,14 +89,16 @@ end
 class WikiLinkNode < RakiSyntaxNode
 
   def to_html context
+    title = (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip).strip
     target = @target || target_for(href.text_value, context)
     
-    if target.exists?
-      link = '<a href="' + target.url + '">'
+    if !target || (!target.url rescue true)
+      "<span class=\"invalid-page\">#{h title}</span>"
+    elsif target.exists?
+      "<a href=\"#{target.url}\">#{h title}</a>"
     else
-      link = '<a class="inexistent" href="' + target.url + '">'
+      "<a class=\"inexistent\" href=\"#{target.url}\">#{h title}</a>"
     end
-    link + (desc.to_html(context).empty? ? href.to_html(context) : desc.to_html(context).strip).strip + '</a>'
   end
 
   def to_src context={}

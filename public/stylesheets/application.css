@@ -291,6 +291,11 @@ a.inexistent, a.inexistent:visited {
     color: #ff0000;
 }
 
+span.invalid-page {
+	color: #757575;
+	text-decoration: underline;
+}
+
 .information, .warning, .error, .confirmation {
     display: block;
     margin: 1em .5em;

@@ -37,6 +37,7 @@ class RakiParser < Raki::AbstractParser
     return nil unless output
     output.to_html(context).html_safe
   rescue => e
+    Rails.logger.error(e)
     raise ParserError.new(e)
   end
   
