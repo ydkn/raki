@@ -45,6 +45,9 @@ de:
       edit: Bearbeiten
       attachments: Anhänge
 
+    view:
+      not_current: Dies ist nicht die aktuelle Version
+
     edit:
       save: Speichern
       preview: Vorschau

@@ -44,6 +44,9 @@ en:
       info: Info
       edit: Edit
       attachments: Attachments
+      
+    view:
+      not_current: This is not the current version of the page
 
     edit:
       save: Save
@@ -73,7 +76,7 @@ en:
       diff: Diff
       
     render:
-      error: Rendern der Seite fehlgeschlagen
+      error: Page rendering failed
 
   attachment:
     list: Attachments

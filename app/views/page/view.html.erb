@@ -1,4 +1,7 @@
 <% if @page.exists? && @page.authorized?(User.current, :view) %>
+  <% if @page.revision != @page.head_revision %>
+    <div class="warning"><%=t 'page.view.not_current' %></div>
+  <% end %>
   <%=@page.render context %>
 <% else %>
   <div class="information">
