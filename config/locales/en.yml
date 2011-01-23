@@ -111,6 +111,7 @@ en:
   plugin:
     error: Plugin '%{name}' caused error
     missing_parameter: Missing parameter
+    not_available_in_live_preview: Not available in Sneak Preview
     
   toolbar:
       bold: Bold

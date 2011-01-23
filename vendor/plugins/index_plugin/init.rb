@@ -25,28 +25,32 @@ Raki::Plugin.register :index do
   add_stylesheet '/plugin_assets/index_plugin/stylesheets/index.css'
 
   execute do
-    @namespaces = params[:namespace].nil? ? [context[:page].namespace] : params[:namespace].split(',')
-    @namespaces = nil if params[:namespace] == 'all'
-    
-    chars = {}
-    
-    Page.all(:namespace => @namespaces).select{|p| p.authorized?(User.current, :view)}.each do |page|
-      letter = page.name[0].chr.upcase
-      chars[letter] = [] unless chars.key?(letter)
-      chars[letter] << page
+    if context[:live_preview]
+      render :inline => "<div class=\"warning\">#{t('plugin.not_available_in_live_preview')}</div>"
+    else
+      @namespaces = params[:namespace].nil? ? [context[:page].namespace] : params[:namespace].split(',')
+      @namespaces = nil if params[:namespace] == 'all'
+
+      chars = {}
+
+      Page.all(:namespace => @namespaces).select{|p| p.authorized?(User.current, :view)}.each do |page|
+        letter = page.name[0].chr.upcase
+        chars[letter] = [] unless chars.key?(letter)
+        chars[letter] << page
+      end
+
+      @index = []
+      keys = chars.keys.sort {|a,b| a <=> b}
+      keys.each do |key|
+        @index << {
+            :letter => key,
+            :pages => chars[key].sort
+          }
+      end
+      @rnd = rand(900)+100
+
+      render :inline => "<b>#{t 'indexplugin.no_pages'}</b>" if @index.empty?
     end
-    
-    @index = []
-    keys = chars.keys.sort {|a,b| a <=> b}
-    keys.each do |key|
-      @index << {
-          :letter => key,
-          :pages => chars[key].sort
-        }
-    end
-    @rnd = rand(900)+100
-    
-    render :inline => "<b>#{t 'indexplugin.no_pages'}</b>" if @index.empty?
   end
 
 end

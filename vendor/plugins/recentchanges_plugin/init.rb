@@ -27,12 +27,16 @@ Raki::Plugin.register :recentchanges do
   include RecentchangesPluginHelper
 
   execute do
-    @namespaces = params[:namespace].nil? ? [context[:page].namespace] : params[:namespace].split(',')
-    @namespaces = nil if params[:namespace] == 'all'
-    
-    @options = {}
-    @options[:limit] = (params[:limit] || 50).to_i
-    @options[:since] = (params[:since] || 30).to_i.days.ago
+    if context[:live_preview]
+      render :inline => "<div class=\"warning\">#{t('plugin.not_available_in_live_preview')}</div>"
+    else
+      @namespaces = params[:namespace].nil? ? [context[:page].namespace] : params[:namespace].split(',')
+      @namespaces = nil if params[:namespace] == 'all'
+
+      @options = {}
+      @options[:limit] = (params[:limit] || 50).to_i
+      @options[:since] = (params[:since] || 30).to_i.days.ago
+    end
   end
 
 end
