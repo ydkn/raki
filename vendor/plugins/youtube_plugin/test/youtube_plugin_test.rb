@@ -19,7 +19,7 @@ require 'raki_plugin_test'
 class YoutubePluginTest < Raki::Test::Plugin::TestCase
   
   def test_no_video
-    assert_raise_plugin_error 'No video specified' do
+    assert_raise_plugin_error I18n.t('youtube.no_video') do
       exec({}, '')
     end
   end

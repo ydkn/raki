@@ -124,7 +124,7 @@ module Cacheable
   def self.expire
     return if Rails.env == 'development'
     
-    time = Time.parse('1900-01-01')
+    time = Time.at(0)
     @cache.values.each do |clazz|
       clazz.values.each do |cached|
         cached.values.each do |params|
@@ -152,7 +152,7 @@ module Cacheable
     
     name = name.to_sym
     cache = Cacheable.cache[self]
-    time = Time.parse('1900-01-01')
+    time = Time.at(0)
     if name.nil?
       cache.values.each do |method_args|
         method_args.values.each do |params|
