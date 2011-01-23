@@ -312,7 +312,7 @@ class DBProviderTest < Test::Unit::TestCase
   def generate_binary_data(length=nil)
     length = 1024 + rand(4096) if length.nil?
     data = ""
-    file = File.new("/dev/random", "r")
+    file = File.new("/dev/urandom", "r")
     (length/10).times do
       data += file.gets
     end
