@@ -17,4 +17,56 @@
 require 'test_helper'
 
 class UserTest < Test::Unit::TestCase
+  
+  def test_attributes
+    # Only id
+    u = User.new 'user-id'
+    assert_equal 'user-id', u.id
+    assert_equal 'user-id', u.username
+    assert_equal "user-id@#{Raki.app_name.underscore}", u.email
+    assert_equal 'user-id', u.display_name
+    
+    # username
+    u = User.new 'user-id', :username => 'testuser'
+    assert_equal 'user-id', u.id
+    assert_equal 'testuser', u.username
+    assert_equal "testuser@#{Raki.app_name.underscore}", u.email
+    assert_equal 'testuser', u.display_name
+    
+    # email
+    u = User.new 'user-id', :email => 'testuser@test.dom'
+    assert_equal 'user-id', u.id
+    assert_equal 'user-id', u.username
+    assert_equal 'testuser@test.dom', u.email
+    assert_equal 'user-id', u.display_name
+    
+    # email
+    u = User.new 'user-id', :display_name => 'John Doe'
+    assert_equal 'user-id', u.id
+    assert_equal 'user-id', u.username
+    assert_equal "user-id@#{Raki.app_name.underscore}", u.email
+    assert_equal 'John Doe', u.display_name
+    
+    # username and email
+    u = User.new 'user-id', :username => 'testuser', :email => 'testuser@test.dom'
+    assert_equal 'user-id', u.id
+    assert_equal 'testuser', u.username
+    assert_equal 'testuser@test.dom', u.email
+    assert_equal 'testuser', u.display_name
+    
+    # username and display_name
+    u = User.new 'user-id', :username => 'testuser', :display_name => 'John Doe'
+    assert_equal 'user-id', u.id
+    assert_equal 'testuser', u.username
+    assert_equal "testuser@#{Raki.app_name.underscore}", u.email
+    assert_equal 'John Doe', u.display_name
+    
+    # email and display_name
+    u = User.new 'user-id', :email => 'testuser@test.dom', :display_name => 'John Doe'
+    assert_equal 'user-id', u.id
+    assert_equal 'user-id', u.username
+    assert_equal 'testuser@test.dom', u.email
+    assert_equal 'John Doe', u.display_name
+  end
+  
 end
