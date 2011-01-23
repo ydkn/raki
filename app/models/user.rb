@@ -51,12 +51,23 @@ class User
     id == b.id || username == b.username
   end
   
+  def to_hash
+    {:id => id, :username => username, :email => email, :display_name => display_name}
+  end
+  alias :to_h :to_hash
+  
   def self.current
     @current
   end
 
   def self.current=(user)
-    @current = user
+    if user.is_a?(Hash) && user[:id]
+      @current = User.new(user[:id], user)
+    elsif user.is_a?(User)
+      @current = user
+    else
+      @current = nil
+    end
   end
   
 end

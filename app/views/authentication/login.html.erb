@@ -1,6 +1,6 @@
 <div id="login">
-  <% form_tag({:controller => 'authentication', :action => 'login'}) do |f| %>
-    <% unless flash[:notice].nil? %>
+  <% form_tag({:controller => 'authentication', :action => 'login'}) do %>
+    <% if flash[:notice] %>
       <div class="error"><%=h flash[:notice] %></div>
     <% end %>
     <% @form_fields.each do |field| %>

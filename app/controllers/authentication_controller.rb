@@ -31,13 +31,14 @@ class AuthenticationController < ApplicationController
     @context[:login] = true
     begin
       unless params[:loginsubmit].nil?
-        res = Raki::Authenticator.login(params, session, cookies)
-        if res.is_a?(String)
-          redirect_to res
-        elsif res.is_a?(User)
-          session[:user] = res
+        resp = Raki::Authenticator.login(params, session, cookies)
+        if resp.is_a? String
+          redirect_to resp
+        elsif resp.is_a? User
+          User.current = resp
+          session[:user] = resp.to_hash
         else
-          session[:user] = AnonymousUser.new request.remote_ip
+          User.current = AnonymousUser.new request.remote_ip
           flash[:notice] = t 'auth.invalid_credentials'
         end
       end
@@ -48,9 +49,9 @@ class AuthenticationController < ApplicationController
 
   def logout
     if Raki::Authenticator.respond_to? :logout
-      res = Raki::Authenticator.logout params, session, cookies
-      if res.is_a?(String)
-        redirect_to res
+      resp = Raki::Authenticator.logout params, session, cookies
+      if resp.is_a? String
+        redirect_to resp
       else
         session_reset
       end
@@ -64,9 +65,9 @@ class AuthenticationController < ApplicationController
       params.delete(:controller)
       params.delete(:action)
       resp = Raki::Authenticator.callback params, session, cookies
-      if resp.is_a?(User)
+      if resp.is_a? User
         session[:user] = resp
-        User.current= resp
+        User.current = resp
         redirect
       else
         flash[:notice] = t 'auth.invalid_callback'

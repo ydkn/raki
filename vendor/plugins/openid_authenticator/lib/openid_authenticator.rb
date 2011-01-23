@@ -46,7 +46,6 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
           url_for(:controller => 'authentication', :action => 'callback', :only_path => false)
         )
     rescue => e
-      raise e
       raise AuthenticatorError.new(t 'auth.openid.unable_to_authenticate', :openid => h(openid))
     end
   end

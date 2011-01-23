@@ -44,17 +44,18 @@ class ApplicationController < ActionController::Base
   def try_to_authenticate_user
     User.current = nil
     if Raki::Authenticator.respond_to? :validate_session
-      res = Raki::Authenticator.validate_session params, session, cookies
-      if res.is_a?(String)
-        redirect_to res
-      elsif res.is_a?(User)
-        User.current = res
+      resp = Raki::Authenticator.validate_session params, session, cookies
+      if resp.is_a? String
+        redirect_to resp
+      elsif resp.is_a? User
+        User.current = resp
+        session[:user] = resp.to_hash
       end
-    elsif session[:user] && session[:user].is_a?(User)
+    elsif session[:user]
       User.current = session[:user]
+    else
+      User.current = AnonymousUser.new request.remote_ip
     end
-    User.current ||= AnonymousUser.new request.remote_ip
-    session[:user] = User.current
   end
   
   def set_locale
