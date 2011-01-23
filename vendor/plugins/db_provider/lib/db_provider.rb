@@ -85,7 +85,7 @@ class DBProvider < Raki::AbstractProvider
   def page_rename(old_namespace, old_name, new_namespace, new_name, user)
     raise ProviderError.new 'Target page already exists' if page_exists?(new_namespace, new_name)
     
-    DBAttachment.find_all_by_namespace_page(old_namespace.to_s, old_name.to_s).each do |attachment|
+    DBAttachment.find_all_by_namespace_and_page(old_namespace.to_s, old_name.to_s).each do |attachment|
       attachment.namespace = new_namespace.to_s
       attachment.page = new_name.to_s
       attachment.save
@@ -100,7 +100,7 @@ class DBProvider < Raki::AbstractProvider
   def page_delete(namespace, name, user)
     raise PageNotExists unless page_exists?(namespace, name)
     begin
-      DBAttachment.find_all_by_namespace_page(namespace.to_s, name.to_s).each do |attachment|
+      DBAttachment.find_all_by_namespace_and_page(namespace.to_s, name.to_s).each do |attachment|
         attachment.attachment_revisions.each do |attachment_revision|
           attachment_revision.destroy
         end
