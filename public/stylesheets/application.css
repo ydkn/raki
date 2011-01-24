@@ -24,6 +24,10 @@ body {
     border: 0;
 }
 
+#left_menu_footer {
+	margin-bottom: 2em;
+}
+
 #main {
     margin-left: 17em;
 }
@@ -206,12 +210,11 @@ body {
 	text-align: center;
 }
 
-#revisions tr.odd {
-
+#revisions tr:nth-child(odd) {
 }
 
-#revisions tr.even {
-    background-color: #f5f5f5;
+#revisions tr:nth-child(even) {
+	background-color: #f5f5f5;
 }
 
 #lock_waring {
@@ -341,6 +344,13 @@ table.wikitable {
     border-collapse: collapse;
     border-spacing: 0;
     empty-cells: show;
+}
+
+table.wikitable tr:nth-child(odd) {
+}
+
+table.wikitable tr:nth-child(even) {
+	background-color: #f5f5f5;
 }
 
 table.wikitable th {

@@ -13,9 +13,10 @@
       </tr>
     </thead>
     <tbody>
-      <% cnt = 0 %>
+	  <% cnt = 0 %>
       <% @page.revisions.each do |revision| %>
-        <tr class="<%=((cnt+=1)%2==0) ? 'even' : 'odd' %>">
+        <% cnt += 1 %>
+        <tr>
           <% if revision.deleted? %>
             <td class="version"><%=h revision.version %></td>
           <% else %>
