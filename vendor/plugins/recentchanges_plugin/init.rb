@@ -22,21 +22,19 @@ Raki::Plugin.register :recentchanges do
   author 'Florian Schwab'
   version '0.1'
 
+  disable_in_live_preview
+  
   add_stylesheet '/plugin_assets/recentchanges_plugin/stylesheets/recentchanges.css'
   
   include RecentchangesPluginHelper
 
   execute do
-    if context[:live_preview]
-      render :inline => "<div class=\"warning\">#{t('plugin.not_available_in_live_preview')}</div>"
-    else
-      @namespaces = params[:namespace].nil? ? [context[:page].namespace] : params[:namespace].split(',')
-      @namespaces = nil if params[:namespace] == 'all'
+    @namespaces = params[:namespace].nil? ? [context[:page].namespace] : params[:namespace].split(',')
+    @namespaces = nil if params[:namespace] == 'all'
 
-      @options = {}
-      @options[:limit] = (params[:limit] || 50).to_i
-      @options[:since] = (params[:since] || 30).to_i.days.ago
-    end
+    @options = {}
+    @options[:limit] = (params[:limit] || 50).to_i
+    @options[:since] = (params[:since] || 30).to_i.days.ago
   end
 
 end

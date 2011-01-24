@@ -157,6 +157,10 @@ module Raki
       @stylesheets << {:url => url, :options => options}
     end
     
+    def disable_in_live_preview(switch=true)
+      @disable_in_live_preview = switch
+    end
+    
     def block_page(namespace, page='*')
       Raki::Authorizer.block(namespace, page)
     end
@@ -166,6 +170,10 @@ module Raki
     end
 
     def exec(id, params, body, context={})
+      if @disable_in_live_preview && context[:live_preview]
+        return "<div class=\"warning\">#{I18n.t('plugin.not_available_in_live_preview')}</div>"
+      end
+      
       @callname = id
       @params = params
       @body = body
