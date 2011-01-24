@@ -357,7 +357,7 @@ class GitProvider < Raki::AbstractProvider
   end
   
   def valid_page_name(name)
-    name =~ /[^\.]+|\d+\.\d+\.\d+\.\d+/i
+    name =~ /^[^\.]+|\d+\.\d+\.\d+\.\d+$/i
   end
   
   def user_for(commit_author)
