@@ -242,5 +242,9 @@ class PageController < ApplicationController
     @context[:page] = @page
     @context[:real_page] = @page
   end
+  
+  def render_forbidden
+    render 'common/forbidden', :status => :forbidden
+  end
 
 end

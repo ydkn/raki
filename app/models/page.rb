@@ -18,6 +18,7 @@ class Page
   LOCK_TIME = 1800
   
   class PageError < StandardError; end
+  class InvalidPageName < PageError; end
   
   include Raki::Helpers::URLHelper
   
@@ -27,7 +28,7 @@ class Page
     @namespace = params[:namespace].to_s.strip
     @name = params[:name].to_s.strip
     
-    raise PageError unless @namespace =~ /^[^\.]+$/i && @name =~ /^[^\/\.]+|\d+\.\d+\.\d+\.\d+$/
+    raise InvalidPageName unless @namespace =~ /^[^\.]+$/i && @name =~ /^[^\/\.]+|\d+\.\d+\.\d+\.\d+$/
     
     if params[:revision]
       provider.page_revisions(namespace, name).each do |r|

@@ -78,9 +78,5 @@ class ApplicationController < ActionController::Base
     rescue => e
     end
   end
-  
-  def render_forbidden
-    render 'common/forbidden', :status => :forbidden
-  end
 
 end
