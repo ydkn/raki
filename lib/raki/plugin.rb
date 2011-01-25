@@ -170,6 +170,8 @@ module Raki
     end
 
     def exec(id, params, body, context={})
+      return '' if context[:ignore_plugins]
+      
       if @disable_in_live_preview && context[:live_preview]
         return "<div class=\"warning\">#{I18n.t('plugin.not_available_in_live_preview')}</div>"
       end
