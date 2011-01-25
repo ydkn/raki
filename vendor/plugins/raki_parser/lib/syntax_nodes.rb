@@ -169,7 +169,7 @@ class HeadingNode < RakiSyntaxNode
     l = level.text_value.length
     l = 6 if l > 6
     anker = text.text_value.gsub(/[^a-zA-Z0-9 _-]/, '').gsub(/_/, ' ').strip.gsub(/\s+/, '_')
-    return "<h#{l} id=\"#{h anker}\">" + text.to_html(context).strip + "</h#{l}>\n"
+    return "<h#{l} id=\"section-#{h anker}\">" + text.to_html(context).strip + "</h#{l}>\n"
   end
 
   def rename_link(o, n)

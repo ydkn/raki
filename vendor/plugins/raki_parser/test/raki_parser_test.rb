@@ -120,15 +120,15 @@ class RakiParserTest < Test::Unit::TestCase
 
   # Test for headings
   def test_headings
-    assert_equal "<h1 id=\"Heading_first_order\">Heading first order</h1>\n", parse("!Heading first order")
-    assert_equal "<h1 id=\"Heading_first_order\">Heading first order</h1>\n<br/>\n", parse("!Heading first order\r\n\r\n\r\n")
-    assert_equal "<h2 id=\"Heading_second_order\">Heading second order</h2>\n", parse("!!Heading second order\n")
-    assert_equal "<h3 id=\"Heading_third_order\">Heading third order</h3>\n", parse("!!!Heading third order")
-    assert_equal "<h6 id=\"Heading_sixth_order\">Heading sixth order</h6>\n", parse("!!!!!!Heading sixth order\n")
-    assert_equal "<h6 id=\"Heading_sixth_order_with_extra_exclamation_marks\">!!Heading sixth order with extra exclamation marks</h6>\n", parse("!!!!!! !!Heading sixth order with extra exclamation marks\n")
-    assert_equal "<h1 id=\"Heading_first_order\">Heading first order</h1>\ntest", parse("!Heading first order\ntest")
-    assert_equal "<h1 id=\"Heading_first_order\"><i>Heading first</i> <span class=\"underline\">order</span></h1>\ntest", parse("!~Heading first~ _order_\ntest")
-    assert_equal "<h1 id=\"Heading_first_Link_order\">Heading first <a class=\"inexistent\" href=\"/test/Link\" title=\"Link\">Link</a> order</h1>\ntest", parse("!Heading first [Link] order\ntest")
+    assert_equal "<h1 id=\"section-Heading_first_order\">Heading first order</h1>\n", parse("!Heading first order")
+    assert_equal "<h1 id=\"section-Heading_first_order\">Heading first order</h1>\n<br/>\n", parse("!Heading first order\r\n\r\n\r\n")
+    assert_equal "<h2 id=\"section-Heading_second_order\">Heading second order</h2>\n", parse("!!Heading second order\n")
+    assert_equal "<h3 id=\"section-Heading_third_order\">Heading third order</h3>\n", parse("!!!Heading third order")
+    assert_equal "<h6 id=\"section-Heading_sixth_order\">Heading sixth order</h6>\n", parse("!!!!!!Heading sixth order\n")
+    assert_equal "<h6 id=\"section-Heading_sixth_order_with_extra_exclamation_marks\">!!Heading sixth order with extra exclamation marks</h6>\n", parse("!!!!!! !!Heading sixth order with extra exclamation marks\n")
+    assert_equal "<h1 id=\"section-Heading_first_order\">Heading first order</h1>\ntest", parse("!Heading first order\ntest")
+    assert_equal "<h1 id=\"section-Heading_first_order\"><i>Heading first</i> <span class=\"underline\">order</span></h1>\ntest", parse("!~Heading first~ _order_\ntest")
+    assert_equal "<h1 id=\"section-Heading_first_Link_order\">Heading first <a class=\"inexistent\" href=\"/test/Link\" title=\"Link\">Link</a> order</h1>\ntest", parse("!Heading first [Link] order\ntest")
     # assert_equal "<h1 id=\"Heading_first_order\">Heading first <span class=notbold>order</span></h1>\ntest", parse("!Heading first *order*\ntest")
   end
 
@@ -145,8 +145,8 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal '<div class="error">error! <div class="warning">some warning</div> test</div>', parse("%%error error! %%warning some warning%% test%%")
     assert_equal '<div class="warning"><b>content</b> of confirmation-box</div>', parse("%%warning *content* of confirmation-box%%")
     assert_equal "<div class=\"warning\"><b>content</b><br/>\n<ul>\n<li>of</li>\n<li>confirmation-box</li>\n</ul>\n<br/></div>", parse("%%warning *content*\n* of\n* confirmation-box\n%%")
-    assert_equal "<div class=\"warning\"><h1 id=\"content\">content</h1>\nof confirmation-box</div>", parse("%%warning !content\nof confirmation-box%%")
-    assert_equal "<div class=\"warning\"><h1 id=\"content\">content</h1></div>", parse("%%warning !content%%")
+    assert_equal "<div class=\"warning\"><h1 id=\"section-content\">content</h1>\nof confirmation-box</div>", parse("%%warning !content\nof confirmation-box%%")
+    assert_equal "<div class=\"warning\"><h1 id=\"section-content\">content</h1></div>", parse("%%warning !content%%")
   end
 
   # Test for unordered lists
@@ -184,7 +184,7 @@ class RakiParserTest < Test::Unit::TestCase
 
   def test_pages
     assert_equal "<a href=\"/test/link\" title=\"link\">link</a><br/>\n<ul>\n<li>item1</li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("[link]\n\n* item1\n# item2")
-    assert_equal "<h1 id=\"Testseite\">Testseite</h1>\n<a href=\"/test/link\" title=\"link\">link</a><br/>\n<ul>\n<li><b>item1</b></li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("!Testseite\n\n[link]\n\n* *item1*\n# item2")
+    assert_equal "<h1 id=\"section-Testseite\">Testseite</h1>\n<a href=\"/test/link\" title=\"link\">link</a><br/>\n<ul>\n<li><b>item1</b></li>\n</ul>\n<ol>\n<li>item2</li>\n</ol>\n", parse("!Testseite\n\n[link]\n\n* *item1*\n# item2")
   end
 
   # Test rewriting of links
