@@ -94,10 +94,12 @@ class WikiLinkNode < RakiSyntaxNode
     
     if !target || (!target.url rescue true)
       "<span class=\"invalid-page\">#{h title}</span>"
+    elsif target.exists? && target.is_a?(Attachment) && target.mime_type =~ /^image\//i
+      "<a href=\"#{target.url}\" title=\"#{h title}\"><img src=\"#{target.url}\" alt=\"#{h title}\" title=\"#{h title}\"/></a>"
     elsif target.exists?
-      "<a href=\"#{target.url}\">#{h title}</a>"
+      "<a href=\"#{target.url}\" title=\"#{h title}\">#{h title}</a>"
     else
-      "<a class=\"inexistent\" href=\"#{target.url}\">#{h title}</a>"
+      "<a class=\"inexistent\" href=\"#{target.url}\" title=\"#{h title}\">#{h title}</a>"
     end
   end
 
