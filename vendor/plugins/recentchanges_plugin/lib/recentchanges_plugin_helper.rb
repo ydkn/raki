@@ -18,7 +18,7 @@ module RecentchangesPluginHelper
   
   RIGHTS = [:view, :edit, :upload, :delete, :rename]
   
-  def days_changes  
+  def days_changes
     days = {}
     
     options = {:namespace => @namespaces}.merge @options

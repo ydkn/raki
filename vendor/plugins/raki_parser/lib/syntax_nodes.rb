@@ -166,14 +166,38 @@ end
 class HeadingNode < RakiSyntaxNode
 
   def to_html context
-    l = level.text_value.length
-    l = 6 if l > 6
-    anker = text.text_value.gsub(/[^a-zA-Z0-9 _-]/, '').gsub(/_/, ' ').strip.gsub(/\s+/, '_')
-    return "<h#{l} id=\"section-#{h anker}\">" + text.to_html(context).strip + "</h#{l}>\n"
+    return "<h#{level_num} id=\"#{anchor}\">" + text.to_html(context).strip + "</h#{level_num}>\n"
   end
 
   def rename_link(o, n)
     children.select{|c| c.respond_to? :rename_link }.each{|c| c.rename_link(o,n)}
+  end
+  
+  def sections context, sections=[]
+    s = sections
+    (level_num-1).times do |i|
+      s << {:subsections => []} unless s.last
+      s.last[:subsections] = [] unless s.last[:subsections]
+      s = s.last[:subsections]
+    end
+    
+    s << {:anchor => anchor, :title => text.to_html(context).strip, :subsections => []}
+    
+    sections
+  end
+  
+  private
+  
+  def real_level_num
+    level.text_value.length.to_i
+  end
+  
+  def level_num
+    real_level_num > 6 ? 6 : real_level_num
+  end
+  
+  def anchor
+    h "section-#{text.text_value.gsub(/[^a-zA-Z0-9 _-]/, '').gsub(/_/, ' ').strip.gsub(/\s+/, '_')}"
   end
 
 end
