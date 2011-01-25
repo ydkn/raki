@@ -17,4 +17,15 @@
 require 'test_helper'
 
 class GitRepoTest < Test::Unit::TestCase
+  
+  def test_repo
+    repo_path = File.join(Rails.root, 'tmp', 'test-git-repo')
+    `git init --bare #{repo_path}`
+    
+    assert GitRepo.new(repo_path)
+    assert_raise(GitRepo::InvalidRepository) do
+      GitRepo.new(File.join(Rails.root, 'tmp', 'test-git-repo-inexistent'))
+    end
+  end
+  
 end

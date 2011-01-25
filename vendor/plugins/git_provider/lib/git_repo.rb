@@ -20,6 +20,7 @@ class GitRepo
   GIT_TIMEOUT = 10
   
   class GitError < StandardError; end
+  class InvalidRepository < GitError; end
   class GitBinaryError < GitError; end
   
   include Cacheable
@@ -29,7 +30,7 @@ class GitRepo
   
   def initialize(path)
     unless File.exists?(path)
-      raise GitError.new 'Git repository doesn\'t exist'
+      raise InvalidRepository.new 'Git repository doesn\'t exist'
     end
     
     if File.exists?(File.join(path, '.git'))
