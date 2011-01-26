@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab & Martin Sigloch
+# Copyright (C) 2011 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,11 +14,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-Raki::Parser.register(:raki, RakiParser)
-
-# extending Treetop to html-encode text and custom .to_src method
-Treetop::Runtime::SyntaxNode.send(:include, HTMLSyntax)
-Treetop::Runtime::SyntaxNode.send(:include, SRCSyntax)
-Treetop::Runtime::SyntaxNode.send(:include, LinkUpdate)
-Treetop::Runtime::SyntaxNode.send(:include, Sections)
+module TOCPluginHelper
+  
+  def render_section section
+    output = ''
+    
+    section.each do |s|
+      output += "<li><a href=\"##{s[:anchor]}\">#{h s[:title]}</a></li>" if s[:anchor] && s[:title]
+      output += render_section s[:subsections] if s[:subsections]
+    end
+    
+    "<ul>#{output}</ul>"
+  end
+  
+end

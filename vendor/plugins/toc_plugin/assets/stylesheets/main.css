@@ -1,0 +1,16 @@
+div.toc {
+    margin: 0;
+	padding: 0;
+	border: 1px solid #cccccc;
+}
+
+div.toc div.toc_head {
+	background-color: #eeeeee;
+	padding: 0.5em;
+	font-weight: bold;
+}
+
+div.toc ul {
+	padding: 1px 0 1px 1.5em;
+	list-style-type: none;
+}

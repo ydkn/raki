@@ -265,6 +265,12 @@ class Page
     true
   end
   
+  def sections(context={})
+    context = context.clone
+    context[:page] = self
+    parser.sections content, context
+  end
+  
   def to_s(revision=false)
     if revision
       "#{namespace}/#{name}@#{revision.version}"

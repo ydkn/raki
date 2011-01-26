@@ -30,5 +30,9 @@ class PassthroughParser < Raki::AbstractParser
   def link_update(text, from, to, context={})
     # do nothing
   end
+  
+  def sections text, context={}
+    []
+  end
 
 end

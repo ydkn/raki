@@ -199,6 +199,25 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal [false, "foo [other link] *bar*\ntest"], link_update("foo [other link] *bar*\ntest", old_page, new_page)
     assert_equal [true, "foo [other link] *bar*\n[test/NewPageName] test"], link_update("foo [other link] *bar*\n[OldPage] test", old_page, new_page)
   end
+  
+  # Test gathering of chapters
+  def test_sections
+    assert_equal [
+      {:anchor => 'section-Heading1', :title => 'Heading1', :subsections => [
+          {:anchor => 'section-Heading2', :title => 'Heading2', :subsections => []}
+        ]
+      }
+    ], sections("!Heading1\n!!Heading2")
+    
+    assert_equal [
+      {:anchor => 'section-Heading1', :title => 'Heading1', :subsections => [
+          {:anchor => 'section-Heading2', :title => 'Heading2', :subsections => []},
+          {:anchor => 'section-Heading3', :title => 'Heading3', :subsections => []}
+        ]
+      },
+      {:anchor => 'section-Heading4', :title => 'Heading4', :subsections => []},
+    ], sections("!Heading1\n!!Heading2\n!!Heading3\n!Heading4")
+  end
 
   def test_plugin
     Raki::Plugin.register :testexample do
@@ -224,15 +243,19 @@ class RakiParserTest < Test::Unit::TestCase
 
   # Shortener for the parse method
   def parse text, context=@context
-    @parser.parse(text, context)
+    @parser.parse text, context
   end
   
   def link_update text, from, to
-    @parser.link_update(text, from, to, @context)
+    @parser.link_update text, from, to, @context
+  end
+  
+  def sections text, context=@context
+    @parser.sections text, context
   end
 
   # Creates a user
-  def user(username, email)
+  def user username, email
     User.new(Time.new.to_s, :username => username, :email => email)
   end
 
