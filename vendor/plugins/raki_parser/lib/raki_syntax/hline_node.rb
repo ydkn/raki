@@ -14,16 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module Sections
-  
-  def sections context, sections=[]
-    return sections unless elements
-    
-    elements.each do |e|
-      e.sections context, sections
-    end
-    
-    sections
+class RakiSyntax::HLineNode < RakiSyntax::Node
+
+  def to_html context
+    '<hr/>'
   end
   
 end

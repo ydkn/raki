@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'treetop'
-require 'syntax_nodes.rb'
+require 'raki_syntax/node'
 
 class RakiParser < Raki::AbstractParser
 
@@ -37,7 +37,7 @@ class RakiParser < Raki::AbstractParser
     return nil unless output
     output.to_html(context).html_safe
   rescue => e
-    Rails.logger.error(e)
+    Rails.logger.error e
     raise ParserError.new(e)
   end
   

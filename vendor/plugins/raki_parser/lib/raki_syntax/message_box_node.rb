@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab & Martin Sigloch
+# Copyright (C) 2011 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,22 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module HTMLSyntax
-  
-  include ERB::Util
-  
+class RakiSyntax::MessageBoxNode < RakiSyntax::Node
+
   def to_html context
-    output = ''
-    unless elements.nil?
-      elements.each do |e|
-        unless e.elements.nil?
-          output += e.to_html context
-        else
-          output += h e.text_value
-        end
-      end
-    end
-    output
+    "<div class=\"#{type.to_html(context)}\">#{text.to_html(context).strip}</div>"
   end
-  
+
 end

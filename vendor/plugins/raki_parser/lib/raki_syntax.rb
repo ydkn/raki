@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab & Martin Sigloch
+# Copyright (C) 2011 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,16 +14,46 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module LinkUpdate
+module RakiSyntax
+  
+  def to_html context
+    return text_value unless elements
+    
+    output = ''
+    elements.each do |e|
+      output += e.to_html context
+    end
+    output
+  end
+  
+  def to_src context
+    return text_value unless elements
+    
+    output = ''
+    elements.each do |e|
+      output += e.to_src context
+    end
+    output
+  end
   
   def link_update from, to, context
+    return false unless elements
+    
     changed = false
-    unless elements.nil?
-      elements.each do |e|
-        changed |= e.link_update from, to, context
-      end
+    elements.each do |e|
+      changed |= e.link_update from, to, context
     end
     changed
+  end
+  
+  def sections context, sections=[]
+    return sections unless elements
+    
+    elements.each do |e|
+      e.sections context, sections
+    end
+    
+    sections
   end
   
 end

@@ -21,12 +21,12 @@ grammar RakiSyntax
   end
 
   rule line
-    hline ignore_linebreak? / table  / heading ignore_linebreak? / list !non_linebreak / infobox
+    hline ignore_linebreak? / table  / heading ignore_linebreak? / list !non_linebreak / messagebox
     / in_line+ !non_linebreak / ignore_linebreak !(!hline) / linebreak space*
   end
 
   rule in_line
-    infobox / plugin / formating / link / text
+    messagebox / plugin / formating / link / text
   end
 
 
@@ -40,38 +40,38 @@ grammar RakiSyntax
     '\\' name:(!'\\' non_whitespace)+ whitespace?
     param:(parameter whitespace?)*
     body:(!'\\' text)*
-    ("\\end" / "\\") <PluginNode>
+    ("\\end" / "\\") <RakiSyntax::PluginNode>
   end
 
   rule text_plugin
     '\\' name:(!'\\' !whitespace text)+ whitespace?
     param:(parameter whitespace?)*
-    body:(!'\\end' (text / linebreak))* '\\end' <PluginNode>
+    body:(!'\\end' (text / linebreak))* '\\end' <RakiSyntax::PluginNode>
   end
 
   rule hline
-    '--' '--' !non_linebreak <HLineNode>
+    '--' '--' !non_linebreak <RakiSyntax::HLineNode>
   end
 
   rule heading
-    level:'!'+ text:(!linebreak in_line)+ <HeadingNode>
+    level:'!'+ text:(!linebreak in_line)+ <RakiSyntax::HeadingNode>
   end
 
-  rule heading_infobox
-    level:'!'+ text:(!linebreak !'%%' in_line)+ <HeadingNode>
+  rule heading_messagebox
+    level:'!'+ text:(!linebreak !'%%' in_line)+ <RakiSyntax::HeadingNode>
   end
 
-  rule infobox
-    '%%' type:([\w]+) whitespace* text:((heading_infobox ignore_whitespace*)?
-	((!'%%' (table / (list !non_linebreak) / in_line)) / infobox / linebreak 
-	(heading_infobox ignore_whitespace*)?)*) '%%' <InfoboxNode> #
+  rule messagebox
+    '%%' type:([\w]+) whitespace* text:((heading_messagebox ignore_whitespace*)?
+	((!'%%' (table / (list !non_linebreak) / in_line)) / messagebox / linebreak 
+	(heading_messagebox ignore_whitespace*)?)*) '%%' <RakiSyntax::MessageBoxNode>
   end
 
 
   # Lists
 
   rule list
-    first_item:listitem other_items:(linebreak item:listitem)* <ListNode>
+    first_item:listitem other_items:(linebreak item:listitem)* <RakiSyntax::ListNode>
   end
 
   rule listitem
@@ -82,12 +82,12 @@ grammar RakiSyntax
   # Tables
 
   rule table
-    first_row:table_row other_rows:(ignore_linebreak row:table_row)* <TableNode>
+    first_row:table_row other_rows:(ignore_linebreak row:table_row)* <RakiSyntax::TableNode>
   end
 
   rule table_row
     head_row:'!'? '|'
-    cells:(head:'!'? data:cell_data '|')+ space* <TableRowNode>
+    cells:(head:'!'? data:cell_data '|')+ space* <RakiSyntax::TableRowNode>
   end
 
   rule cell_data
@@ -108,7 +108,7 @@ grammar RakiSyntax
     '_' !whitespace text:(unprotected_formating !(!'_' .)
     # in_line* without whitespace at the end
     / (formating? ((!underlined_end (!'_' in_line ('_' !(whitespace / '~' / '*' / '-'))?))* underlined_end (whitespace* unprotected_formating !(!'_' .))?)+)
-    ) '_' <UnderlineNode>
+    ) '_' <RakiSyntax::UnderlineNode>
   end
 
   rule underlined_end
@@ -118,7 +118,7 @@ grammar RakiSyntax
   rule italic
     '~' !whitespace text:(unprotected_formating !(!'~' .)
     / (formating? ((!italic_end (!'~' in_line ('~' !(whitespace / '_' / '*' / '-'))?))* italic_end (whitespace* unprotected_formating !(!'~' .))?)+)
-    ) '~' <ItalicNode>
+    ) '~' <RakiSyntax::ItalicNode>
   end
 
   rule italic_end
@@ -128,7 +128,7 @@ grammar RakiSyntax
   rule bold
     '*' !whitespace text:(unprotected_formating !(!'*' .)
     / (formating? ((!bold_end (!'*' in_line ('*' !(whitespace / '_' / '~' / '-'))?))* bold_end (whitespace* unprotected_formating !(!'*' .))?)+)
-    ) '*' <BoldNode>
+    ) '*' <RakiSyntax::BoldNode>
   end
 
   rule bold_end
@@ -138,7 +138,7 @@ grammar RakiSyntax
   rule strikethrough
     '-' !whitespace text:(unprotected_formating !(!'-' .)
     / (formating? ((!strikethrough_end (!'-' in_line ('-' !(whitespace / '_' / '~' / '*'))?))* strikethrough_end (whitespace* unprotected_formating !(!'-' .))?)+)
-    ) '-' <StrikethroughNode>
+    ) '-' <RakiSyntax::StrikethroughNode>
   end
 
   rule strikethrough_end
@@ -153,23 +153,23 @@ grammar RakiSyntax
   end
 
   rule link_title
-    '[' href:uri '|' desc:(!']' text)+ ']' <LinkNode>
+    '[' href:uri '|' desc:(!']' text)+ ']' <RakiSyntax::LinkNode>
   end
 
   rule link_no_title
-    '[' href:uri desc:('') ']' <LinkNode>
+    '[' href:uri desc:('') ']' <RakiSyntax::LinkNode>
   end
 
   rule auto_link
-    href:(protocol non_whitespace+) desc:'' <LinkNode>
+    href:(protocol non_whitespace+) desc:'' <RakiSyntax::LinkNode>
   end
 
   rule wikilink_title
-    '[' href:pagename '|' desc:(!']' text)+ ']' <WikiLinkNode>
+    '[' href:pagename '|' desc:(!']' text)+ ']' <RakiSyntax::WikiLinkNode>
   end
 
   rule wikilink_no_title
-    '[' href:pagename desc:('') ']' <WikiLinkNode>
+    '[' href:pagename desc:('') ']' <RakiSyntax::WikiLinkNode>
   end
 
   rule pagename
@@ -181,7 +181,7 @@ grammar RakiSyntax
 
   rule parameter
     key:(!('=' / whitespace) text)+ '='
-    value:(quoted_value / unquoted_value) <ParameterNode>
+    value:(quoted_value / unquoted_value) <RakiSyntax::ParameterNode>
   end
 
   rule parameter_key
@@ -226,11 +226,11 @@ grammar RakiSyntax
   end
 
   rule escaped
-    ('\\\\' / '\\]' / '\\|' / '\\"' / '\\\'' / ('\\' linebreak)) '' <EscapedNode>
+    ('\\\\' / '\\]' / '\\|' / '\\"' / '\\\'' / ('\\' linebreak)) '' <RakiSyntax::EscapedNode>
   end
 
   rule linebreak
-    [\r]? [\n] ([\r]? [\n])? <LinebreakNode>
+    [\r]? [\n] ([\r]? [\n])? <RakiSyntax::LinebreakNode>
   end
 
   rule space
@@ -250,11 +250,11 @@ grammar RakiSyntax
   end
 
   rule ignore_whitespace
-    whitespace '' <IgnoreNode>
+    whitespace '' <RakiSyntax::IgnoreNode>
   end
 
   rule ignore_linebreak
-    linebreak '' <IgnoreNode>
+    linebreak '' <RakiSyntax::IgnoreNode>
   end
 
 end
