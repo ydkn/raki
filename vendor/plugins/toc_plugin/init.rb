@@ -27,10 +27,10 @@ Raki::Plugin.register :toc do
   include TOCPluginHelper
 
   execute do
-    if context[:page].content
-      @toc = context[:page].sections
-    else
+    if context[:params][:content]
       @toc = Raki::Parser[context[:page].namespace].sections(context[:params][:content], context)
+    else
+      @toc = context[:page].sections
     end
   end
 
