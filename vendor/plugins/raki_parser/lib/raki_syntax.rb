@@ -16,41 +16,41 @@
 
 module RakiSyntax
   
-  def to_html context
+  def raki_syntax_html context
     return text_value unless elements
     
     output = ''
     elements.each do |e|
-      output += e.to_html context
+      output += e.raki_syntax_html context
     end
     output
   end
   
-  def to_src context
+  def raki_syntax_src context
     return text_value unless elements
     
     output = ''
     elements.each do |e|
-      output += e.to_src context
+      output += e.raki_syntax_src context
     end
     output
   end
   
-  def link_update from, to, context
+  def raki_syntax_link_update from, to, context
     return false unless elements
     
     changed = false
     elements.each do |e|
-      changed |= e.link_update from, to, context
+      changed |= e.raki_syntax_link_update from, to, context
     end
     changed
   end
   
-  def sections context, sections=[]
+  def raki_syntax_sections context, sections=[]
     return sections unless elements
     
     elements.each do |e|
-      e.sections context, sections
+      e.raki_syntax_sections context, sections
     end
     
     sections

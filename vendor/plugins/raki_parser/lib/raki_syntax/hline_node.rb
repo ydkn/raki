@@ -16,7 +16,7 @@
 
 class RakiSyntax::HLineNode < RakiSyntax::Node
 
-  def to_html context
+  def raki_syntax_html context
     '<hr/>'
   end
   

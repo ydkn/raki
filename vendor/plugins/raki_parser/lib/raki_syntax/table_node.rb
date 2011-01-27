@@ -16,11 +16,11 @@
 
 class RakiSyntax::TableNode < RakiSyntax::Node
 
-  def to_html context
+  def raki_syntax_html context
     out = "<table class=\"wikitable\">"
-    out += "<tr>" + first_row.to_html(context) + "</tr>"
+    out += "<tr>" + first_row.raki_syntax_html(context) + "</tr>"
     other_rows.elements.each do |row|
-      out += "<tr>" + row.to_html(context) + "</tr>"
+      out += "<tr>" + row.raki_syntax_html(context) + "</tr>"
     end
     out += "</table>"
   end
@@ -30,16 +30,18 @@ end
 
 class RakiSyntax::TableRowNode < RakiSyntax::Node
 
-  def to_html context
+  def raki_syntax_html context
     out = ''
+    
     is_head_row = !head_row.text_value.empty?
     cells.elements.each do |cell|
       if is_head_row || !cell.head.text_value.empty?
-        out += "<th>" + cell.data.to_html(context) + "</th>"
+        out += "<th>" + cell.data.raki_syntax_html(context) + "</th>"
       else
-        out += "<td>" + cell.data.to_html(context) + "</td>"
+        out += "<td>" + cell.data.raki_syntax_html(context) + "</td>"
       end
     end
+    
     out
   end
 

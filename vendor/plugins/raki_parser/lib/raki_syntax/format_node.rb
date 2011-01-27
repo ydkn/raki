@@ -26,8 +26,8 @@ class RakiSyntax::FormatNode < RakiSyntax::Node
     @post
   end
 
-  def to_html context
-    "#{self.class.pre}#{text.to_html(context)}#{self.class.post}"
+  def raki_syntax_html context
+    "#{self.class.pre}#{text.raki_syntax_html(context)}#{self.class.post}"
   end
   
 end

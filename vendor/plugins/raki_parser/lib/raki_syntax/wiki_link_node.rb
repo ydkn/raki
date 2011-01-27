@@ -16,7 +16,7 @@
 
 class RakiSyntax::WikiLinkNode < RakiSyntax::Node
 
-  def to_html context
+  def raki_syntax_html context
     @context = context
     
     t = target context
@@ -32,7 +32,7 @@ class RakiSyntax::WikiLinkNode < RakiSyntax::Node
     end
   end
 
-  def to_src context={}
+  def raki_syntax_src context={}
     if desc.blank?
       "[#{target_href context}]"
     else
@@ -40,7 +40,7 @@ class RakiSyntax::WikiLinkNode < RakiSyntax::Node
     end
   end
 
-  def link_update from, to, context
+  def raki_syntax_link_update from, to, context
     t = target context
     
     target_page = t.is_a?(Page) ? t : t.page
@@ -61,7 +61,7 @@ class RakiSyntax::WikiLinkNode < RakiSyntax::Node
   private
   
   def title
-    desc.text_value.blank? ? href.to_html(@context).strip : desc.to_html(@context)
+    desc.text_value.blank? ? href.raki_syntax_html(@context).strip : desc.raki_syntax_html(@context)
   end
   
   def target context

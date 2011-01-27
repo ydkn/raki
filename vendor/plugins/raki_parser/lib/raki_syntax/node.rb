@@ -44,7 +44,7 @@ end
 
 class RakiSyntax::IgnoreNode < RakiSyntax::Node
 
-  def to_html context
+  def raki_syntax_html context
     ''
   end
 
@@ -53,7 +53,7 @@ end
 
 class RakiSyntax::EscapedNode < RakiSyntax::Node
 
-  def to_html context
+  def raki_syntax_html context
     h text_value[1..-1]
   end
 
@@ -62,7 +62,7 @@ end
 
 class RakiSyntax::LinebreakNode < RakiSyntax::Node
 
-  def to_html context
+  def raki_syntax_html context
     '<br/>'
   end
 

@@ -35,7 +35,7 @@ class RakiParser < Raki::AbstractParser
   def parse text, context={}
     output = @parser.parse text
     return nil unless output
-    output.to_html(context).html_safe
+    output.raki_syntax_html(context).html_safe
   rescue => e
     Rails.logger.error e
     raise ParserError.new(e)
@@ -44,8 +44,8 @@ class RakiParser < Raki::AbstractParser
   def link_update text, from, to, context={}
     output = @parser.parse text
     return [nil, nil] unless output
-    if output.link_update(from, to, context)
-      [true, output.to_src(context)]
+    if output.raki_syntax_link_update(from, to, context)
+      [true, output.raki_syntax_src(context)]
     else
       [false, text]
     end
@@ -53,7 +53,7 @@ class RakiParser < Raki::AbstractParser
   
   def sections text, context={}
     output = @parser.parse text
-    output.sections context
+    output.raki_syntax_sections context
   end
   
   def toolbar_items
@@ -78,14 +78,6 @@ class RakiParser < Raki::AbstractParser
         {:id => 'list', :'multiline-start' => '* '},
       ]
     ]
-  end
-  
-  private
-  
-  def src text, context={}
-    output = @parser.parse text
-    return nil unless output
-    output.to_src(context)
   end
 
 end
