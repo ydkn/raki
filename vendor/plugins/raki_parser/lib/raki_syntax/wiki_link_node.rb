@@ -17,6 +17,8 @@
 class RakiSyntax::WikiLinkNode < RakiSyntax::Node
 
   def to_html context
+    @context = context
+    
     t = target context
     
     if !t || (!t.url rescue true)
@@ -59,7 +61,7 @@ class RakiSyntax::WikiLinkNode < RakiSyntax::Node
   private
   
   def title
-    desc.text_value.blank? ? href.text_value.strip : desc.text_value
+    desc.text_value.blank? ? href.to_html(@context).strip : desc.to_html(@context)
   end
   
   def target context

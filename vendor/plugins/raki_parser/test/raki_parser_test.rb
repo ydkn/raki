@@ -75,7 +75,7 @@ class RakiParserTest < Test::Unit::TestCase
   def test_link
     assert_equal '<a href="http://github.com/ydkn/raki">http://github.com/ydkn/raki</a>', parse("[http://github.com/ydkn/raki]")
     assert_equal '<a href="http://github.com/ydkn/raki">Raki on github</a>', parse("[http://github.com/ydkn/raki|Raki on github]")
-    assert_equal '<a href="http://raki.ydkn.de/page/raki]|test">foo]bar</a>', parse("[http://raki.ydkn.de/page/raki\\]\\|test | foo\\]bar]")
+    assert_equal '<a href="http://raki.ydkn.de/page/raki]|test"> foo]bar</a>', parse("[http://raki.ydkn.de/page/raki\\]\\|test | foo\\]bar]")
     assert_equal '<a href="http://github.com/ydkn/raki">http://github.com/ydkn/raki</a>', parse("http://github.com/ydkn/raki")
     assert_equal '<a target="_blank" href="javascript:alert(\'document.cockie\')">xss</a>', parse("[javascript:alert('document.cockie')|xss]")
     assert_equal '<a href="mailto:rakitest@spam.f0i.de">mail</a>', parse("[mailto:rakitest@spam.f0i.de|mail]")
