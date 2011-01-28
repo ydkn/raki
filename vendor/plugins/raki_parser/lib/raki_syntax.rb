@@ -16,44 +16,56 @@
 
 module RakiSyntax
   
-  def raki_syntax_html context
+  def to_html context
     return text_value unless elements
     
     output = ''
     elements.each do |e|
-      output += e.raki_syntax_html context
+      output += e.to_html context
     end
     output
   end
   
-  def raki_syntax_src context
+  def to_src context
     return text_value unless elements
     
     output = ''
     elements.each do |e|
-      output += e.raki_syntax_src context
+      output += e.to_src context
     end
     output
   end
   
-  def raki_syntax_link_update from, to, context
+  def link_update from, to, context
     return false unless elements
     
     changed = false
     elements.each do |e|
-      changed |= e.raki_syntax_link_update from, to, context
+      changed |= e.link_update from, to, context
     end
     changed
   end
   
-  def raki_syntax_sections context, sections=[]
+  def sections context, sections=[]
     return sections unless elements
     
     elements.each do |e|
-      e.raki_syntax_sections context, sections
+      e.sections context, sections
     end
     
     sections
   end
   
 end
+
+require 'raki_syntax/node'
+require 'raki_syntax/root_node'
+require 'raki_syntax/format_node'
+require 'raki_syntax/heading_node'
+require 'raki_syntax/hline_node'
+require 'raki_syntax/link_node'
+require 'raki_syntax/list_node'
+require 'raki_syntax/message_box_node'
+require 'raki_syntax/plugin_node'
+require 'raki_syntax/table_node'
+require 'raki_syntax/wiki_link_node'

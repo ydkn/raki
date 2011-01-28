@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'treetop'
-require 'raki_syntax/node'
+require 'raki_syntax'
 
 class RakiParser < Raki::AbstractParser
 
@@ -35,7 +35,8 @@ class RakiParser < Raki::AbstractParser
   def parse text, context={}
     output = @parser.parse text
     return nil unless output
-    output.raki_syntax_html(context).html_safe
+    output.enable_raki_syntax
+    output.to_html(context).html_safe
   rescue => e
     Rails.logger.error e
     raise ParserError.new(e)
@@ -43,9 +44,10 @@ class RakiParser < Raki::AbstractParser
   
   def link_update text, from, to, context={}
     output = @parser.parse text
+    output.enable_raki_syntax
     return [nil, nil] unless output
-    if output.raki_syntax_link_update(from, to, context)
-      [true, output.raki_syntax_src(context)]
+    if output.link_update(from, to, context)
+      [true, output.to_src(context)]
     else
       [false, text]
     end
@@ -53,7 +55,8 @@ class RakiParser < Raki::AbstractParser
   
   def sections text, context={}
     output = @parser.parse text
-    output.raki_syntax_sections context
+    output.enable_raki_syntax
+    output.sections context
   end
   
   def toolbar_items

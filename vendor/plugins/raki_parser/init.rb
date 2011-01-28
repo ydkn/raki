@@ -16,5 +16,3 @@
 
 
 Raki::Parser.register(:raki, RakiParser)
-
-Treetop::Runtime::SyntaxNode.send(:include, RakiSyntax)

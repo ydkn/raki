@@ -16,8 +16,8 @@
 
 class RakiSyntax::MessageBoxNode < RakiSyntax::Node
 
-  def raki_syntax_html context
-    "<div class=\"#{type.raki_syntax_html(context)}\">#{text.raki_syntax_html(context).strip}</div>"
+  def to_html context
+    "<div class=\"#{type.to_html(context)}\">#{text.to_html(context).strip}</div>"
   end
 
 end

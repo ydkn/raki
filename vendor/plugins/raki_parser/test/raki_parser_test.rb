@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'test_helper'
-require 'raki_syntax/node'
+require 'raki_syntax'
 
 class RakiParserTest < Test::Unit::TestCase
 

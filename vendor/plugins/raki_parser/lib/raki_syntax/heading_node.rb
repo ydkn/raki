@@ -16,11 +16,11 @@
 
 class RakiSyntax::HeadingNode < RakiSyntax::Node
 
-  def raki_syntax_html context
-    "<h#{level_num} id=\"#{anchor}\">#{text.raki_syntax_html(context).strip}</h#{level_num}>"
+  def to_html context
+    "<h#{level_num} id=\"#{anchor}\">#{text.to_html(context).strip}</h#{level_num}>"
   end
   
-  def raki_syntax_sections context, sections=[]
+  def sections context, sections=[]
     s = sections
     (level_num-1).times do |i|
       s << {:subsections => []} unless s.last
@@ -28,7 +28,7 @@ class RakiSyntax::HeadingNode < RakiSyntax::Node
       s = s.last[:subsections]
     end
     
-    s << {:anchor => anchor, :title => text.raki_syntax_html(context).strip, :subsections => []}
+    s << {:anchor => anchor, :title => text.to_html(context).strip, :subsections => []}
     
     sections
   end

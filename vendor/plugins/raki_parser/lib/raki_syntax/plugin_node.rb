@@ -16,7 +16,7 @@
 
 class RakiSyntax::PluginNode < RakiSyntax::Node
 
-  def raki_syntax_html context
+  def to_html context
     if defined?(body) && body
       text = body.text_value
     else

@@ -24,7 +24,7 @@ class RakiSyntax::LinkNode < RakiSyntax::Node
     ]
   SAFE_PROTOCOLS = ['http', 'https', 'ftp', 'mailto', 'sip', 'skype']
 
-  def raki_syntax_html context
+  def to_html context
     @context = context
     
     if SAFE_PROTOCOLS.include? protocol_name
@@ -38,15 +38,15 @@ class RakiSyntax::LinkNode < RakiSyntax::Node
   private
   
   def protocol_name
-    href.protocol.raki_syntax_html(@context).strip.downcase
+    href.protocol.to_html(@context).strip.downcase
   end
   
   def target
-    href.raki_syntax_html(@context).strip
+    href.to_html(@context).strip
   end
   
   def title
-    desc.text_value.blank? ? href.raki_syntax_html(@context).strip : desc.raki_syntax_html(@context)
+    desc.text_value.blank? ? href.to_html(@context).strip : desc.to_html(@context)
   end
 
 end

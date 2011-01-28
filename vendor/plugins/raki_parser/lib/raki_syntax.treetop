@@ -17,7 +17,7 @@
 grammar RakiSyntax
 
   rule syntax
-    ignore_linebreak* line*
+    ignore_linebreak* line* <RakiSyntax::RootNode>
   end
 
   rule line
@@ -189,7 +189,7 @@ grammar RakiSyntax
   end
 
   rule unquoted_value
-    text:(!"\\" !'\\end' non_whitespace)* '' 
+    text:(!"\\" !'\\end' non_whitespace)* ''
   end
 
   rule quoted_value

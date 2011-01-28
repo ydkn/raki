@@ -16,8 +16,7 @@
 
 class RakiSyntax::ListNode < RakiSyntax::Node
 
-  def raki_syntax_html context
-
+  def to_html context
     items = [first_item]
     other_items.elements.each do |other|
       items += [other.item]
@@ -29,7 +28,7 @@ class RakiSyntax::ListNode < RakiSyntax::Node
     items.each do |item|
       out += adapt item.level.text_value.length + 1, item.type.text_value
       out += '<li>'
-      out += item.text.raki_syntax_html context
+      out += item.text.to_html context
     end
     out += adapt 0, ''
   end

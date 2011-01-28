@@ -17,7 +17,8 @@
 class RakiSyntax::Node < Treetop::Runtime::SyntaxNode
   
   include ERB::Util
-  include I18n
+  include Raki::Helpers::I18nHelper
+  include RakiSyntax
   
   private
 
@@ -44,7 +45,7 @@ end
 
 class RakiSyntax::IgnoreNode < RakiSyntax::Node
 
-  def raki_syntax_html context
+  def to_html context
     ''
   end
 
@@ -53,7 +54,7 @@ end
 
 class RakiSyntax::EscapedNode < RakiSyntax::Node
 
-  def raki_syntax_html context
+  def to_html context
     h text_value[1..-1]
   end
 
@@ -62,18 +63,8 @@ end
 
 class RakiSyntax::LinebreakNode < RakiSyntax::Node
 
-  def raki_syntax_html context
+  def to_html context
     '<br/>'
   end
 
 end
-
-require 'raki_syntax/format_node'
-require 'raki_syntax/heading_node'
-require 'raki_syntax/hline_node'
-require 'raki_syntax/link_node'
-require 'raki_syntax/list_node'
-require 'raki_syntax/message_box_node'
-require 'raki_syntax/plugin_node'
-require 'raki_syntax/table_node'
-require 'raki_syntax/wiki_link_node'
