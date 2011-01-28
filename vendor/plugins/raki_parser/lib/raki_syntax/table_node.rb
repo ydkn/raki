@@ -14,16 +14,35 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module Sections
-  
-  def sections context, sections=[]
-    return sections unless elements
+class RakiSyntax::TableNode < RakiSyntax::Node
+
+  def to_html context
+    out = "<table class=\"wikitable\">"
+    out += "<tr>" + first_row.to_html(context) + "</tr>"
+    other_rows.elements.each do |row|
+      out += "<tr>" + row.to_html(context) + "</tr>"
+    end
+    out += "</table>"
+  end
+
+end
+
+
+class RakiSyntax::TableRowNode < RakiSyntax::Node
+
+  def to_html context
+    out = ''
     
-    elements.each do |e|
-      e.sections context, sections
+    is_head_row = !head_row.text_value.empty?
+    cells.elements.each do |cell|
+      if is_head_row || !cell.head.text_value.empty?
+        out += "<th>" + cell.data.to_html(context) + "</th>"
+      else
+        out += "<td>" + cell.data.to_html(context) + "</td>"
+      end
     end
     
-    sections
+    out
   end
-  
+
 end

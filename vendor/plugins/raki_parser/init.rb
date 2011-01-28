@@ -16,9 +16,3 @@
 
 
 Raki::Parser.register(:raki, RakiParser)
-
-# extending Treetop to html-encode text and custom .to_src method
-Treetop::Runtime::SyntaxNode.send(:include, HTMLSyntax)
-Treetop::Runtime::SyntaxNode.send(:include, SRCSyntax)
-Treetop::Runtime::SyntaxNode.send(:include, LinkUpdate)
-Treetop::Runtime::SyntaxNode.send(:include, Sections)

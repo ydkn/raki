@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab & Martin Sigloch
+# Copyright (C) 2011 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,22 +14,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module SRCSyntax
+class RakiSyntax::RootNode < RakiSyntax::Node
   
-  include ERB::Util
+  def self.enable_raki_syntax_on_node node
+    node.extend RakiSyntax unless node.respond_to?(:to_html)
+    
+    node.elements.each do |e|
+      enable_raki_syntax_on_node e
+    end if node.elements
+  end
   
-  def to_src context
-    output = ''
-    unless elements.nil?
-      elements.each do |e|
-        unless e.elements.nil?
-          output += e.to_src context
-        else
-          output += e.text_value
-        end
-      end
+  def enable_raki_syntax
+    unless parent || @enabled_syntax_on_nodes
+      self.class.enable_raki_syntax_on_node self
+      @enabled_syntax_on_nodes = true
     end
-    output
   end
   
 end
