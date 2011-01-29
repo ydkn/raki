@@ -44,16 +44,19 @@ module Raki
         end
         
         def assert_raise_plugin_error(error_msg, *args, &block)
-          error = nil
-          assert_raise(Raki::Plugin::PluginError) do
-            begin
-              block.call
-            rescue => e
-              error = e
-              raise e
+          assert_block do
+            error = nil
+            assert_raise(Raki::Plugin::PluginError) do
+              begin
+                block.call
+              rescue => e
+                error = e
+                raise e
+              end
             end
+            assert_equal error_msg, error.to_s, *args
+            true
           end
-          assert_equal error_msg, error.to_s, *args
         end
 
       end
