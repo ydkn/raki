@@ -48,7 +48,7 @@ class User
   end
   
   def == b
-    id == b.id || username == b.username
+    b.is_a?(User) && (id == b.id || username == b.username)
   end
   
   def to_hash
