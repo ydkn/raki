@@ -94,11 +94,7 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
   private
 
   def openid_consumer(session)
-    @openid_consumer = OpenID::Consumer.new(
-      session,
-      OpenID::Store::Filesystem.new("#{RAILS_ROOT}/tmp/openid")
-    ) if @openid_consumer.nil?
-    @openid_consumer
+    @openid_consumer ||= OpenID::Consumer.new(session, OpenID::Store::Filesystem.new("#{RAILS_ROOT}/tmp/openid"))
   end
   
   def parse_sreg_response(response)

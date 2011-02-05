@@ -66,8 +66,8 @@ class AuthenticationController < ApplicationController
       params.delete(:action)
       resp = Raki::Authenticator.callback params, session, cookies
       if resp.is_a? User
-        session[:user] = resp
         User.current = resp
+        session[:user] = resp.to_hash
         redirect
       else
         flash[:notice] = t 'auth.invalid_callback'
@@ -88,6 +88,7 @@ class AuthenticationController < ApplicationController
   def session_reset
     User.current = AnonymousUser.new request.remote_ip
     session[:visited_pages] = []
+    session.delete(:user)
     reset_session
     flash[:notice] = t 'auth.logged_out'
     redirect
