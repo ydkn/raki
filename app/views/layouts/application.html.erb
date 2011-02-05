@@ -19,6 +19,7 @@
         <div id="application_info"><%=link_to 'Raki', 'http://github.com/ydkn/raki' %> v<%=Raki.version %></div>
       </footer>
     </section>
+    
     <section id="main">
       <header>
         <div id="auth">
@@ -33,24 +34,17 @@
         </nav>
       </header>
       
-      
       <nav id="controls">
         <%=render :partial => "#{controller_name}/tabs" %>
       </nav>
-      
       <article id="page">
         <%=yield %>
       </article>
-      
       <footer>
         <%=render :partial => "#{controller_name}/footer" %>
       </footer>
-      
-      
-      
-      
-      
     </section>
+    
     <footer>
       Icons by Yusuke Kamiyamane <a href="http://p.yusukekamiyamane.com/">http://p.yusukekamiyamane.com/</a>.
     </footer>

@@ -125,7 +125,7 @@ section#main footer {
 	text-align: right;
 }
 
-footer {
+body > footer:last-child {
 	font-size: 0.8em;
 	text-align: center;
 	margin-top: 3em;
