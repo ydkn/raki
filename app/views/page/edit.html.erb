@@ -1,9 +1,11 @@
 <% if @page.locked? && @page.locked_by != User.current %>
-  <div class="warning" id="lock_waring">
-	<%=t 'page.edit.locked', :user => @page.locked_by.username %>
+  <div class="warning" id="lock_warning">
+	  <%=t 'page.edit.locked', :user => @page.locked_by.username %>
   </div>
 <% end %>
+
 <%=render :partial => 'page/errors' %>
+
 <% if @page.authorized?(User.current, :rename) && @page.exists? %>
   <% form_tag(@page.url(:rename), {:id => 'edit-rename-form'}) do %>
     <div>
@@ -15,12 +17,14 @@
     </div>
   <% end %>
 <% end %>
+
 <% if @page.authorized?(User.current, :delete) && @page.exists? %>
   <% form_tag(@page.url(:delete), {:id => 'edit-delete-form'}) do %>
     <input id="edit-delete" type="submit" value="<%=t 'page.edit.delete' %>" data-question="<%=t 'page.edit.delete_question' %>" />
   <% end %>
   <br/>
 <% end %>
+
 <% if @page.authorized?(User.current, :edit) && @page.exists? || @page.authorized?(User.current, :create) && !@page.exists? %>
   <% form_tag(@page.url(:update), {:id => 'edit-form'}) do %>
     <div>
@@ -29,7 +33,7 @@
       <input id="edit-abort" type="button" value="<%=t 'page.edit.abort' %>" />
     </div>
     <div>
-      <label for="page-message"><%=t 'page.edit.message' %></label>
+      <label for="edit-message"><%=t 'page.edit.message' %></label>
       <input type="text" id="edit-message" name="message" value="<%=h(params[:message] || '')%>" />
     </div>
     <%=render :partial => 'toolbar' %>
@@ -37,8 +41,11 @@
       <textarea id="edit-content" name="content" cols="100" rows="25"><%=h(params[:content] || @page.content) %></textarea>
     </div>
   <% end %>
-  <div id="preview">
-    <div id="preview-header"><input id="live-preview-switch" type="checkbox" /><%=t 'page.edit.live_preview' %><%=image_tag 'preview_loader.gif', :alt => 'Loading Preview', :id => 'live-preview-loader' %></div>
-    <div id="preview-content"></div>
-  </div>
+  <section id="live-preview">
+    <header>
+      <input id="live-preview-switch" type="checkbox" />
+      <%=t 'page.edit.live_preview' %><%=image_tag 'preview_loader.gif', :alt => 'Loading Preview', :id => 'live-preview-loader' %>
+    </header>
+    <output id="preview-content"></output>
+  </section>
 <% end %>

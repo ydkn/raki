@@ -1,0 +1,32 @@
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+<title><%=h "#{Raki.app_name} :: #{@title}" %></title>
+
+<%=stylesheet_link_tag 'application', :media => 'all' %>
+<%=plugin_stylesheets %>
+<%=javascript_include_tag 'application' %>
+<link rel="shortcut icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
+<link rel="icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
+
+<%=auto_discovery_link_tag :rss, {:controller => 'feed', :action => 'global'}, :title => t('feed.global', :app_name => Raki.app_name) %>
+<% if @page %>
+  <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'namespace', :namespace => h(@page.namespace)}, :title => t('feed.namespace', :namespace => h(@page.namespace))) %>
+  <% if @page.authorized?(User.current, :view) %>
+    <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'page', :namespace => h(@page.namespace), :page => h(@page.name)}, :title => t('feed.page', :namespace => h(@page.namespace), :page => h(@page.name))) %>
+  <% end %>
+<% end %>
+
+<base href="<%=base_url %>" />
+
+<%=meta_tag 'csrf-param', 'authenticity_token' %>
+<%=meta_tag 'csrf-token', form_authenticity_token %>
+<% if @page %>
+  <%=meta_tag 'raki-namespace', @page.namespace %>
+  <%=meta_tag 'raki-page', @page.name %>
+  <%=meta_tag 'raki-action', action_name %>
+  <%=meta_tag 'raki-view-url', @page.url(:view) %>
+  <%=meta_tag 'raki-edit-url', @page.url(:edit) %>
+  <%=meta_tag 'raki-preview-url', @page.url(:preview) %>
+<% end %>
+
+<%=meta_tag 'generator', 'Raki wiki engine' %>

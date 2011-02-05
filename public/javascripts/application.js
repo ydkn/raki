@@ -3,9 +3,9 @@
  * Copyright (C) 2010 Florian Schwab & Martin Sigloch
  */
 
+var baseUrl;
 var csrfParam;
 var csrfTocken;
-var urlPrefix;
 var namespace;
 var page;
 var action;
@@ -13,7 +13,9 @@ var viewUrl;
 var editUrl;
 var previewUrl;
 
-function initMetaVars() {
+function initVars() {
+	baseUrl = document.getElementsByTagName("base")[0].getAttribute('href');
+	
 	metaTags = document.getElementsByTagName("meta");
 	for(i = 0; i < metaTags.length; i++) {
 		name = metaTags[i].getAttribute('name');
@@ -22,8 +24,6 @@ function initMetaVars() {
 			csrfParam = value
 		} else if(name == 'csrf-token') {
 			csrfTocken = value;
-		} else if(name == 'raki-url-prefix') {
-			urlPrefix = value;
 		} else if(name == 'raki-namespace') {
 			namespace = value;
 		} else if(name == 'raki-page') {
@@ -262,7 +262,7 @@ function refreshPreview() {
 		previewRefresh = true;
 		return;
 	}
-	if(!document.getElementById("preview") || !document.getElementById("edit-content")) {
+	if(!document.getElementById("live-preview") || !document.getElementById("edit-content")) {
 		return;
 	}
 	
@@ -307,7 +307,7 @@ function refreshPreview() {
 	
 	data +=  "&namespace=" + encodeURIComponent(namespace) + "&page=" + encodeURIComponent(page) + "&content=" + encodeURIComponent(content.value);
 	
-	httpRequest.open('POST', urlPrefix + 'preview', true);
+	httpRequest.open('POST', baseUrl + 'preview', true);
 	httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	httpRequest.setRequestHeader("Content-Length", data.length);
 	httpRequest.setRequestHeader("Connection", "close");
@@ -324,14 +324,14 @@ function scheduleRefresh() {
 }
 
 function initLivePreview() {
-	if(!document.getElementById("preview") || !document.getElementById("edit-content")) {
+	if(!document.getElementById("live-preview") || !document.getElementById("edit-content")) {
 		return;
 	}
-	document.getElementById("preview").style.display = 'block';
+	document.getElementById("live-preview").style.display = 'block';
 	
 	// Check if browser supports AJAX
 	if(!window.XMLHttpRequest && !window.ActiveXObject) {
-		document.getElementById("preview").style.display = 'none';
+		document.getElementById("live-preview").style.display = 'none';
 		return;
 	}
 	
@@ -386,7 +386,7 @@ function unlock() {
 	data = encodeURIComponent(csrfParam) + "=" + encodeURIComponent(csrfTocken);
 	data += "&namespace=" + encodeURIComponent(namespace) + "&page=" + encodeURIComponent(page);
 
-	httpRequest.open('POST', urlPrefix + 'unlock', false);
+	httpRequest.open('POST', baseUrl + 'unlock', false);
 	httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	httpRequest.setRequestHeader("Content-Length", data.length);
 	httpRequest.setRequestHeader("Connection", "close");
@@ -394,7 +394,7 @@ function unlock() {
 }
 
 window.onload = function() {
-	initMetaVars();
+	initVars();
 	initEditButtons();
 	initToolbar();
 	initLivePreview();
