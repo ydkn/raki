@@ -32,11 +32,19 @@ class RakiSyntax::PluginNode < RakiSyntax::Node
     
     Raki::Plugin.execute(name.text_value, params, text, context).to_s
     
+  rescue Raki::Plugin::NotFound => e
+    error_box(t('plugin.not_found', :name => name.text_value))
   rescue Raki::Plugin::PluginError => e
-    "<div class=\"error\"><b>#{h e.to_s}</b></div>"
+    error_box(e.to_s)
   rescue => e
     Rails.logger.error "Plugin '#{name.text_value}' caused error (#{e.class}): #{e.to_s}\n#{e.backtrace.join "\n"}"
-    "<div class=\"error\"><b>#{t 'plugin.error', :name => name.text_value}</b></div>"
+    error_box(t('plugin.error', :name => name.text_value))
+  end
+  
+  private
+  
+  def error_box(title, content=nil)
+    "<div class=\"error\"><b>#{h title}</b>#{h(content) || ''}</div>"
   end
 
 end

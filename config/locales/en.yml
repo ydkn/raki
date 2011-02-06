@@ -110,6 +110,7 @@ en:
 
   plugin:
     error: Plugin '%{name}' caused error
+    not_found: The plugin '%{name}' is not installed
     missing_parameter: Missing parameter
     not_available_in_live_preview: Not available in Sneak Preview
     
