@@ -165,14 +165,18 @@ grammar RakiSyntax
   end
 
   rule wikilink_title
-    '[' href:pagename '|' desc:(!']' text)+ ']' <RakiSyntax::WikiLinkNode>
+    '[' href:pagename ('@' revision)? '|' desc:(!']' !'@' text)+ ']' <RakiSyntax::WikiLinkNode>
   end
 
   rule wikilink_no_title
-    '[' href:pagename desc:('') ']' <RakiSyntax::WikiLinkNode>
+    '[' href:pagename ('@' revision)? desc:('') ']' <RakiSyntax::WikiLinkNode>
   end
 
   rule pagename
+    !uri ((!'|' !']' !'@' text) / '\\|' / '\\]')+
+  end
+
+  rule revision
     ((!'|' !']' text) / '\\|' / '\\]')+
   end
 
@@ -199,7 +203,7 @@ grammar RakiSyntax
   end
 
   rule uri
-    protocol:maybe_a_protokol ('://' / ':') pagename
+    protocol:maybe_a_protokol ('://' / ':') ((!'|' !']' text) / '\\|' / '\\]')+
   end
 
   rule protocol
