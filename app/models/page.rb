@@ -301,6 +301,7 @@ class Page
   
   def == b
     return true if super(b)
+    return false unless b.is_a?(Page)
     
     namespace == b.namespace &&
       name == b.name &&
