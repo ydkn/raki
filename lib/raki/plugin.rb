@@ -31,8 +31,11 @@ module Raki
   #   end
   class Plugin
 
-    class PluginError < StandardError
-    end
+    class PluginError < StandardError; end
+    class NotFound < PluginError; end
+    class NotExecutable < PluginError; end
+    class TemplateNotFound < PluginError; end
+    class ExecutionError < PluginError; end
 
     class << self
       
@@ -54,7 +57,7 @@ module Raki
         @plugins = {} if @plugins.nil?
         @plugins_regexp = {} if @plugins_regexp.nil?
         if (!id.is_a?(Regexp) && @plugins.key?(id)) || @plugins_regexp.key?(id)
-          raise PluginError.new "A plugin with the name '#{id}' is already registred"
+          raise PluginError.new "A plugin with the name '#{id}' is already registered"
         end
         plugin = new(id)
         plugin.instance_eval(&block)
@@ -73,22 +76,32 @@ module Raki
       end
 
       # Executes the plugin specified by <tt>id</tt> with the give <tt>content</tt> and in the given <tt>context</tt>
-      def execute(id, params, body, context={})
-        id = id.to_s.downcase.to_sym
+      def execute(name, params, body, context={})
+        return '' if context[:ignore_plugins]
+        
         plugin = nil
+        
+        id = name.to_s.downcase.to_sym
         if @plugins.key?(id)
           plugin = @plugins[id]
         else
           @plugins_regexp.each do |key, pi|
-            if id.to_s =~ key
+            if name.to_s =~ key
               plugin = pi
               break
             end
           end
         end
-        raise PluginError.new "Unknown plugin (#{id})" if plugin.nil?
-        raise PluginError.new "Plugin '#{id}' is not executable" unless plugin.executable?
-        plugin.exec(id, params, body, context)
+        
+        raise NotFound.new name.to_s unless plugin
+        raise NotExecutable unless plugin.executable?
+        
+        begin
+          plugin.exec(id, params, body, context)
+        rescue => e
+          Rails.logger.error e
+          raise ExecutionError.new(e)
+        end
       end
 
       def stylesheets
@@ -170,8 +183,6 @@ module Raki
     end
 
     def exec(id, params, body, context={})
-      return '' if context[:ignore_plugins]
-      
       if @disable_in_live_preview && context[:live_preview]
         return "<div class=\"warning\">#{I18n.t('plugin.not_available_in_live_preview')}</div>"
       end
@@ -193,7 +204,7 @@ module Raki
       @render = ["#{id.to_s}/#{id.to_s}"] unless @render
       if @render.is_a?(Array) && @render[0].is_a?(String)
         template = Raki::Plugin.templates(self, @render[0])
-        raise PluginError.new("Template '#{@render.to_s}' not found") if template.nil?
+        raise TemplateNotFound.new(@render.to_s) unless template
         result = template.result(binding)
       elsif @render.is_a?(Hash)
         if @render.key?(:nothing) && @render[:nothing]
@@ -215,7 +226,6 @@ module Raki
     end
     
     def render(*args)
-      raise PluginError.new('Render can only called once') if @render
       if args.length == 1 && args[0].is_a?(Hash)
         @render = args[0]
       else
@@ -225,6 +235,25 @@ module Raki
     
     def raise(*args)
       super(PluginError.new(*args))
+    end
+    
+    def page_for(str)
+      parts = str.strip.split(/\//, 2)
+      
+      if parts.length == 2
+        namespace = parts[0].strip
+        name = parts[1].strip
+      elsif !parts[0].blank? && context[:page]
+        namespace = context[:page] ? context[:page].namespace : Raki.frontpage[:namespace]
+        name = parts[0].strip
+      elsif context[:page]
+        namespace = context[:page].namespace
+        name = context[:page].name
+      else
+        return nil
+      end
+      
+      Page.new :namespace => namespace, :name => name
     end
 
   end

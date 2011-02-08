@@ -23,17 +23,9 @@ Raki::Plugin.register :insertpage do
   version '0.1'
 
   execute do
-    parts = body.strip.split /\//, 2
-    if parts.length == 2
-      namespace = parts[0].strip
-      page = parts[1].strip
-    else
-      namespace = context[:page] ? context[:page].namespace : Raki.frontpage[:namespace]
-      page = parts[0] ? parts[0].strip : nil
-    end
-    key = [namespace, page]
+    page = page_for body.strip
     
-    page = Page.new :namespace => namespace, :name => page
+    key = [page.namespace, page.name]
     
     raise t('insertpage.no_page') unless page
     

@@ -110,6 +110,7 @@ de:
 
   plugin:
     error: Plugin '%{name}' gab einen Fehler aus.
+    not_found: Das Plugin '%{name}' ist nicht installiert
     missing_parameter: Fehlende Parameter
     not_available_in_live_preview: Nicht verfügbar in Schnellvorschau
 
