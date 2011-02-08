@@ -236,6 +236,25 @@ module Raki
     def raise(*args)
       super(PluginError.new(*args))
     end
+    
+    def page_for(str)
+      parts = str.strip.split(/\//, 2)
+      
+      if parts.length == 2
+        namespace = parts[0].strip
+        name = parts[1].strip
+      elsif !parts[0].blank? && context[:page]
+        namespace = context[:page] ? context[:page].namespace : Raki.frontpage[:namespace]
+        name = parts[0].strip
+      elsif context[:page]
+        namespace = context[:page].namespace
+        name = context[:page].name
+      else
+        return nil
+      end
+      
+      Page.new :namespace => namespace, :name => name
+    end
 
   end
 end
