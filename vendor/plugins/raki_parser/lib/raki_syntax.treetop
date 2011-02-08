@@ -82,7 +82,7 @@ grammar RakiSyntax
   # Tables
 
   rule table
-    first_row:table_row other_rows:(ignore_linebreak row:table_row)* <RakiSyntax::TableNode>
+    linebreak? first_row:table_row other_rows:(ignore_single_linebreak row:table_row)* <RakiSyntax::TableNode>
   end
 
   rule table_row
@@ -259,6 +259,10 @@ grammar RakiSyntax
 
   rule ignore_linebreak
     linebreak '' <RakiSyntax::IgnoreNode>
+  end
+
+  rule ignore_single_linebreak
+    single_linebreak '' <RakiSyntax::IgnoreNode>
   end
 
 end
