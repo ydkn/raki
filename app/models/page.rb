@@ -299,6 +299,17 @@ class Page
     end
   end
   
+  def == b
+    return true if super(b)
+    
+    namespace == b.namespace &&
+      name == b.name &&
+      revision == b.revision &&
+      !changed? && !b.changed? &&
+      !renamed? && !b.renamed? &&
+      !deleted? && !b.deleted?
+  end
+  
   def self.exists?(namespace, name, revision=nil)
     Raki::Provider[namespace.to_s.strip.to_sym].page_exists?(namespace.to_s.strip, name.to_s.strip, revision)
   end
