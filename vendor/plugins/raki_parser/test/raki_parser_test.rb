@@ -145,7 +145,7 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal '<div class="error"><div class="warning">some warning</div> test</div>', parse("%%error %%warning some warning%% test%%")
     assert_equal '<div class="error">error! <div class="warning">some warning</div> test</div>', parse("%%error error! %%warning some warning%% test%%")
     assert_equal '<div class="warning"><b>content</b> of confirmation-box</div>', parse("%%warning *content* of confirmation-box%%")
-    assert_equal "<div class=\"warning\"><b>content</b><br/><ul><li>of</li><li>confirmation-box</li></ul><br/></div>", parse("%%warning *content*\n* of\n* confirmation-box\n%%")
+    assert_equal "<div class=\"warning\"><b>content</b><ul><li>of</li><li>confirmation-box</li></ul><br/></div>", parse("%%warning *content*\n* of\n* confirmation-box\n%%")
     assert_equal "<div class=\"warning\"><h1 id=\"section-content\">content</h1>of confirmation-box</div>", parse("%%warning !content\nof confirmation-box%%")
     assert_equal "<div class=\"warning\"><h1 id=\"section-content\">content</h1></div>", parse("%%warning !content%%")
   end
@@ -158,6 +158,7 @@ class RakiParserTest < Test::Unit::TestCase
     assert_equal "<ul><li>abc</li><li>def</li><li>ghi</li><li>jkl</li></ul>", parse("\n* abc\n* def\n* ghi\n* jkl")
     assert_equal "<ul><li><a href=\"/test/WikiPageName\" title=\"WikiPageName\">WikiPageName</a></li></ul>", parse("\n* [WikiPageName]")
     assert_equal "<ul><li>asdf<br/> asdf\n<ul><li>asdf<br/> asdf</li><li>asdf<br/> asdf</li></ul></li><li>asdf</li></ul>", parse("* asdf\n asdf\n * asdf\n asdf\n * asdf\n asdf\n* asdf")
+    assert_equal "<ul><li>foo</li><li>bar</li></ul><ul><li>foo2</li><li>bar2</li></ul>", parse("* foo\r\n* bar\r\n\r\n* foo2\r\n* bar2")
   end
 
   # Test for ordered lists
@@ -184,8 +185,8 @@ class RakiParserTest < Test::Unit::TestCase
   end
 
   def test_pages
-    assert_equal "<a href=\"/test/link\" title=\"link\">link</a><br/><ul><li>item1</li></ul><ol><li>item2</li></ol>", parse("[link]\n\n* item1\n# item2")
-    assert_equal "<h1 id=\"section-Testseite\">Testseite</h1><a href=\"/test/link\" title=\"link\">link</a><br/><ul><li><b>item1</b></li></ul><ol><li>item2</li></ol>", parse("!Testseite\n\n[link]\n\n* *item1*\n# item2")
+    assert_equal "<a href=\"/test/link\" title=\"link\">link</a><ul><li>item1</li></ul><ol><li>item2</li></ol>", parse("[link]\n\n* item1\n# item2")
+    assert_equal "<h1 id=\"section-Testseite\">Testseite</h1><a href=\"/test/link\" title=\"link\">link</a><ul><li><b>item1</b></li></ul><ol><li>item2</li></ol>", parse("!Testseite\n\n[link]\n\n* *item1*\n# item2")
   end
 
   # Test rewriting of links

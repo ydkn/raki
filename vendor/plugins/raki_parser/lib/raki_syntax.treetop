@@ -71,7 +71,7 @@ grammar RakiSyntax
   # Lists
 
   rule list
-    first_item:listitem other_items:(linebreak item:listitem)* <RakiSyntax::ListNode>
+    linebreak? first_item:listitem other_items:(single_linebreak item:listitem)* <RakiSyntax::ListNode>
   end
 
   rule listitem
@@ -227,6 +227,10 @@ grammar RakiSyntax
 
   rule escaped
     ('\\\\' / '\\]' / '\\|' / '\\"' / '\\\'' / ('\\' linebreak)) '' <RakiSyntax::EscapedNode>
+  end
+
+  rule single_linebreak
+    [\r]? [\n] <RakiSyntax::LinebreakNode>
   end
 
   rule linebreak
