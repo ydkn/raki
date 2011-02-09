@@ -162,7 +162,7 @@ class GitRepo
     children = []
     out.split("\n").each do |line|
       line.strip!
-      parts = line.split(/\s+/)
+      parts = line.split(/\s+/, 4)
       children << {:type => parts[1], :filename => parts[3]}
     end
     
