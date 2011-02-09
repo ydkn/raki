@@ -132,7 +132,7 @@ class GitRepo
       if line =~ /^commit ([a-f0-9]+)$/i
         if commit.key?(:id) && commit.key?(:author) && commit.key?(:date)
           commit[:message] = commit[:message].join("\n").strip
-          commits << commit
+          commits << commit if !options[:since] || options[:since] <= commit[:date]
           commit = {:changes => []}
         end
         commit[:id] = $1
@@ -149,7 +149,7 @@ class GitRepo
     end
     if commit.key?(:id) && commit.key?(:author) && commit.key?(:date)
       commit[:message] = commit[:message].join("\n").strip
-      commits << commit
+      commits << commit if !options[:since] || options[:since] <= commit[:date]
     end
     
     commits
