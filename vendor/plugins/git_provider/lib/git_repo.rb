@@ -104,13 +104,13 @@ class GitRepo
   end
   
   def pull(remote, branch)
-    out, es = run_git(['pull', shell_escape(remote), shell_escape(branch)])
-    raise GitBinaryError unless es == 0
+    out, es = run_git(['pull', shell_escape(remote), shell_escape(branch)], [], {:timeout => 60})
+    raise GitBinaryError unless es == 0 || es == 256
     true
   end
   
   def push(remote, branch)
-    out, es = run_git(['push', shell_escape(remote), shell_escape(branch)])
+    out, es = run_git(['push', shell_escape(remote), shell_escape(branch)], [], {:timeout => 60})
     raise GitBinaryError unless es == 0
     true
   end
@@ -188,7 +188,7 @@ class GitRepo
   end
   
   def self.clone(url, path)
-    out, es = run_git(['clone', shell_escape(url), shell_escape(path)])
+    out, es = run_git(['clone', shell_escape(url), shell_escape(path)], [], {:timeout => 60})
     raise GitBinaryError unless es == 0
     GitRepo.new(path)
   end
