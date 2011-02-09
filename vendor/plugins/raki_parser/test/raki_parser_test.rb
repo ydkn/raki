@@ -176,12 +176,15 @@ class RakiParserTest < Test::Unit::TestCase
         parse("# hello\n# world\n * sub\n * bla\n # test\n  * foo\n# bar")
   end
 
+  # Test for tables
   def test_table
     assert_equal "<table class=\"wikitable\"><tr><td>test</td><td>asdf</td></tr><tr><td>foo</td><td>bar</td></tr></table>", parse("|test|asdf|\n|foo|bar|")
     assert_equal "<table class=\"wikitable\"><tr><th>test</th><th>asdf</th></tr><tr><td>foo</td><td>bar</td></tr></table>", parse("!|test|asdf|\n|foo|bar|")
     assert_equal "<table class=\"wikitable\"><tr><th>test</th><th>asdf</th></tr><tr><td><b>foo</b></td><td><i>bar</i></td></tr></table>", parse("!|test|asdf|\n|*foo*|~bar~|")
     assert_equal "<table class=\"wikitable\"><tr><th>test</th><th>asdf</th></tr><tr><td>*foo*asdf</td><td><i>bar</i></td></tr></table>", parse("!|test|asdf|\n|*foo*asdf|~bar~|")
     assert_equal "<table class=\"wikitable\"><tr><th>test</th><th>asdf</th></tr><tr><td>*foo*asdf</td><td><i>bar</i> asdf</td></tr></table>", parse("!|test|asdf|\n|*foo*asdf|~bar~ asdf|")
+    assert_equal "<table class=\"wikitable\"><tr><td>foo</td></tr><tr><td>bar</td></tr></table>", parse("|foo|\n|bar|")
+    assert_equal "<table class=\"wikitable\"><tr><td>foo</td></tr></table><table class=\"wikitable\"><tr><td>bar</td></tr></table>", parse("|foo|\n\n|bar|")
   end
 
   def test_pages

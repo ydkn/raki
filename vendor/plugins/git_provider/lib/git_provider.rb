@@ -243,7 +243,7 @@ class GitProvider < Raki::AbstractProvider
   def revisions(obj, options)
     obj = normalize(obj)
     
-    raise PageNotExists unless exists?(obj)
+    raise PageNotExists.new(obj) unless existed?(obj)
     
     parts = obj.split('/')
     
@@ -327,6 +327,13 @@ class GitProvider < Raki::AbstractProvider
     changes
   end
   cache :changes
+  
+  def existed?(obj)
+    obj = normalize(obj)
+    
+    !@repo.log('HEAD', obj, :limit => 1).empty? rescue false
+  end
+  cache :existed?
   
   def size(obj, revision)
     return nil unless exists?(obj, revision)
