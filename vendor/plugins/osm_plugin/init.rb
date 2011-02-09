@@ -23,13 +23,18 @@ Raki::Plugin.register :osm do
   version '0.1'
   
   execute do
-    BOX_FACTOR = 0.0035
+    BOX_FACTOR = 0.0025
     
-    lat, lon = body.strip.split ',', 2
-    lat = lat.strip.to_f
-    lon = lon.strip.to_f
-    
-    @bbox = "#{lon-BOX_FACTOR},#{lat-BOX_FACTOR},#{lon+BOX_FACTOR},#{lat+BOX_FACTOR}"
+    begin
+      lat, lon = body.strip.split /\s+/, 2
+      lat = lat.strip.to_f
+      lon = lon.strip.to_f
+
+      @bbox = "#{lon-BOX_FACTOR},#{lat-BOX_FACTOR},#{lon+BOX_FACTOR},#{lat+BOX_FACTOR}"
+      @coordinates = "#{lat},#{lon}"
+    rescue => e
+      render :nothing => true
+    end
   end
   
 end
