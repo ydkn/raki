@@ -249,6 +249,7 @@ class GitProvider < Raki::AbstractProvider
     
     revs = []
     @repo.log(@branch, obj, :limit => options[:limit], :since => options[:since]).each do |commit|
+      next if commit[:changes].blank?
       mode = case commit[:changes].first[:mode]
         when 'D'
           :deleted

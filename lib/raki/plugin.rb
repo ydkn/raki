@@ -99,7 +99,7 @@ module Raki
         begin
           plugin.exec(id, params, body, context)
         rescue => e
-          Rails.logger.error e
+          Rails.logger.error(e)
           raise ExecutionError.new(e)
         end
       end
