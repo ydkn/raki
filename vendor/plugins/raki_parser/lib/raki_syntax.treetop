@@ -165,11 +165,11 @@ grammar RakiSyntax
   end
 
   rule wikilink_title
-    '[' href:pagename ('@' revision)? '|' desc:(!']' !'@' text)+ ']' <RakiSyntax::WikiLinkNode>
+    '[' href:pagename revision:('@' revision)? '|' desc:(!']' !'@' text)+ ']' <RakiSyntax::WikiLinkNode>
   end
 
   rule wikilink_no_title
-    '[' href:pagename ('@' revision)? desc:('') ']' <RakiSyntax::WikiLinkNode>
+    '[' href:pagename revision:('@' revision)? desc:('') ']' <RakiSyntax::WikiLinkNode>
   end
 
   rule pagename

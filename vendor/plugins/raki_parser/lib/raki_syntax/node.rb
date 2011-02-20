@@ -25,13 +25,21 @@ class RakiSyntax::Node < Treetop::Runtime::SyntaxNode
   def target_for link, context
     page = context[:page] || Page.new(:namespace => Raki.frontpage[:namespace], :name => Raki.frontpage[:name])
     
+    parts = link.split '@', 2
+    if parts.length == 2
+      revision = parts[1]
+      link = parts[0]
+    else
+      revision = nil
+    end
+    
     parts = link.split '/'
     if parts.length == 3
-      Attachment.new(:namespace => parts[0], :page => parts[1], :name => parts[2])
+      Attachment.new(:namespace => parts[0], :page => parts[1], :name => parts[2], :revision => revision)
     elsif parts.length == 2
-      Attachment.find(page.namespace, parts[0], parts[1]) || Page.new(:namespace => parts[0], :name => parts[1])
+      Attachment.find(page.namespace, parts[0], parts[1], revision) || Page.new(:namespace => parts[0], :name => parts[1], :revision => revision)
     elsif parts.length == 1
-      Attachment.find(page.namespace, page.name, parts[0]) || Page.new(:namespace => page.namespace, :name => parts[0])
+      Attachment.find(page.namespace, page.name, parts[0], revision) || Page.new(:namespace => page.namespace, :name => parts[0], :revision => revision)
     else
       nil
     end

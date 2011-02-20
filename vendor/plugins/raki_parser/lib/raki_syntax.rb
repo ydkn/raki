@@ -56,6 +56,17 @@ module RakiSyntax
     sections
   end
   
+  def links context
+    return [] unless elements
+    
+    links = []
+    elements.each do |e|
+      links += e.links context
+    end
+    
+    links.uniq
+  end
+  
 end
 
 require 'raki_syntax/node'

@@ -59,6 +59,12 @@ class RakiParser < Raki::AbstractParser
     output.sections context
   end
   
+  def links text, context={}
+    output = @parser.parse text
+    output.enable_raki_syntax
+    output.links context
+  end
+  
   def toolbar_items
     [
       [

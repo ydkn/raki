@@ -28,11 +28,15 @@ module Raki
     #  raise ParserError.new 'not implemented'
     #end
 
-    def link_update text, from, to, context={}
+    def link_update(text, from, to, context={})
       raise ParserError.new 'not implemented'
     end
     
-    def sections text, context={}
+    def sections(text, context={})
+      raise ParserError.new 'not implemented'
+    end
+    
+    def links(text, context={})
       raise ParserError.new 'not implemented'
     end
 

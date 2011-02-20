@@ -31,8 +31,9 @@ class Page
     raise InvalidPageName unless @namespace =~ /^[^\.]+$/i && @name =~ /^[^\/\.]+|\d+\.\d+\.\d+\.\d+$/
     
     if params[:revision]
+      params[:revision] = params[:revision].to_s.strip
       provider.page_revisions(namespace, name).each do |r|
-        if r[:id].to_s == params[:revision].to_s.strip
+        if r[:id].to_s == params[:revision] || r[:version].to_s == params[:revision]
           @revision = hash_to_revision(r)
           break
         end
@@ -271,6 +272,12 @@ class Page
     parser.sections content, context
   end
   
+  def links(context={})
+    context = context.clone
+    context[:page] = self
+    parser.links content, context
+  end
+  
   def to_s(revision=false)
     if revision
       "#{namespace}/#{name}@#{revision.version}"
@@ -297,6 +304,17 @@ class Page
     else
       namespace <=> b.namespace
     end
+  end
+  
+  def == b
+    return true if super(b)
+    
+    namespace == b.namespace &&
+      name == b.name &&
+      revision == b.revision &&
+      !changed? && !b.changed? &&
+      !renamed? && !b.renamed? &&
+      !deleted? && !b.deleted?
   end
   
   def self.exists?(namespace, name, revision=nil)

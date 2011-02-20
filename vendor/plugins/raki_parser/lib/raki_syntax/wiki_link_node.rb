@@ -19,7 +19,7 @@ class RakiSyntax::WikiLinkNode < RakiSyntax::Node
   def to_html context
     @context = context
     
-    t = target context
+    t = target
     
     if !t || (!t.url rescue true)
       "<span class=\"invalid-page\">#{h title}</span>"
@@ -33,15 +33,19 @@ class RakiSyntax::WikiLinkNode < RakiSyntax::Node
   end
 
   def to_src context={}
+    @context = context
+    
     if desc.blank?
-      "[#{target_href context}]"
+      "[#{target_href}]"
     else
-      "[#{target_href context}|#{desc.text_value}]"
+      "[#{target_href}|#{desc.text_value}]"
     end
   end
 
   def link_update from, to, context
-    t = target context
+    @context = context
+    
+    t = target
     
     target_page = t.is_a?(Page) ? t : t.page
     
@@ -58,18 +62,24 @@ class RakiSyntax::WikiLinkNode < RakiSyntax::Node
     true
   end
   
+  def links context={}
+    @context = context
+    
+    [target]
+  end
+  
   private
   
   def title
     desc.text_value.blank? ? href.to_html(@context).strip : desc.to_html(@context)
   end
   
-  def target context
-    @target || target_for(href.text_value, context)
+  def target
+    @target || target_for(href.text_value+revision.text_value, @context)
   end
   
-  def target_href context
-    t = target context
+  def target_href
+    t = target @context
     
     if t.is_a? Attachment
       if t.page.namespace != context[:page].namespace

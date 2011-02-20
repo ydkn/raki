@@ -59,7 +59,9 @@ class Revision
   end
   
   def == b
-    (self <=> b) == 0
+    page == b.page &&
+      attachment == b.attachment &&
+      id == b.id
   end
   
   private
