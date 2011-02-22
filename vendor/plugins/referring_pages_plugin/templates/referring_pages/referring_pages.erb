@@ -1,0 +1,9 @@
+<% unless @referring_pages.empty? %>
+  <div class="referring_pages">
+    <ul>
+	  <% @referring_pages.each do |page| %>
+        <li><a href="<%=page.url %>"><%="#{page.namespace}/#{page.name}" %></a></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
