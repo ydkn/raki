@@ -23,6 +23,7 @@ class Page
   include Raki::Helpers::URLHelper
   
   attr_reader :errors
+  attr_accessor :link_to_head
   
   def initialize(params={})
     @namespace = params[:namespace].to_s.strip
@@ -39,6 +40,13 @@ class Page
         end
       end
     end
+    
+    if params[:link_to_head]
+      @link_to_head = true
+    else
+      @link_to_head = false
+    end
+    
     @errors = nil
   end
   
@@ -278,6 +286,12 @@ class Page
     parser.links content, context
   end
   
+  def referring_pages(options={})
+    pages = Raki::ReferenceManager.links_to(self)
+    pages.delete_if{|o| o.revision != o.head_revision} if options[:only_head]
+    pages
+  end
+  
   def to_s(revision=false)
     if revision
       "#{namespace}/#{name}@#{revision.version}"
@@ -311,7 +325,7 @@ class Page
     
     namespace == b.namespace &&
       name == b.name &&
-      revision == b.revision &&
+      ((revision && b.revision && revision.id == b.revision.id) || (revision == nil && b.revision == nil)) &&
       !changed? && !b.changed? &&
       !renamed? && !b.renamed? &&
       !deleted? && !b.deleted?

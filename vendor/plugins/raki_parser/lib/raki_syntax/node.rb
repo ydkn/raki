@@ -27,22 +27,27 @@ class RakiSyntax::Node < Treetop::Runtime::SyntaxNode
     
     parts = link.split '@', 2
     if parts.length == 2
+      link_to_head = false
       revision = parts[1]
       link = parts[0]
     else
+      link_to_head = true
       revision = nil
     end
     
     parts = link.split '/'
     if parts.length == 3
-      Attachment.new(:namespace => parts[0], :page => parts[1], :name => parts[2], :revision => revision)
+      obj = Attachment.new(:namespace => parts[0], :page => parts[1], :name => parts[2], :revision => revision, :link_to_head => link_to_head)
     elsif parts.length == 2
-      Attachment.find(page.namespace, parts[0], parts[1], revision) || Page.new(:namespace => parts[0], :name => parts[1], :revision => revision)
+      obj = Attachment.find(page.namespace, parts[0], parts[1], revision) || Page.new(:namespace => parts[0], :name => parts[1], :revision => revision, :link_to_head => link_to_head)
     elsif parts.length == 1
-      Attachment.find(page.namespace, page.name, parts[0], revision) || Page.new(:namespace => page.namespace, :name => parts[0], :revision => revision)
+      obj = Attachment.find(page.namespace, page.name, parts[0], revision) || Page.new(:namespace => page.namespace, :name => parts[0], :revision => revision, :link_to_head => link_to_head)
     else
-      nil
+      return nil
     end
+    
+    obj.link_to_head = link_to_head
+    obj
   rescue => e
     Rails.logger.error e
     nil

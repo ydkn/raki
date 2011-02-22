@@ -23,20 +23,31 @@ class Attachment
   include Raki::Helpers::URLHelper
   
   attr_reader :errors
+  attr_accessor :link_to_head
   
   def initialize(params={})
     if params[:namespace] && params[:page]
       @page = Page.new(:namespace => params[:namespace], :name => params[:page])
     end
+    
     @name = params[:name]
+    
     if params[:revision]
+      params[:revision] = params[:revision].to_s.strip
       provider.attachment_revisions(@page.namespace, @page.name, @name).each do |r|
-        if r[:id].to_s == params[:revision].to_s.strip
+        if r[:id].to_s == params[:revision]
           @revision = hash_to_revision(r)
           break
         end
       end
     end
+    
+    if params[:link_to_head]
+      @link_to_head = true
+    else
+      @link_to_head = false
+    end
+    
     @errors = nil
   end
   
