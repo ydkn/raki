@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab & Martin Sigloch
+# Copyright (C) 2011 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -66,13 +66,13 @@ class GitRepo
   
   def checkout(refspec)
     out, es = run_git(['checkout', shell_escape(refspec)])
-    raise GitBinaryError unless es == 0
+    raise GitBinaryError.new out unless es == 0
     true
   end
   
   def add(pathspec)
     out, es = run_git(['add', "\"#{shell_escape(pathspec)}\""])
-    raise GitBinaryError unless es == 0
+    raise GitBinaryError.new out unless es == 0
     true
   end
   
@@ -80,13 +80,13 @@ class GitRepo
     target_dir = File.join(working_dir, File.dirname(dest))
     FileUtils.mkdir_p(target_dir) unless File.exists?(target_dir)
     out, es = run_git(['mv', "\"#{shell_escape(src)}\"", "\"#{shell_escape(dest)}\""])
-    raise GitBinaryError unless es == 0
+    raise GitBinaryError.new out unless es == 0
     true
   end
   
   def remove(pathspec)
     out, es = run_git(['rm', "\"#{shell_escape(pathspec)}\""])
-    raise GitBinaryError unless es == 0
+    raise GitBinaryError.new out unless es == 0
     true
   end
   
@@ -98,20 +98,20 @@ class GitRepo
     
     out, es = run_git(['commit', '-m', "\"#{shell_escape(message)}\"", "--author=\"#{shell_escape(user)}\"", paths])
     
-    raise GitBinaryError unless es == 0
+    raise GitBinaryError.new out unless es == 0
     
     true
   end
   
   def pull(remote, branch)
     out, es = run_git(['pull', shell_escape(remote), shell_escape(branch)], [], {:timeout => 60})
-    raise GitBinaryError unless es == 0 || es == 256
+    raise GitBinaryError.new out unless es == 0 || es == 256
     true
   end
   
   def push(remote, branch)
     out, es = run_git(['push', shell_escape(remote), shell_escape(branch)], [], {:timeout => 60})
-    raise GitBinaryError unless es == 0
+    raise GitBinaryError.new out unless es == 0
     true
   end
   
@@ -123,7 +123,7 @@ class GitRepo
     
     out, es = run_git(params, ["\"#{pathspec ? shell_escape(pathspec) : ''}\""])
     
-    raise GitBinaryError unless es == 0
+    raise GitBinaryError.new out unless es == 0
     
     commits = []
     commit = {:changes => []}
@@ -157,7 +157,7 @@ class GitRepo
   
   def tree(refspec, pathspec)
     out, es = run_git(['ls-tree', "#{shell_escape(refspec)}:\"#{shell_escape(pathspec)}\""])
-    raise GitBinaryError unless es == 0
+    raise GitBinaryError.new out unless es == 0
     
     children = []
     out.split("\n").each do |line|
@@ -171,25 +171,25 @@ class GitRepo
   
   def show(refspec, pathspec)
     out, es = run_git(['show', "#{shell_escape(refspec)}:\"#{shell_escape(pathspec)}\""])
-    raise GitBinaryError unless es == 0
+    raise GitBinaryError.new out unless es == 0
     out
   end
   
   def cat(refspec, pathspec)
     out, es = run_git(['cat-file', '-p', "#{shell_escape(refspec)}:\"#{shell_escape(pathspec)}\""])
-    raise GitBinaryError unless es == 0
+    raise GitBinaryError.new out unless es == 0
     out
   end
   
   def size(refspec, pathspec)
     out, es = run_git(['cat-file', '-s', "#{shell_escape(refspec)}:\"#{shell_escape(pathspec)}\""])
-    raise GitBinaryError unless es == 0
+    raise GitBinaryError.new out unless es == 0
     out.strip.to_i
   end
   
   def self.clone(url, path)
     out, es = run_git(['clone', shell_escape(url), shell_escape(path)], [], {:timeout => 60})
-    raise GitBinaryError unless es == 0
+    raise GitBinaryError.new out unless es == 0
     GitRepo.new(path)
   end
   
@@ -228,7 +228,7 @@ class GitRepo
     
     [out, ret]
   rescue => e
-    raise GitBinaryError.new(e)
+    raise GitBinaryError.new e
   end
   
   def self.shell_escape(string)
