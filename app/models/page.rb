@@ -126,7 +126,7 @@ class Page
     context[:page] = self
     parser.parse content, context
   rescue => e
-    Rails.logger.error(e)
+    Rails.logger.error e.to_s
     "<div class=\"render-error\">#{I18n.t('page.render.error')}</div>".html_safe
   end
   
