@@ -22,7 +22,7 @@ class User
   
   def initialize(id, options={})
     @id = id
-    @username = options[:username].gsub /[^a-z0-9_\- ]/i, ''
+    @username = options[:username] ? options[:username].gsub(/[^a-z0-9_\- ]/i, '') : nil
     @email = options[:email]
     @display_name = options[:display_name]
   end

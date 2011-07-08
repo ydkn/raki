@@ -29,10 +29,13 @@ Raki::Plugin.register :index do
   execute do
     @namespaces = params[:namespace].nil? ? [context[:page].namespace] : params[:namespace].split(',')
     @namespaces = nil if params[:namespace] == 'all'
+    
+    @no_index_page = params[:'index-page'] == 'false' || params[:'index-page'] == 'no'
 
     chars = {}
 
     Page.all(:namespace => @namespaces).select{|p| p.authorized?(User.current, :view)}.each do |page|
+      next if @no_index_page && page.name == Raki.index_page
       letter = page.name[0].chr.upcase
       chars[letter] = [] unless chars.key?(letter)
       chars[letter] << page
@@ -46,6 +49,7 @@ Raki::Plugin.register :index do
           :pages => chars[key].sort
         }
     end
+    
     @rnd = rand(900)+100
 
     render :inline => "<b>#{t 'indexplugin.no_pages'}</b>" if @index.empty?

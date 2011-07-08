@@ -16,8 +16,10 @@
 
 module RakiSyntax
   
+  include ERB::Util
+  
   def to_html context
-    return text_value unless elements
+    return h text_value unless elements
     
     output = ''
     elements.each do |e|
