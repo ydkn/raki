@@ -8,11 +8,11 @@
 <link rel="shortcut icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
 <link rel="icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
 
-<%=auto_discovery_link_tag :rss, {:controller => 'feed', :action => 'global'}, :title => t('feed.global', :app_name => Raki.app_name) %>
+<%=auto_discovery_link_tag :rss, {:controller => 'feed', :action => 'global', :only_path => false}, :title => t('feed.global', :app_name => Raki.app_name) %>
 <% if @page %>
-  <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'namespace', :namespace => h(@page.namespace)}, :title => t('feed.namespace', :namespace => h(@page.namespace))) %>
+  <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'namespace', :namespace => h(@page.namespace), :only_path => false}, :title => t('feed.namespace', :namespace => h(@page.namespace))) %>
   <% if @page.authorized?(User.current, :view) %>
-    <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'page', :namespace => h(@page.namespace), :page => h(@page.name)}, :title => t('feed.page', :namespace => h(@page.namespace), :page => h(@page.name))) %>
+    <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'page', :namespace => h(@page.namespace), :page => h(@page.name), :only_path => false}, :title => t('feed.page', :namespace => h(@page.namespace), :page => h(@page.name))) %>
   <% end %>
 <% end %>
 
