@@ -28,8 +28,8 @@ module Raki
       include ActionView::Helpers::UrlHelper
       include ActionController::UrlWriter
       
-      def self.included(base)
-        base.extend(ClassMethods)
+      def self.included base
+        base.extend ClassMethods
       end
       
       module ClassMethods
@@ -44,12 +44,27 @@ module Raki
         
       end
       
-      def url_for_page(namespace, page, revision=nil, action='view')
-        if revision.nil?
-          url_for(:controller => 'page', :action => action.to_s, :namespace => h(namespace.to_s), :page => h(page.to_s))
-        else
-          url_for(:controller => 'page', :action => action.to_s, :namespace => h(namespace.to_s), :page => h(page.to_s), :revision => h(revision.to_s))
+      def url_for_page namespace, page, revision=nil, action='view', options={}
+        options[:controller] = 'page'
+        options[:action] = action.to_s
+        options[:namespace] = h namespace.to_s
+        options[:page] = h page.to_s
+        options[:revision] = h revision.to_s if revision
+        
+        url_for_options options
+      end
+      
+      def url_for_options options
+        opts = {}
+        options.each do |k,v|
+          if v.respond_to?(:html_safe?) && !v.html_safe?
+            opts[k] = h v
+          else
+            opts[k] = v
+          end
         end
+        
+        url_for options
       end
 
     end

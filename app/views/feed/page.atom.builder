@@ -6,10 +6,10 @@ atom_feed do |feed|
   @revisions.each do |revision|
     if revision.type == :page
       entry_id = "#{revision.page.namespace}/#{revision.page.name}@#{revision.id}"
-      entry_url = revision.page.url(:revision => revision, :force_revision => true)
+      entry_url = revision.page.url(:revision => revision, :force_revision => true, :only_path => false)
     else
       entry_id = "#{revision.page.namespace}/#{revision.page.name}/#{revision.attachment.name}@#{revision.id}"
-      entry_url = revision.attachment.url(:revision => revision, :force_revision => true)
+      entry_url = revision.attachment.url(:revision => revision, :force_revision => true, :only_path => false)
     end
     feed.entry revision, :id => h(entry_id), :url => entry_url do |entry|
       entry.title h(revision.message)
