@@ -116,9 +116,9 @@ class Page
     options.delete :force_revision
     
     opts = {}
-    options.each{|k,v| opts[k] = h(v.to_s)}
+    options.each{|k,v| opts[k] = v}
     
-    url_for opts
+    url_for_options opts
   end
   
   def render(context={})
