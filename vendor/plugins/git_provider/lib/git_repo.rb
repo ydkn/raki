@@ -105,8 +105,14 @@ class GitRepo
   
   def pull(remote, branch)
     out, es = run_git(['pull', shell_escape(remote), shell_escape(branch)], [], {:timeout => 60})
+    
     raise GitBinaryError.new out unless es == 0 || es == 256
-    true
+    
+    changed_files = []
+    out.split("\n").each do |line|
+      changed_files << $1 if line =~ /^ (.+) \|\s+\d+ [+-]*$/i
+    end
+    changed_files
   end
   
   def push(remote, branch)

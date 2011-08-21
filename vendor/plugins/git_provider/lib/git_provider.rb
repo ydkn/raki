@@ -188,9 +188,8 @@ class GitProvider < Raki::AbstractProvider
     git_push
     
     flush(:exists?, obj, nil)
-    flush(:contents, obj, nil)
+    flush(:page_contents, obj, nil)
     flush(:revisions)
-    flush(:page_contents)
     flush(:namespaces)
   end
 
@@ -212,7 +211,6 @@ class GitProvider < Raki::AbstractProvider
     
     flush(:exists?)
     flush(:page_contents)
-    flush(:revisions)
     flush(:revisions)
     flush(:changes)
     flush(:namespaces)
@@ -379,7 +377,16 @@ class GitProvider < Raki::AbstractProvider
   end
   
   def git_pull
-    @repo.pull('origin', @branch)
+    changed_files = @repo.pull('origin', @branch)
+    changed_files.each do |file|
+      logger.debug "Flushing cached data for '#{file}'"
+      flush :exists?
+      flush :page_contents
+      flush :revisions
+      flush :changes
+      flush :namespaces
+    end
+    
     logger.debug "Pulled from '#{@repo.remotes['origin'][:url]}'"
   end
 
