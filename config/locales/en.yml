@@ -46,7 +46,7 @@ en:
       attachments: Attachments
       
     view:
-      not_current: This is not the current version of the page
+      not_current: "This is an old revision, <a href=\"%{url}\">show the latest version</a>."
 
     edit:
       save: Save
