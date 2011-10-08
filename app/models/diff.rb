@@ -52,7 +52,7 @@ class Diff
       end
       
       next unless found_start
-      next if line =~ /^\\ No newline at end of file$/
+      next if line =~ /^\\ /
       
       if line =~ /^(\+|\-)(.*)/
         type = $1 == '+' ? 'add' : 'remove'
