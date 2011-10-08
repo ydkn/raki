@@ -42,8 +42,8 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
       ax.add(OpenID::AX::AttrInfo.new('http://axschema.org/namePerson/last', 'lastname', required))
       request.add_extension(ax)
       return request.redirect_url(
-          url_for(:controller => 'page', :action => 'redirect_to_frontpage', :only_path => false),
-          url_for(:controller => 'authentication', :action => 'callback', :only_path => false)
+          url_for_options(:controller => 'page', :action => 'redirect_to_frontpage', :only_path => false),
+          url_for_options(:controller => 'authentication', :action => 'callback', :only_path => false)
         )
     rescue => e
       raise AuthenticatorError.new(t 'auth.openid.unable_to_authenticate', :openid => h(openid))
@@ -52,10 +52,11 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
 
   def callback(params, session, cookies)
     begin
-      response = openid_consumer(session).complete(params, url_for(:controller => 'authentication', :action => 'callback', :only_path => false))
+      response = openid_consumer(session).complete(params, url_for_options(:controller => 'authentication', :action => 'callback', :only_path => false))
     rescue => e
       raise AuthenticatorError.new(t 'auth.openid.invalid_response')
     end
+    
     case response.status
       when OpenID::Consumer::FAILURE
         raise AuthenticatorError.new(t 'auth.openid.verification_failed')
@@ -94,7 +95,7 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
   private
 
   def openid_consumer(session)
-    @openid_consumer ||= OpenID::Consumer.new(session, OpenID::Store::Filesystem.new("#{RAILS_ROOT}/tmp/openid"))
+    @openid_consumer ||= OpenID::Consumer.new(session, OpenID::Store::Filesystem.new("#{Rails.root}/tmp/openid"))
   end
   
   def parse_sreg_response(response)

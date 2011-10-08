@@ -19,7 +19,7 @@ Raki::Application.routes.draw do
   # Authentication
   match 'login' => 'authentication#login', :as => :login
   match 'logout' => 'authentication#logout', :as => :logout
-  match 'login_callback' => 'authentication#login_callback', :as => :login_callback
+  match 'login_callback' => 'authentication#callback', :as => :login_callback
   
   # Route for atom feed
   get 'feed.atom' => 'feed#global', :as => :feed_global
