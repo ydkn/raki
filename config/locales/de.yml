@@ -46,7 +46,7 @@ de:
       attachments: Anhänge
 
     view:
-      not_current: Dies ist nicht die aktuelle Version
+      not_current: "Dies ist eine alte Version, <a href=\"%{url}\">die neueste Version anzeigen</a>."
 
     edit:
       save: Speichern

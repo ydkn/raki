@@ -59,6 +59,7 @@ class GitProvider < Raki::AbstractProvider
       Thread.new do
         while true do
           sleep refresh
+          $stdout.flush
           git_pull rescue nil
         end
       end
