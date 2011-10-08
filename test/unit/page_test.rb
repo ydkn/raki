@@ -18,42 +18,6 @@ require 'test_helper'
 
 class PageTest < Test::Unit::TestCase
   
-  # Test find
-  def test_find
-    user = User.new Time.new.to_s, :username => 'raki_page_test', :email => 'test@user.org'
-    
-    # Existing page without revision and with valid revision
-    Raki::Provider[:default].page_save 'PageTest', 'FindMe', 'foo bar', 'message', user
-    rev1 = Raki::Provider[:default].page_revisions('PageTest', 'FindMe').first
-    
-    [Page.find('PageTest', 'FindMe'), Page.find('PageTest', 'FindMe', rev1[:id])].each do |page|
-      assert_not_nil page
-      assert_equal 'foo bar', page.content
-      assert_equal rev1[:id], page.revisions.first.id
-      assert_equal page.revisions.first, page.revisions.last
-      assert_equal 'message', page.revisions.last.message
-      assert_equal user.username, page.revisions.last.user.username
-    end
-    
-    # Existing page with older revision
-    Raki::Provider[:default].page_save 'PageTest', 'FindMe', 'bar foo', 'message2', user
-    rev2 = Raki::Provider[:default].page_revisions('PageTest', 'FindMe').first
-    
-    page = Page.find 'PageTest', 'FindMe', rev1[:id]
-    
-    assert_not_nil page
-    assert_equal 'foo bar', page.content
-    assert_equal rev2[:id], page.revisions.first.id
-    assert_equal rev1[:id], page.revisions.last.id
-    assert_equal 'message2', page.revisions.first.message
-    assert_equal 'message', page.revisions.last.message
-    assert_equal user.username, page.revisions.first.user.username
-    
-    # Existing page with invalid revision
-    page = Page.find 'PageTest', 'FindMe', 'InvalidRevision'
-    assert_nil page
-  end
-  
   # Test page locking
   def test_locking
     Lock.all.each{|l| l.destroy}
