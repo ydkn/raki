@@ -22,7 +22,7 @@ Raki::Plugin.register :toc do
   author 'Florian Schwab'
   version '0.1'
 
-  add_stylesheet '/plugin_assets/toc_plugin/stylesheets/main.css'
+  add_stylesheet :toc
   
   include TOCPluginHelper
 

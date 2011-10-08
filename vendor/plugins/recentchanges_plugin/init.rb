@@ -24,7 +24,7 @@ Raki::Plugin.register :recentchanges do
 
   disable_in_live_preview
   
-  add_stylesheet '/plugin_assets/recentchanges_plugin/stylesheets/recentchanges.css'
+  add_stylesheet :recentchanges
   
   include RecentchangesPluginHelper
 

@@ -14,10 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'thread'
+require 'rails'
+
 module Cacheable
   
   @cache = Hash.new{|h,k| h[k] = Hash.new{|h,k| h[k] = Hash.new{|h,k| h[k] = {}}}}
-  @queue = Queue.new
+  @queue = ::Queue.new
   
   # Refresh enqueued values.
   Thread.new do
@@ -76,7 +79,7 @@ module Cacheable
     #    cache :foobar, :ttl => 10, :force => true
     # 
     def cache(name, options={})
-      return if Rails.env == 'development'
+      return if ::Rails.env == 'development'
       
       name = name.to_s
       name_uncached = "__uncached_#{name.to_s}"

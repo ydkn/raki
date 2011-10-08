@@ -166,8 +166,8 @@ module Raki
       extend(clazz)
     end
 
-    def add_stylesheet(url, options={})
-      @stylesheets << {:url => url, :options => options}
+    def add_stylesheet(name)
+      @stylesheets << name
     end
     
     def disable_in_live_preview(switch=true)

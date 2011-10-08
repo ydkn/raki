@@ -29,7 +29,7 @@
         <nav id="visited_pages">
           <% unless visited_pages.empty? %>
             <%=t 'visited_pages' %>:
-            <%=visited_pages.collect{|p| link_to h("#{p.namespace}/#{p.name}"), p.url}.join(', ') %>
+            <%=visited_pages.collect{|p| link_to "#{p.namespace}/#{p.name}", p.url}.join(', ').html_safe %>
           <% end %>
         </nav>
       </header>

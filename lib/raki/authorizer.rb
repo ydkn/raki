@@ -40,13 +40,14 @@ module Raki
         @block.each do |block|
           return false if "#{namespace.to_s}/#{page.to_s}".match("#{(block[:namespace]+'/'+block[:page]).gsub('*', '.*')}$")
         end
+        
         @authorizer.authorized_to?(namespace, page, action, user)
       end
       
       alias :self_respond_to? :respond_to?
       
       def respond_to?(method)
-        return true if self_respond_to?(method)
+        #return true if self_respond_to?(method)
         @authorizer.respond_to?(method)
       end
 

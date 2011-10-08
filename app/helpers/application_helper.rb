@@ -19,15 +19,11 @@ module ApplicationHelper
   include Raki::Helpers::FormatHelper
   
   def meta_tag name, content
-    "<meta name=\"#{h name}\" content=\"#{h content}\" />"
+    tag 'meta', :name => name, :content => content
   end
 
   def plugin_stylesheets
-    stylesheets = []
-    Raki::Plugin.stylesheets.each do |stylesheet|
-      stylesheets << stylesheet_link_tag(stylesheet[:url], stylesheet[:options])
-    end
-    stylesheets.join ""
+    stylesheet_link_tag *Raki::Plugin.stylesheets.collect{|s| s.to_s}#, :cache => 'plugins'
   end
   
   def authenticated?

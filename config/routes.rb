@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab & Martin Sigloch
+# Copyright (C) 2011 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,54 +14,51 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-ActionController::Routing::Routes.draw do |map|
+Raki::Application.routes.draw do
   
-  # Root
-  map.root :controller => 'page', :action => 'redirect_to_frontpage'
-
   # Authentication
-  map.signin  'login', :controller => 'authentication', :action => 'login'
-  map.signout 'logout', :controller => 'authentication', :action => 'logout'
-  map.connect 'login_callback', :controller => 'authentication', :action => 'callback'
+  match 'login' => 'authentication#login', :as => :login
+  match 'logout' => 'authentication#logout', :as => :logout
+  match 'login_callback' => 'authentication#login_callback', :as => :login_callback
   
   # Route for atom feed
-  map.connect 'feed.atom', :controller => 'feed', :action => 'global'
-  
+  get 'feed.atom' => 'feed#global', :as => :feed_global
+    
   # Route for preview
-  map.connect 'preview', :controller => 'page', :action => 'live_preview', :conditions => {:method => :post}
-  
+  post 'preview' => 'page#live_preview'
+    
   # Route for unlock
-  map.connect 'unlock', :controller => 'page', :action => 'unlock', :conditions => {:method => :post}
-
-  # Routes for wiki pages
-  map.with_options :controller => 'page', :requirements => {:namespace => /[^\/\.]+/} do |namespace|
-    namespace.connect ':namespace', :action => 'redirect_to_indexpage'
-    namespace.connect ':namespace.atom', :controller => 'feed', :action => 'namespace'
-    namespace.with_options :requirements => {:page => /[^\/\.]+|\d+\.\d+\.\d+\.\d+/} do |page|
-      page.connect ':namespace/:page/info', :action => 'info'
-      page.connect ':namespace/:page/diff/:revision_from/:revision_to', :action => 'diff'
-      page.connect ':namespace/:page/diff', :action => 'diff'
-      page.connect ':namespace/:page/edit', :action => 'edit'
-      page.with_options :conditions => {:method => :post} do |page_post|
-        page_post.connect ':namespace/:page/preview', :action => 'preview'
-        page_post.connect ':namespace/:page/update', :action => 'update'
-        page_post.connect ':namespace/:page/rename', :action => 'rename'
-        page_post.connect ':namespace/:page/delete', :action => 'delete'
+  post 'unlock' => 'page#unlock'
+  
+  # Routes for wiki pages and attachments
+  scope ':namespace', :constraints => {:namespace => /[^\/\.]+/} do
+    scope '/:page', :constraints => {:page => /[^\/\.]+|\d+\.\d+\.\d+\.\d+/} do
+      get '/info' => 'page#info'
+      get '/diff/:revision_from/:revision_to' => 'page#diff'
+      get '/diff' => 'page#diff'
+      get '/edit' => 'page#edit'
+      post '/preview' => 'page#preview'
+      post '/update' => 'page#update'
+      post '/rename' => 'page#rename'
+      post '/delete' => 'page#delete'
+      
+      scope '/attachment/:attachment', :constraints => {:attachment => /[^\/]+/} do
+        get '/info' => 'page#attachment_info'
+        post '/delete' => 'page#attachment_delete'
+        get '/:revision' => 'page#attachment'
       end
-      page.with_options :requirements => {:attachment => /[^\/]+/} do |attachment|
-        attachment.connect ':namespace/:page/attachment/:attachment/info', :action => 'attachment_info'
-        attachment.connect ':namespace/:page/attachment/:attachment/delete', :action => 'attachment_delete', :conditions => {:method => :post}
-        attachment.connect ':namespace/:page/attachment/:attachment/:revision', :action => 'attachment'
-        attachment.connect ':namespace/:page/attachment/:attachment', :action => 'attachment'
-      end
-      page.connect ':namespace/:page/attachments', :action => 'attachments'
-      page.connect ':namespace/:page/attachment_upload', :action => 'attachment_upload', :conditions => {:method => :post}
-      page.connect ':namespace/:page/:revision.:format', :action => 'view', :requirements => {:format => /src/}
-      page.connect ':namespace/:page/:revision', :action => 'view'
-      page.connect ':namespace/:page.atom', :controller => 'feed', :action => 'page'
-      page.connect ':namespace/:page.:format', :action => 'view', :requirements => {:format => /src/}
-      page.connect ':namespace/:page', :action => 'view'
+      get '/attachment/:attachment' => 'page#attachment'
+      
+      get '/attachments' => 'page#attachments'
+      post '/attachment_upload' => 'page#attachment_upload'
+      get '/:revision' => 'page#view'
+      get '.atom' => 'feed#page', :as => :feed_page
     end
+    get '/:page' => 'page#view'
   end
-
+  get ':namespace' => 'page#redirect_to_indexpage'
+  get ':namespace.atom' => 'feed#namespace', :as => :feed_namespace
+  
+  # Root
+  root :to => 'page#redirect_to_frontpage'
 end

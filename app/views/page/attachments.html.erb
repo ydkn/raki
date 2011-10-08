@@ -37,7 +37,7 @@
 <% end %>
 <% if @page.authorized?(User.current, :upload) %>
   <br/>
-  <% form_tag(@page.url(:attachment_upload), {:enctype => 'multipart/form-data'}) do %>
+  <%=form_tag(@page.url(:attachment_upload), {:enctype => 'multipart/form-data'}) do %>
     <div>
       <label for="attachment-file"><%=t 'attachment.upload.file' %></label>
       <input id="attachment-file" name="attachment_upload" size="30" type="file" />

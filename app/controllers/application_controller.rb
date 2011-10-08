@@ -16,9 +16,7 @@
 
 class ApplicationController < ActionController::Base
   protect_from_forgery
-
-  filter_parameter_logging :password
-
+  
   helper PageHelper
 
   before_filter :init_url_helper, :init_visited_pages, :try_to_authenticate_user, :set_locale, :init_context
@@ -32,6 +30,7 @@ class ApplicationController < ActionController::Base
   def init_url_helper
     Raki::Helpers::URLHelper.host = request.host
     Raki::Helpers::URLHelper.port = request.port
+    Raki::Helpers::URLHelper.controller = self
   end
 
   def init_context

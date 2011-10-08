@@ -7,7 +7,7 @@
 <%=render :partial => 'page/errors' %>
 
 <% if @page.authorized?(User.current, :rename) && @page.exists? %>
-  <% form_tag(@page.url(:rename), {:id => 'edit-rename-form'}) do %>
+  <%=form_tag(@page.url(:rename), {:id => 'edit-rename-form'}) do %>
     <div>
       <% unless flash[:notice].nil? %>
         <div class="error"><%=flash[:notice] %></div>
@@ -19,14 +19,14 @@
 <% end %>
 
 <% if @page.authorized?(User.current, :delete) && @page.exists? %>
-  <% form_tag(@page.url(:delete), {:id => 'edit-delete-form'}) do %>
+  <%=form_tag(@page.url(:delete), {:id => 'edit-delete-form'}) do %>
     <input id="edit-delete" type="submit" value="<%=t 'page.edit.delete' %>" data-question="<%=t 'page.edit.delete_question' %>" />
   <% end %>
   <br/>
 <% end %>
 
 <% if @page.authorized?(User.current, :edit) && @page.exists? || @page.authorized?(User.current, :create) && !@page.exists? %>
-  <% form_tag(@page.url(:update), {:id => 'edit-form'}) do %>
+  <%=form_tag(@page.url(:update), {:id => 'edit-form'}) do %>
     <div>
       <input id="edit-save" type="submit" value="<%=t 'page.edit.save' %>" />
       <input id="edit-preview" type="button" value="<%=t 'page.edit.preview' %>" />

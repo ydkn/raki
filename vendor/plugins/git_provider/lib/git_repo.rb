@@ -14,6 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'timeout'
+require 'cacheable'
+
 class GitRepo
   
   GIT_BINARY = `/usr/bin/env which git`.strip
@@ -227,7 +230,7 @@ class GitRepo
     
     out = ''
     ret = -1
-    Timeout.timeout(timeout) do
+    ::Timeout.timeout(timeout) do
       out = `#{command}`
       ret = $?.to_i
     end

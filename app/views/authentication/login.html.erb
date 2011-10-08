@@ -1,5 +1,5 @@
 <div id="login">
-  <% form_tag({:controller => 'authentication', :action => 'login'}) do %>
+  <%=form_tag({:controller => 'authentication', :action => 'login'}) do %>
     <% if flash[:notice] %>
       <div class="error"><%=h flash[:notice] %></div>
     <% end %>

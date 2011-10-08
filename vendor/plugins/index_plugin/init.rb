@@ -24,7 +24,7 @@ Raki::Plugin.register :index do
   
   disable_in_live_preview
 
-  add_stylesheet '/plugin_assets/index_plugin/stylesheets/index.css'
+  add_stylesheet :index
 
   execute do
     @namespaces = params[:namespace].nil? ? [context[:page].namespace] : params[:namespace].split(',')

@@ -34,7 +34,7 @@ module Raki
       alias :self_respond_to? :respond_to?
       
       def respond_to?(method)
-        return true if self_respond_to?(method)
+        #return true if self_respond_to?(method)
         @authenticator.respond_to?(method)
       end
 

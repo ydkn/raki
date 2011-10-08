@@ -22,12 +22,11 @@ module Raki
       include ERB::Util
       
       class << self
-        attr_accessor :host, :port
+        attr_accessor :host, :port, :controller
       end
       
       include ActionView::Helpers::UrlHelper
-      include ActionController::UrlWriter
-      
+            
       def self.included base
         base.extend ClassMethods
       end
@@ -64,7 +63,7 @@ module Raki
           end
         end
         
-        url_for options
+        Raki::Helpers::URLHelper.controller.url_for options
       end
 
     end

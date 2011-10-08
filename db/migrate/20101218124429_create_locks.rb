@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class CreateLocks < ActiveRecord::Migration
+  
   def self.up
     create_table :locks do |t|
       t.string :page_namespace
@@ -26,8 +27,9 @@ class CreateLocks < ActiveRecord::Migration
     
     add_index :locks, [:page_namespace, :page_name], :name => 'locks_page', :unique => true
   end
-
+  
   def self.down
     drop_table :locks
   end
+  
 end
