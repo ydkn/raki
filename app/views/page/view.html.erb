@@ -1,15 +1,13 @@
 <% if @page.exists? && @page.authorized?(User.current, :view) %>
   <% if @page.revision != @page.head_revision %>
-    <div class="warning"><%=t 'page.view.not_current',
-      :url => h(@page.url(:revision => @page.head_revision))
-    %></div>
+    <div class="warning"><%=t('page.view.not_current', :url => h(@page.url(:revision => @page.head_revision))).html_safe %></div>
   <% end %>
   <%=@page.render context %>
 <% else %>
   <div class="information">
     <%=t 'page.not_exists.msg' %>
     <% if @page.authorized?(User.current, :create) %>
-      <%=t 'page.not_exists.edit_msg', :edit_link => link_to(t('page.not_exists.edit_link'), @page.url(:edit)) %>
+      <%=t('page.not_exists.edit_msg', :edit_link => link_to(t('page.not_exists.edit_link'), @page.url(:edit))).html_safe %>
     <% end %>
   </div>
 <% end %>
