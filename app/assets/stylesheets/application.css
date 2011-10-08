@@ -320,6 +320,12 @@ span.invalid-page {
     border: 1px solid #b9f087;
 }
 
+.exclamation {
+    background-image: url(../assets/exclamation.png);
+    background-color: #ffe0e0;
+    border: 1px solid #f0b0b0;
+}
+
 .underline {
     text-decoration: underline;
 }
