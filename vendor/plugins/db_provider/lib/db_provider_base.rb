@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab & Martin Sigloch
+# Copyright (C) 2011 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class DBPageRevision < DbProviderBase
-  set_table_name 'page_revisions'
-  
-  belongs_to :page, :class_name => 'DBPage', :foreign_key => :page_id
+class DbProviderBase < ActiveRecord::Base
+  establish_connection 'raki_db_provider' rescue nil
 end

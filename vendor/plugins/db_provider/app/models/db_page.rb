@@ -14,8 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class DBPage < ActiveRecord::Base
-  establish_connection 'raki_db_provider'
+class DBPage < DbProviderBase
   set_table_name 'pages'
   
   has_many :revisions, :class_name => 'DBPageRevision', :foreign_key => :page_id
