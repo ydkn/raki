@@ -47,17 +47,17 @@ Raki::Application.routes.draw do
         post '/delete' => 'page#attachment_delete'
         get '/:revision' => 'page#attachment'
       end
-      get '/attachment/:attachment' => 'page#attachment'
+      get '/attachment/:attachment' => 'page#attachment', :constraints => {:attachment => /[^\/]+/}
       
       get '/attachments' => 'page#attachments'
       post '/attachment_upload' => 'page#attachment_upload'
       get '/:revision' => 'page#view'
-      get '.atom' => 'feed#page', :as => :feed_page
     end
-    get '/:page' => 'page#view'
+    get '/:page.atom' => 'feed#page', :constraints => {:page => /[^\/\.]+|\d+\.\d+\.\d+\.\d+/}, :as => :feed_page
+    get '/:page' => 'page#view', :constraints => {:page => /[^\/\.]+|\d+\.\d+\.\d+\.\d+/}
   end
-  get ':namespace' => 'page#redirect_to_indexpage'
-  get ':namespace.atom' => 'feed#namespace', :as => :feed_namespace
+  get ':namespace.atom' => 'feed#namespace', :constraints => {:namespace => /[^\/\.]+/}, :as => :feed_namespace
+  get ':namespace' => 'page#redirect_to_indexpage', :constraints => {:namespace => /[^\/\.]+/}
   
   # Root
   root :to => 'page#redirect_to_frontpage'
