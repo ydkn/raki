@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class DBAttachmentRevision < ActiveRecord::Base
+  establish_connection 'raki_db_provider'
   set_table_name 'attachment_revisions'
   
   belongs_to :attachment, :class_name => 'DBAttachment', :foreign_key => :attachment_id

@@ -14,9 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class Setup < ActiveRecord::Migration
+class DbProviderSetup < ActiveRecord::Migration
   
   def self.up
+    ActiveRecord::Base.establish_connection 'raki_db_provider'
+    
     create_table :pages do |t|
       t.string :namespace, :limit => 128, :null => false
       t.string :name, :limit => 128, :null => false
@@ -55,6 +57,8 @@ class Setup < ActiveRecord::Migration
   end
 
   def self.down
+    ActiveRecord::Base.establish_connection 'raki_db_provider'
+    
     drop_table :pages
     drop_table :page_revisions
     drop_table :attachments

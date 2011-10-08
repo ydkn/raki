@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class DBPageRevision < ActiveRecord::Base
+  establish_connection 'raki_db_provider'
   set_table_name 'page_revisions'
   
   belongs_to :page, :class_name => 'DBPage', :foreign_key => :page_id

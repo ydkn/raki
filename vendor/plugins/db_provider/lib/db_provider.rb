@@ -17,6 +17,11 @@
 class DBProvider < Raki::AbstractProvider
 
   def initialize(namespace, params)
+    if params['connection']
+      ActiveRecord::Base.configurations['raki_db_provider'] = params['connection'].symbolize_keys
+    else
+      ActiveRecord::Base.configurations['raki_db_provider'] = ActiveRecord::Base.configurations[Rails.env]
+    end
   end
 
   def page_exists?(namespace, name, revision=nil)
