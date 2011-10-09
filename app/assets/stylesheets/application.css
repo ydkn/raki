@@ -288,7 +288,7 @@ span.invalid-page {
 	text-decoration: underline;
 }
 
-.information, .warning, .error, .confirmation {
+.information, .warning, .error, .confirmation, .exclamation {
     display: block;
     margin: 1em .5em;
     padding: 1em 1em 1em 3em;
