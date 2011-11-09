@@ -37,11 +37,10 @@ Run <tt>rake db:migrate</tt> to create all necessary tables.
 
 === Example with GIT as storage, OpenID for authentication and file-based authorization
 Create a GIT repository with <tt>git init --bare /path/to/git-repo</tt>. Now change in
-<tt>config/raki.yml</tt> the path parameter to match the GIT repository you just created. Next step is
-to change the <tt>authenticator</tt> to <tt>openid</tt>. Then initialize and fetch the
-grit submodule with <tt>git submodule init</tt> and <tt>git submodule update</tt>. The last step is to
-rename/copy the file <tt>config/permissions.yml.example</tt> to <tt>config/permissions.yml</tt> and
-change the permissions if you need to.
+<tt>config/raki.yml</tt> the path parameter to match the GIT repository you just created.
+Then change the <tt>authenticator</tt> to <tt>openid</tt>. The last step is to rename/copy
+the file <tt>config/permissions.yml.example</tt> to <tt>config/permissions.yml</tt> and
+change the permissions if necessary.
 
 
 == Run it
