@@ -48,7 +48,7 @@ atom_feed do |feed|
       end
       entry.author do |author|
         author.name h(revision.user.display_name)
-        author.email h(revision.user.email) if revision.user.email
+        #author.email h(revision.user.email) if revision.user.email
       end
     end
   end
