@@ -168,6 +168,7 @@ module Raki
 
     def add_stylesheet(name)
       @stylesheets << name
+      Rails.application.config.assets.precompile << "#{name}.css"
     end
     
     def disable_in_live_preview(switch=true)
