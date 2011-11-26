@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.1.1'
+gem 'rails', '3.1.3'
 gem 'sqlite3'
 gem 'mime-types'
 
@@ -15,13 +15,18 @@ group :assets do
   gem 'uglifier',     '>= 1.0.3'
 end
 
-group :test do
+group :production, :test do
   gem 'execjs'
   gem 'therubyracer'
+end
+
+group :test do
+  gem 'minitest'
   
   # Pretty printed test output
   gem 'turn', :require => false
 end
+
 
 # Plugins
 gem 'raki_git_provider', :path => 'vendor/plugins/git_provider'
