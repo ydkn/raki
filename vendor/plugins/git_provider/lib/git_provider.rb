@@ -190,10 +190,10 @@ class GitProvider < Raki::AbstractProvider
     @repo.commit(message, format_user(user), obj)
     git_push
     
-    flush(:exists?, obj, nil)
-    flush(:page_contents, obj, nil)
-    flush(:revisions)
-    flush(:namespaces)
+    cache_delete :exists?, obj, nil
+    cache_delete :page_contents, obj, nil
+    cache_delete :revisions
+    cache_delete :namespaces
   end
 
   def rename(old_obj, new_obj, message, user)
@@ -212,11 +212,11 @@ class GitProvider < Raki::AbstractProvider
     @repo.commit(message, format_user(user), pathspecs)
     git_push
     
-    flush(:exists?)
-    flush(:page_contents)
-    flush(:revisions)
-    flush(:changes)
-    flush(:namespaces)
+    cache_delete :exists?
+    cache_delete :page_contents
+    cache_delete :revisions
+    cache_delete :changes
+    cache_delete :namespaces
   end
 
   def delete(obj, message, user)
@@ -234,11 +234,11 @@ class GitProvider < Raki::AbstractProvider
     @repo.commit(message, format_user(user), pathspecs)
     git_push
     
-    flush(:exists?, obj, nil)
-    flush(:page_contents)
-    flush(:revisions)
-    flush(:changes)
-    flush(:namespaces)
+    cache_delete :exists?, obj, nil
+    cache_delete :page_contents
+    cache_delete :revisions
+    cache_delete :changes
+    cache_delete :namespaces
   end
 
   def revisions(obj, options)
@@ -383,11 +383,11 @@ class GitProvider < Raki::AbstractProvider
     changed_files = @repo.pull('origin', @branch)
     changed_files.each do |file|
       logger.debug "Flushing cached data for '#{file}'"
-      flush :exists?
-      flush :page_contents
-      flush :revisions
-      flush :changes
-      flush :namespaces
+      cache_delete :exists?
+      cache_delete :page_contents
+      cache_delete :revisions
+      cache_delete :changes
+      cache_delete :namespaces
     end
     
     logger.debug "Pulled from '#{@repo.remotes['origin'][:url]}'"

@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab & Martin Sigloch
+# Copyright (C) 2011 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,48 +19,26 @@ require 'rails'
 
 module Cacheable
   
-  @cache = Hash.new{|h,k| h[k] = Hash.new{|h,k| h[k] = Hash.new{|h,k| h[k] = {}}}}
-  @queue = ::Queue.new
+  class CacheError < StandardError; end
+  class UncacheableArgumentsError < CacheError; end
   
-  # Refresh enqueued values.
-  Thread.new do
-    while true do
-      op = nil
-      begin
-        op = @queue.pop
-        $stdout.flush
-        cache = @cache[op[:object]][op[:method]][op[:args]]
-        cache[:data] = op[:object].send("__uncached_#{op[:method].to_s}", *op[:args])
-        cache[:time] = Time.new
-        cache[:enqueued] = false
-        op = nil
-      rescue => e
-        @queue << op unless op.nil?
-      end
-    end
+  
+  def self.caching_enabled?
+    Rails.application.config.cache_classes && Rails.cache
   end
   
-  # Remove unused values from cache and reduce cache size.
-  Thread.new do
-    while true do
-      begin
-        @cache.each do |clazz, methods|
-          methods.each do |method, method_args|
-            method_args.delete_if do |args, params|
-              params[:last_access] < (Time.new - params[:ttl]*10)
-            end
-          end
-          methods.delete_if do |method, method_args|
-            method_args.length == 0
-          end
-        end
-        @cache.delete_if do |clazz, methods|
-          methods.length == 0
-        end
-      rescue => e
+  def self.cache_key obj, method, args
+    args_keys = args.collect do |a|
+      if a.respond_to? :cache_key
+        a.cache_key
+      elsif a.respond_to? :to_param
+        a.to_param
+      else
+        raise UncacheableArgumentsError
       end
-      sleep 60
     end
+
+    {:object_class => obj.class.to_s.to_sym, :object_id => obj.object_id, :method => method.to_sym, :args => args_keys}
   end
   
   def self.included(base)
@@ -73,40 +51,62 @@ module Cacheable
     # 
     # Available options:
     # * :ttl => TTL for cached value in seconds.
-    # * :force => Don't return cached value if value has exceed TTL.
     # 
     #    def foobar(p1,p2); end
-    #    cache :foobar, :ttl => 10, :force => true
+    #    cache :foobar, :ttl => 10
     # 
-    def cache(name, options={})
-      return if ::Rails.env == 'development'
+    def cache method, options={}
+      return unless Cacheable.caching_enabled?
       
-      name = name.to_s
-      name_uncached = "__uncached_#{name.to_s}"
+      method = method.to_s
+      method_uncached = "__uncached_#{method.to_s}"
       
       ttl = options.key?(:ttl) ? options[:ttl].to_i : 10
-      force = options.key?(:force) ? options[:ttl] : false
       
-      class_eval("alias :#{name_uncached} :#{name}")
-      class_eval("private :#{name_uncached}")
+      class_eval("alias :#{method_uncached} :#{method}")
+      class_eval("private :#{method_uncached}")
       
       class_eval do
-        define_method name do |*args|
-          cache = Cacheable.cache[self][name.to_sym]
-          unless cache.key?(args)
-            cache[args] = {:data => send(name_uncached.to_sym, *args), :time => Time.new, :ttl => ttl, :force => force}
-          else
-            if cache[args][:time] < (Time.new - ttl)
-              if force
-                cache[args] = {:data => send(name_uncached.to_sym, *args), :time => Time.new, :ttl => ttl, :force => force}
-              elsif !cache[args][:enqueued]
-                Cacheable.queue << {:object => self, :method => name.to_sym, :args => args}
-                cache[args][:enqueued] = true
+        define_method method do |*args|
+          begin
+            cache_key = Cacheable.cache_key self, method, args
+            
+            return_value = Rails.cache.fetch cache_key, :expires_in => ttl.seconds do
+              cache_value = nil
+              begin
+                v = send method_uncached.to_sym, *args
+                cache_value = {:type => :value, :data => v}
+              rescue => e
+                cache_value = {:type => :error, :data => e}
               end
+              
+              cache_value
             end
+            
+            @cache_keys ||= []
+            @cache_keys << cache_key unless @cache_keys.include? cache_key
+            
+            if @cache_cleanup_time && @cache_cleanup_time <= Time.now
+              @cache_keys.delete_if do |ck|
+                !Rails.cache.exist? ck
+              end
+              
+              @cache_cleanup_time = Time.now + 20
+            end
+            
+            if return_value[:type] == :error
+              raise return_value[:data]
+            else
+              return return_value[:data]
+            end
+          rescue => e
+            p e.to_s
+            print e.backtrace.join("\n")
+            raise e
+            Rails.logger "Caching for #{self.class.to_s}(#{self.object_id})##{method.to_s} with args #{args.inspect} not possible: #{e.to_s}"
+            
+            raise CacheError
           end
-          cache[args][:last_access] = Time.new
-          cache[args][:data]
         end
       end
       
@@ -115,86 +115,37 @@ module Cacheable
     
   end
   
-  def self.cache
-    @cache
-  end
-  
-  def self.queue
-    @queue
-  end
-  
-  # Mark all values as expired.
-  def self.expire
-    return if Rails.env == 'development'
-    
-    time = Time.at(0)
-    @cache.values.each do |clazz|
-      clazz.values.each do |cached|
-        cached.values.each do |params|
-          params[:time] = time
-        end
-      end
-    end
-  end
-  
-  # Remove all values from cache.
-  def self.flush
-    return if Rails.env == 'development'
-    
-    @cache.values.each do |clazz|
-      clazz.values.each do |cached|
-        cached.clear
-      end
-      clazz.clear
-    end
-  end
-  
-  # Mark value(s) as expired.
-  def expire(name=nil, *args)
-    return if Rails.env == 'development'
-    
-    name = name.to_sym
-    cache = Cacheable.cache[self]
-    time = Time.at(0)
-    if name.nil?
-      cache.values.each do |method_args|
-        method_args.values.each do |params|
-          params[:time] = time
-        end
-      end
-    elsif args.nil? || args.empty?
-      cache[name].values.each do |params|
-        params[:time] = time
-      end
-    else
-      cache[name][args][:time] = time
-    end
-  end
-  
   # Removes value(s) from the cache.
-  def flush(name=nil, *args)
-    return if Rails.env == 'development'
+  def cache_delete method=nil, *args
+    return nil unless Cacheable.caching_enabled?
     
-    name = name.to_sym
-    cache = Cacheable.cache[self]
-    if name.nil?
-      cache.each do |method, params|
-        params.clear
+    if method && args.count > 0
+      cache_key = Cacheable.cache_key self, method, args
+      Rails.cache.delete cache_key
+    elsif method
+      @cache_keys.delete_if do |ck|
+        if ck[:method] == method.to_sym
+          Rails.cache.delete ck
+          true
+        else
+          false
+        end
       end
-    elsif args.nil? || args.empty?
-      cache[name].clear
     else
-      cache[name].delete(args)
+      @cache_keys.delete_if do |ck|
+        Rails.cache.delete ck
+        true
+      end
     end
   end
   
   # Check if value is cached.
-  def cached?(name, *args)
-    return false if Rails.env == 'development'
-    cache = Cacheable.cache[self][name.to_sym]
-    return false unless cache.key?(args)
-    params = cache[args]
-    !(params[:force] && (params[:time] < (Time.new - params[:ttl])))
+  def cached? method, *args
+    return nil unless Cacheable.caching_enabled?
+    
+    cache_key = Cacheable.cache_key self, method, args
+    
+    Rails.cache.exist? cache_key
   end
   
 end

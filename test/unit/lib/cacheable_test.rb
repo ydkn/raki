@@ -21,24 +21,19 @@ class CacheableTest < Test::Unit::TestCase
   class TestCache
     include Cacheable
     def initialize
-      @m1 = @m2 = -1
-      @m3 = Hash.new{|h,k| h[k] = -1}
+      @m1 = -1
+      @m2 = Hash.new{|h,k| h[k] = -1}
     end
     def m1
       @m1 += 1
       @m1
     end
     cache :m1, :ttl => 3
-    def m2
-      @m2 += 1
-      @m2
+    def m2(p1)
+      @m2[p1] += 1
+      @m2[p1]
     end
-    cache :m2, :ttl => 3, :force => true
-    def m3(p1)
-      @m3[p1] += 1
-      @m3[p1]
-    end
-    cache :m3, :ttl => 3
+    cache :m2, :ttl => 3
   end
   
   # Test if method is cached.
@@ -46,20 +41,13 @@ class CacheableTest < Test::Unit::TestCase
     cached = TestCache.new
     5.times do |i|
       assert_equal i, cached.m1
-      assert_equal i, cached.m2
-      assert_equal i, cached.m3(1)
-      assert_equal i, cached.m3(2)
+      assert_equal i, cached.m2(1)
+      assert_equal i, cached.m2(2)
       sleep 1
       assert_equal i, cached.m1
-      assert_equal i, cached.m2
-      assert_equal i, cached.m3(1)
-      assert_equal i, cached.m3(2)
-      sleep 2
-      assert_equal i, cached.m1
-      assert_equal (i+1), cached.m2
-      assert_equal i, cached.m3(1)
-      assert_equal i, cached.m3(2)
-      sleep 1
+      assert_equal i, cached.m2(1)
+      assert_equal i, cached.m2(2)
+      sleep 2.1
     end
   end
   
@@ -71,51 +59,35 @@ class CacheableTest < Test::Unit::TestCase
     assert !cached.cached?(:m1)
     cached.m1
     assert cached.cached?(:m1)
+    sleep 2
+    assert cached.cached?(:m1)
     sleep 4
-    assert cached.cached?(:m1)
-    
-    # force = true
-    assert !cached.cached?(:m2)
-    cached.m2
-    sleep 1
-    assert cached.cached?(:m2)
-    sleep 3
-    assert !cached.cached?(:m2)
-  end
-  
-  # Test if cache can be flushed.
-  def test_flush
-    cached = TestCache.new
-    
-    cached.m1
-    assert cached.cached?(:m1)
-    cached.flush(:m1)
     assert !cached.cached?(:m1)
     
-    cached.m3('test')
-    assert cached.cached?(:m3, 'test')
-    cached.flush(:m3, 'test')
-    assert !cached.cached?(:m3, 'test')
+    # force = true
+    assert !cached.cached?(:m2, 'test')
+    assert !cached.cached?(:m2, 1)
+    cached.m2 1
+    sleep 1
+    assert !cached.cached?(:m2, 'test')
+    assert cached.cached?(:m2, 1)
+    sleep 3
+    assert !cached.cached?(:m2, 1)
   end
   
-  # Test if cache can be expired.
-  def test_expire
+  # Test if cache can be deleted.
+  def test_delete
     cached = TestCache.new
     
     cached.m1
-    assert cached.cached?(:m1)
-    cached.expire(:m1)
-    assert cached.cached?(:m1)
+    assert cached.cached?(:m1),"1"
+    cached.cache_delete(:m1)
+    assert !cached.cached?(:m1),"2"
     
-    cached.m2
-    assert cached.cached?(:m2)
-    cached.expire(:m2)
-    assert !cached.cached?(:m2)
-    
-    cached.m3('test')
-    assert cached.cached?(:m3, 'test')
-    cached.expire(:m3, 'test')
-    assert cached.cached?(:m3, 'test')
+    cached.m2('test')
+    assert cached.cached?(:m2, 'test'),"3"
+    cached.cache_delete(:m2, 'test')
+    assert !cached.cached?(:m2, 'test'),"4"
   end
   
 end
