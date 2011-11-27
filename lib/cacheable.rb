@@ -61,7 +61,7 @@ module Cacheable
       method = method.to_s
       method_uncached = "__uncached_#{method.to_s}"
       
-      ttl = options.key?(:ttl) ? options[:ttl].to_i : 10
+      ttl = options.key?(:ttl) ? options[:ttl].to_i : nil
       
       class_eval("alias :#{method_uncached} :#{method}")
       class_eval("private :#{method_uncached}")
@@ -71,7 +71,10 @@ module Cacheable
           begin
             cache_key = Cacheable.cache_key self, method, args
             
-            return_value = Rails.cache.fetch cache_key, :expires_in => ttl.seconds do
+            options = {}
+            options[:expires_in] = ttl if ttl
+            
+            return_value = Rails.cache.fetch cache_key, options do
               cache_value = nil
               begin
                 v = send method_uncached.to_sym, *args
